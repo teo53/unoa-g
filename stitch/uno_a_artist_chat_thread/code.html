@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNO A - Artist Chat Thread</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FF453A", // Vibrant Rose Red from reference
+                        "primary-dark": "#D6342C",
+                        "background-light": "#FAFAFA",
+                        "background-dark": "#121212",
+                        "bubble-fan-light": "#FCECEF",
+                        "bubble-fan-dark": "#3F181C",
+                        "bubble-artist-light": "#FFFFFF",
+                        "bubble-artist-dark": "#1E1E1E",
+                        "text-main-light": "#1F2937",
+                        "text-main-dark": "#F3F4F6",
+                        "text-sub-light": "#9CA3AF",
+                        "text-sub-dark": "#6B7280",
+                    },
+                    fontFamily: {
+                        display: ["'Noto Sans KR'", "'Inter'", "sans-serif"],
+                        sans: ["'Noto Sans KR'", "'Inter'", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        'xl': '1rem',
+                        '2xl': '1.25rem',
+                        '3xl': '1.5rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'bubble': '0 1px 2px rgba(0, 0, 0, 0.04)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-black font-display antialiased h-screen w-full flex justify-center overflow-hidden text-text-main-light dark:text-text-main-dark">
+<div class="relative w-full max-w-md h-full bg-background-light dark:bg-background-dark shadow-2xl flex flex-col overflow-hidden sm:rounded-[40px] sm:h-[95vh] sm:my-auto sm:border-[8px] sm:border-gray-900 dark:sm:border-gray-700">
+<div class="h-12 w-full flex items-end justify-between px-6 pb-2 text-xs font-medium z-20 bg-background-light dark:bg-background-dark">
+<span class="dark:text-white">9:41</span>
+<div class="flex items-center space-x-1.5 dark:text-white">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm transform rotate-90">battery_full</span>
+</div>
+</div>
+<header class="flex items-center justify-between px-4 py-3 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 z-10 sticky top-0">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-round text-gray-800 dark:text-white">arrow_back_ios_new</span>
+</button>
+<div class="flex flex-col items-center flex-1 mx-2">
+<div class="flex items-center space-x-2">
+<div class="relative">
+<img alt="Artist Avatar" class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSGV9U3JNf-MUX3sQdpGZfM1khuxQx28vDX9oDNJNvu41sGpUX-HcdxkCpgT7pZoD46d_AVFIQijt6kfSTIftFkfPkvv3L2MsG7q2xK3Gcts4GU3oA8hgsom1-PCKEtB_QBOzM_5qt8SeTgFKVjGsK86PHmIqy_99w2MSzad1_IT_tB4wOVsF_OchU-cZNvLPkngqSYL99Zr2Tf5oB0FbCstN6vP7Kcdnh7pZUpq8AaDRk9BD5UnJysRPuALaZm4PuxcdGLlXw638e"/>
+<div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-background-dark"></div>
+</div>
+<span class="font-bold text-base text-gray-900 dark:text-white truncate max-w-[120px]">김민지</span>
+<span class="material-icons-round text-blue-500 text-sm" title="Verified">verified</span>
+<span class="px-1.5 py-0.5 bg-gradient-to-r from-yellow-200 to-yellow-400 text-yellow-900 text-[10px] font-bold rounded-full uppercase tracking-wider shadow-sm">VIP</span>
+</div>
+</div>
+<div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
+<span class="material-icons-round text-primary text-sm">diamond</span>
+<span class="text-xs font-bold text-gray-700 dark:text-gray-300">120</span>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar bg-background-light dark:bg-background-dark">
+<div class="flex justify-center my-4">
+<span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark text-xs rounded-full">
+                    오늘 10월 24일
+                </span>
+</div>
+<div class="flex flex-col items-start space-y-1">
+<div class="flex items-end space-x-2 max-w-[85%]">
+<img alt="Avatar" class="w-8 h-8 rounded-full object-cover mb-1 shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNSv5ljAXcEkJPx80zW4vkoaefCru1SydtvCpbFj6BfZmhrm_0hbhmKtYxNHeGAb0LFRC6AhGw-eX92w9SRCAJQL-FPv5pgZVVCGhdy95Rp-3hpfpcp4cpEa8D8F6wb2mZCvDbuRofjkjQtLf0hm3mhXo8vz1-5hAwi0lg_OnheeVC_mYBGBi1TUTBQA4jN_7uLq5ibyqZOLyNmiRBHAQp4JIZYqE1K_v69pUJdieuoTYMQRJT6WUq38bbYEWTwH_k5MmfU8k4zVSU"/>
+<div class="flex flex-col space-y-1">
+<div class="text-xs text-text-sub-light dark:text-text-sub-dark ml-1 mb-0.5">김민지</div>
+<div class="group relative">
+<img alt="Concert photo" class="w-64 h-48 object-cover rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 dark:border-gray-800" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFenUL3Ebabki0y_N04ETAXCwldDcmPEp0Ns50PkBaNeB7Xw5wsLaWYvgbMApDXgh1b4UqIwIVExWpYNaAoX5MaXvzlOYA90TjPYPJicX4IROVjspyC-7d0J6W5gWqu7hRqu9zPYjGcwPA8-M_adIilPFWezQa51scCjg52X8RHT3kz2hwLGXp856Dxbey5i3ULbyg9qbhz5swqWrqvZgoAsvpEUaWqyotospww1rQtpBwyjG_93MM9Jw_hyP4Z358kXpIMDehiEAj"/>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-start space-y-1">
+<div class="flex items-end space-x-2 max-w-[85%]">
+<div class="w-8 h-8 flex-shrink-0"></div>
+<div class="flex items-end gap-2">
+<div class="bg-bubble-artist-light dark:bg-bubble-artist-dark px-4 py-3 rounded-2xl rounded-tl-sm shadow-bubble border border-gray-100 dark:border-gray-800">
+<p class="text-[15px] leading-relaxed text-gray-800 dark:text-gray-100">
+                                오늘 공연 와줘서 너무 고마워요! 💖<br/>
+                                다들 조심히 들어갔나요? 너무 즐거웠어요!
+                            </p>
+</div>
+<span class="text-[10px] text-text-sub-light dark:text-text-sub-dark mb-1 whitespace-nowrap">오전 10:30</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end space-y-1">
+<div class="flex items-end gap-2 max-w-[80%]">
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-primary mb-0.5 font-medium">읽음</span>
+<span class="text-[10px] text-text-sub-light dark:text-text-sub-dark mb-1">오전 10:32</span>
+</div>
+<div class="bg-bubble-fan-light dark:bg-bubble-fan-dark px-4 py-3 rounded-2xl rounded-tr-sm shadow-sm">
+<p class="text-[15px] leading-relaxed text-gray-900 dark:text-rose-100">
+                            언니 오늘 무대 진짜 최고였어요!! 😭 목소리 듣고 울뻔... 푹 쉬세요!!
+                        </p>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-start space-y-1">
+<div class="flex items-end space-x-2 max-w-[85%]">
+<img alt="Avatar" class="w-8 h-8 rounded-full object-cover mb-1 shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv-sJH8OekjouRMx9KmIKPSQ_w0gqnmNqHzpweZvRzZIHBVIvr8NpjaSLVTZ8bv7BN6hcQhGmS4rEjOJoHQyIXn_iRJ8DQZhI855-S3D6SXFZOJezR6KIUZM01HNaw0dqXxCt5ofRhqaUuq6JKJKGyCoRuLAJEUenKjjRzCPCbRNpkx5DaFz3ORbhgCWmkL-mszWdhAaW3yW9nMMD5cg0Kpay9KjVkQ4LGSL5jC9xNppjWrEJ8M0wVewedamQSQ5KMGCDzOxfM2T1H"/>
+<div class="flex items-end gap-2">
+<div class="bg-bubble-artist-light dark:bg-bubble-artist-dark px-4 py-3 rounded-2xl rounded-tl-sm shadow-bubble border border-gray-100 dark:border-gray-800">
+<p class="text-[15px] leading-relaxed text-gray-800 dark:text-gray-100">
+                                고마워요!! 😍 다음에 또 봐요~~
+                            </p>
+</div>
+<span class="text-[10px] text-text-sub-light dark:text-text-sub-dark mb-1 whitespace-nowrap">오전 10:33</span>
+</div>
+</div>
+</div>
+<div class="h-4"></div> 
+</main>
+<footer class="bg-background-light dark:bg-background-dark border-t border-gray-100 dark:border-gray-800 px-4 py-3 pb-6 sm:pb-4 w-full z-20">
+<div class="flex items-center gap-3">
+<button class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1">
+<span class="material-icons-round text-2xl">add</span>
+</button>
+<div class="flex-1 relative">
+<input class="w-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-full py-2.5 pl-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary/40 border-none transition-all" placeholder="답장을 입력하세요..." type="text"/>
+<button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1">
+<span class="material-icons-round text-xl">sentiment_satisfied_alt</span>
+</button>
+</div>
+<button class="bg-primary hover:bg-primary-dark text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg shadow-primary/30 transition-all transform active:scale-95">
+<span class="material-icons-round text-lg pl-0.5">arrow_upward</span>
+</button>
+</div>
+</footer>
+</div>
+
+</body></html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNO A Artist Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#FF4B3A", // Vibrant red/orange from screenshot
+              "primary-soft": "#FFF0EF",
+              "background-light": "#FAFAFA",
+              "background-dark": "#121212",
+              "surface-light": "#FFFFFF",
+              "surface-dark": "#1E1E1E",
+              "border-light": "#F1F1F1",
+              "border-dark": "#333333",
+              "text-main-light": "#1A1A1A",
+              "text-main-dark": "#FFFFFF",
+              "text-sub-light": "#888888",
+              "text-sub-dark": "#AAAAAA",
+            },
+            fontFamily: {
+              display: ['"Noto Sans KR"', "sans-serif"],
+              sans: ['"Noto Sans KR"', "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "16px",
+              "xl": "24px",
+              "2xl": "32px"
+            },
+            boxShadow: {
+              'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+              'float': '0 8px 30px rgba(0, 0, 0, 0.12)',
+            }
+          },
+        },
+      };
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-black font-sans flex justify-center items-center min-h-screen p-0 sm:p-4">
+<div class="w-full sm:w-[390px] h-[844px] bg-background-light dark:bg-background-dark sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative">
+<header class="flex justify-between items-center px-4 pt-12 pb-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm sticky top-0 z-30">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-text-main-light dark:text-text-main-dark">
+<span class="material-icons-round text-2xl">arrow_back</span>
+</button>
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-text-main-light dark:text-text-main-dark">
+<span class="material-icons-round text-2xl">share</span>
+</button>
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-text-main-light dark:text-text-main-dark">
+<span class="material-icons-round text-2xl">more_horiz</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24">
+<section class="px-6 pt-2 pb-6 flex flex-col items-center">
+<div class="relative mb-4">
+<div class="w-28 h-28 rounded-full border-4 border-white dark:border-surface-dark shadow-soft overflow-hidden">
+<img alt="Artist Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDXKfZqWF175s99Br4newT5n9RhUzvKxnZ6LYSXzc-APvlwo1rO-B3zaFTo7LSwpiZKd5gErKHjuaFpPOwe-5SUempa9jH4PTho6hD8AyKMDEfbIvQZDbvQWkeBdGouaqrbDm-NYDjQ_Qp63oBO4K3Kw2-EArJyIb5j2qf4dE-c3FS6zUQDgA0ImOEdORWDXB1anw_19Cv2mg8ZgBn8zha3LoyEtjZ8KYgGoDMWOXfb9TfdJcPBsYh1c4kvC1lnRYeDydRX5rb9uNK"/>
+</div>
+<div class="absolute bottom-1 right-1 bg-blue-500 text-white p-1 rounded-full border-2 border-white dark:border-surface-dark flex items-center justify-center w-7 h-7">
+<span class="material-icons-round text-[14px]">check</span>
+</div>
+</div>
+<h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark flex items-center gap-1 mb-1">
+                    김민지 (Minji Kim)
+                    <span class="text-primary material-icons-round text-xl">verified</span>
+</h1>
+<p class="text-text-sub-light dark:text-text-sub-dark text-sm mb-6 text-center px-8">
+                    여러분의 매일이 음악처럼 빛나길 ✨ <br/>오늘도 함께해요! 💖
+                </p>
+<div class="flex w-full justify-center gap-8 mb-8 border-b border-border-light dark:border-border-dark pb-6">
+<div class="text-center">
+<p class="text-lg font-bold text-text-main-light dark:text-text-main-dark">3위</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark">주간 랭킹</p>
+</div>
+<div class="w-[1px] h-10 bg-border-light dark:bg-border-dark"></div>
+<div class="text-center">
+<p class="text-lg font-bold text-text-main-light dark:text-text-main-dark">1.2M</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark">팬</p>
+</div>
+<div class="w-[1px] h-10 bg-border-light dark:bg-border-dark"></div>
+<div class="text-center">
+<p class="text-lg font-bold text-text-main-light dark:text-text-main-dark">231</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark">게시물</p>
+</div>
+</div>
+<div class="grid grid-cols-4 gap-3 w-full mb-8">
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-2xl bg-primary-soft dark:bg-primary/20 flex items-center justify-center text-primary group-active:scale-95 transition-transform">
+<span class="material-icons-round text-2xl">chat_bubble_outline</span>
+</div>
+<span class="text-xs font-medium text-text-main-light dark:text-text-main-dark">DM</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-2xl bg-background-light dark:bg-surface-dark border border-border-light dark:border-border-dark flex items-center justify-center text-text-main-light dark:text-text-main-dark group-active:scale-95 transition-transform shadow-sm">
+<span class="material-icons-round text-2xl">favorite_border</span>
+</div>
+<span class="text-xs font-medium text-text-main-light dark:text-text-main-dark">구독</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-2xl bg-background-light dark:bg-surface-dark border border-border-light dark:border-border-dark flex items-center justify-center text-text-main-light dark:text-text-main-dark group-active:scale-95 transition-transform shadow-sm relative">
+<span class="material-icons-round text-2xl">volunteer_activism</span>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-white dark:border-surface-dark"></div>
+</div>
+<span class="text-xs font-medium text-text-main-light dark:text-text-main-dark">후원</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-2xl bg-background-light dark:bg-surface-dark border border-border-light dark:border-border-dark flex items-center justify-center text-text-main-light dark:text-text-main-dark group-active:scale-95 transition-transform shadow-sm">
+<span class="material-icons-round text-2xl">confirmation_number</span>
+</div>
+<span class="text-xs font-medium text-text-main-light dark:text-text-main-dark">이벤트</span>
+</button>
+</div>
+</section>
+<section class="pl-6 mb-8 overflow-x-auto no-scrollbar">
+<div class="flex gap-4 pr-6 w-max">
+<div class="flex flex-col items-center gap-1">
+<div class="w-16 h-16 rounded-full p-[2px] border-2 border-gray-200 dark:border-gray-700">
+<div class="w-full h-full rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+<img alt="Highlight 1" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrc592ccYxeUoAxz7uvCCRxlfDZrxwswSS01-2M371AMPcCN5STSHdy0q63u5IsfPEEpDrlZZkS8Bb4T10jNTks-AmteAqsb98nM_HjdFTovWjAoUezdBRc80oYHQhWrXH-MIEdzEBMd4PlHQZV7t-RRu8crN-2JD3Q_H1139j_lQw4QGF44eZi9hJrvuUUFI4ipm1CVhadB8rT7AhqoSOHsPeAPnpme46ROSCzAMrVPHscHu4ghsd5uCV3VKXe2R1nCShJoM_ib64"/>
+</div>
+</div>
+<span class="text-[11px] text-text-main-light dark:text-text-main-dark">콘서트</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-16 h-16 rounded-full p-[2px] border-2 border-primary">
+<div class="w-full h-full rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+<img alt="Highlight 2" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdvkLiO_0cT3Z6OTAQ8-KVE5bexiAhxEwUZwbwsX4O4P1FqJKbZUURvSM-13eeDq1rTHnWHbURjkMIHhWG4zN5cBs91xvMeW6ypRvOWQIWsOHblj-cXE_X7RrcVHAduGH1idmyWlIVU1qaxOYGWHiSTFpKlSR1nri68_OsjEpu6076p6f8ceTgVqRoNna-wWvG2LIu7Cv1IwVovqJk9wRsnl3Rl_Xk8E6FyU9QNjdBDFMOkGXLMzVUALzLitNffWls9FUFZTT50CVf"/>
+</div>
+</div>
+<span class="text-[11px] text-text-main-light dark:text-text-main-dark">일상</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-16 h-16 rounded-full p-[2px] border-2 border-gray-200 dark:border-gray-700">
+<div class="w-full h-full rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+<img alt="Highlight 3" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlpgxLAOuvgMeAQHQWBSlhrKaeRvpIt7eisfmq6wuooLFgbUCxZZBiEDHQc7gtcBiJP5OWZ_-kNh1u11b0Q1055oOOhbp6A7aaEkuOuNhgmXk2R8Bbe_S-guKp70GJY-I4-dZiz1HHSbmT_mstnvp2lgr7OonqQ4RZuLKpj2E66Ig8lPo0wlE0VE9y6309j-zIzMcyanL3XqO-jeyTTV6ILx4G1yqJJkheaC0wsY-zTKDvUALZfanPTBnzqMOfEul_h6FuGGOGTqAY"/>
+</div>
+</div>
+<span class="text-[11px] text-text-main-light dark:text-text-main-dark">Q&amp;A</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-16 h-16 rounded-full p-[2px] border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center bg-transparent">
+<div class="w-full h-full rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+<span class="material-icons-round text-gray-400 dark:text-gray-500">add</span>
+</div>
+</div>
+<span class="text-[11px] text-text-main-light dark:text-text-main-dark">New</span>
+</div>
+</div>
+</section>
+<section class="px-6 mb-8">
+<div class="flex justify-between items-center mb-3">
+<h2 class="text-lg font-bold text-text-main-light dark:text-text-main-dark">공지사항</h2>
+<a class="text-xs text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors" href="#">전체보기</a>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-sm border border-border-light dark:border-border-dark flex items-start gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+<div>
+<p class="text-sm font-semibold text-text-main-light dark:text-text-main-dark mb-1 line-clamp-1">📢 12월 팬미팅 티켓 예매 안내</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark line-clamp-2">안녕하세요 민지입니다! 이번 12월 24일에 열리는 크리스마스 팬미팅 예매 일정이 변경되어 안내드립니다. 자세한 내용은...</p>
+</div>
+</div>
+</section>
+<section class="px-6 pb-6">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-lg font-bold text-text-main-light dark:text-text-main-dark">Store</h2>
+<a class="text-xs text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors" href="#">더보기</a>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white dark:bg-surface-dark rounded-2xl overflow-hidden shadow-sm border border-border-light dark:border-border-dark group">
+<div class="relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden">
+<span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">NEW</span>
+<img alt="Product 1" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVQ89XFpTxWE_IG0i3LcF74c5aXYxqI2wG5SzFdHkbbzmojsDUr-BYdcjzpkKb1Vc3Cduo4QXQcjN16QwDuVeIeQ8lsfhGFVapDdaSo3-m4z1AHGkQ3U7GAxT43AtPODEerSdkkXTdbjvLDsUuP2sbquA9DlVTjUGvAQ_xzsLQRC20vtdKzJgUWxyjaGLD_0xljcwIILaOFv49zcrhtqiO4EIaFe-TOVB043n58OzLcFfo6KQYaiBicS56W68bTt6dDl9khKhJqzi-"/>
+</div>
+<div class="p-3">
+<h3 class="text-sm font-medium text-text-main-light dark:text-text-main-dark mb-1 line-clamp-1">2024 시즌 그리팅 패키지</h3>
+<p class="text-xs font-bold text-primary">₩45,000</p>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-2xl overflow-hidden shadow-sm border border-border-light dark:border-border-dark group opacity-80">
+<div class="relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden">
+<div class="absolute inset-0 bg-black/40 z-10 flex items-center justify-center">
+<span class="bg-black/60 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20 backdrop-blur-md">SOLD OUT</span>
+</div>
+<img alt="Product 2" class="w-full h-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUY2QEiP-9lAMzw1cnZ4qsv5E_8u5K2GhJWP3IrAFfIvt0GxqMtXyGoZS0nrO_dI_TTszd_g_SoWa63TRUv57Wq0e1r6FYGGDfwN-xu0iyFhihY_k9QXGmwBvWJ4jrMrU_7qrto62y4RqK7IYYycL6wHg04pkJ1FpW43UAcG-lOYP3JdMO8nuhttFtc85946mJDK8fSdpdLnSCJF7nBVy4m8IxgcAUe1BegiK4Wh3cGVY4d4_8Jax0d7J8ygJIrE4igSt_NeNxMkiw"/>
+</div>
+<div class="p-3">
+<h3 class="text-sm font-medium text-text-main-light dark:text-text-main-dark mb-1 line-clamp-1">한정판 포토카드 세트 A</h3>
+<p class="text-xs font-bold text-text-sub-light dark:text-text-sub-dark line-through">₩12,000</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<button class="absolute bottom-24 right-6 w-14 h-14 bg-primary rounded-full shadow-float flex items-center justify-center text-white hover:bg-red-600 transition-colors z-40">
+<span class="material-icons-round text-2xl">edit</span>
+</button>
+<nav class="bg-white dark:bg-surface-dark border-t border-border-light dark:border-border-dark px-6 py-3 pb-6 flex justify-between items-center text-xs font-medium z-50">
+<a class="flex flex-col items-center gap-1 text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl">home</span>
+<span>홈</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl">explore</span>
+<span>탐색</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<div class="relative">
+<span class="material-icons-round text-2xl">chat_bubble</span>
+<span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full"></span>
+</div>
+<span>메시지</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8fTMY6ksGFbEK4kUBj1_AqFVXXIGzEXaztAQXdJ-NCX9ec7uagW3PrL6vnSuhnWsW5RHgppU3EfkW4-tAQwh414CUq0ff0FtuIb4k9RZoqyFZJkZO022Li8FWqL6dAdJ8VxEfofjhIvugzXJZ5sYO7EoSU3nICO1JsXPUECThKeHW4Sk_bJdne54Ndgx_99ztF6YXm3Ofw61b8qrrnnVaAs_ARt9tpzraRIjyTUn4WGC1QZqGpUmKfg63zUsIZ343qrPjhOChOii-"/>
+</div>
+<span>프로필</span>
+</a>
+</nav>
+</div>
+
+</body></html>
