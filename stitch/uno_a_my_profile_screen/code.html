@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNO A - My Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FF453A", // Rose-red accent from the screenshot
+                        "primary-soft": "#FFF0F0",
+                        "background-light": "#FDFBF9", // Warm neutral background
+                        "background-dark": "#1C1C1E",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#2C2C2E",
+                        "text-light": "#1A1A1A",
+                        "text-dark": "#FFFFFF",
+                        "text-secondary-light": "#8E8E93",
+                        "text-secondary-dark": "#98989D",
+                        "border-light": "#E5E5EA",
+                        "border-dark": "#38383A",
+                    },
+                    fontFamily: {
+                        display: ["Noto Sans KR", "sans-serif"],
+                        body: ["Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "16px",
+                        'xl': "20px",
+                        '2xl': "24px",
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.03)',
+                        'nav': '0 -1px 3px rgba(0,0,0,0.05)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-black flex justify-center items-center min-h-screen font-body antialiased">
+<div class="w-full max-w-md h-[844px] bg-background-light dark:bg-background-dark overflow-hidden relative shadow-2xl rounded-[40px] flex flex-col">
+<div class="px-6 pt-5 pb-2 flex justify-between items-center text-text-light dark:text-text-dark z-20">
+<span class="text-sm font-semibold tracking-wide">9:41</span>
+<div class="flex items-center space-x-2">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<header class="px-6 py-4 flex items-center justify-between z-10">
+<h1 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">내 프로필</h1>
+<button class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
+<span class="material-icons-round text-2xl">settings</span>
+</button>
+</header>
+<main class="flex-1 overflow-y-auto hide-scrollbar px-6 pb-24">
+<section class="mt-4 mb-8 flex flex-col items-center">
+<div class="relative">
+<div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-primary/20 to-transparent">
+<img alt="User Avatar" class="w-full h-full rounded-full object-cover border-4 border-background-light dark:border-background-dark shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSfLMWkx8MW1sEnMoY13XSDHEmT2pSqWzIUZ5DWpf4tgVv8yYCTcQsFtqbOJhuYiZ4Y_hIS6rF2oPVzCvpbCgD7vWLNMemeqOyaK_bw6wNsMGQJP3kq74yhmv7-uGDA-ucBM2G1kyErWzSq96Q8NOIhx-Kj1jYvaU3BMqD9-lvVViYfYgbb7SrlNbUc0oRWHWj0LA4IQd6596qiq6aP4NyRD0-kUr6tJLhhJ1mk5kpL8DAQkuIS604UWiBNnDFOqXfToVUJMeDz6Ck"/>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 border-4 border-background-light dark:border-background-dark shadow-sm">
+<span class="material-icons-round text-sm block">edit</span>
+</div>
+</div>
+<h2 class="mt-4 text-xl font-bold text-text-light dark:text-text-dark">김민지 (Minji Kim)</h2>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1">@minji_love_kpop</p>
+<div class="mt-6 flex items-center justify-center space-x-3 w-full">
+<div class="flex-1 bg-surface-light dark:bg-surface-dark p-3 rounded-xl shadow-soft border border-border-light dark:border-border-dark flex flex-col items-center">
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">내 등급</span>
+<span class="font-bold text-primary text-lg">VIP</span>
+</div>
+<div class="flex-1 bg-surface-light dark:bg-surface-dark p-3 rounded-xl shadow-soft border border-border-light dark:border-border-dark flex flex-col items-center">
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">구독 중</span>
+<span class="font-bold text-text-light dark:text-text-dark text-lg">3명</span>
+</div>
+</div>
+</section>
+<section class="bg-surface-light dark:bg-surface-dark rounded-2xl p-1 shadow-soft mb-6 border border-border-light dark:border-border-dark">
+<button class="w-full px-4 py-4 flex items-center justify-between group active:bg-gray-50 dark:active:bg-gray-800 rounded-xl transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons-round">account_balance_wallet</span>
+</div>
+<div class="text-left">
+<p class="font-medium text-text-light dark:text-text-dark">Wallet / DreamTime (DT)</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">잔액: 1,250 DT</p>
+</div>
+</div>
+<span class="material-icons-round text-gray-300 dark:text-gray-600 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<div class="h-px bg-border-light dark:bg-border-dark mx-16"></div>
+<button class="w-full px-4 py-4 flex items-center justify-between group active:bg-gray-50 dark:active:bg-gray-800 rounded-xl transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+<span class="material-icons-round">card_membership</span>
+</div>
+<div class="text-left">
+<p class="font-medium text-text-light dark:text-text-dark">구독 관리</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">다음 결제일: 2023.11.15</p>
+</div>
+</div>
+<span class="material-icons-round text-gray-300 dark:text-gray-600 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+</section>
+<section class="bg-surface-light dark:bg-surface-dark rounded-2xl p-1 shadow-soft border border-border-light dark:border-border-dark">
+<button class="w-full px-4 py-4 flex items-center justify-between group active:bg-gray-50 dark:active:bg-gray-800 rounded-xl transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500">
+<span class="material-icons-round">notifications</span>
+</div>
+<p class="font-medium text-text-light dark:text-text-dark">알림 설정</p>
+</div>
+<span class="material-icons-round text-gray-300 dark:text-gray-600 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<div class="h-px bg-border-light dark:bg-border-dark mx-16"></div>
+<button class="w-full px-4 py-4 flex items-center justify-between group active:bg-gray-50 dark:active:bg-gray-800 rounded-xl transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-500">
+<span class="material-icons-round">security</span>
+</div>
+<p class="font-medium text-text-light dark:text-text-dark">계정 / 보안</p>
+</div>
+<span class="material-icons-round text-gray-300 dark:text-gray-600 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<div class="h-px bg-border-light dark:bg-border-dark mx-16"></div>
+<button class="w-full px-4 py-4 flex items-center justify-between group active:bg-gray-50 dark:active:bg-gray-800 rounded-xl transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-500">
+<span class="material-icons-round">headset_mic</span>
+</div>
+<p class="font-medium text-text-light dark:text-text-dark">고객센터</p>
+</div>
+<span class="material-icons-round text-gray-300 dark:text-gray-600 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+</section>
+<p class="text-center text-xs text-text-secondary-light dark:text-text-secondary-dark mt-8 mb-4">
+                앱 버전 2.4.0
+            </p>
+</main>
+<nav class="bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark px-6 pb-8 pt-3 flex justify-between items-center z-20">
+<button class="flex flex-col items-center space-y-1 w-16 group">
+<div class="relative">
+<span class="material-icons-round text-gray-400 dark:text-gray-500 text-2xl group-hover:text-primary transition-colors">chat_bubble</span>
+<span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-surface-dark transform translate-x-1/4 -translate-y-1/4"></span>
+</div>
+<span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 group-hover:text-primary">메시지</span>
+</button>
+<button class="flex flex-col items-center space-y-1 w-16 group">
+<span class="material-icons-round text-gray-400 dark:text-gray-500 text-2xl group-hover:text-primary transition-colors">explore</span>
+<span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 group-hover:text-primary">탐색</span>
+</button>
+<button class="flex flex-col items-center space-y-1 w-16">
+<div class="w-6 h-6 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnXdvd-fdhrpDL_g_SIbkOwmUFs4HemSV7vGJv5N-nA_tHN0gQ17gs7Mkt8zcum1OaM5qnIkjfMND6zvib3F_MxJVMiU6Ek2hrHNE7vig9v9h0PWprXVUR_Iwpn15BHnRp_3cq6efLvMCrQCTPwHviG6exhJ8Znz67vjIzHkwxmdVvnp54316Nl44gkYGNRnJmQJd0lhVJweU2288x_nFbSoNc2tsobGu8h_TNmLlR6-5-bsa5LYy_luBd9wGDxlMnYQ8riOUzCUwz"/>
+</div>
+<span class="text-[10px] font-medium text-primary">프로필</span>
+</button>
+</nav>
+</div>
+
+</body></html>

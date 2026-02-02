@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNO A - Wallet &amp; DT</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FF3B30", // Rose-red from the screenshot
+                        secondary: "#FFEEEE", // Very light red background for active states
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#121212",
+                        "surface-light": "#F9FAFB",
+                        "surface-dark": "#1E1E1E",
+                        "text-primary-light": "#111827",
+                        "text-primary-dark": "#F3F4F6",
+                        "text-secondary-light": "#6B7280",
+                        "text-secondary-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 4px 14px 0 rgba(255, 59, 48, 0.39)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center min-h-screen font-display">
+<div class="w-full max-w-md h-screen max-h-[900px] bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden relative flex flex-col sm:rounded-[2.5rem]">
+<div class="px-6 pt-4 pb-2 flex justify-between items-center bg-background-light dark:bg-background-dark z-10">
+<span class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">9:41</span>
+<div class="flex space-x-1.5 items-center">
+<span class="material-icons-round text-sm text-text-primary-light dark:text-text-primary-dark" style="font-size: 18px;">signal_cellular_alt</span>
+<span class="material-icons-round text-sm text-text-primary-light dark:text-text-primary-dark" style="font-size: 18px;">wifi</span>
+<span class="material-icons-round text-sm text-text-primary-light dark:text-text-primary-dark" style="font-size: 18px;">battery_full</span>
+</div>
+</div>
+<div class="px-6 py-4 flex justify-between items-center bg-background-light dark:bg-background-dark sticky top-0 z-10">
+<h1 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark tracking-tight">지갑 / DT</h1>
+<button class="p-2 rounded-full hover:bg-surface-light dark:hover:bg-surface-dark transition-colors">
+<span class="material-icons-round text-text-primary-light dark:text-text-primary-dark">settings</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar pb-24">
+<div class="px-6 pt-2 pb-6">
+<div class="bg-secondary/30 dark:bg-surface-dark border border-secondary dark:border-gray-800 rounded-2xl p-6 relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark mb-1">내 보유 DT</p>
+<div class="flex items-baseline gap-1 mb-6">
+<span class="text-4xl font-bold text-text-primary-light dark:text-text-primary-dark">1,250</span>
+<span class="text-lg font-medium text-primary">DT</span>
+</div>
+<div class="flex gap-3">
+<button class="flex-1 bg-primary text-white font-bold py-3.5 px-4 rounded-xl shadow-glow hover:opacity-90 transition active:scale-95 flex items-center justify-center gap-2">
+<span class="material-icons-round text-sm">add</span>
+                            충전하기
+                        </button>
+<button class="bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-medium py-3.5 px-4 rounded-xl border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition active:scale-95 flex items-center justify-center">
+<span class="material-icons-round">history</span>
+</button>
+</div>
+</div>
+</div>
+<div class="px-6 mb-8">
+<div class="flex justify-between items-end mb-4">
+<h2 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">DT 패키지</h2>
+<a class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors" href="#">전체보기</a>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar pb-4 -mx-6 px-6 snap-x">
+<div class="snap-start shrink-0 w-40 bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-soft flex flex-col justify-between relative">
+<div class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-bl-xl rounded-tr-xl">HOT</div>
+<div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-3 text-orange-500 text-xl">
+                            💎
+                        </div>
+<div>
+<p class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">500 DT</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-3">+ 보너스 50</p>
+<button class="w-full py-2 bg-gray-50 dark:bg-gray-800 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                                ₩ 5,500
+                            </button>
+</div>
+</div>
+<div class="snap-start shrink-0 w-40 bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-soft flex flex-col justify-between">
+<div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3 text-blue-500 text-xl">
+                            🔷
+                        </div>
+<div>
+<p class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">1,200 DT</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-3">+ 보너스 150</p>
+<button class="w-full py-2 bg-gray-50 dark:bg-gray-800 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                                ₩ 11,000
+                            </button>
+</div>
+</div>
+<div class="snap-start shrink-0 w-40 bg-gradient-to-br from-primary to-pink-600 rounded-2xl p-4 shadow-soft flex flex-col justify-between text-white">
+<div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3 text-xl backdrop-blur-sm">
+                            👑
+                        </div>
+<div>
+<p class="text-lg font-bold text-white">3,000 DT</p>
+<p class="text-xs text-white/80 mb-3">+ 보너스 500</p>
+<button class="w-full py-2 bg-white text-sm font-semibold text-primary rounded-lg hover:bg-gray-50 transition">
+                                ₩ 33,000
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="px-6">
+<h2 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark mb-4">최근 내역</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-surface-light dark:hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-primary">
+<span class="material-icons-round">favorite</span>
+</div>
+<div>
+<h3 class="font-bold text-text-primary-light dark:text-text-primary-dark text-sm">김민지 (Minji Kim)</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">응원 메시지 전송</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark text-sm">- 50 DT</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">오늘 10:30</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-surface-light dark:hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+<span class="material-icons-round">add_card</span>
+</div>
+<div>
+<h3 class="font-bold text-text-primary-light dark:text-text-primary-dark text-sm">DT 충전</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">카카오페이 결제</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-green-600 dark:text-green-400 text-sm">+ 1,200 DT</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">어제</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-surface-light dark:hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+<span class="material-icons-round">star</span>
+</div>
+<div>
+<h3 class="font-bold text-text-primary-light dark:text-text-primary-dark text-sm">이준호 (Junho Lee)</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">독점 컨텐츠 열람</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark text-sm">- 100 DT</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">어제</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-surface-light dark:hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-primary">
+<span class="material-icons-round">favorite</span>
+</div>
+<div>
+<h3 class="font-bold text-text-primary-light dark:text-text-primary-dark text-sm">박서연</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">응원 메시지 전송</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark text-sm">- 50 DT</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">2일 전</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-background-light dark:bg-background-dark border-t border-gray-100 dark:border-gray-800 px-6 py-3 flex justify-between items-center z-20 absolute bottom-0 w-full">
+<button class="flex flex-col items-center gap-1 group w-1/4">
+<span class="material-icons-round text-text-secondary-light dark:text-text-secondary-dark group-hover:text-primary transition-colors text-2xl">chat_bubble_outline</span>
+<span class="text-[10px] font-medium text-text-secondary-light dark:text-text-secondary-dark group-hover:text-primary transition-colors">메시지</span>
+</button>
+<button class="flex flex-col items-center gap-1 group w-1/4">
+<span class="material-icons-round text-text-secondary-light dark:text-text-secondary-dark group-hover:text-primary transition-colors text-2xl">explore</span>
+<span class="text-[10px] font-medium text-text-secondary-light dark:text-text-secondary-dark group-hover:text-primary transition-colors">탐색</span>
+</button>
+<button class="flex flex-col items-center gap-1 group w-1/4">
+<div class="relative">
+<span class="material-icons-round text-primary dark:text-primary transition-colors text-2xl">account_balance_wallet</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border-2 border-white dark:border-background-dark"></span>
+</div>
+<span class="text-[10px] font-medium text-primary dark:text-primary transition-colors">지갑</span>
+</button>
+<button class="flex flex-col items-center gap-1 group w-1/4">
+<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfFvp74EBAVmKjITUOFdKTQr85V6ZBrigLsqgBc13LSUDr0NxnFnGs6FDmanuM-CkH_lnwSGyQ0vqqUGfrhh0gjJRx8U-jTGJgPdL5OdYh4Xvr_0afI-SZLazpkOgPUbaDwhax0D8aA6AHh2b-LghpLBGBYchhFYz5yGisylC4ebntgiSVt_L1PYmv779m_P4jAUG51S0t_Cbbdmqky8ycSNY0asZbKHw4fyeS_O14yhLeIxDVuWFHD42ZR3hO2VvZg1Jb2V1Wvkv9"/>
+</div>
+<span class="text-[10px] font-medium text-text-secondary-light dark:text-text-secondary-dark group-hover:text-primary transition-colors">프로필</span>
+</button>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNO A - Chat List Empty State</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FF3B30", // Vibrant rose-red from the screenshot's accents
+                        "background-light": "#FCFCFC", // Very light off-white background
+                        "background-dark": "#121212", // Dark mode background
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1E1E1E",
+                        "text-primary-light": "#111111",
+                        "text-primary-dark": "#FFFFFF",
+                        "text-secondary-light": "#8E8E93",
+                        "text-secondary-dark": "#98989F",
+                    },
+                    fontFamily: {
+                        display: ["Noto Sans KR", "sans-serif"],
+                        sans: ["Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                        'xl': "16px",
+                        '2xl': "24px",
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 4px 15px -3px rgba(255, 59, 48, 0.3)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-gray-900 font-display flex items-center justify-center min-h-screen">
+<div class="relative w-full max-w-[390px] h-[844px] bg-background-light dark:bg-background-dark overflow-hidden shadow-2xl sm:rounded-[40px] flex flex-col transition-colors duration-300">
+<div class="h-12 px-6 flex items-center justify-between text-text-primary-light dark:text-text-primary-dark z-20">
+<span class="text-[15px] font-semibold tracking-wide">9:41</span>
+<div class="flex items-center gap-1.5">
+<span class="material-icons-round text-[18px]">signal_cellular_alt</span>
+<span class="material-icons-round text-[18px]">wifi</span>
+<span class="material-icons-round text-[18px]">battery_full</span>
+</div>
+</div>
+<header class="px-5 pt-2 pb-4 flex items-center justify-between bg-background-light dark:bg-background-dark z-10 sticky top-0">
+<h1 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark">메시지</h1>
+<button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-primary transition-colors hover:bg-red-50 dark:hover:bg-gray-700">
+<span class="material-icons-round">edit_square</span>
+</button>
+</header>
+<div class="px-5 pb-6">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons-round text-text-secondary-light dark:text-text-secondary-dark text-xl">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 rounded-xl border-none bg-gray-100 dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark placeholder-text-secondary-light dark:placeholder-text-secondary-dark focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-surface-dark transition-all duration-200 text-[15px]" placeholder="아티스트 검색..." type="text"/>
+</div>
+</div>
+<main class="flex-1 flex flex-col items-center justify-center px-8 pb-20 overflow-y-auto">
+<div class="relative mb-8">
+<div class="absolute -top-4 -left-6 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full blur-xl opacity-60 animate-pulse"></div>
+<div class="absolute -bottom-2 -right-4 w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full blur-xl opacity-60 animate-pulse delay-700"></div>
+<div class="relative z-10 w-48 h-48 bg-gray-50 dark:bg-surface-dark rounded-full flex items-center justify-center border border-gray-100 dark:border-gray-800 shadow-soft">
+<img alt="Soft abstract illustration representing empty messages" class="w-32 h-32 object-cover opacity-80 rounded-full grayscale-[20%] dark:opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCm05CYXPx-MuYve5UGFDZSFCSoN0btJgAz0urFKd9DT12YOjuWHrnpl-kkNxf31BKcOv-gn_n7qcR53PHBc2QYBrNKTSTGWcTfRr-dBo1bomXniz746Lf5yewcZ1NZbyI1qN6JAwiDm12LHg5YsJ9h9odD7vL30B_uxHJfvQicHsncpppv2nYP5N2aupVdoS6rAEkSGG-IHDgKSDt8E131VXkCmZOAVNYbYtO4vQt5XNsGfTFsTnXFzkrc1rOrQTNH_-nbrO_PUjn1" style="mask-image: radial-gradient(circle, black 50%, transparent 100%);"/>
+<div class="absolute -right-2 bottom-4 bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transform rotate-12">
+<span class="material-icons-round text-3xl text-primary">favorite</span>
+</div>
+<div class="absolute -left-2 top-4 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 transform -rotate-12">
+<span class="material-icons-round text-xl text-yellow-400">star</span>
+</div>
+</div>
+</div>
+<h2 class="text-xl font-bold text-text-primary-light dark:text-text-primary-dark mb-3 text-center">
+                아직 대화 중인 캐스트가 없어요
+            </h2>
+<p class="text-[15px] text-text-secondary-light dark:text-text-secondary-dark text-center leading-relaxed mb-10 max-w-[260px]">
+                좋아하는 아티스트와 1:1로 소통해보세요.<br/>지금 바로 시작할 수 있어요!
+            </p>
+<button class="group relative w-full max-w-[240px] h-14 bg-primary rounded-full flex items-center justify-center text-white font-bold text-[16px] shadow-glow transition-transform active:scale-95 hover:shadow-lg hover:brightness-105">
+<span class="mr-2">캐스트 탐색하기</span>
+<span class="material-icons-round group-hover:translate-x-1 transition-transform text-sm">arrow_forward</span>
+</button>
+</main>
+<div class="absolute bottom-24 right-5 z-20">
+<button class="w-14 h-14 rounded-full bg-primary shadow-glow flex items-center justify-center text-white transition-transform active:scale-90 hover:brightness-110">
+<span class="material-icons-round text-2xl">edit</span>
+</button>
+</div>
+<nav class="h-[84px] bg-white dark:bg-background-dark border-t border-gray-100 dark:border-gray-800 px-6 pb-5 pt-3 flex items-start justify-between z-30">
+<div class="flex flex-col items-center gap-1 w-12 cursor-pointer group">
+<div class="relative">
+<span class="material-icons-round text-primary text-[28px] transition-transform group-active:scale-90">chat_bubble</span>
+<div class="absolute top-0 right-0 w-2.5 h-2.5 bg-primary border-2 border-white dark:border-background-dark rounded-full"></div>
+</div>
+<span class="text-[10px] font-medium text-primary">메시지</span>
+</div>
+<div class="flex flex-col items-center gap-1 w-12 cursor-pointer group">
+<span class="material-icons-round text-gray-400 dark:text-gray-500 text-[28px] transition-colors group-hover:text-gray-600 dark:group-hover:text-gray-300">explore</span>
+<span class="text-[10px] font-medium text-gray-400 dark:text-gray-500">탐색</span>
+</div>
+<div class="flex flex-col items-center gap-1 w-12 cursor-pointer group">
+<div class="w-7 h-7 rounded-full bg-orange-100 dark:bg-gray-800 overflow-hidden border border-gray-200 dark:border-gray-700">
+<img alt="Profile" class="w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGRSaVO1DKniybyF0WbRJZXjsCYY0XmGVjPjWtc71SoCWzIolJaur7Ehv_jDiafXd5ofl8OXyUhyYewXV2n9dYokAdH4usfXNVp8i-xBsmSk1q6PCDq_llVbjSJKnyw9zRltDxL2NHLc3ypjl4J0pSZbcUaSqqXwWzZFxmCbs7OUxigy3aQ04u6rdhznu5oVTxMeZsSivTJ_AVIAn5ZRNy1AIf_-iOPhzWUAm3gDmgRX8LvkO2LWS2LkhgT__wECnaaHWa4Aternwc"/>
+</div>
+<span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5">프로필</span>
+</div>
+</nav>
+<div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-[134px] h-[5px] bg-black dark:bg-white rounded-full opacity-20 z-40"></div>
+</div>
+
+</body></html>
