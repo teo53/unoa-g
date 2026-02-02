@@ -322,6 +322,120 @@ The `stitch/` directory contains design reference screenshots:
 
 Each folder contains `screen.png` and `code.html` for reference.
 
+## Enterprise Components
+
+### Skeleton Loading
+```dart
+import '../../shared/widgets/skeleton_loader.dart';
+
+// Basic skeleton
+SkeletonLoader(width: 100, height: 20)
+SkeletonLoader.circle(size: 48)
+SkeletonLoader.text(width: 120)
+SkeletonLoader.card(width: 200, height: 100)
+
+// Preset components
+SkeletonListTile(showAvatar: true, showSubtitle: true)
+SkeletonCard(width: 200, height: 120)
+SkeletonMessageBubble(isFromArtist: true)
+```
+
+### Error Handling
+```dart
+import '../../shared/widgets/error_boundary.dart';
+
+// Error display
+ErrorDisplay(
+  error: error,
+  onRetry: () => _loadData(),
+)
+
+// Empty state
+EmptyState(
+  title: '아직 메시지가 없어요',
+  message: '첫 메시지를 보내보세요',
+  icon: Icons.inbox_outlined,
+)
+
+// Loading state
+LoadingState(message: '로딩 중...')
+```
+
+### Animation Utilities
+```dart
+import '../../core/utils/animation_utils.dart';
+
+// Fade in animation
+FadeInAnimation(child: widget, delay: Duration(milliseconds: 100))
+
+// Slide + fade animation
+SlideFadeAnimation.fromBottom(child: widget)
+SlideFadeAnimation.fromLeft(child: widget)
+
+// Tap scale effect
+ScaleOnTap(
+  onTap: () => handleTap(),
+  child: widget,
+)
+
+// Staggered list
+StaggeredListAnimation(children: listWidgets)
+
+// Animated counter
+AnimatedCounter(value: 1250, prefix: '₩', suffix: ' DT')
+```
+
+### Responsive Design
+```dart
+import '../../core/utils/responsive_helper.dart';
+
+// Check device type
+final helper = ResponsiveHelper(context);
+if (helper.isPhone) { ... }
+if (helper.isTablet) { ... }
+if (helper.isLandscape) { ... }
+
+// Responsive layout
+ResponsiveLayout(
+  phone: PhoneWidget(),
+  tablet: TabletWidget(),
+  desktop: DesktopWidget(),
+)
+
+// Adaptive container (centers on large screens)
+AdaptiveContainer(
+  maxWidth: 600,
+  child: content,
+)
+
+// Extension for quick access
+context.responsive.isPhone
+context.responsiveValue(phone: 2, tablet: 3, desktop: 4)
+```
+
+### Accessibility
+```dart
+import '../../core/utils/accessibility_helper.dart';
+
+// Semantic wrappers
+SemanticButton(label: '보내기', child: button)
+SemanticImage(label: '아티스트 프로필', child: image)
+
+// Screen reader announcements
+ScreenReaderAnnouncement.announce(context, '메시지를 보냈습니다')
+
+// Accessible tap targets (48x48 minimum)
+AccessibleTapTarget(
+  semanticLabel: '뒤로가기',
+  onTap: () => context.pop(),
+  child: Icon(Icons.arrow_back),
+)
+
+// Extensions
+widget.withButtonSemantics('버튼 설명')
+decorativeWidget.excludeSemantics()
+```
+
 ## Important Notes for AI Assistants
 
 1. **Korean Language**: UI labels are in Korean. Preserve existing translations.
@@ -332,3 +446,6 @@ Each folder contains `screen.png` and `code.html` for reference.
 6. **Mock vs Real**: Currently uses mock data; real Supabase integration pending.
 7. **Theme Toggle**: Dark/light mode toggle is in Settings screen (`/settings`), not in bottom nav.
 8. **Platform Detection**: `AppScaffold` shows phone frame on web only; mobile gets full screen.
+9. **Use Enterprise Components**: For new features, use the skeleton loaders, error boundaries, and animation utilities.
+10. **Accessibility**: All interactive elements should have semantic labels for screen readers.
+11. **Responsive**: Use ResponsiveLayout for screens that need tablet/desktop support.
