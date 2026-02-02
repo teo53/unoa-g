@@ -173,7 +173,6 @@ class DiscoverScreen extends StatelessWidget {
                         name: artist.name,
                         group: artist.group,
                         avatarUrl: artist.avatarUrl,
-                        followerCount: artist.formattedFollowers,
                         isVerified: artist.isVerified,
                         onTap: () => context.push('/artist/${artist.id}'),
                       );
@@ -420,7 +419,6 @@ class _DiscoverArtistCard extends StatelessWidget {
   final String name;
   final String? group;
   final String avatarUrl;
-  final String followerCount;
   final bool isVerified;
   final VoidCallback? onTap;
 
@@ -428,7 +426,6 @@ class _DiscoverArtistCard extends StatelessWidget {
     required this.name,
     this.group,
     required this.avatarUrl,
-    required this.followerCount,
     this.isVerified = false,
     this.onTap,
   });
@@ -533,25 +530,6 @@ class _DiscoverArtistCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.person,
-                        size: 12,
-                        color: AppColors.primary500,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        followerCount,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primary500,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

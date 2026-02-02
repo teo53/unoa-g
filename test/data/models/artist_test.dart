@@ -268,52 +268,6 @@ void main() {
       });
     });
 
-    group('formattedFollowers', () {
-      test('returns raw count for less than 1000', () {
-        const artist = Artist(
-          id: '1',
-          name: 'Test',
-          avatarUrl: 'https://example.com/avatar.jpg',
-          followerCount: 999,
-        );
-
-        expect(artist.formattedFollowers, equals('999'));
-      });
-
-      test('returns 천 format for 1000-9999', () {
-        const artist = Artist(
-          id: '1',
-          name: 'Test',
-          avatarUrl: 'https://example.com/avatar.jpg',
-          followerCount: 5000,
-        );
-
-        expect(artist.formattedFollowers, equals('5천'));
-      });
-
-      test('returns 만 format for 10000-999999', () {
-        const artist = Artist(
-          id: '1',
-          name: 'Test',
-          avatarUrl: 'https://example.com/avatar.jpg',
-          followerCount: 150000,
-        );
-
-        expect(artist.formattedFollowers, equals('15만'));
-      });
-
-      test('returns M format for 1000000+', () {
-        const artist = Artist(
-          id: '1',
-          name: 'Test',
-          avatarUrl: 'https://example.com/avatar.jpg',
-          followerCount: 2500000,
-        );
-
-        expect(artist.formattedFollowers, equals('2.5M'));
-      });
-    });
-
     group('pinnedFancam', () {
       test('returns null when no fancams', () {
         const artist = Artist(

@@ -337,18 +337,13 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Rank & Fan Badges
+                          // Rank Badge
                           Row(
                             children: [
                               _StatBadge(
                                 icon: Icons.trending_up,
                                 label: '주간랭킹: ${artist.rank}위',
                                 change: '+2',
-                              ),
-                              const SizedBox(width: 12),
-                              _StatBadge(
-                                icon: Icons.people,
-                                label: '팬 ${artist.formattedFollowers}',
                               ),
                             ],
                           ),
