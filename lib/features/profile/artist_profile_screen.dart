@@ -1,0 +1,1357 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../../core/theme/app_colors.dart';
+import '../../data/mock/mock_data.dart';
+import '../../shared/widgets/app_scaffold.dart';
+
+class ArtistProfileScreen extends StatefulWidget {
+  final String artistId;
+
+  const ArtistProfileScreen({
+    super.key,
+    required this.artistId,
+  });
+
+  @override
+  State<ArtistProfileScreen> createState() => _ArtistProfileScreenState();
+}
+
+class _ArtistProfileScreenState extends State<ArtistProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final artist = MockData.trendingArtists.firstWhere(
+      (a) => a.id == widget.artistId,
+      orElse: () => MockData.trendingArtists.first,
+    );
+
+    return AppScaffold(
+      showStatusBar: true,
+      child: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              // Cover Image with Profile Info Overlay
+              SliverToBoxAdapter(
+                child: Stack(
+                  children: [
+                    // Cover Image with Primary Gradient
+                    Container(
+                      height: 280,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.primary600.withOpacity(0.8),
+                            AppColors.primary500,
+                          ],
+                        ),
+                      ),
+                      child: artist.avatarUrl.isEmpty
+                          ? Center(
+                              child: Icon(
+                                Icons.person_rounded,
+                                size: 120,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                            )
+                          : CachedNetworkImage(
+                              imageUrl: artist.avatarUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: AppColors.primary500,
+                              ),
+                              errorWidget: (context, url, error) => Center(
+                                child: Icon(
+                                  Icons.person_rounded,
+                                  size: 120,
+                                  color: Colors.white.withOpacity(0.5),
+                                ),
+                              ),
+                            ),
+                    ),
+                    // Gradient Overlay
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        height: 120,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.7),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Header Buttons
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      right: 8,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () => context.pop(),
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Name & Group Overlay
+                    Positioned(
+                      left: 20,
+                      bottom: 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                artist.displayName,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              if (artist.isVerified)
+                                Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.verified,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            artist.group != null
+                                ? 'Underground Idol Group \'${artist.group}\''
+                                : 'Solo Artist',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Rank & Fan Badges
+                          Row(
+                            children: [
+                              _StatBadge(
+                                icon: Icons.trending_up,
+                                label: '주간랭킹: ${artist.rank}위',
+                                change: '+2',
+                              ),
+                              const SizedBox(width: 12),
+                              _StatBadge(
+                                icon: Icons.people,
+                                label: '팬 ${artist.formattedFollowers}',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Main Content Card
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 0),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.backgroundDark : Colors.white,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+
+                      // Highlights Row
+                      SizedBox(
+                        height: 90,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          children: const [
+                            _HighlightItem(
+                              icon: Icons.checkroom,
+                              label: 'Today\'s OOTD',
+                              hasRing: true,
+                            ),
+                            SizedBox(width: 16),
+                            _HighlightItem(
+                              icon: Icons.music_note,
+                              label: 'Rehearsal',
+                            ),
+                            SizedBox(width: 16),
+                            _HighlightItem(
+                              icon: Icons.camera_alt,
+                              label: 'Q&A',
+                            ),
+                            SizedBox(width: 16),
+                            _HighlightItem(
+                              icon: Icons.videocam,
+                              label: 'V-log',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Action Buttons Grid
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _ActionButton(
+                              icon: Icons.chat_bubble_outline,
+                              label: 'DM',
+                              onTap: () => context.push('/chat/${widget.artistId}'),
+                            ),
+                            _ActionButton(
+                              icon: Icons.currency_yen,
+                              label: '정산',
+                              onTap: () {},
+                            ),
+                            _ActionButton(
+                              icon: Icons.card_giftcard,
+                              label: '드롭',
+                              onTap: () {},
+                            ),
+                            _ActionButton(
+                              icon: Icons.groups,
+                              label: '오프회',
+                              isPrimary: true,
+                              onTap: () {},
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Supporter Ranking Banner
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.surfaceDark
+                                : Colors.grey[50],
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.borderDark
+                                  : Colors.grey[200]!,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary100,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.emoji_events_outlined,
+                                  color: AppColors.primary600,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '내 서포터 랭킹: 12위',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark
+                                            ? AppColors.textMainDark
+                                            : AppColors.textMainLight,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Gold Member • 상위 5%',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark
+                                            ? AppColors.textSubDark
+                                            : AppColors.textSubLight,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: true,
+                                onChanged: (v) {},
+                                activeColor: AppColors.primary500,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Drops Section
+                      _SectionHeader(
+                        title: '최신 드롭 (Drops)',
+                        trailing: '전체보기',
+                        onTrailingTap: () {},
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 200,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          children: [
+                            _DropItem(
+                              name: '1st Anniversary T-shirt',
+                              price: '35,000 KRW',
+                              isSoldOut: true,
+                            ),
+                            const SizedBox(width: 12),
+                            _DropItem(
+                              name: 'Winter Photo Set A',
+                              price: '12,000 KRW',
+                              isNew: true,
+                            ),
+                            const SizedBox(width: 12),
+                            _DropItem(
+                              name: 'Gold Member Kit',
+                              price: '5,000 KRW',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Upcoming Events
+                      _SectionHeader(
+                        title: '다가오는 이벤트',
+                        onTrailingTap: () {},
+                      ),
+                      const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: _EventCard(
+                          title: 'Starlight Christmas Live',
+                          location: '홍대 롤링홀',
+                          date: '12월 24일 (토)',
+                          isOffline: true,
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Tab Bar
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: isDark
+                                  ? AppColors.borderDark
+                                  : Colors.grey[200]!,
+                            ),
+                          ),
+                        ),
+                        child: TabBar(
+                          controller: _tabController,
+                          labelColor: AppColors.primary500,
+                          unselectedLabelColor: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                          indicatorColor: AppColors.primary500,
+                          indicatorWeight: 3,
+                          labelStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          tabs: const [
+                            Tab(text: '하이라이트'),
+                            Tab(text: '공지사항'),
+                            Tab(text: '오타 레터'),
+                          ],
+                        ),
+                      ),
+
+                      // Feed List
+                      ...MockData.feeds.map((feed) => _FeedPost(
+                            artistName: artist.name,
+                            artistAvatarUrl: artist.avatarUrl,
+                            content: feed['content'] as String,
+                            imageUrl: feed['imageUrl'] as String?,
+                            time: feed['time'] as String,
+                            likes: feed['likes'] as int,
+                            comments: feed['comments'] as int,
+                          )),
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // FAB - Feed Compose
+          Positioned(
+            right: 20,
+            bottom: 100,
+            child: FloatingActionButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) =>
+                      _FeedComposeSheet(artistName: artist.name),
+                );
+              },
+              backgroundColor: AppColors.primary600,
+              child: const Icon(Icons.edit, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Stat Badge Widget - Uses primary600 for WCAG compliance
+class _StatBadge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? change;
+
+  const _StatBadge({
+    required this.icon,
+    required this.label,
+    this.change,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.primary600,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: Colors.white),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          if (change != null) ...[
+            const SizedBox(width: 4),
+            Text(
+              change!,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.white70,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Highlight Item Widget - Uses primary500 for active ring
+class _HighlightItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool hasRing;
+
+  const _HighlightItem({
+    required this.icon,
+    required this.label,
+    this.hasRing = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isDark ? AppColors.surfaceDark : Colors.grey[100],
+            border: hasRing
+                ? Border.all(color: AppColors.primary500, width: 2)
+                : Border.all(
+                    color: isDark ? AppColors.borderDark : Colors.grey[300]!,
+                  ),
+          ),
+          child: Icon(
+            icon,
+            size: 24,
+            color: isDark ? AppColors.textSubDark : Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Action Button Widget - Uses primary600 for filled state
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isPrimary;
+  final VoidCallback? onTap;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    this.isPrimary = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: isPrimary
+                  ? AppColors.primary600
+                  : (isDark ? AppColors.surfaceDark : Colors.grey[100]),
+              borderRadius: BorderRadius.circular(16),
+              border: isPrimary
+                  ? null
+                  : Border.all(
+                      color: isDark ? AppColors.borderDark : Colors.grey[300]!,
+                    ),
+            ),
+            child: Icon(
+              icon,
+              color: isPrimary
+                  ? Colors.white
+                  : (isDark ? AppColors.textSubDark : Colors.grey[600]),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Section Header Widget - Uses primary500 for trailing link
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String? trailing;
+  final VoidCallback? onTrailingTap;
+
+  const _SectionHeader({
+    required this.title,
+    this.trailing,
+    this.onTrailingTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+          if (trailing != null)
+            GestureDetector(
+              onTap: onTrailingTap,
+              child: Text(
+                trailing!,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary500,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Drop Item Widget - Uses primary500 for price, primary100 for NEW badge
+class _DropItem extends StatelessWidget {
+  final String name;
+  final String price;
+  final bool isNew;
+  final bool isSoldOut;
+
+  const _DropItem({
+    required this.name,
+    required this.price,
+    this.isNew = false,
+    this.isSoldOut = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: 140,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : Colors.grey[200]!,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Product Image Placeholder
+          Expanded(
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey[800] : Colors.grey[100],
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.checkroom,
+                    size: 40,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                  ),
+                ),
+                if (isSoldOut)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.danger,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'SOLD OUT',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (isNew)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary600,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'NEW',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Product Info
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
+                    decoration: isSoldOut ? TextDecoration.lineThrough : null,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  price,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isSoldOut
+                        ? (isDark ? AppColors.textSubDark : AppColors.textSubLight)
+                        : AppColors.primary500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Event Card Widget - Uses primary colors consistently
+class _EventCard extends StatelessWidget {
+  final String title;
+  final String location;
+  final String date;
+  final bool isOffline;
+
+  const _EventCard({
+    required this.title,
+    required this.location,
+    required this.date,
+    this.isOffline = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : Colors.grey[200]!,
+        ),
+      ),
+      child: Row(
+        children: [
+          // Event Image Placeholder
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.primary100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.event,
+              color: AppColors.primary600,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isOffline ? Colors.grey[600] : AppColors.primary600,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        isOffline ? 'OFFLINE' : 'ONLINE',
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      date,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  location,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark
+                        ? AppColors.textSubDark
+                        : AppColors.textSubLight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Feed Post Widget - Uses primary500 for like icon and avatar border
+class _FeedPost extends StatelessWidget {
+  final String artistName;
+  final String artistAvatarUrl;
+  final String content;
+  final String? imageUrl;
+  final String time;
+  final int likes;
+  final int comments;
+
+  const _FeedPost({
+    required this.artistName,
+    required this.artistAvatarUrl,
+    required this.content,
+    this.imageUrl,
+    required this.time,
+    required this.likes,
+    required this.comments,
+  });
+
+  String _formatCount(int count) {
+    if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}k';
+    }
+    return count.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? AppColors.borderDark : Colors.grey[200]!,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              // Avatar
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                  border: Border.all(
+                    color: AppColors.primary500,
+                    width: 2,
+                  ),
+                ),
+                child: artistAvatarUrl.isEmpty
+                    ? Icon(
+                        Icons.person_rounded,
+                        size: 20,
+                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      )
+                    : ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: artistAvatarUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Icon(
+                            Icons.person_rounded,
+                            size: 20,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
+                          errorWidget: (context, url, error) => Icon(
+                            Icons.person_rounded,
+                            size: 20,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$artistName ($artistName)',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.textMainDark
+                            : AppColors.textMainLight,
+                      ),
+                    ),
+                    Text(
+                      time,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.more_horiz,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Content
+          Text(
+            content,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.5,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+
+          // Image
+          if (imageUrl != null && imageUrl!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: imageUrl!,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  height: 200,
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                ),
+                errorWidget: (context, url, error) => Container(
+                  height: 200,
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                  child: const Icon(Icons.image, size: 40),
+                ),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 16),
+
+          // Actions
+          Row(
+            children: [
+              Icon(
+                Icons.favorite,
+                size: 18,
+                color: AppColors.primary500,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _formatCount(likes),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 18,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _formatCount(comments),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Feed Compose Bottom Sheet - Uses primary600 for CTA
+class _FeedComposeSheet extends StatefulWidget {
+  final String artistName;
+
+  const _FeedComposeSheet({required this.artistName});
+
+  @override
+  State<_FeedComposeSheet> createState() => _FeedComposeSheetState();
+}
+
+class _FeedComposeSheetState extends State<_FeedComposeSheet> {
+  final TextEditingController _controller = TextEditingController();
+  bool _hasContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      setState(() {
+        _hasContent = _controller.text.isNotEmpty;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: bottomPadding),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '피드 작성',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color:
+                        isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(
+                    Icons.close,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Text Input
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color:
+                    isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                ),
+              ),
+              child: TextField(
+                controller: _controller,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  hintText: '팬들에게 전하고 싶은 이야기를 작성해주세요...',
+                  hintStyle: TextStyle(
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                  border: InputBorder.none,
+                ),
+                style: TextStyle(
+                  fontSize: 14,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Attachment Options
+            Row(
+              children: [
+                _AttachmentButton(
+                  icon: Icons.image_outlined,
+                  label: '사진',
+                  onTap: () {},
+                ),
+                const SizedBox(width: 12),
+                _AttachmentButton(
+                  icon: Icons.videocam_outlined,
+                  label: '영상',
+                  onTap: () {},
+                ),
+                const SizedBox(width: 12),
+                _AttachmentButton(
+                  icon: Icons.poll_outlined,
+                  label: '투표',
+                  onTap: () {},
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Post Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _hasContent
+                    ? () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('피드가 작성되었습니다'),
+                            backgroundColor: AppColors.primary600,
+                          ),
+                        );
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary600,
+                  disabledBackgroundColor:
+                      isDark ? Colors.grey[800] : Colors.grey[300],
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  '게시하기',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _hasContent
+                        ? Colors.white
+                        : (isDark ? Colors.grey[600] : Colors.grey[500]),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Attachment Button Widget
+class _AttachmentButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _AttachmentButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
