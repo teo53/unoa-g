@@ -217,9 +217,7 @@ class WalletScreen extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          // TODO: Navigate to full transaction history
-                        },
+                        onTap: () => context.push('/wallet/history'),
                         child: Text(
                           '전체보기',
                           style: TextStyle(

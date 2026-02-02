@@ -33,6 +33,54 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
     super.dispose();
   }
 
+  void _showMoreOptions(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.share_outlined),
+              title: const Text('프로필 공유'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('공유 기능 준비 중')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_outlined),
+              title: const Text('알림 설정'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('알림 설정 준비 중')),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.report_outlined, color: AppColors.danger),
+              title: Text('신고하기', style: TextStyle(color: AppColors.danger)),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('신고 기능 준비 중')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -125,14 +173,20 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                           Row(
                             children: [
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('검색 기능 준비 중')),
+                                  );
+                                },
                                 icon: const Icon(
                                   Icons.search,
                                   color: Colors.white,
                                 ),
                               ),
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  _showMoreOptions(context);
+                                },
                                 icon: const Icon(
                                   Icons.more_vert,
                                   color: Colors.white,
@@ -270,13 +324,21 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                             _ActionButton(
                               icon: Icons.card_giftcard,
                               label: '드롭',
-                              onTap: () {},
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('드롭 스토어 준비 중')),
+                                );
+                              },
                             ),
                             _ActionButton(
                               icon: Icons.groups,
                               label: '이벤트',
                               isPrimary: true,
-                              onTap: () {},
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('이벤트 페이지 준비 중')),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -347,7 +409,11 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                               ),
                               Switch(
                                 value: true,
-                                onChanged: (v) {},
+                                onChanged: (v) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('랭킹 알림 설정 준비 중')),
+                                  );
+                                },
                                 activeColor: AppColors.primary500,
                               ),
                             ],
@@ -361,7 +427,11 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                       _SectionHeader(
                         title: '최신 드롭 (Drops)',
                         trailing: '전체보기',
-                        onTrailingTap: () {},
+                        onTrailingTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('드롭 전체보기 준비 중')),
+                          );
+                        },
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
@@ -395,7 +465,12 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                       // Upcoming Events
                       _SectionHeader(
                         title: '다가오는 이벤트',
-                        onTrailingTap: () {},
+                        trailing: '더보기',
+                        onTrailingTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('이벤트 전체보기 준비 중')),
+                          );
+                        },
                       ),
                       const SizedBox(height: 12),
                       Padding(
@@ -1239,19 +1314,31 @@ class _FeedComposeSheetState extends State<_FeedComposeSheet> {
                 _AttachmentButton(
                   icon: Icons.image_outlined,
                   label: '사진',
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('사진 첨부 기능 준비 중')),
+                    );
+                  },
                 ),
                 const SizedBox(width: 12),
                 _AttachmentButton(
                   icon: Icons.videocam_outlined,
                   label: '영상',
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('영상 첨부 기능 준비 중')),
+                    );
+                  },
                 ),
                 const SizedBox(width: 12),
                 _AttachmentButton(
                   icon: Icons.poll_outlined,
                   label: '투표',
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('투표 기능 준비 중')),
+                    );
+                  },
                 ),
               ],
             ),

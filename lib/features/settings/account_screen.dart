@@ -97,10 +97,18 @@ class AccountScreen extends StatelessWidget {
                         title: '생체 인증',
                         trailing: Switch(
                           value: true,
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('생체 인증 설정 준비 중')),
+                            );
+                          },
                           activeColor: AppColors.primary600,
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('생체 인증 설정 준비 중')),
+                          );
+                        },
                       ),
                       _CardDivider(),
                       _ActionItem(

@@ -105,10 +105,18 @@ class SettingsScreen extends StatelessWidget {
                         title: '방해금지 모드',
                         trailing: Switch(
                           value: false,
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('방해금지 모드 설정 준비 중')),
+                            );
+                          },
                           activeColor: AppColors.primary600,
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('방해금지 모드 설정 준비 중')),
+                          );
+                        },
                       ),
                     ],
                   ),
