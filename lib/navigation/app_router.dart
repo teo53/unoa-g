@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../core/providers/notification_provider.dart';
 import '../features/home/home_screen.dart';
 import '../features/chat/chat_list_screen.dart';
 import '../features/chat/chat_thread_screen.dart';
@@ -212,12 +214,18 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _calculateIndex(currentPath),
-        onTap: (index) => _navigateToTab(context, index),
-      ),
-      child: child,
+    return Consumer<NotificationProvider>(
+      builder: (context, notifications, _) {
+        return AppScaffold(
+          bottomNavigationBar: BottomNavBar(
+            currentIndex: _calculateIndex(currentPath),
+            onTap: (index) => _navigateToTab(context, index),
+            unreadHomeCount: notifications.unreadHomeCount,
+            unreadMessageCount: notifications.unreadMessageCount,
+          ),
+          child: child,
+        );
+      },
     );
   }
 }

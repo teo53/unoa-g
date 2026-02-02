@@ -22,3 +22,6 @@ export 'section_header.dart';
 // Loading & Error States
 export 'skeleton_loader.dart';
 export 'error_boundary.dart';
+
+// Premium Animations
+export 'premium_animations.dart';

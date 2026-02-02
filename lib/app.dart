@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/providers/notification_provider.dart';
 import 'navigation/app_router.dart';
 
 class UnoAApp extends StatelessWidget {
@@ -8,8 +9,13 @@ class UnoAApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(
+          create: (_) => NotificationProvider()..setUnreadMessageCount(3),
+        ),
+      ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
           return MaterialApp.router(
