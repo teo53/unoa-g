@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../app.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../core/theme/app_colors.dart';
 
+/// 앱 레이아웃 Scaffold
+///
+/// 플랫폼별 렌더링:
+/// - 웹: 폰 프레임 UI로 데모 표시
+/// - 모바일(안드로이드/iOS): 전체 화면으로 표시 (테두리 없음)
 class AppScaffold extends StatelessWidget {
   final Widget child;
   final Widget? bottomNavigationBar;
   final bool showStatusBar;
   final Color? backgroundColor;
-  final bool showThemeToggle;
 
   const AppScaffold({
     super.key,
@@ -16,7 +19,6 @@ class AppScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.showStatusBar = true,
     this.backgroundColor,
-    this.showThemeToggle = true,
   });
 
   @override
@@ -25,155 +27,114 @@ class AppScaffold extends StatelessWidget {
     final bgColor = backgroundColor ??
         (isDark ? AppColors.backgroundDark : AppColors.backgroundLight);
 
-    return Scaffold(
-      backgroundColor: Colors.grey[isDark ? 900 : 200],
-      body: Stack(
-        children: [
-          Center(
-            child: Container(
-              width: 400,
-              height: 844,
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(48),
-                border: Border.all(
-                  color: isDark ? Colors.grey[800]! : Colors.grey[900]!,
-                  width: 8,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(40),
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        if (showStatusBar) const StatusBarWidget(),
-                        Expanded(child: child),
-                        if (bottomNavigationBar != null) bottomNavigationBar!,
-                        // Home indicator
-                        Container(
-                          padding: const EdgeInsets.only(bottom: 8, top: 4),
-                          color: isDark
-                              ? AppColors.surfaceDark
-                              : AppColors.surfaceLight,
-                          child: Center(
-                            child: Container(
-                              width: 128,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? Colors.grey[700]
-                                    : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Dark mode toggle button - positioned outside the phone frame
-          if (showThemeToggle)
-            Positioned(
-              right: 24,
-              bottom: 24,
-              child: Consumer<ThemeProvider>(
-                builder: (context, themeProvider, _) {
-                  return _ThemeToggleButton(
-                    isDark: themeProvider.isDark,
-                    onTap: () => themeProvider.toggleTheme(),
-                  );
-                },
-              ),
-            ),
-        ],
-      ),
+    // 모바일 디바이스: 전체 화면 레이아웃 (테두리 없음)
+    if (!kIsWeb) {
+      return _MobileLayout(
+        backgroundColor: bgColor,
+        bottomNavigationBar: bottomNavigationBar,
+        child: child,
+      );
+    }
+
+    // 웹: 폰 프레임 데모 레이아웃
+    return _WebPreviewLayout(
+      backgroundColor: bgColor,
+      showStatusBar: showStatusBar,
+      bottomNavigationBar: bottomNavigationBar,
+      child: child,
     );
   }
 }
 
-class _ThemeToggleButton extends StatefulWidget {
-  final bool isDark;
-  final VoidCallback onTap;
+/// 모바일 전체 화면 레이아웃 (안드로이드/iOS)
+///
+/// 특징:
+/// - 테두리 없이 전체 화면 사용
+/// - SafeArea로 노치/펀치홀 대응
+/// - 시스템 네비게이션 바 영역 확보
+class _MobileLayout extends StatelessWidget {
+  final Widget child;
+  final Widget? bottomNavigationBar;
+  final Color backgroundColor;
 
-  const _ThemeToggleButton({
-    required this.isDark,
-    required this.onTap,
+  const _MobileLayout({
+    required this.child,
+    required this.backgroundColor,
+    this.bottomNavigationBar,
   });
 
   @override
-  State<_ThemeToggleButton> createState() => _ThemeToggleButtonState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: SafeArea(
+        bottom: false, // 하단 네비게이션 바에서 처리
+        child: child,
+      ),
+      bottomNavigationBar: bottomNavigationBar != null
+          ? SafeArea(
+              top: false,
+              child: bottomNavigationBar!,
+            )
+          : null,
+    );
+  }
 }
 
-class _ThemeToggleButtonState extends State<_ThemeToggleButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
+/// 웹 데모용 폰 프레임 레이아웃
+///
+/// 특징:
+/// - 고정 사이즈 폰 프레임 (400x844)
+/// - 둥근 모서리와 베젤
+/// - 가짜 상태바와 홈 인디케이터
+class _WebPreviewLayout extends StatelessWidget {
+  final Widget child;
+  final Widget? bottomNavigationBar;
+  final bool showStatusBar;
+  final Color backgroundColor;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  const _WebPreviewLayout({
+    required this.child,
+    required this.backgroundColor,
+    required this.showStatusBar,
+    this.bottomNavigationBar,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) {
-        _controller.reverse();
-        widget.onTap();
-      },
-      onTapCancel: () => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
-        },
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: Colors.grey[isDark ? 900 : 200],
+      body: Center(
         child: Container(
-          width: 56,
-          height: 56,
+          width: 400,
+          height: 844,
           decoration: BoxDecoration(
-            color: widget.isDark ? Colors.grey[800] : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(48),
+            border: Border.all(
+              color: isDark ? Colors.grey[800]! : Colors.grey[900]!,
+              width: 8,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Icon(
-            widget.isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-            color: widget.isDark ? Colors.amber : Colors.indigo,
-            size: 28,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(40),
+            child: Column(
+              children: [
+                if (showStatusBar) const StatusBarWidget(),
+                Expanded(child: child),
+                if (bottomNavigationBar != null) bottomNavigationBar!,
+                _HomeIndicator(isDark: isDark),
+              ],
+            ),
           ),
         ),
       ),
@@ -181,6 +142,32 @@ class _ThemeToggleButtonState extends State<_ThemeToggleButton>
   }
 }
 
+/// 홈 인디케이터 (웹 데모용)
+class _HomeIndicator extends StatelessWidget {
+  final bool isDark;
+
+  const _HomeIndicator({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 8, top: 4),
+      color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+      child: Center(
+        child: Container(
+          width: 128,
+          height: 4,
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey[700] : Colors.grey[300],
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 웹 데모용 가짜 상태바
 class StatusBarWidget extends StatelessWidget {
   const StatusBarWidget({super.key});
 

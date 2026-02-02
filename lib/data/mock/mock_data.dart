@@ -31,6 +31,28 @@ class MockData {
       isOnline: true,
       bio: '여러분의 매일이 음악처럼 빛나길 바라요. 오늘도 함께해요!',
       postCount: 231,
+      fancams: [
+        YouTubeFancam(
+          id: 'fancam_1',
+          videoId: 'dQw4w9WgXcQ', // Sample video ID
+          title: '민지 직캠 | Attention 240315 쇼케이스',
+          description: '첫 번째 쇼케이스 무대 직캠입니다!',
+          viewCount: 1250000,
+          isPinned: true,
+        ),
+        YouTubeFancam(
+          id: 'fancam_2',
+          videoId: 'kJQP7kiw5Fk',
+          title: '민지 직캠 | Hype Boy 240320 음악방송',
+          viewCount: 890000,
+        ),
+        YouTubeFancam(
+          id: 'fancam_3',
+          videoId: '9bZkp7q19f0',
+          title: '민지 직캠 | Super Shy 팬미팅',
+          viewCount: 650000,
+        ),
+      ],
     ),
     Artist(
       id: 'artist_2',
@@ -43,6 +65,21 @@ class MockData {
       isVerified: true,
       isOnline: false,
       postCount: 156,
+      fancams: [
+        YouTubeFancam(
+          id: 'fancam_4',
+          videoId: 'fJ9rUzIMcZQ',
+          title: '준호 직캠 | My House 콘서트',
+          viewCount: 2100000,
+          isPinned: true,
+        ),
+        YouTubeFancam(
+          id: 'fancam_5',
+          videoId: 'RgKAFK5djSk',
+          title: '준호 직캠 | Again & Again',
+          viewCount: 1500000,
+        ),
+      ],
     ),
     Artist(
       id: 'artist_3',
@@ -54,6 +91,15 @@ class MockData {
       isVerified: false,
       isOnline: false,
       postCount: 89,
+      fancams: [
+        YouTubeFancam(
+          id: 'fancam_6',
+          videoId: 'hT_nvWreIhg',
+          title: '서연 직캠 | 데뷔 무대',
+          viewCount: 320000,
+          isPinned: true,
+        ),
+      ],
     ),
   ];
 

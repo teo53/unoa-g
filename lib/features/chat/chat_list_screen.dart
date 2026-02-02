@@ -39,7 +39,11 @@ class ChatListScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('새 메시지 기능 준비 중')),
+                    );
+                  },
                   icon: Icon(
                     Icons.edit_square,
                     color: AppColors.primary,
@@ -108,7 +112,11 @@ class ChatListScreen extends StatelessWidget {
           child: Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('새 대화 시작 기능 준비 중')),
+                );
+              },
               backgroundColor: AppColors.primary,
               child: const Icon(Icons.edit, color: Colors.white),
             ),

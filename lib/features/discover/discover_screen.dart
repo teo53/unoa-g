@@ -10,6 +10,63 @@ import '../../shared/widgets/section_header.dart';
 class DiscoverScreen extends StatelessWidget {
   const DiscoverScreen({super.key});
 
+  void _showFilterSheet(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '필터',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? AppColors.textMainDark
+                      : AppColors.textMainLight,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _FilterOption(title: '카테고리', value: '전체'),
+              _FilterOption(title: '정렬', value: '인기순'),
+              _FilterOption(title: '활동 상태', value: '전체'),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary600,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    '적용하기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -33,9 +90,7 @@ class DiscoverScreen extends StatelessWidget {
                 ),
               ),
               IconButton(
-                onPressed: () {
-                  // TODO: Show filter bottom sheet
-                },
+                onPressed: () => _showFilterSheet(context),
                 icon: Icon(
                   Icons.tune,
                   color:
@@ -305,6 +360,56 @@ class _FeaturedBanner extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Filter Option Row
+class _FilterOption extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const _FilterOption({
+    required this.title,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: AppColors.primary500,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 14,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

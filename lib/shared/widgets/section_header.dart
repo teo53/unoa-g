@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// 섹션 헤더 위젯
+///
+/// 제목과 선택적으로 후행 텍스트/위젯을 표시
+/// trailing이 있고 onTrailingTap이 있으면 클릭 가능한 스타일로 표시
 class SectionHeader extends StatelessWidget {
   final String title;
   final String? trailing;
@@ -18,6 +22,7 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasAction = onTrailingTap != null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -37,12 +42,17 @@ class SectionHeader extends StatelessWidget {
           else if (trailing != null)
             GestureDetector(
               onTap: onTrailingTap,
-              child: Text(
-                trailing!,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[400],
+              behavior: hasAction ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                child: Text(
+                  trailing!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    // 클릭 가능하면 primary 색상, 아니면 grey
+                    color: hasAction ? AppColors.primary500 : Colors.grey[400],
+                  ),
                 ),
               ),
             ),
