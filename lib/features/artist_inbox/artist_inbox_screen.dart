@@ -202,6 +202,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final controller = TextEditingController();
 
+    // 바텀시트 닫힐 때 컨트롤러 dispose
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -269,7 +270,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '"${message.content}"',
+                          '"${message.content ?? ''}"',
                           style: TextStyle(
                             fontSize: 13,
                             fontStyle: FontStyle.italic,
@@ -382,6 +383,9 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
           ),
         );
       },
-    );
+    ).then((_) {
+      // 바텀시트 닫힐 때 컨트롤러 메모리 해제
+      controller.dispose();
+    });
   }
 }
