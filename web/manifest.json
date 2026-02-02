@@ -1,0 +1,11 @@
+{
+  "name": "UNO A",
+  "short_name": "UNO A",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FAF7F5",
+  "theme_color": "#FF453A",
+  "description": "Korean Artist Fan Messaging Platform",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}

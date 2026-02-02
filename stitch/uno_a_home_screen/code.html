@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNO A Home Screen</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#E2576D", // Rose-red as requested
+                        "primary-dark": "#C0394D",
+                        "background-light": "#FAF7F5", // Soft warm neutral
+                        "background-dark": "#121212",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1E1E1E",
+                        "text-main-light": "#1F2937",
+                        "text-main-dark": "#F3F4F6",
+                        "text-sub-light": "#6B7280",
+                        "text-sub-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        display: ["Noto Sans KR", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(226, 87, 109, 0.3)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }.no-scrollbar {
+            -ms-overflow-style: none;scrollbar-width: none;}
+        .fade-mask {
+            mask-image: linear-gradient(to right, black 85%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center min-h-screen font-display antialiased selection:bg-primary selection:text-white transition-colors duration-300">
+<div class="w-full max-w-[400px] h-[844px] bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden relative sm:rounded-[3rem] border-[8px] border-gray-900 dark:border-gray-800 flex flex-col">
+<div class="px-6 pt-3 pb-2 flex justify-between items-center text-sm font-medium text-text-main-light dark:text-text-main-dark z-20">
+<span>9:41</span>
+<div class="flex items-center space-x-1.5">
+<span class="material-icons-round text-base">signal_cellular_alt</span>
+<span class="material-icons-round text-base">wifi</span>
+<span class="material-icons-round text-base">battery_full</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto no-scrollbar pb-24">
+<header class="px-6 py-4 flex justify-between items-center sticky top-0 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md z-10 transition-colors duration-300">
+<div class="flex items-center gap-2">
+<h1 class="text-2xl font-black tracking-tight text-text-main-light dark:text-text-main-dark">UNO A</h1>
+</div>
+<button class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-text-main-light dark:text-text-main-dark">
+<span class="material-icons-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</button>
+</header>
+<div class="px-6 mb-6">
+<div class="relative group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors material-icons-round">search</span>
+<input class="w-full bg-white dark:bg-surface-dark pl-11 pr-4 py-3.5 rounded-2xl text-sm border-none shadow-sm text-text-main-light dark:text-text-main-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/50 transition-all" placeholder="아티스트 검색..." type="text"/>
+</div>
+</div>
+<section class="mb-8">
+<div class="px-6 mb-4 flex justify-between items-end">
+<h2 class="text-xl font-bold text-text-main-light dark:text-text-main-dark">인기 캐스트 🔥</h2>
+<a class="text-xs font-medium text-gray-400 hover:text-primary transition-colors" href="#">더보기</a>
+</div>
+<div class="flex overflow-x-auto no-scrollbar px-6 gap-4 pb-4 fade-mask snap-x snap-mandatory">
+<div class="snap-start shrink-0 w-36 bg-surface-light dark:bg-surface-dark rounded-2xl p-3 shadow-soft flex flex-col items-center border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+<div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden mb-3 group">
+<img alt="Artist Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFFRSrS5ugs-kG2E4LDDmjLynSzT97cU6VbwD4FMm3ucH2lBKV3VarrJMVUUs5Du6luDXoClWkrwOR8x0A5k09wFwuvww133DgtbjtXojeV7jqtJrQziWZjQMFK3-83JUWeXzMP_Qzpvts7-9qZXDvVVjxANRRGHWQ8ZK70buvgWsjBSGsGIVeYu7RLSxTJHt9FrqByMxVsnKBUiKd3QRKeleY8iPa98yyjZUrGXgaygJ8X_qc7CWPvOh7Ncs9OBbYukWRQnrouG79"/>
+<div class="absolute top-2 left-2 bg-black/30 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] text-white font-medium">TOP 1</div>
+</div>
+<h3 class="font-bold text-text-main-light dark:text-text-main-dark text-sm">김민지</h3>
+<p class="text-[11px] text-text-sub-light dark:text-text-sub-dark mb-2">NewJeans</p>
+<div class="mt-auto flex items-center gap-1 text-[10px] text-primary bg-primary/10 px-2 py-1 rounded-full">
+<span class="material-icons-round text-[10px]">person</span> 52만
+                        </div>
+</div>
+<div class="snap-start shrink-0 w-36 bg-surface-light dark:bg-surface-dark rounded-2xl p-3 shadow-soft flex flex-col items-center border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+<div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden mb-3 group">
+<img alt="Artist Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5TtAGo6SseYaTQ_tvmeb5AxA_nPBRLwzcoFue8UlGzt6tGsV2maR0zPbehxK-cI2YQ-Wyn6izV3U2l6XURWpGp2AaYK9y8rgOQMarbzBf4eUlRM9DwaKUv0M3_bf4Lu-sXZ7s3oKzFUq8TasuCbBnW_AMe4ugioOhwsDjqQeoEMuSQJWZO9wPyIPZYnUJwx1yfMY5JMZ22yiV8D1GDCifnMaEhlCTqHtJIfSsjB-MHGsT7mhJKU3EQdoQVHbk_u_cxd3EKfk07wxa"/>
+</div>
+<h3 class="font-bold text-text-main-light dark:text-text-main-dark text-sm">이준호</h3>
+<p class="text-[11px] text-text-sub-light dark:text-text-sub-dark mb-2">2PM</p>
+<div class="mt-auto flex items-center gap-1 text-[10px] text-primary bg-primary/10 px-2 py-1 rounded-full">
+<span class="material-icons-round text-[10px]">person</span> 30만
+                        </div>
+</div>
+<div class="snap-start shrink-0 w-36 bg-surface-light dark:bg-surface-dark rounded-2xl p-3 shadow-soft flex flex-col items-center border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+<div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden mb-3 group">
+<img alt="Artist Avatar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXUCxe7WvlAi2_bELrNGqPulVCCldatebKxw2GqnU77U7kaC-V0mayrympyWWgdL4cGEcUnC7Bqi3gngRCA8CO3oeJTsPPsuwpV8xC9uFfFtzRDd-zU4IPnztNryVJewtDY_HolRTuK_n43glllfVALmuefvyKLyfljC-EjHTRkWhwE5t-ZC8q6VXGvuxaXm-zjoh2Z4T6buyM3SDlnWJfT6mpVmg6vke_7oNtDSqw6q7p_qJl6kD2hF92KBSZC2aOgeUmwPxxzSDT"/>
+<div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-black/60 to-transparent"></div>
+</div>
+<h3 class="font-bold text-text-main-light dark:text-text-main-dark text-sm">박서연</h3>
+<p class="text-[11px] text-text-sub-light dark:text-text-sub-dark mb-2">Solo</p>
+<div class="mt-auto flex items-center gap-1 text-[10px] text-primary bg-primary/10 px-2 py-1 rounded-full">
+<span class="material-icons-round text-[10px]">person</span> 18만
+                        </div>
+</div>
+<div class="w-2 shrink-0"></div>
+</div>
+</section>
+<section class="px-6">
+<div class="mb-4">
+<h2 class="text-xl font-bold text-text-main-light dark:text-text-main-dark">내 구독 ✨</h2>
+</div>
+<div class="space-y-3">
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-gray-100 dark:border-gray-800 flex items-center gap-4 transition-colors duration-300">
+<div class="relative">
+<img alt="User Avatar" class="w-14 h-14 rounded-full object-cover ring-2 ring-primary ring-offset-2 ring-offset-surface-light dark:ring-offset-surface-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPKh3b4k94wohFKdA6saky3UeRjnBMNxtzy2EKEMcjWYM3VqoA1snth9DiKQmPJcyvYeMAB0STiIUqcGuB_Dzs7JRhT2P0JHYtbweMWZ5FKNoPZiw7_1AjZDn1PNBTM91QXv_nmLqp1_IjVCLRcqnuolIgfsxGvjEPW41Z77qwuTC9NP8qFSqTnkLdZiPGd6N906Wr-BsvvhVEspFXQj23g8CLJhqvEZM6BklBtCLgmh4zegEc0qBjyHaGUKoq_TXcX90C3EwvEcL_"/>
+<div class="absolute bottom-0 right-0 bg-green-500 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-gray-800"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-bold text-text-main-light dark:text-text-main-dark truncate">김민지</h3>
+<span class="material-icons-round text-blue-500 text-[14px]">verified</span>
+</div>
+<div class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-text-sub-light dark:text-text-sub-dark border border-gray-200 dark:border-gray-600">
+                                STANDARD
+                            </div>
+</div>
+<button class="bg-primary hover:bg-primary-dark text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-95 flex items-center gap-1 whitespace-nowrap">
+<span>메시지 확인</span>
+<div class="w-1.5 h-1.5 bg-white rounded-full ml-1 animate-pulse"></div>
+</button>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-gray-100 dark:border-gray-800 flex items-center gap-4 transition-colors duration-300 opacity-90">
+<div class="relative">
+<img alt="User Avatar" class="w-14 h-14 rounded-full object-cover grayscale opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_RyIjK2k-QTRjRwLnbE4RVj8aAwN6nGcidTgTu1KUBK61vPdA04kVpcovcWk_L5KhBHkp8nykHMhVBa0OmhpFI3mbWomRxSJqyafE3WgTiQr01dwyG_gCWnTtsEFxuJQuQcwYQQoeiVmYj6eaeE4FdxaeyRPWt6l1IXnIr3BXtqaVrAQwF5mdZsacwEySCMzHhmO0dJzDsVsanYwJKKF9K2Pl4lzQAgLywQHpc9Kw9Gp8dqw8-9CpXjFsctsfEyEqvmnsAVRfHAbH"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-bold text-text-main-light dark:text-text-main-dark truncate">이준호</h3>
+<span class="material-icons-round text-yellow-500 text-[14px]">star</span>
+</div>
+<div class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark border border-gray-200 dark:border-gray-700">
+                                STANDARD
+                            </div>
+</div>
+<button class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-text-main-light dark:text-text-main-dark text-xs font-medium py-2.5 px-4 rounded-xl transition-all hover:bg-gray-50 dark:hover:bg-gray-700">
+                            최근 활동
+                        </button>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-gray-100 dark:border-gray-800 flex items-center gap-4 transition-colors duration-300">
+<div class="relative">
+<img alt="User Avatar" class="w-14 h-14 rounded-full object-cover ring-2 ring-primary/40 ring-offset-2 ring-offset-surface-light dark:ring-offset-surface-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXS_M7tcSkpfbT-VNck8tBVBsK01Zkz5pDEkwMXb8xCqPJFqgq1ymj-5tBs5giINYPM1kgvNR3WFzae8RR5JOVQxVRVmNKCj2dd2Y5HoJv6Tv2kQb5u7DLESzS3XSk9xYRAh6sf36zUqN-eOfsUdsbLZmPIP2dE85GWET3h9-pIk5iVuFyCsSEdK3e1KrErTCPU-Z_0b3nyxblWLcVIhvilhlPGeHa2iTxX1Zp2yfvopQrabEeZSDmL20SwirJwoDTHqAvhPhG-cZt"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-bold text-text-main-light dark:text-text-main-dark truncate">최현수</h3>
+</div>
+<div class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 border border-purple-100 dark:border-purple-800">
+                                VIP
+                            </div>
+</div>
+<button class="bg-primary hover:bg-primary-dark text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-95 flex items-center gap-1 whitespace-nowrap">
+<span>라이브 중</span>
+<span class="material-icons-round text-[10px]">sensors</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background-light dark:from-background-dark to-transparent pointer-events-none z-10"></div>
+<nav class="absolute bottom-0 w-full bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 pb-6 pt-2 px-6 flex justify-around items-center z-20">
+<button class="flex flex-col items-center gap-1 text-primary group">
+<div class="relative">
+<span class="material-icons-round text-2xl group-hover:scale-110 transition-transform">home</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></span>
+</div>
+<span class="text-[10px] font-medium">홈</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+<span class="material-icons-outlined text-2xl">chat_bubble_outline</span>
+<span class="text-[10px] font-medium">메시지</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+<span class="material-icons-outlined text-2xl">person_outline</span>
+<span class="text-[10px] font-medium">프로필</span>
+</button>
+</nav>
+<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-gray-300 dark:bg-gray-600 rounded-full z-30"></div>
+</div>
+<button class="fixed bottom-6 right-6 p-3 bg-gray-800 dark:bg-white text-white dark:text-gray-800 rounded-full shadow-xl hover:scale-105 transition-transform z-50" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons-round dark:hidden">dark_mode</span>
+<span class="material-icons-round hidden dark:block">light_mode</span>
+</button>
+
+</body></html>
