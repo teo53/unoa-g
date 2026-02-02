@@ -67,7 +67,11 @@ unoa-g/
 │   ├── navigation/
 │   │   └── app_router.dart       # go_router configuration
 │   └── shared/
-│       └── widgets/              # Reusable UI components
+│       └── widgets/
+│           ├── app_scaffold.dart     # Platform-aware layout
+│           ├── bottom_nav_bar.dart   # Bottom navigation
+│           ├── settings_widgets.dart # Settings UI components
+│           └── ...                   # Other reusable widgets
 ├── supabase/
 │   ├── functions/
 │   │   └── refresh-fallback-quotas/
@@ -99,9 +103,22 @@ abstract class IChatRepository {
 ```
 
 ### State Management
-- **ThemeProvider**: Global theme state via Provider
+- **ThemeProvider**: Global theme state via Provider (toggle in Settings)
 - **Local state**: StatefulWidgets for screen-level state
 - Repositories return Streams for real-time data
+
+### Platform-Aware Rendering
+`AppScaffold` automatically detects platform:
+- **Web**: Shows phone frame UI for demo/preview
+- **Mobile (Android/iOS)**: Full screen without borders
+
+```dart
+// AppScaffold handles platform detection automatically
+AppScaffold(
+  child: YourScreen(),
+  bottomNavigationBar: BottomNavBar(...),
+);
+```
 
 ## Key Conventions
 
@@ -262,6 +279,33 @@ Place in `lib/shared/widgets/` with:
 - Theme-aware colors
 - Support for both light and dark modes
 
+### Using Settings Widgets
+Reusable settings components in `lib/shared/widgets/settings_widgets.dart`:
+
+```dart
+import '../../shared/widgets/settings_widgets.dart';
+
+// Section title
+SettingsSectionTitle(title: '계정'),
+
+// Group container
+SettingsGroup(
+  children: [
+    SettingsItem(
+      icon: Icons.person_outline,
+      title: '프로필 편집',
+      onTap: () {},
+    ),
+    SettingsSwitchItem(
+      icon: Icons.dark_mode_outlined,
+      title: '다크 모드',
+      value: isDark,
+      onChanged: (v) => themeProvider.toggleTheme(),
+    ),
+  ],
+),
+```
+
 ## Testing Notes
 
 - Widget tests in `test/` directory
@@ -286,3 +330,5 @@ Each folder contains `screen.png` and `code.html` for reference.
 4. **Token System**: Fans need tokens to reply; don't allow unlimited messaging.
 5. **Subscription Age**: Character limits depend on how long a user has been subscribed.
 6. **Mock vs Real**: Currently uses mock data; real Supabase integration pending.
+7. **Theme Toggle**: Dark/light mode toggle is in Settings screen (`/settings`), not in bottom nav.
+8. **Platform Detection**: `AppScaffold` shows phone frame on web only; mobile gets full screen.

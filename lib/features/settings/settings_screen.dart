@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../app.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
+/// 설정 화면
+///
+/// 계정, 알림, 구독, 앱 설정을 관리하는 화면
+/// 다크 모드 토글이 여기서 동작함
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return AppScaffold(
       showStatusBar: true,
@@ -135,18 +142,19 @@ class SettingsScreen extends StatelessWidget {
                   _SettingsGroup(
                     items: [
                       _SettingsItem(
-                        icon: Icons.dark_mode_outlined,
+                        icon: isDark
+                            ? Icons.dark_mode_rounded
+                            : Icons.light_mode_rounded,
                         title: '다크 모드',
+                        subtitle: isDark ? '켜짐' : '꺼짐',
                         trailing: Switch(
                           value: isDark,
                           onChanged: (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('다크 모드 토글 기능 준비 중')),
-                            );
+                            themeProvider.toggleTheme();
                           },
                           activeColor: AppColors.primary600,
                         ),
-                        onTap: () {},
+                        onTap: () => themeProvider.toggleTheme(),
                       ),
                       _SettingsItem(
                         icon: Icons.language,
