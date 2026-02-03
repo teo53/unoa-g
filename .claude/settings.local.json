@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter --version:*)",
+      "Bash(flutter create:*)",
+      "Bash(flutter pub get:*)",
+      "Bash(flutter build:*)",
+      "Bash(dir:*)",
+      "Bash(flutter run:*)",
+      "Bash(timeout:*)",
+      "Bash(findstr:*)",
+      "Bash(gh api:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Implement Fromm/Bubble style broadcast chat system\n\n- Add broadcast messaging with 1:1 chat UX\n- Implement reply token system \\(3 tokens per artist message\\)\n- Add character limit progression based on subscription age \\(50-300 chars\\)\n- Add DT donation messaging with 100 char limit\n- Artist can reply to donation messages only \\(1:1\\)\n- Add 7-day fallback token for inactive broadcasts\n- Subscription pricing: 4,900 KRW/month per artist\n\nNew files:\n- SQL migrations for broadcast chat schema\n- RLS policies and triggers\n- Edge function for fallback quota refresh\n- Data models \\(BroadcastMessage, ReplyQuota, Channel\\)\n- Repository interface with Mock implementation\n- TokenCounter and DisabledComposer widgets\n- Artist Inbox screens with filter and reply functionality\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(xargs:*)"
+    ]
+  }
+}
