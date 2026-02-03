@@ -143,6 +143,12 @@ class ReplyQuota {
       updatedAt: now,
     );
   }
+
+  /// Get character limit based on subscription days
+  /// Uses default Bubble-style progression if no custom limits set
+  static int getCharacterLimitForDays(int daysSubscribed) {
+    return CharacterLimits.defaultLimits.getLimitForDays(daysSubscribed);
+  }
 }
 
 /// Character limit based on subscription age

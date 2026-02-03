@@ -1,30 +1,18 @@
-class UserProfile {
-  final String id;
-  final String name;
-  final String? englishName;
-  final String username;
-  final String avatarUrl;
-  final String tier; // STANDARD, VIP
-  final int subscriptionCount;
-  final int dtBalance;
-  final DateTime? nextPaymentDate;
+/// User Profile Models - Re-exports and Legacy Support
+///
+/// This file provides backward compatibility for existing code.
+/// For new code, import directly from:
+/// - `data/models/user.dart` for UserAuthProfile and UserDisplayProfile
 
-  const UserProfile({
-    required this.id,
-    required this.name,
-    this.englishName,
-    required this.username,
-    required this.avatarUrl,
-    this.tier = 'STANDARD',
-    this.subscriptionCount = 0,
-    this.dtBalance = 0,
-    this.nextPaymentDate,
-  });
+// Re-export from unified user models
+export 'user.dart' show UserAuthProfile, UserDisplayProfile, UserBase;
 
-  String get displayName =>
-      englishName != null ? '$name ($englishName)' : name;
-}
+// Legacy alias for UI display profile
+// @deprecated Use UserDisplayProfile instead
+import 'user.dart';
+typedef UserProfile = UserDisplayProfile;
 
+/// Transaction Model for wallet history
 class Transaction {
   final String id;
   final String description;
@@ -48,6 +36,28 @@ class Transaction {
   String get formattedDate {
     return '${timestamp.year}.${timestamp.month.toString().padLeft(2, '0')}.${timestamp.day.toString().padLeft(2, '0')}';
   }
+
+  factory Transaction.fromJson(Map<String, dynamic> json) {
+    return Transaction(
+      id: json['id'] as String,
+      description: json['description'] as String? ?? '',
+      amount: json['amount'] as int? ?? json['amount_dt'] as int? ?? 0,
+      timestamp: DateTime.parse(json['timestamp'] as String? ?? json['created_at'] as String),
+      type: (json['type'] as String? ?? json['entry_type'] as String?) == 'credit'
+          ? TransactionType.credit
+          : TransactionType.debit,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'description': description,
+      'amount': amount,
+      'timestamp': timestamp.toIso8601String(),
+      'type': type == TransactionType.credit ? 'credit' : 'debit',
+    };
+  }
 }
 
 enum TransactionType {
@@ -55,25 +65,5 @@ enum TransactionType {
   debit,
 }
 
-class DTPackage {
-  final String id;
-  final String name;
-  final int amount;
-  final int price;
-  final int? bonusAmount;
-  final bool isPopular;
-
-  const DTPackage({
-    required this.id,
-    required this.name,
-    required this.amount,
-    required this.price,
-    this.bonusAmount,
-    this.isPopular = false,
-  });
-
-  String get formattedPrice => '₩${price.toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]},',
-      )}';
-}
+// Note: DTPackage has been moved to dt_package.dart
+// Use: import 'package:unoa/data/models/dt_package.dart';

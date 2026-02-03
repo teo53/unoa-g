@@ -1,0 +1,154 @@
+// Payment Checkout Edge Function
+// Creates a checkout session for DT purchases
+
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// DT Package definitions (should match database)
+const DT_PACKAGES: Record<string, { dt: number; bonus: number; priceKrw: number; name: string }> = {
+  'dt_10': { dt: 10, bonus: 0, priceKrw: 1000, name: '10 DT' },
+  'dt_50': { dt: 50, bonus: 0, priceKrw: 5000, name: '50 DT' },
+  'dt_100': { dt: 100, bonus: 5, priceKrw: 10000, name: '100 DT' },
+  'dt_500': { dt: 500, bonus: 50, priceKrw: 50000, name: '500 DT' },
+  'dt_1000': { dt: 1000, bonus: 150, priceKrw: 100000, name: '1,000 DT' },
+  'dt_5000': { dt: 5000, bonus: 1000, priceKrw: 500000, name: '5,000 DT' },
+}
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const { userId, packageId, paymentMethod = 'card' } = await req.json()
+
+    // Validate inputs
+    if (!userId || !packageId) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: userId, packageId' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const pkg = DT_PACKAGES[packageId]
+    if (!pkg) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid package ID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Initialize Supabase client with service role
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    // Verify user exists and can make payments
+    const { data: userProfile, error: userError } = await supabase
+      .from('user_profiles')
+      .select('id, is_banned, date_of_birth, guardian_consent_at')
+      .eq('id', userId)
+      .single()
+
+    if (userError || !userProfile) {
+      return new Response(
+        JSON.stringify({ error: 'User not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (userProfile.is_banned) {
+      return new Response(
+        JSON.stringify({ error: 'User account is suspended' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Check age restrictions for minors (Korean law)
+    if (userProfile.date_of_birth) {
+      const birthDate = new Date(userProfile.date_of_birth)
+      const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+
+      if (age < 14) {
+        return new Response(
+          JSON.stringify({ error: '만 14세 미만은 결제가 불가합니다.' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (age < 19 && !userProfile.guardian_consent_at) {
+        return new Response(
+          JSON.stringify({ error: '만 19세 미만은 법정대리인 동의가 필요합니다.' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // Calculate refund eligibility (7 days from now)
+    const refundEligibleUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+
+    // Create pending purchase record
+    const { data: purchase, error: purchaseError } = await supabase
+      .from('dt_purchases')
+      .insert({
+        user_id: userId,
+        package_id: packageId,
+        dt_amount: pkg.dt,
+        bonus_dt: pkg.bonus,
+        price_krw: pkg.priceKrw,
+        payment_method: paymentMethod,
+        payment_provider: 'tosspayments', // Default provider
+        status: 'pending',
+        refund_eligible_until: refundEligibleUntil,
+      })
+      .select()
+      .single()
+
+    if (purchaseError) {
+      console.error('Failed to create purchase:', purchaseError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to create purchase order' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // In production, integrate with actual payment provider (TossPayments, Iamport, etc.)
+    // For now, return a mock checkout URL
+    const checkoutUrl = `https://pay.example.com/checkout?orderId=${purchase.id}&amount=${pkg.priceKrw}&orderName=${encodeURIComponent(pkg.name)}`
+
+    // Return checkout information
+    return new Response(
+      JSON.stringify({
+        success: true,
+        purchaseId: purchase.id,
+        checkoutUrl: checkoutUrl,
+        package: {
+          id: packageId,
+          name: pkg.name,
+          dtAmount: pkg.dt,
+          bonusDt: pkg.bonus,
+          totalDt: pkg.dt + pkg.bonus,
+          priceKrw: pkg.priceKrw,
+        },
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
+  } catch (error) {
+    console.error('Payment checkout error:', error)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+})

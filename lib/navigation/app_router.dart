@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../features/home/home_screen.dart';
 import '../features/chat/chat_list_screen.dart';
-import '../features/chat/chat_thread_screen.dart';
+import '../features/chat/chat_thread_screen_v2.dart';
 import '../features/discover/discover_screen.dart';
 import '../features/profile/my_profile_screen.dart';
 import '../features/profile/artist_profile_screen.dart';
@@ -88,8 +88,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/chat/:artistId',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => ChatThreadScreen(
-        artistId: state.pathParameters['artistId']!,
+      builder: (context, state) => ChatThreadScreenV2(
+        // artistId is used as channelId for backward compatibility
+        // In production, resolve channelId from artistId via provider
+        channelId: state.pathParameters['artistId']!,
       ),
     ),
     GoRoute(

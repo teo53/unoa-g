@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run start:v2:*)",
+      "Bash(npm install:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(node -e:*)"
+    ]
+  }
+}

@@ -1,1 +1,234 @@
-# unoa-g
+# UNO A - Fan-Creator Chat Platform
+
+UNO A는 팬과 크리에이터를 연결하는 1:1 프리미엄 채팅 플랫폼입니다.
+
+## 주요 기능
+
+- **구독 기반 채팅**: 팬은 월 4,900원으로 좋아하는 크리에이터와 1:1 채팅
+- **DT 후원 시스템**: 디지털 토큰(DT)으로 크리에이터에게 후원
+- **일일 답장 쿼터**: 구독 등급에 따른 일일 답장 횟수 제한
+- **글자수 제한 성장**: 구독 기간에 따라 메시지 글자수 제한 증가
+- **실시간 알림**: 새 메시지, 후원 알림 실시간 수신
+
+## 기술 스택
+
+### Frontend (Flutter)
+- **State Management**: Riverpod
+- **Navigation**: GoRouter
+- **API Client**: Supabase Flutter SDK
+- **Image Caching**: CachedNetworkImage
+- **Local Storage**: SharedPreferences
+
+### Backend (Supabase)
+- **Database**: PostgreSQL
+- **Authentication**: Supabase Auth (OAuth, Email)
+- **Realtime**: Supabase Realtime (채팅, Presence)
+- **Storage**: Supabase Storage (이미지, 미디어)
+- **Serverless Functions**: Deno Edge Functions
+
+### Payment
+- **PG사**: TossPayments (한국)
+- **Webhook**: 서명 검증 + 원자적 트랜잭션
+
+## 프로젝트 구조
+
+```
+unoa-g-main/
+├── lib/                          # Flutter 앱 소스코드
+│   ├── core/                     # 핵심 유틸리티
+│   │   ├── supabase/            # Supabase 클라이언트 설정
+│   │   ├── theme/               # 앱 테마 및 색상
+│   │   └── services/            # 에러 처리, 로깅 서비스
+│   ├── data/                     # 데이터 레이어
+│   │   ├── models/              # 데이터 모델 (User, Channel, Message 등)
+│   │   ├── repositories/        # 데이터 접근 추상화
+│   │   ├── services/            # 비즈니스 로직 서비스
+│   │   └── mock/                # Mock 데이터 (개발용)
+│   ├── features/                 # 기능별 화면
+│   │   ├── auth/                # 인증 (로그인, 회원가입)
+│   │   ├── chat/                # 채팅 (목록, 스레드)
+│   │   ├── wallet/              # 지갑 (충전, 후원)
+│   │   ├── settings/            # 설정
+│   │   └── discover/            # 크리에이터 탐색
+│   ├── providers/                # Riverpod Providers
+│   │   ├── auth_provider.dart   # 인증 상태 관리
+│   │   ├── chat_provider.dart   # 채팅 상태 관리
+│   │   └── wallet_provider.dart # 지갑 상태 관리
+│   ├── navigation/               # GoRouter 라우팅
+│   └── shared/                   # 공용 위젯
+├── supabase/                     # 백엔드 (Supabase)
+│   ├── migrations/              # 데이터베이스 스키마 (14개 마이그레이션)
+│   │   ├── 001_users_profiles.sql
+│   │   ├── 002_channels_subscriptions.sql
+│   │   ├── 003_triggers.sql
+│   │   └── ...
+│   └── functions/               # Edge Functions (서버리스)
+│       ├── payment-checkout/    # 결제 세션 생성
+│       ├── payment-webhook/     # 결제 완료 처리
+│       └── settlement-batch/    # 정산 배치
+├── android/                      # Android 플랫폼 설정
+├── ios/                          # iOS 플랫폼 설정
+└── test/                         # 테스트 코드
+```
+
+## 시작하기
+
+### 필수 조건
+
+- Flutter SDK 3.0 이상
+- Dart SDK 3.0 이상
+- Supabase 계정
+- TossPayments 계정 (결제 기능)
+
+### 설치
+
+1. **레포지토리 클론**
+```bash
+git clone https://github.com/your-org/unoa-g.git
+cd unoa-g-main
+```
+
+2. **의존성 설치**
+```bash
+flutter pub get
+```
+
+3. **환경 변수 설정**
+```bash
+cp .env.example .env
+# .env 파일을 열어 Supabase 키 입력
+```
+
+4. **Supabase 프로젝트 설정**
+```bash
+# Supabase CLI 설치
+npm install -g supabase
+
+# 프로젝트 링크
+supabase link --project-ref your-project-ref
+
+# 마이그레이션 실행
+supabase db push
+```
+
+5. **앱 실행**
+```bash
+# 개발 모드
+flutter run
+
+# 릴리즈 빌드
+flutter build apk --release  # Android
+flutter build ios --release  # iOS
+```
+
+## 환경 변수
+
+`.env.example` 파일을 `.env`로 복사하고 값을 입력하세요:
+
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+
+# 결제 설정 (프로덕션)
+TOSSPAYMENTS_CLIENT_KEY=
+TOSSPAYMENTS_SECRET_KEY=
+TOSSPAYMENTS_WEBHOOK_SECRET=
+
+# 환경
+ENVIRONMENT=development
+```
+
+## 테스트
+
+```bash
+# 단위 테스트
+flutter test
+
+# 통합 테스트
+flutter test integration_test/
+
+# 코드 분석
+flutter analyze
+```
+
+## 아키텍처
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Flutter App (lib/)                   │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │
+│  │  Auth   │  │  Chat   │  │ Wallet  │  │ Profile │   │
+│  │ Screen  │  │ Screen  │  │ Screen  │  │ Screen  │   │
+│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘   │
+│       │            │            │            │         │
+│       └────────────┴─────┬──────┴────────────┘         │
+│                          │                              │
+│               ┌──────────▼──────────┐                  │
+│               │     Providers       │ (Riverpod)       │
+│               │  auth, chat, wallet │                  │
+│               └──────────┬──────────┘                  │
+│                          │                              │
+│               ┌──────────▼──────────┐                  │
+│               │      Services       │                  │
+│               │ chat, wallet, notif │                  │
+│               └──────────┬──────────┘                  │
+│                          │                              │
+│               ┌──────────▼──────────┐                  │
+│               │    Repositories     │                  │
+│               │ Supabase 연결 추상화│                  │
+│               └──────────┬──────────┘                  │
+└──────────────────────────┼──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                   Supabase Backend                      │
+├─────────────────────────────────────────────────────────┤
+│  PostgreSQL    │  Auth   │  Storage  │  Edge Functions │
+│  (14개 테이블)  │ (OAuth) │ (이미지)   │ (결제, 정산)    │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 데이터 흐름
+
+1. **화면 (Screen)** → 사용자 인터랙션 처리
+2. **Provider** → 상태 관리 및 비즈니스 로직 조율
+3. **Service** → 비즈니스 규칙 적용 (유효성 검사, 계산 등)
+4. **Repository** → 데이터 접근 추상화
+5. **Supabase** → 데이터 저장 및 실시간 동기화
+
+## 주요 모델
+
+| 모델 | 설명 |
+|------|------|
+| `UserAuthProfile` | 인증 및 권한 정보 (role, isBanned 등) |
+| `UserDisplayProfile` | UI 표시용 정보 (tier, dtBalance 등) |
+| `Channel` | 크리에이터 채널 |
+| `Subscription` | 구독 정보 |
+| `BroadcastMessage` | 채팅 메시지 |
+| `ReplyQuota` | 일일 답장 쿼터 |
+| `DtPackage` | DT 충전 패키지 |
+
+## 보안
+
+- **결제 Webhook**: HMAC-SHA256 서명 검증
+- **민감정보**: pgcrypto 컬럼 레벨 암호화
+- **트랜잭션**: PostgreSQL 저장 프로시저로 원자성 보장
+- **RLS**: Row Level Security로 데이터 접근 제어
+
+## 기여
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 라이선스
+
+This project is proprietary software. All rights reserved.
+
+## 연락처
+
+- 이슈: GitHub Issues
+- 이메일: support@unoa.app

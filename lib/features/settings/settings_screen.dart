@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import '../../app.dart';
 import '../../core/theme/app_colors.dart';
+import '../../providers/theme_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
 /// 설정 화면
 ///
 /// 계정, 알림, 구독, 앱 설정을 관리하는 화면
 /// 다크 모드 토글이 여기서 동작함
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeNotifier = ref.read(themeProvider.notifier);
 
     return AppScaffold(
       showStatusBar: true,
@@ -158,11 +158,11 @@ class SettingsScreen extends StatelessWidget {
                         trailing: Switch(
                           value: isDark,
                           onChanged: (value) {
-                            themeProvider.toggleTheme();
+                            themeNotifier.toggleTheme();
                           },
                           activeColor: AppColors.primary600,
                         ),
-                        onTap: () => themeProvider.toggleTheme(),
+                        onTap: () => themeNotifier.toggleTheme(),
                       ),
                       _SettingsItem(
                         icon: Icons.language,

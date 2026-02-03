@@ -190,8 +190,8 @@ class WalletScreen extends StatelessWidget {
                           ),
                           child: _PackageCard(
                             name: package.name,
-                            amount: package.amount,
-                            bonus: package.bonusAmount,
+                            amount: package.dtAmount,
+                            bonus: package.bonusDt,
                             price: package.formattedPrice,
                             isPopular: package.isPopular,
                           ),

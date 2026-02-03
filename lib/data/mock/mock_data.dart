@@ -1,6 +1,7 @@
 import '../models/artist.dart';
 import '../models/message.dart';
 import '../models/user_profile.dart';
+import '../models/dt_package.dart';
 import '../../core/constants/asset_paths.dart';
 
 class MockData {
@@ -267,33 +268,33 @@ class MockData {
 
   // DT Packages
   static const dtPackages = [
-    DTPackage(
+    DtPackage(
       id: 'pkg_1',
       name: '스타터',
-      amount: 100,
-      price: 1100,
+      dtAmount: 100,
+      priceKrw: 1100,
     ),
-    DTPackage(
+    DtPackage(
       id: 'pkg_2',
       name: '베이직',
-      amount: 500,
-      price: 5500,
-      bonusAmount: 50,
+      dtAmount: 500,
+      priceKrw: 5500,
+      bonusDt: 50,
     ),
-    DTPackage(
+    DtPackage(
       id: 'pkg_3',
       name: '스탠다드',
-      amount: 1000,
-      price: 11000,
-      bonusAmount: 150,
+      dtAmount: 1000,
+      priceKrw: 11000,
+      bonusDt: 150,
       isPopular: true,
     ),
-    DTPackage(
+    DtPackage(
       id: 'pkg_4',
       name: '프리미엄',
-      amount: 3000,
-      price: 33000,
-      bonusAmount: 600,
+      dtAmount: 3000,
+      priceKrw: 33000,
+      bonusDt: 600,
     ),
   ];
 

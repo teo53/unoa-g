@@ -98,8 +98,8 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
 
                       return _PackageCard(
                         name: package.name,
-                        amount: package.amount,
-                        bonus: package.bonusAmount,
+                        amount: package.dtAmount,
+                        bonus: package.bonusDt,
                         price: package.formattedPrice,
                         isPopular: package.isPopular,
                         isSelected: isSelected,
@@ -267,7 +267,7 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
             ],
           ),
           content: Text(
-            '${package.amount + (package.bonusAmount ?? 0)} DT가 충전되었습니다!',
+            '${package.totalDt} DT가 충전되었습니다!',
           ),
           actions: [
             TextButton(
