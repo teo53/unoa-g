@@ -6,6 +6,7 @@ import '../data/models/broadcast_message.dart';
 import '../data/models/reply_quota.dart';
 import '../data/models/channel.dart';
 import 'auth_provider.dart';
+import 'chat_list_provider.dart';
 
 /// Chat state for a specific channel
 class ChatState {
@@ -89,6 +90,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      // Check if in demo mode
+      final authState = _ref.read(authProvider);
+      if (authState is AuthDemoMode) {
+        _loadDemoData();
+        return;
+      }
+
       final client = _ref.read(supabaseClientProvider);
       final userId = _ref.read(currentUserProvider)?.id;
 
@@ -164,6 +172,136 @@ class ChatNotifier extends StateNotifier<ChatState> {
         error: '채팅을 불러오는데 실패했습니다.',
       );
     }
+  }
+
+  /// Load demo data for demo mode
+  void _loadDemoData() {
+    // Find matching demo thread data
+    final chatListState = _ref.read(chatListProvider);
+    final demoThread = chatListState.threads.firstWhere(
+      (t) => t.channelId == channelId,
+      orElse: () => ChatThreadData(
+        channelId: channelId,
+        artistId: 'demo_artist',
+        artistName: '데모 아티스트',
+      ),
+    );
+
+    // Create demo channel
+    final demoChannel = Channel(
+      id: channelId,
+      artistId: demoThread.artistId,
+      name: demoThread.artistName,
+      description: '데모 모드 채팅방입니다.',
+      avatarUrl: demoThread.avatarUrl,
+      createdAt: DateTime.now().subtract(const Duration(days: 30)),
+      updatedAt: DateTime.now(),
+    );
+
+    // Create demo subscription
+    final demoSubscription = Subscription(
+      id: 'demo_sub_${channelId}',
+      userId: 'demo_user_001',
+      channelId: channelId,
+      tier: demoThread.tier,
+      startedAt: DateTime.now().subtract(Duration(days: demoThread.daysSubscribed)),
+      isActive: true,
+      createdAt: DateTime.now().subtract(Duration(days: demoThread.daysSubscribed)),
+      updatedAt: DateTime.now(),
+    );
+
+    // Create demo quota
+    final demoQuota = ReplyQuota(
+      id: 'demo_quota_${channelId}',
+      userId: 'demo_user_001',
+      channelId: channelId,
+      tokensAvailable: 3,
+      tokensUsed: 0,
+      fallbackAvailable: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    // Create demo messages
+    final demoMessages = _generateDemoMessages(demoThread);
+
+    state = state.copyWith(
+      channel: demoChannel,
+      subscription: demoSubscription,
+      quota: demoQuota,
+      messages: demoMessages,
+      isLoading: false,
+      hasMoreMessages: false,
+      onlineUsers: {demoThread.artistId: demoThread.isOnline},
+    );
+  }
+
+  /// Generate demo messages based on channel
+  List<BroadcastMessage> _generateDemoMessages(ChatThreadData thread) {
+    final now = DateTime.now();
+    final messages = <BroadcastMessage>[];
+
+    // Artist welcome message
+    messages.add(BroadcastMessage(
+      id: 'demo_msg_1_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: '안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
+      createdAt: now.subtract(const Duration(days: 7)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
+    // Fan reply
+    messages.add(BroadcastMessage(
+      id: 'demo_msg_2_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: 'demo_user_001',
+      senderType: 'fan',
+      deliveryScope: DeliveryScope.directReply,
+      content: '환영해주셔서 감사합니다! 항상 응원해요!',
+      createdAt: now.subtract(const Duration(days: 6, hours: 12)),
+      senderName: '데모 사용자',
+      senderTier: thread.tier,
+      senderDaysSubscribed: thread.daysSubscribed,
+      isRead: true,
+    ));
+
+    // Artist daily message
+    messages.add(BroadcastMessage(
+      id: 'demo_msg_3_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: '오늘 하루도 모두 화이팅! 행복한 하루 보내세요 ☀️',
+      createdAt: now.subtract(const Duration(days: 3)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
+    // Artist recent message
+    messages.add(BroadcastMessage(
+      id: 'demo_msg_4_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: thread.lastMessage ?? '항상 응원해주셔서 감사합니다!',
+      createdAt: thread.lastMessageAt ?? now.subtract(const Duration(hours: 1)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: thread.unreadCount == 0,
+    ));
+
+    // Sort by time
+    messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    return messages;
   }
 
   void _subscribeToMessages() {
@@ -290,6 +428,12 @@ class ChatNotifier extends StateNotifier<ChatState> {
     if (!state.canReply) return false;
     if (content.length > state.characterLimit) return false;
 
+    // Handle demo mode
+    final authState = _ref.read(authProvider);
+    if (authState is AuthDemoMode) {
+      return _sendDemoReply(content);
+    }
+
     try {
       final client = _ref.read(supabaseClientProvider);
       final userId = _ref.read(currentUserProvider)?.id;
@@ -312,6 +456,70 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
       return false;
     }
+  }
+
+  /// Send a demo reply (for demo mode)
+  bool _sendDemoReply(String content) {
+    final newMessage = BroadcastMessage(
+      id: 'demo_msg_${DateTime.now().millisecondsSinceEpoch}',
+      channelId: channelId,
+      senderId: 'demo_user_001',
+      senderType: 'fan',
+      deliveryScope: DeliveryScope.directReply,
+      content: content,
+      createdAt: DateTime.now(),
+      senderName: '데모 사용자',
+      senderTier: state.subscription?.tier ?? 'STANDARD',
+      senderDaysSubscribed: state.subscription?.daysSubscribed ?? 0,
+      isRead: true,
+    );
+
+    // Update quota
+    final newQuota = state.quota?.afterReply();
+
+    state = state.copyWith(
+      messages: [...state.messages, newMessage],
+      quota: newQuota,
+    );
+
+    // Simulate artist reply after a delay
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        _addDemoArtistReply();
+      }
+    });
+
+    return true;
+  }
+
+  /// Add a demo artist auto-reply
+  void _addDemoArtistReply() {
+    final demoReplies = [
+      '고마워요! 💕',
+      '항상 응원해줘서 감사해요~',
+      '좋은 하루 보내세요! ☺️',
+      '메시지 잘 받았어요!',
+      '사랑해요~ 🥰',
+    ];
+
+    final randomReply = demoReplies[DateTime.now().millisecond % demoReplies.length];
+
+    final artistReply = BroadcastMessage(
+      id: 'demo_msg_artist_${DateTime.now().millisecondsSinceEpoch}',
+      channelId: channelId,
+      senderId: state.channel?.artistId ?? 'demo_artist',
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: randomReply,
+      createdAt: DateTime.now(),
+      senderName: state.channel?.name ?? '아티스트',
+      senderAvatarUrl: state.channel?.avatarUrl,
+      isRead: false,
+    );
+
+    state = state.copyWith(
+      messages: [...state.messages, artistReply],
+    );
   }
 
   /// Send a donation message

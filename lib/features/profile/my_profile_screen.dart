@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/mock/mock_data.dart';
+import '../../providers/auth_provider.dart';
 
-class MyProfileScreen extends StatelessWidget {
+class MyProfileScreen extends ConsumerWidget {
   const MyProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = MockData.currentUser;
+    final isDemoMode = ref.watch(isDemoModeProvider);
+    final profile = ref.watch(currentProfileProvider);
+    final isCreator = profile?.isCreator ?? false;
 
     return Column(
       children: [
@@ -178,6 +183,39 @@ class MyProfileScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 16),
+
+                // Creator Section (for demo mode, always show)
+                if (isDemoMode || isCreator) ...[
+                  _MenuSection(
+                    items: [
+                      _MenuItem(
+                        icon: Icons.campaign,
+                        iconColor: Colors.pink,
+                        iconBgColor: Colors.pink.withOpacity(0.1),
+                        title: '펀딩 관리',
+                        subtitle: '내 펀딩 캠페인 관리',
+                        onTap: () => context.push('/creator/funding'),
+                      ),
+                      _MenuItem(
+                        icon: Icons.inbox,
+                        iconColor: Colors.teal,
+                        iconBgColor: Colors.teal.withOpacity(0.1),
+                        title: '팬 메시지함',
+                        subtitle: '팬들의 메시지 확인',
+                        onTap: () => context.push('/artist/inbox'),
+                      ),
+                      _MenuItem(
+                        icon: Icons.send,
+                        iconColor: Colors.indigo,
+                        iconBgColor: Colors.indigo.withOpacity(0.1),
+                        title: '메시지 보내기',
+                        subtitle: '팬들에게 브로드캐스트',
+                        onTap: () => context.push('/artist/broadcast/compose'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 // Menu Section 2
                 _MenuSection(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
@@ -243,20 +244,30 @@ class SettingsScreen extends ConsumerWidget {
                         title: '로그아웃',
                         titleColor: AppColors.danger,
                         onTap: () {
+                          final isDemoMode = ref.read(isDemoModeProvider);
                           showDialog(
                             context: context,
-                            builder: (context) => AlertDialog(
+                            builder: (dialogContext) => AlertDialog(
                               title: const Text('로그아웃'),
-                              content: const Text('정말 로그아웃 하시겠습니까?'),
+                              content: Text(isDemoMode
+                                  ? '데모 모드를 종료하시겠습니까?'
+                                  : '정말 로그아웃 하시겠습니까?'),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context),
+                                  onPressed: () => Navigator.pop(dialogContext),
                                   child: const Text('취소'),
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.pop(context);
-                                    context.go('/');
+                                    Navigator.pop(dialogContext);
+                                    // Actually sign out or exit demo mode
+                                    if (isDemoMode) {
+                                      ref.read(authProvider.notifier).exitDemoMode();
+                                    } else {
+                                      ref.read(authProvider.notifier).signOut();
+                                    }
+                                    // Navigate to login screen
+                                    context.go('/login');
                                   },
                                   child: Text(
                                     '로그아웃',

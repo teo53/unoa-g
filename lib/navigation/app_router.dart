@@ -20,6 +20,8 @@ import '../features/artist_inbox/artist_inbox_screen.dart';
 import '../features/artist_inbox/broadcast_compose_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
+import '../features/funding/creator_funding_screen.dart';
+import '../features/funding/create_campaign_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 
@@ -47,6 +49,11 @@ class AppRoutes {
   static const String artistInbox = '/artist/inbox';
   static const String artistInboxThread = '/artist/inbox/:fanUserId';
   static const String broadcastCompose = '/artist/broadcast/compose';
+
+  // Creator Funding Routes
+  static const String creatorFunding = '/creator/funding';
+  static const String createCampaign = '/creator/funding/create';
+  static const String editCampaign = '/creator/funding/edit/:campaignId';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -54,7 +61,7 @@ final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>()
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: AppRoutes.home,
+  initialLocation: AppRoutes.login,
   routes: [
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
@@ -196,6 +203,24 @@ final appRouter = GoRouter(
       path: '/register',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RegisterScreen(),
+    ),
+    // Creator Funding Routes
+    GoRoute(
+      path: '/creator/funding',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CreatorFundingScreen(),
+    ),
+    GoRoute(
+      path: '/creator/funding/create',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CreateCampaignScreen(),
+    ),
+    GoRoute(
+      path: '/creator/funding/edit/:campaignId',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => CreateCampaignScreen(
+        campaignId: state.pathParameters['campaignId'],
+      ),
     ),
   ],
 );
