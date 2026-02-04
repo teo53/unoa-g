@@ -1,0 +1,6 @@
+export { IntroTab } from './intro-tab'
+export { RewardsTab } from './rewards-tab'
+export { UpdatesTab } from './updates-tab'
+export { FAQTab } from './faq-tab'
+export { CommunityTab } from './community-tab'
+export { ReviewsTab } from './reviews-tab'
