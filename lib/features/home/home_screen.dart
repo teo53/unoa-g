@@ -130,7 +130,6 @@ class HomeScreen extends StatelessWidget {
                         child: SubscriptionTile(
                           artist: artist,
                           hasNewMessage: artist.id == 'artist_1',
-                          isLive: artist.id == 'artist_4',
                           onTap: () => context.push('/chat/${artist.id}'),
                           onMessageTap: () => context.push('/chat/${artist.id}'),
                         ),

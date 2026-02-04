@@ -7,7 +7,6 @@ import '../../../shared/widgets/primary_button.dart';
 class SubscriptionTile extends StatelessWidget {
   final Artist artist;
   final bool hasNewMessage;
-  final bool isLive;
   final VoidCallback? onTap;
   final VoidCallback? onMessageTap;
 
@@ -15,7 +14,6 @@ class SubscriptionTile extends StatelessWidget {
     super.key,
     required this.artist,
     this.hasNewMessage = false,
-    this.isLive = false,
     this.onTap,
     this.onMessageTap,
   });
@@ -49,7 +47,7 @@ class SubscriptionTile extends StatelessWidget {
               imageUrl: artist.avatarUrl,
               size: 56,
               isOnline: artist.isOnline,
-              showRing: hasNewMessage || isLive,
+              showRing: hasNewMessage,
               ringColor: AppColors.primary,
             ),
 
@@ -105,13 +103,7 @@ class SubscriptionTile extends StatelessWidget {
             ),
 
             // Action Button
-            if (isLive)
-              PrimaryButton(
-                label: '라이브 중',
-                icon: Icons.sensors,
-                onPressed: onMessageTap,
-              )
-            else if (hasNewMessage)
+            if (hasNewMessage)
               PrimaryButton(
                 label: '메시지 확인',
                 showPulse: true,

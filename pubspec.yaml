@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # Navigation
   go_router: ^14.0.0
@@ -44,7 +46,7 @@ dependencies:
 
   # Utilities
   url_launcher: ^6.2.4
-  intl: ^0.19.0
+  intl: ^0.20.2
   uuid: ^4.3.3
   equatable: ^2.0.5
   json_annotation: ^4.8.1

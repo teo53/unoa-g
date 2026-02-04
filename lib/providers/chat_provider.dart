@@ -195,14 +195,16 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final userId = _ref.read(currentUserProvider)?.id;
     if (userId == null) return;
 
+    // Note: Supabase stream only supports one eq() filter.
+    // We filter channel_id via stream and user_id in the listener.
     _quotaSubscription = client
         .from('reply_quota')
         .stream(primaryKey: ['id'])
         .eq('channel_id', channelId)
-        .eq('user_id', userId)
         .listen((data) {
-      if (data.isNotEmpty) {
-        state = state.copyWith(quota: ReplyQuota.fromJson(data.first));
+      final userQuota = data.where((row) => row['user_id'] == userId).toList();
+      if (userQuota.isNotEmpty) {
+        state = state.copyWith(quota: ReplyQuota.fromJson(userQuota.first));
       }
     });
   }
@@ -217,13 +219,22 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final channel = client.channel('presence:$channelId');
 
     // Store the subscription to allow proper cleanup
-    final realtimeChannel = channel.onPresenceSync((payload) {
-      final presences = payload.currentPresences;
+    // presenceState() returns List<SinglePresenceState>
+    // SinglePresenceState has: key (String) and presences (List<Presence>)
+    // Each Presence has: presenceRef and payload (Map<String, dynamic>)
+    final realtimeChannel = channel.onPresenceSync((_) {
+      // Get current state from the channel's presenceState
+      final presenceState = channel.presenceState();
       final onlineUsers = <String, bool>{};
-      for (final presence in presences) {
-        final oduserId = presence.payload['user_id'] as String?;
-        if (oduserId != null) {
-          onlineUsers[oduserId] = true;
+
+      // Iterate through SinglePresenceState list
+      for (final singleState in presenceState) {
+        // Each singleState has a list of Presence objects
+        for (final presence in singleState.presences) {
+          final presenceUserId = presence.payload['user_id'] as String?;
+          if (presenceUserId != null) {
+            onlineUsers[presenceUserId] = true;
+          }
         }
       }
       state = state.copyWith(onlineUsers: onlineUsers);

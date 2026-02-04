@@ -69,10 +69,15 @@ class MyProfileScreen extends StatelessWidget {
                         ),
                       ),
                       child: ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: user.avatarUrl,
-                          fit: BoxFit.cover,
-                        ),
+                        child: user.avatarUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: user.avatarUrl!,
+                                fit: BoxFit.cover,
+                              )
+                            : Container(
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.person, size: 48),
+                              ),
                       ),
                     ),
                     Positioned(
@@ -104,7 +109,7 @@ class MyProfileScreen extends StatelessWidget {
 
                 // Name
                 Text(
-                  user.displayName,
+                  user.displayName ?? user.name,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,

@@ -52,7 +52,7 @@ class AuthError extends AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final SupabaseAuthService _authService;
   final SupabaseClient _client;
-  StreamSubscription<AuthState>? _authSubscription;
+  StreamSubscription? _authSubscription;
 
   AuthNotifier(this._authService, this._client) : super(const AuthInitial()) {
     _initialize();

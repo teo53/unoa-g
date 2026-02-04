@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../features/home/home_screen.dart';
 import '../features/chat/chat_list_screen.dart';
 import '../features/chat/chat_thread_screen_v2.dart';
+import '../features/funding/funding_screen.dart';
 import '../features/discover/discover_screen.dart';
 import '../features/profile/my_profile_screen.dart';
 import '../features/profile/artist_profile_screen.dart';
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String home = '/';
   static const String chat = '/chat';
   static const String chatThread = '/chat/:artistId';
+  static const String funding = '/funding';
   static const String discover = '/discover';
   static const String profile = '/profile';
   static const String artistProfile = '/artist/:artistId';
@@ -69,6 +71,12 @@ final appRouter = GoRouter(
           path: '/chat',
           pageBuilder: (context, state) => const NoTransitionPage(
             child: ChatListScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/funding',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: FundingScreen(),
           ),
         ),
         GoRoute(
@@ -190,8 +198,9 @@ class MainShell extends StatelessWidget {
   int _calculateIndex(String path) {
     if (path == '/') return 0;
     if (path.startsWith('/chat')) return 1;
-    if (path.startsWith('/discover')) return 2;
-    if (path.startsWith('/profile')) return 3;
+    if (path.startsWith('/funding')) return 2;
+    if (path.startsWith('/discover')) return 3;
+    if (path.startsWith('/profile')) return 4;
     return 0;
   }
 
@@ -204,9 +213,12 @@ class MainShell extends StatelessWidget {
         context.go('/chat');
         break;
       case 2:
-        context.go('/discover');
+        context.go('/funding');
         break;
       case 3:
+        context.go('/discover');
+        break;
+      case 4:
         context.go('/profile');
         break;
     }
