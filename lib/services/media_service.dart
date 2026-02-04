@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 import 'package:video_compress/video_compress.dart';
 import '../core/supabase/supabase_client.dart';
