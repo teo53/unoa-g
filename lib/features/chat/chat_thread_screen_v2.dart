@@ -9,6 +9,7 @@ import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/chat_input_bar_v2.dart';
+import 'widgets/voice_message_widget.dart';
 
 /// Chat thread screen showing 1:1 conversation with an artist
 /// Uses Riverpod for state management with Supabase backend
@@ -57,8 +58,11 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   }
 
   void _onScroll() {
-    // Load more messages when scrolled to top
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+    // Load more messages when scrolled near the top (with tolerance for floating point)
+    final position = _scrollController.position;
+    final threshold = 100.0; // pixels from end to trigger load
+
+    if (position.pixels >= position.maxScrollExtent - threshold) {
       ref.read(chatProvider(widget.channelId).notifier).loadMoreMessages();
     }
   }
@@ -702,17 +706,76 @@ class MessageBubbleV2 extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         );
-      case BroadcastMessageType.voice:
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.play_circle_fill,
-              color: AppColors.primary,
+      case BroadcastMessageType.video:
+        // 동영상 썸네일 + 재생 버튼 오버레이
+        final thumbnailUrl = message.mediaMetadata?['thumbnail_url'] as String?;
+        return GestureDetector(
+          onTap: () => _playVideo(context, message.mediaUrl!),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (thumbnailUrl != null)
+                  CachedNetworkImage(
+                    imageUrl: thumbnailUrl,
+                    width: 200,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  )
+                else
+                  Container(
+                    width: 200,
+                    height: 150,
+                    color: isDark ? Colors.grey[800] : Colors.grey[300],
+                    child: Icon(
+                      Icons.videocam,
+                      size: 48,
+                      color: isDark ? Colors.grey[600] : Colors.grey[500],
+                    ),
+                  ),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+                // 동영상 길이 표시 (있는 경우)
+                if (message.mediaMetadata?['duration'] != null)
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        _formatDuration(message.mediaMetadata!['duration'] as int),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Text('음성 메시지'),
-          ],
+          ),
+        );
+      case BroadcastMessageType.voice:
+        return VoiceMessageWidget(
+          voiceUrl: message.mediaUrl!,
+          durationSeconds: message.mediaMetadata?['duration'] as int?,
+          isFromArtist: message.isFromArtist,
         );
       default:
         return Text(
@@ -723,6 +786,29 @@ class MessageBubbleV2 extends StatelessWidget {
           ),
         );
     }
+  }
+
+  void _playVideo(BuildContext context, String videoUrl) {
+    // TODO: 전체화면 비디오 플레이어로 이동
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('동영상 재생'),
+        content: const Text('동영상 플레이어 구현 예정'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('닫기'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   String _formatTime(DateTime time) {

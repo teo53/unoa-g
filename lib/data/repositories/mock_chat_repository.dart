@@ -27,13 +27,13 @@ class MockChatRepository implements IChatRepository {
   void _initializeMockData() {
     final now = DateTime.now();
 
-    // Create mock channels (one per artist)
+    // Create mock channels (one per creator)
     _channels['channel_1'] = Channel(
       id: 'channel_1',
       artistId: 'artist_1',
-      name: '아이유',
-      description: '아이유의 프라이빗 메시지',
-      avatarUrl: 'https://picsum.photos/seed/iu/200',
+      name: '하늘달',
+      description: '버츄얼 유튜버 하늘달의 팬채팅',
+      avatarUrl: 'https://picsum.photos/seed/vtuber1/200',
       createdAt: now.subtract(const Duration(days: 365)),
       updatedAt: now,
     );
@@ -41,9 +41,9 @@ class MockChatRepository implements IChatRepository {
     _channels['channel_2'] = Channel(
       id: 'channel_2',
       artistId: 'artist_2',
-      name: '뉴진스',
-      description: '뉴진스의 프라이빗 메시지',
-      avatarUrl: 'https://picsum.photos/seed/nj/200',
+      name: '코스플레이어 미유',
+      description: '코스플레이어 미유의 프라이빗 채팅',
+      avatarUrl: 'https://picsum.photos/seed/cosplayer1/200',
       createdAt: now.subtract(const Duration(days: 180)),
       updatedAt: now,
     );
@@ -101,17 +101,72 @@ class MockChatRepository implements IChatRepository {
 
     // Create mock messages for channel_1
     _messages['channel_1'] = [
-      // Artist broadcast
+      // Creator broadcast - Image
+      BroadcastMessage(
+        id: 'msg_broadcast_image',
+        channelId: 'channel_1',
+        senderId: 'artist_1',
+        senderType: 'artist',
+        deliveryScope: DeliveryScope.broadcast,
+        content: '새 2D 아바타 공개! 어때요? 🎨',
+        messageType: BroadcastMessageType.image,
+        mediaUrl: 'https://picsum.photos/seed/vtuber_art/800/600',
+        mediaMetadata: {
+          'width': 800,
+          'height': 600,
+        },
+        createdAt: now.subtract(const Duration(minutes: 30)),
+        senderName: '하늘달',
+        senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
+      ),
+      // Creator broadcast - Video
+      BroadcastMessage(
+        id: 'msg_broadcast_video',
+        channelId: 'channel_1',
+        senderId: 'artist_1',
+        senderType: 'artist',
+        deliveryScope: DeliveryScope.broadcast,
+        content: '오늘 방송 하이라이트 클립이에요! 🎬',
+        messageType: BroadcastMessageType.video,
+        mediaUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        mediaMetadata: {
+          'thumbnail_url': 'https://picsum.photos/seed/stream_clip/400/300',
+          'duration': 15,
+          'width': 1920,
+          'height': 1080,
+        },
+        createdAt: now.subtract(const Duration(hours: 1)),
+        senderName: '하늘달',
+        senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
+      ),
+      // Creator broadcast - Voice
+      BroadcastMessage(
+        id: 'msg_broadcast_voice',
+        channelId: 'channel_1',
+        senderId: 'artist_1',
+        senderType: 'artist',
+        deliveryScope: DeliveryScope.broadcast,
+        content: '',
+        messageType: BroadcastMessageType.voice,
+        mediaUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        mediaMetadata: {
+          'duration': 45,
+        },
+        createdAt: now.subtract(const Duration(hours: 1, minutes: 30)),
+        senderName: '하늘달',
+        senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
+      ),
+      // Creator broadcast - Text
       BroadcastMessage(
         id: 'msg_broadcast_1',
         channelId: 'channel_1',
         senderId: 'artist_1',
         senderType: 'artist',
         deliveryScope: DeliveryScope.broadcast,
-        content: '오늘 날씨가 너무 좋아서 공원에서 산책했어요 🌸',
+        content: '오늘 방송 와줘서 고마워요! 내일도 저녁 9시에 만나요~ 🌙',
         createdAt: now.subtract(const Duration(hours: 2)),
-        senderName: '아이유',
-        senderAvatarUrl: 'https://picsum.photos/seed/iu/200',
+        senderName: '하늘달',
+        senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
       ),
       // Fan reply
       BroadcastMessage(
@@ -120,35 +175,53 @@ class MockChatRepository implements IChatRepository {
         senderId: _currentUserId,
         senderType: 'fan',
         deliveryScope: DeliveryScope.directReply,
-        content: '언니 저도 산책 좋아해요! 어디 공원이에요?',
-        createdAt: now.subtract(const Duration(hours: 1, minutes: 30)),
+        content: '새 아바타 너무 예뻐요!! 오늘 방송도 재밌었어요!',
+        createdAt: now.subtract(const Duration(hours: 2, minutes: 30)),
       ),
-      // Another artist broadcast
+      // Another creator broadcast
       BroadcastMessage(
         id: 'msg_broadcast_0',
         channelId: 'channel_1',
         senderId: 'artist_1',
         senderType: 'artist',
         deliveryScope: DeliveryScope.broadcast,
-        content: '다들 뭐하고 있어요? 저는 녹음 중이에요 🎤',
+        content: '다들 뭐하고 있어요? 저는 노래 커버 녹음 중이에요 🎤',
         createdAt: now.subtract(const Duration(days: 1)),
-        senderName: '아이유',
-        senderAvatarUrl: 'https://picsum.photos/seed/iu/200',
+        senderName: '하늘달',
+        senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
       ),
     ];
 
     _messages['channel_2'] = [
-      // Artist broadcast
+      // Creator broadcast - Image (cosplay photo)
+      BroadcastMessage(
+        id: 'msg_broadcast_2_image',
+        channelId: 'channel_2',
+        senderId: 'artist_2',
+        senderType: 'artist',
+        deliveryScope: DeliveryScope.broadcast,
+        content: '새로운 코스프레 사진이에요! 캐릭터 맞춰보세요 👀',
+        messageType: BroadcastMessageType.image,
+        mediaUrl: 'https://picsum.photos/seed/cosplay_photo/800/1200',
+        mediaMetadata: {
+          'width': 800,
+          'height': 1200,
+        },
+        createdAt: now.subtract(const Duration(days: 2)),
+        senderName: '코스플레이어 미유',
+        senderAvatarUrl: 'https://picsum.photos/seed/cosplayer1/200',
+      ),
+      // Creator broadcast
       BroadcastMessage(
         id: 'msg_broadcast_2',
         channelId: 'channel_2',
         senderId: 'artist_2',
         senderType: 'artist',
         deliveryScope: DeliveryScope.broadcast,
-        content: '오늘 연습 끝! 다들 굿나잇 🌙',
+        content: '오늘 촬영 끝! 다들 굿나잇 🌙',
         createdAt: now.subtract(const Duration(days: 3)),
-        senderName: '뉴진스',
-        senderAvatarUrl: 'https://picsum.photos/seed/nj/200',
+        senderName: '코스플레이어 미유',
+        senderAvatarUrl: 'https://picsum.photos/seed/cosplayer1/200',
       ),
       // Fan's donation message
       BroadcastMessage(
@@ -157,12 +230,12 @@ class MockChatRepository implements IChatRepository {
         senderId: _currentUserId,
         senderType: 'fan',
         deliveryScope: DeliveryScope.donationMessage,
-        content: '항상 응원합니다! 화이팅!',
+        content: '이번 코스프레도 최고였어요! 항상 응원해요!',
         donationAmount: 100,
         donationId: 'donation_1',
-        createdAt: now.subtract(const Duration(days: 2)),
+        createdAt: now.subtract(const Duration(days: 2, hours: 12)),
       ),
-      // Artist's donation reply
+      // Creator's donation reply
       BroadcastMessage(
         id: 'msg_donation_reply_1',
         channelId: 'channel_2',
@@ -171,10 +244,10 @@ class MockChatRepository implements IChatRepository {
         deliveryScope: DeliveryScope.donationReply,
         targetUserId: _currentUserId,
         replyToMessageId: 'msg_donation_1',
-        content: '고마워요!! 💕 덕분에 힘이 나요',
-        createdAt: now.subtract(const Duration(days: 1, hours: 12)),
-        senderName: '뉴진스',
-        senderAvatarUrl: 'https://picsum.photos/seed/nj/200',
+        content: '고마워요!! 💕 다음 작업도 기대해주세요!',
+        createdAt: now.subtract(const Duration(days: 2, hours: 6)),
+        senderName: '코스플레이어 미유',
+        senderAvatarUrl: 'https://picsum.photos/seed/cosplayer1/200',
       ),
     ];
   }
@@ -370,7 +443,7 @@ class MockArtistInboxRepository implements IArtistInboxRepository {
   void _initializeMockData() {
     final now = DateTime.now();
 
-    // Mock fan messages for artist inbox
+    // Mock fan messages for creator inbox
     _fanMessages['channel_1'] = [
       BroadcastMessage(
         id: 'fan_msg_1',
@@ -378,9 +451,9 @@ class MockArtistInboxRepository implements IArtistInboxRepository {
         senderId: 'fan_1',
         senderType: 'fan',
         deliveryScope: DeliveryScope.directReply,
-        content: '언니 노래 너무 좋아요!',
+        content: '오늘 방송 진짜 재밌었어요! 게임 실력 대단해요 ㅋㅋ',
         createdAt: now.subtract(const Duration(hours: 1)),
-        senderName: '팬1',
+        senderName: '별빛팬',
         senderTier: 'STANDARD',
         senderDaysSubscribed: 45,
       ),
@@ -390,11 +463,11 @@ class MockArtistInboxRepository implements IArtistInboxRepository {
         senderId: 'fan_2',
         senderType: 'fan',
         deliveryScope: DeliveryScope.donationMessage,
-        content: '항상 응원해요! 💕',
+        content: '새 아바타 너무 예뻐요! 항상 응원합니다 💕',
         donationAmount: 500,
         donationId: 'donation_2',
         createdAt: now.subtract(const Duration(hours: 2)),
-        senderName: '팬2',
+        senderName: '하늘덕후',
         senderTier: 'VIP',
         senderDaysSubscribed: 200,
         isHighlighted: true,
@@ -405,9 +478,9 @@ class MockArtistInboxRepository implements IArtistInboxRepository {
         senderId: 'fan_3',
         senderType: 'fan',
         deliveryScope: DeliveryScope.directReply,
-        content: '오늘 공연 너무 기대돼요',
+        content: '내일 콜라보 방송 너무 기대돼요!',
         createdAt: now.subtract(const Duration(hours: 5)),
-        senderName: '팬3',
+        senderName: '구독자123',
         senderTier: 'STANDARD',
         senderDaysSubscribed: 30,
       ),

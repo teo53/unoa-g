@@ -76,7 +76,8 @@ class SupabaseChatRepository implements IChatRepository {
     int limit = 50,
     String? beforeId,
   }) async {
-    var query = _supabase
+    // Build base query with filters before transforms
+    var baseQuery = _supabase
         .from('messages')
         .select('''
           *,
@@ -89,10 +90,9 @@ class SupabaseChatRepository implements IChatRepository {
             started_at
           )
         ''')
-        .eq('channel_id', channelId)
-        .order('created_at', ascending: false)
-        .limit(limit);
+        .eq('channel_id', channelId);
 
+    // Apply cursor pagination filter if needed (must be before order/limit)
     if (beforeId != null) {
       // Get the timestamp of the before message for cursor pagination
       final beforeMsg = await _supabase
@@ -101,10 +101,14 @@ class SupabaseChatRepository implements IChatRepository {
           .eq('id', beforeId)
           .single();
 
-      query = query.lt('created_at', beforeMsg['created_at']);
+      // Apply lt filter before order/limit transforms
+      baseQuery = baseQuery.lt('created_at', beforeMsg['created_at'] as String);
     }
 
-    final response = await query;
+    // Apply transforms after all filters
+    final response = await baseQuery
+        .order('created_at', ascending: false)
+        .limit(limit);
 
     return response
         .where((row) => _isMessageVisibleToFan(row))
@@ -238,16 +242,19 @@ class SupabaseChatRepository implements IChatRepository {
 
   @override
   Stream<ReplyQuota?> watchQuota(String channelId) {
+    // Supabase stream only supports single eq filter,
+    // so we filter channel_id in Dart
     return _supabase
         .from('reply_quota')
         .stream(primaryKey: ['id'])
         .eq('user_id', _currentUserId)
-        .eq('channel_id', channelId)
         .map((rows) {
-          if (rows.isEmpty) {
+          // Filter by channel_id in Dart
+          final filtered = rows.where((row) => row['channel_id'] == channelId).toList();
+          if (filtered.isEmpty) {
             return ReplyQuota.empty(_currentUserId, channelId);
           }
-          return ReplyQuota.fromJson(rows.first);
+          return ReplyQuota.fromJson(filtered.first);
         });
   }
 

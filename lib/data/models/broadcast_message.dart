@@ -18,6 +18,7 @@ enum DeliveryScope {
 enum BroadcastMessageType {
   text,
   image,
+  video,
   emoji,
   voice,
 }
@@ -232,6 +233,8 @@ class BroadcastMessage {
     switch (value) {
       case 'image':
         return BroadcastMessageType.image;
+      case 'video':
+        return BroadcastMessageType.video;
       case 'emoji':
         return BroadcastMessageType.emoji;
       case 'voice':
@@ -247,6 +250,8 @@ class BroadcastMessage {
         return 'text';
       case BroadcastMessageType.image:
         return 'image';
+      case BroadcastMessageType.video:
+        return 'video';
       case BroadcastMessageType.emoji:
         return 'emoji';
       case BroadcastMessageType.voice:

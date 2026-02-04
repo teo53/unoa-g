@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase/supabase_client.dart';
 import '../data/models/broadcast_message.dart';
 import '../data/models/reply_quota.dart';
@@ -147,9 +148,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
             'p_limit': 50,
           });
 
-      final messages = (messagesResponse as List)
-          .map((json) => BroadcastMessage.fromJson(json))
-          .toList()
+      final messages = _parseMessages(messagesResponse)
           .reversed
           .toList(); // Reverse to get chronological order
 
@@ -350,19 +349,20 @@ class ChatNotifier extends StateNotifier<ChatState> {
   void _subscribeToPresence() {
     // Cancel existing subscription to prevent memory leak
     _presenceSubscription?.cancel();
+    _cleanupPresenceChannel();
 
     // Using Supabase Realtime Presence
     final client = _ref.read(supabaseClientProvider);
 
-    final channel = client.channel('presence:$channelId');
+    _presenceChannel = client.channel('presence:$channelId');
 
     // Store the subscription to allow proper cleanup
     // presenceState() returns List<SinglePresenceState>
     // SinglePresenceState has: key (String) and presences (List<Presence>)
     // Each Presence has: presenceRef and payload (Map<String, dynamic>)
-    final realtimeChannel = channel.onPresenceSync((_) {
+    _presenceChannel!.onPresenceSync((_) {
       // Get current state from the channel's presenceState
-      final presenceState = channel.presenceState();
+      final presenceState = _presenceChannel!.presenceState();
       final onlineUsers = <String, bool>{};
 
       // Iterate through SinglePresenceState list
@@ -377,19 +377,41 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
       state = state.copyWith(onlineUsers: onlineUsers);
     }).subscribe();
-
-    // Store subscription for cleanup - wrap in StreamSubscription-like behavior
-    // Note: RealtimeChannel doesn't return StreamSubscription directly,
-    // but we can track the channel for unsubscribe in dispose
-    _presenceChannel = realtimeChannel;
   }
 
-  // Track the realtime channel for cleanup
-  dynamic _presenceChannel;
+  /// Safely cleanup presence channel to prevent memory leaks
+  void _cleanupPresenceChannel() {
+    if (_presenceChannel != null) {
+      try {
+        final client = _ref.read(supabaseClientProvider);
+        client.removeChannel(_presenceChannel!);
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('[ChatNotifier] Presence channel cleanup error: $e');
+        }
+      }
+      _presenceChannel = null;
+    }
+  }
+
+  // Track the realtime channel for cleanup (typed for safety)
+  RealtimeChannel? _presenceChannel;
+
+  // Pagination retry tracking
+  int _paginationRetryCount = 0;
+  static const int _maxPaginationRetries = 3;
 
   /// Load more messages (pagination)
   Future<void> loadMoreMessages() async {
     if (!state.hasMoreMessages || state.isLoading) return;
+
+    // Prevent infinite retry loops
+    if (_paginationRetryCount >= _maxPaginationRetries) {
+      if (kDebugMode) {
+        debugPrint('[ChatNotifier] Max pagination retries reached');
+      }
+      return;
+    }
 
     final oldestMessage =
         state.messages.isNotEmpty ? state.messages.first : null;
@@ -404,23 +426,55 @@ class ChatNotifier extends StateNotifier<ChatState> {
         'p_before_id': oldestMessage.id,
       });
 
-      final olderMessages = (response as List)
-          .map((json) => BroadcastMessage.fromJson(json))
-          .toList()
+      final olderMessages = _parseMessages(response)
           .reversed
           .toList();
+
+      // Reset retry count on success
+      _paginationRetryCount = 0;
 
       state = state.copyWith(
         messages: [...olderMessages, ...state.messages],
         hasMoreMessages: olderMessages.length >= 50,
+        error: null,
       );
     } catch (e, stackTrace) {
-      // Log pagination errors but don't fail the UI
-      debugPrint('[ChatNotifier] Pagination error: $e');
+      _paginationRetryCount++;
+      debugPrint('[ChatNotifier] Pagination error (attempt $_paginationRetryCount): $e');
       if (kDebugMode) {
         debugPrint(stackTrace.toString());
       }
+
+      // Show error to user after max retries
+      if (_paginationRetryCount >= _maxPaginationRetries) {
+        state = state.copyWith(
+          error: '이전 메시지를 불러오는데 실패했습니다.',
+          hasMoreMessages: false,
+        );
+      }
     }
+  }
+
+  /// Parse messages from API response with type safety
+  List<BroadcastMessage> _parseMessages(dynamic response) {
+    if (response == null) return [];
+    if (response is! List) {
+      debugPrint('[ChatNotifier] Unexpected response type: ${response.runtimeType}');
+      return [];
+    }
+
+    return response
+        .whereType<Map<String, dynamic>>()
+        .map((json) {
+          try {
+            return BroadcastMessage.fromJson(json);
+          } catch (e) {
+            debugPrint('[ChatNotifier] Failed to parse message: $e');
+            return null;
+          }
+        })
+        .whereType<BroadcastMessage>()
+        .toList();
   }
 
   /// Send a text reply
@@ -648,20 +702,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     _messagesSubscription?.cancel();
     _quotaSubscription?.cancel();
     _presenceSubscription?.cancel();
-
-    // Unsubscribe from presence channel to prevent memory leak
-    try {
-      if (_presenceChannel != null) {
-        final client = _ref.read(supabaseClientProvider);
-        client.removeChannel(_presenceChannel);
-      }
-    } catch (e) {
-      // Ignore cleanup errors
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] Presence channel cleanup error: $e');
-      }
-    }
-
+    _cleanupPresenceChannel();
     super.dispose();
   }
 }

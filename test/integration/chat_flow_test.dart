@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+
+// Note: These integration tests are placeholders.
+// TODO: Implement with proper mocking using mockito (already in dev_dependencies)
 
 /// Integration tests for the chat flow
 ///

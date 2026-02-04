@@ -299,16 +299,36 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// Enter demo mode without authentication
-  void enterDemoMode() {
-    final demoProfile = UserProfile(
-      id: 'demo_user_001',
-      role: 'fan',
-      displayName: '데모 사용자',
-      avatarUrl: null,
-      bio: '데모 모드로 앱을 체험 중입니다.',
-      createdAt: DateTime.now(),
-    );
+  /// [asCreator] - if true, enters as creator/artist demo account
+  void enterDemoMode({bool asCreator = false}) {
+    final demoProfile = asCreator
+        ? UserProfile(
+            id: 'demo_creator_001',
+            role: 'creator',
+            displayName: '하늘달 (데모)',
+            avatarUrl: 'https://picsum.photos/seed/vtuber1/200',
+            bio: '버츄얼 유튜버 하늘달입니다. 데모 모드로 크리에이터 기능을 체험 중입니다.',
+            createdAt: DateTime.now().subtract(const Duration(days: 365)),
+          )
+        : UserProfile(
+            id: 'demo_user_001',
+            role: 'fan',
+            displayName: '데모 팬',
+            avatarUrl: null,
+            bio: '데모 모드로 앱을 체험 중입니다.',
+            createdAt: DateTime.now(),
+          );
     state = AuthDemoMode(demoProfile: demoProfile);
+  }
+
+  /// Enter demo mode as fan
+  void enterDemoModeAsFan() {
+    enterDemoMode(asCreator: false);
+  }
+
+  /// Enter demo mode as creator
+  void enterDemoModeAsCreator() {
+    enterDemoMode(asCreator: true);
   }
 
   /// Exit demo mode

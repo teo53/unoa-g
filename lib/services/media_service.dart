@@ -1,9 +1,8 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
+import 'package:video_compress/video_compress.dart';
 import '../core/supabase/supabase_client.dart';
 
 /// Media types supported by the chat system
@@ -16,14 +15,44 @@ enum MediaType {
 
 /// Result of media upload
 class MediaUploadResult {
-  final String url;
+  final String mainUrl;
+  final String? thumbUrl;
+  final String mainPath; // Storage path for signed URL generation
+  final String? thumbPath;
+  final int? width;
+  final int? height;
+  final int? duration; // For video/voice in seconds
   final MediaType type;
   final Map<String, dynamic> metadata;
 
   const MediaUploadResult({
-    required this.url,
+    required this.mainUrl,
+    this.thumbUrl,
+    required this.mainPath,
+    this.thumbPath,
+    this.width,
+    this.height,
+    this.duration,
     required this.type,
     required this.metadata,
+  });
+
+  /// Legacy getter for backward compatibility
+  String get url => mainUrl;
+}
+
+/// Video validation result
+class VideoValidationResult {
+  final bool isValid;
+  final String? errorMessage;
+  final int? durationSeconds;
+  final int? fileSizeBytes;
+
+  const VideoValidationResult({
+    required this.isValid,
+    this.errorMessage,
+    this.durationSeconds,
+    this.fileSizeBytes,
   });
 }
 
@@ -34,13 +63,20 @@ class MediaService {
 
   // Max file sizes in bytes
   static const int maxImageSize = 10 * 1024 * 1024; // 10 MB
-  static const int maxVideoSize = 100 * 1024 * 1024; // 100 MB
+  static const int maxVideoSize = 30 * 1024 * 1024; // 30 MB (MVP limit)
   static const int maxVoiceSize = 5 * 1024 * 1024; // 5 MB
 
-  // Compression quality
-  static const int imageQuality = 85;
-  static const int thumbnailQuality = 70;
-  static const int thumbnailMaxWidth = 300;
+  // Video constraints (MVP)
+  static const int maxVideoDurationSeconds = 15; // 15 seconds max
+
+  // Image compression settings
+  static const int mainImageMaxWidth = 1280;
+  static const int mainImageQuality = 80;
+  static const int thumbImageMaxWidth = 480;
+  static const int thumbImageQuality = 70;
+
+  // Signed URL settings
+  static const int signedUrlExpirationSeconds = 3600; // 1 hour
 
   /// Pick an image from gallery or camera
   Future<XFile?> pickImage({
@@ -54,7 +90,7 @@ class MediaService {
         source: source,
         maxWidth: maxWidth?.toDouble(),
         maxHeight: maxHeight?.toDouble(),
-        imageQuality: quality ?? imageQuality,
+        imageQuality: quality ?? mainImageQuality,
       );
       return image;
     } catch (e) {
@@ -74,7 +110,7 @@ class MediaService {
       final images = await _picker.pickMultiImage(
         maxWidth: maxWidth?.toDouble(),
         maxHeight: maxHeight?.toDouble(),
-        imageQuality: quality ?? imageQuality,
+        imageQuality: quality ?? mainImageQuality,
         limit: limit,
       );
       return images;
@@ -92,7 +128,7 @@ class MediaService {
     try {
       final video = await _picker.pickVideo(
         source: source,
-        maxDuration: maxDuration ?? const Duration(minutes: 5),
+        maxDuration: maxDuration ?? const Duration(seconds: maxVideoDurationSeconds),
       );
       return video;
     } catch (e) {
@@ -101,52 +137,324 @@ class MediaService {
     }
   }
 
-  /// Compress an image file
-  Future<Uint8List?> compressImage(
-    XFile file, {
-    int quality = imageQuality,
-    int? maxWidth,
-    int? maxHeight,
-  }) async {
+  /// Validate video file (duration and size)
+  Future<VideoValidationResult> validateVideo(XFile file) async {
     try {
-      // For web, return original bytes
       if (kIsWeb) {
-        return await file.readAsBytes();
+        // Web: Basic size check only
+        final bytes = await file.readAsBytes();
+        if (bytes.length > maxVideoSize) {
+          return VideoValidationResult(
+            isValid: false,
+            errorMessage: '동영상 크기가 ${maxVideoSize ~/ 1024 ~/ 1024}MB를 초과합니다.',
+            fileSizeBytes: bytes.length,
+          );
+        }
+        return VideoValidationResult(
+          isValid: true,
+          fileSizeBytes: bytes.length,
+        );
       }
 
-      // For mobile, use flutter_image_compress
-      // Note: This would need the flutter_image_compress package
-      // For now, return original bytes
+      // Mobile: Full validation with duration check
+      final info = await VideoCompress.getMediaInfo(file.path);
+      final durationSeconds = (info.duration ?? 0) ~/ 1000;
+      final fileSizeBytes = info.filesize ?? 0;
+
+      if (durationSeconds > maxVideoDurationSeconds) {
+        return VideoValidationResult(
+          isValid: false,
+          errorMessage: '동영상 길이가 $maxVideoDurationSeconds초를 초과합니다. (현재: $durationSeconds초)',
+          durationSeconds: durationSeconds,
+          fileSizeBytes: fileSizeBytes,
+        );
+      }
+
+      if (fileSizeBytes > maxVideoSize) {
+        return VideoValidationResult(
+          isValid: false,
+          errorMessage: '동영상 크기가 ${maxVideoSize ~/ 1024 ~/ 1024}MB를 초과합니다.',
+          durationSeconds: durationSeconds,
+          fileSizeBytes: fileSizeBytes,
+        );
+      }
+
+      return VideoValidationResult(
+        isValid: true,
+        durationSeconds: durationSeconds,
+        fileSizeBytes: fileSizeBytes,
+      );
+    } catch (e) {
+      debugPrint('Error validating video: $e');
+      return const VideoValidationResult(
+        isValid: false,
+        errorMessage: '동영상 검증 중 오류가 발생했습니다.',
+      );
+    }
+  }
+
+  /// Compress an image and return both main and thumbnail versions
+  Future<({Uint8List main, Uint8List thumb, int width, int height})?> compressImageWithThumbnail(
+    XFile file,
+  ) async {
+    try {
       final bytes = await file.readAsBytes();
 
-      // Check size
-      if (bytes.length > maxImageSize) {
-        throw StateError('Image too large (max ${maxImageSize ~/ 1024 ~/ 1024} MB)');
+      if (kIsWeb) {
+        // Web: Return original (no compression available)
+        return (main: bytes, thumb: bytes, width: 0, height: 0);
       }
 
-      return bytes;
+      // Mobile: Use flutter_image_compress
+      final mainResult = await FlutterImageCompress.compressWithList(
+        bytes,
+        minWidth: mainImageMaxWidth,
+        minHeight: mainImageMaxWidth,
+        quality: mainImageQuality,
+        format: CompressFormat.webp,
+      );
+
+      final thumbResult = await FlutterImageCompress.compressWithList(
+        bytes,
+        minWidth: thumbImageMaxWidth,
+        minHeight: thumbImageMaxWidth,
+        quality: thumbImageQuality,
+        format: CompressFormat.webp,
+      );
+
+      // Get dimensions (approximate based on compression settings)
+      return (
+        main: mainResult,
+        thumb: thumbResult,
+        width: mainImageMaxWidth,
+        height: mainImageMaxWidth,
+      );
     } catch (e) {
       debugPrint('Error compressing image: $e');
       return null;
     }
   }
 
-  /// Generate thumbnail for an image
-  Future<Uint8List?> generateThumbnail(XFile file) async {
-    return compressImage(
-      file,
-      quality: thumbnailQuality,
-      maxWidth: thumbnailMaxWidth,
-      maxHeight: thumbnailMaxWidth,
-    );
+  /// Generate video thumbnail
+  Future<Uint8List?> generateVideoThumbnail(XFile file) async {
+    try {
+      if (kIsWeb) {
+        return null; // Video thumbnail not supported on web
+      }
+
+      final thumbnail = await VideoCompress.getByteThumbnail(
+        file.path,
+        quality: thumbImageQuality,
+        position: 0, // First frame
+      );
+
+      return thumbnail;
+    } catch (e) {
+      debugPrint('Error generating video thumbnail: $e');
+      return null;
+    }
   }
 
-  /// Upload media to Supabase Storage
+  /// Upload image with automatic compression and thumbnail generation
+  Future<MediaUploadResult?> uploadImage(
+    XFile file, {
+    required String channelId,
+    required String userId,
+  }) async {
+    try {
+      // Compress and generate thumbnail
+      final compressed = await compressImageWithThumbnail(file);
+      if (compressed == null) {
+        throw StateError('이미지 압축에 실패했습니다.');
+      }
+
+      // Validate size
+      if (compressed.main.length > maxImageSize) {
+        throw StateError('이미지 크기가 ${maxImageSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
+      }
+
+      final fileId = _uuid.v4();
+      final mainPath = 'channels/$channelId/media/$userId/${fileId}_main.webp';
+      final thumbPath = 'channels/$channelId/media/$userId/${fileId}_thumb.webp';
+
+      // Upload main image
+      await SupabaseConfig.client.storage
+          .from('chat-media')
+          .uploadBinary(mainPath, compressed.main);
+
+      // Upload thumbnail
+      await SupabaseConfig.client.storage
+          .from('chat-media')
+          .uploadBinary(thumbPath, compressed.thumb);
+
+      // Get URLs (using public URL for now, can switch to signed URL)
+      final mainUrl = SupabaseConfig.client.storage
+          .from('chat-media')
+          .getPublicUrl(mainPath);
+
+      final thumbUrl = SupabaseConfig.client.storage
+          .from('chat-media')
+          .getPublicUrl(thumbPath);
+
+      return MediaUploadResult(
+        mainUrl: mainUrl,
+        thumbUrl: thumbUrl,
+        mainPath: mainPath,
+        thumbPath: thumbPath,
+        width: compressed.width,
+        height: compressed.height,
+        type: MediaType.image,
+        metadata: {
+          'type': 'image',
+          'size': compressed.main.length,
+          'thumb_size': compressed.thumb.length,
+          'width': compressed.width,
+          'height': compressed.height,
+          'format': 'webp',
+          'uploaded_at': DateTime.now().toIso8601String(),
+        },
+      );
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      rethrow;
+    }
+  }
+
+  /// Upload video with validation and thumbnail generation
+  Future<MediaUploadResult?> uploadVideo(
+    XFile file, {
+    required String channelId,
+    required String userId,
+  }) async {
+    try {
+      // Validate video
+      final validation = await validateVideo(file);
+      if (!validation.isValid) {
+        throw StateError(validation.errorMessage ?? '동영상 검증 실패');
+      }
+
+      final bytes = await file.readAsBytes();
+      final extension = path.extension(file.path).toLowerCase();
+      final fileId = _uuid.v4();
+      final mainPath = 'channels/$channelId/media/$userId/$fileId$extension';
+
+      // Upload video
+      await SupabaseConfig.client.storage
+          .from('chat-media')
+          .uploadBinary(mainPath, bytes);
+
+      final mainUrl = SupabaseConfig.client.storage
+          .from('chat-media')
+          .getPublicUrl(mainPath);
+
+      // Generate and upload thumbnail
+      String? thumbUrl;
+      String? thumbPath;
+      final thumbnail = await generateVideoThumbnail(file);
+      if (thumbnail != null) {
+        thumbPath = 'channels/$channelId/media/$userId/${fileId}_thumb.jpg';
+        await SupabaseConfig.client.storage
+            .from('chat-media')
+            .uploadBinary(thumbPath, thumbnail);
+        thumbUrl = SupabaseConfig.client.storage
+            .from('chat-media')
+            .getPublicUrl(thumbPath);
+      }
+
+      return MediaUploadResult(
+        mainUrl: mainUrl,
+        thumbUrl: thumbUrl,
+        mainPath: mainPath,
+        thumbPath: thumbPath,
+        duration: validation.durationSeconds,
+        type: MediaType.video,
+        metadata: {
+          'type': 'video',
+          'size': bytes.length,
+          'duration': validation.durationSeconds,
+          'thumbnail_url': thumbUrl,
+          'format': extension.replaceAll('.', ''),
+          'uploaded_at': DateTime.now().toIso8601String(),
+        },
+      );
+    } catch (e) {
+      debugPrint('Error uploading video: $e');
+      rethrow;
+    }
+  }
+
+  /// Upload voice message
+  Future<MediaUploadResult?> uploadVoice(
+    XFile file, {
+    required String channelId,
+    required String userId,
+    int? durationSeconds,
+  }) async {
+    try {
+      final bytes = await file.readAsBytes();
+
+      if (bytes.length > maxVoiceSize) {
+        throw StateError('음성 파일 크기가 ${maxVoiceSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
+      }
+
+      final extension = path.extension(file.path).toLowerCase();
+      final fileId = _uuid.v4();
+      final mainPath = 'channels/$channelId/media/$userId/$fileId$extension';
+
+      await SupabaseConfig.client.storage
+          .from('chat-media')
+          .uploadBinary(mainPath, bytes);
+
+      final mainUrl = SupabaseConfig.client.storage
+          .from('chat-media')
+          .getPublicUrl(mainPath);
+
+      return MediaUploadResult(
+        mainUrl: mainUrl,
+        mainPath: mainPath,
+        duration: durationSeconds,
+        type: MediaType.voice,
+        metadata: {
+          'type': 'voice',
+          'size': bytes.length,
+          'duration': durationSeconds,
+          'format': extension.replaceAll('.', ''),
+          'uploaded_at': DateTime.now().toIso8601String(),
+        },
+      );
+    } catch (e) {
+      debugPrint('Error uploading voice: $e');
+      rethrow;
+    }
+  }
+
+  /// Legacy upload method for backward compatibility
   Future<MediaUploadResult?> uploadMedia(
     XFile file, {
     required String channelId,
     required String userId,
     MediaType? type,
+  }) async {
+    final extension = path.extension(file.path).toLowerCase();
+    final mediaType = type ?? _getMediaType(extension);
+
+    switch (mediaType) {
+      case MediaType.image:
+        return uploadImage(file, channelId: channelId, userId: userId);
+      case MediaType.video:
+        return uploadVideo(file, channelId: channelId, userId: userId);
+      case MediaType.voice:
+        return uploadVoice(file, channelId: channelId, userId: userId);
+      case MediaType.file:
+        // For generic files, use the old upload method
+        return _uploadGenericFile(file, channelId: channelId, userId: userId);
+    }
+  }
+
+  Future<MediaUploadResult?> _uploadGenericFile(
+    XFile file, {
+    required String channelId,
+    required String userId,
   }) async {
     try {
       final bytes = await file.readAsBytes();
@@ -154,74 +462,46 @@ class MediaService {
       final fileName = '${_uuid.v4()}$extension';
       final filePath = 'channels/$channelId/media/$userId/$fileName';
 
-      // Determine media type
-      final mediaType = type ?? _getMediaType(extension);
-
-      // Validate file size
-      _validateFileSize(bytes.length, mediaType);
-
-      // Upload to Supabase Storage
       await SupabaseConfig.client.storage
           .from('chat-media')
           .uploadBinary(filePath, bytes);
 
-      // Get public URL
       final url = SupabaseConfig.client.storage
           .from('chat-media')
           .getPublicUrl(filePath);
 
-      // Build metadata
-      final metadata = await _buildMetadata(file, bytes, mediaType);
-
       return MediaUploadResult(
-        url: url,
-        type: mediaType,
-        metadata: metadata,
+        mainUrl: url,
+        mainPath: filePath,
+        type: MediaType.file,
+        metadata: {
+          'type': 'file',
+          'size': bytes.length,
+          'extension': extension,
+          'original_name': path.basename(file.path),
+          'uploaded_at': DateTime.now().toIso8601String(),
+        },
       );
     } catch (e) {
-      debugPrint('Error uploading media: $e');
+      debugPrint('Error uploading file: $e');
       rethrow;
     }
   }
 
-  /// Upload multiple media files
-  Future<List<MediaUploadResult>> uploadMultipleMedia(
-    List<XFile> files, {
-    required String channelId,
-    required String userId,
-    void Function(int completed, int total)? onProgress,
-  }) async {
-    final results = <MediaUploadResult>[];
-
-    for (var i = 0; i < files.length; i++) {
-      final result = await uploadMedia(
-        files[i],
-        channelId: channelId,
-        userId: userId,
-      );
-      if (result != null) {
-        results.add(result);
-      }
-      onProgress?.call(i + 1, files.length);
-    }
-
-    return results;
+  /// Generate signed URL for private bucket access
+  Future<String> getSignedUrl(String storagePath, {int? expiresIn}) async {
+    final result = await SupabaseConfig.client.storage
+        .from('chat-media')
+        .createSignedUrl(storagePath, expiresIn ?? signedUrlExpirationSeconds);
+    return result;
   }
 
   /// Delete media from storage
-  Future<void> deleteMedia(String url) async {
+  Future<void> deleteMedia(String storagePath) async {
     try {
-      // Extract path from URL
-      final uri = Uri.parse(url);
-      final pathSegments = uri.pathSegments;
-      final bucketIndex = pathSegments.indexOf('chat-media');
-      if (bucketIndex == -1) return;
-
-      final filePath = pathSegments.sublist(bucketIndex + 1).join('/');
-
       await SupabaseConfig.client.storage
           .from('chat-media')
-          .remove([filePath]);
+          .remove([storagePath]);
     } catch (e) {
       debugPrint('Error deleting media: $e');
     }
@@ -249,95 +529,5 @@ class MediaService {
       default:
         return MediaType.file;
     }
-  }
-
-  void _validateFileSize(int sizeInBytes, MediaType type) {
-    final maxSize = switch (type) {
-      MediaType.image => maxImageSize,
-      MediaType.video => maxVideoSize,
-      MediaType.voice => maxVoiceSize,
-      MediaType.file => maxImageSize,
-    };
-
-    if (sizeInBytes > maxSize) {
-      final maxMb = maxSize ~/ 1024 ~/ 1024;
-      throw StateError('File too large (max $maxMb MB)');
-    }
-  }
-
-  Future<Map<String, dynamic>> _buildMetadata(
-    XFile file,
-    Uint8List bytes,
-    MediaType type,
-  ) async {
-    final metadata = <String, dynamic>{
-      'size': bytes.length,
-      'extension': path.extension(file.path),
-      'original_name': path.basename(file.path),
-      'uploaded_at': DateTime.now().toIso8601String(),
-    };
-
-    // Add type-specific metadata
-    switch (type) {
-      case MediaType.image:
-        // Would use image package to get dimensions
-        metadata['type'] = 'image';
-        break;
-      case MediaType.video:
-        metadata['type'] = 'video';
-        // Would use video_compress to get duration
-        break;
-      case MediaType.voice:
-        metadata['type'] = 'voice';
-        break;
-      case MediaType.file:
-        metadata['type'] = 'file';
-        break;
-    }
-
-    return metadata;
-  }
-}
-
-/// Voice recording service
-class VoiceRecordingService {
-  bool _isRecording = false;
-  String? _recordingPath;
-
-  bool get isRecording => _isRecording;
-
-  /// Start recording voice
-  Future<void> startRecording() async {
-    if (_isRecording) return;
-
-    // Note: Would need record package for actual recording
-    // This is a placeholder implementation
-    _isRecording = true;
-    debugPrint('Voice recording started');
-  }
-
-  /// Stop recording and return the file
-  Future<XFile?> stopRecording() async {
-    if (!_isRecording) return null;
-
-    _isRecording = false;
-
-    if (_recordingPath != null) {
-      return XFile(_recordingPath!);
-    }
-
-    return null;
-  }
-
-  /// Cancel ongoing recording
-  Future<void> cancelRecording() async {
-    _isRecording = false;
-    _recordingPath = null;
-  }
-
-  /// Get recording duration
-  Duration getRecordingDuration() {
-    // Would track actual recording duration
-    return Duration.zero;
   }
 }

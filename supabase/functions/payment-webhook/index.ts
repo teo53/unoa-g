@@ -18,6 +18,9 @@ const PORTONE_API_SECRET = Deno.env.get('PORTONE_API_SECRET') || ''
 const PORTONE_WEBHOOK_SECRET = Deno.env.get('PORTONE_WEBHOOK_SECRET') || ''
 const TOSSPAYMENTS_SECRET_KEY = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') || ''
 const ENVIRONMENT = Deno.env.get('ENVIRONMENT') || 'production'
+// SECURITY: Explicit flag required to skip signature verification (NEVER enable in production)
+const SKIP_SIGNATURE_VERIFICATION = Deno.env.get('SKIP_WEBHOOK_SIGNATURE') === 'true'
+const isDevelopmentWithSkip = ENVIRONMENT === 'development' && SKIP_SIGNATURE_VERIFICATION
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,8 +46,9 @@ async function verifyPortOneSignature(
   webhookSignature: string,
   payload: string
 ): Promise<boolean> {
-  if (ENVIRONMENT === 'development') {
-    console.log('[DEV] Skipping PortOne signature verification')
+  // SECURITY: Only skip verification when explicitly enabled in development
+  if (isDevelopmentWithSkip) {
+    console.warn('[DEV] SECURITY WARNING: Skipping PortOne signature verification. Never enable this in production!')
     return true
   }
 
@@ -105,8 +109,9 @@ async function verifyTossPaymentsSignature(
   signature: string,
   payload: string
 ): Promise<boolean> {
-  if (ENVIRONMENT === 'development') {
-    console.log('[DEV] Skipping TossPayments signature verification')
+  // SECURITY: Only skip verification when explicitly enabled in development
+  if (isDevelopmentWithSkip) {
+    console.warn('[DEV] SECURITY WARNING: Skipping TossPayments signature verification. Never enable this in production!')
     return true
   }
 

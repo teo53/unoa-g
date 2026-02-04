@@ -18,7 +18,22 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
 // Encryption key for PII (should be rotated periodically)
-const ENCRYPTION_KEY = Deno.env.get("PII_ENCRYPTION_KEY") || "";
+// SECURITY: Must be at least 32 characters and properly configured
+const ENCRYPTION_KEY = Deno.env.get("PII_ENCRYPTION_KEY");
+
+// Validate required configuration at startup
+function validateConfiguration(): { valid: boolean; error?: string } {
+  if (!PORTONE_API_SECRET) {
+    return { valid: false, error: "PORTONE_API_SECRET is not configured" };
+  }
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return { valid: false, error: "Supabase configuration is incomplete" };
+  }
+  if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length < 32) {
+    return { valid: false, error: "PII_ENCRYPTION_KEY must be at least 32 characters" };
+  }
+  return { valid: true };
+}
 
 interface PortOneIdentityResponse {
   identityVerification: {
@@ -147,6 +162,20 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Validate configuration first
+    const configValidation = validateConfiguration();
+    if (!configValidation.valid) {
+      console.error("Configuration error:", configValidation.error);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error_code: "CONFIGURATION_ERROR",
+          error_message: "서버 설정 오류입니다. 관리자에게 문의하세요.",
+        } as VerificationResponse),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Parse request
     const { impUid } = await req.json() as VerificationRequest;
 
@@ -211,12 +240,12 @@ serve(async (req: Request) => {
     const customer = portoneResult.identityVerification.verifiedCustomer!;
     const age = calculateAge(customer.birthDate);
 
-    // Encrypt PII before storage
-    const encryptedName = await encryptPII(customer.name, ENCRYPTION_KEY);
-    const encryptedPhone = await encryptPII(customer.phoneNumber, ENCRYPTION_KEY);
-    const encryptedBirthDate = await encryptPII(customer.birthDate, ENCRYPTION_KEY);
-    const encryptedGender = await encryptPII(customer.gender, ENCRYPTION_KEY);
-    const encryptedCi = await encryptPII(customer.ci, ENCRYPTION_KEY);
+    // Encrypt PII before storage (ENCRYPTION_KEY is validated above)
+    const encryptedName = await encryptPII(customer.name, ENCRYPTION_KEY!);
+    const encryptedPhone = await encryptPII(customer.phoneNumber, ENCRYPTION_KEY!);
+    const encryptedBirthDate = await encryptPII(customer.birthDate, ENCRYPTION_KEY!);
+    const encryptedGender = await encryptPII(customer.gender, ENCRYPTION_KEY!);
+    const encryptedCi = await encryptPII(customer.ci, ENCRYPTION_KEY!);
 
     // Store encrypted PII in identity_verifications table
     const { error: insertError } = await supabase

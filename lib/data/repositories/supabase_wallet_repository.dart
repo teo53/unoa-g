@@ -492,12 +492,21 @@ class SupabaseWalletRepository {
   Stream<List<LedgerEntry>> watchTransactions() async* {
     final wallet = await getWallet();
 
+    // Supabase stream doesn't support 'or' filter,
+    // so we use stream without filter and filter in Dart
     yield* _supabase
         .from('ledger_entries')
         .stream(primaryKey: ['id'])
-        .or('from_wallet_id.eq.${wallet.id},to_wallet_id.eq.${wallet.id}')
         .order('created_at', ascending: false)
-        .map((rows) => rows.map((row) => LedgerEntry.fromJson(row)).toList());
+        .map((rows) {
+          // Filter by wallet_id in Dart (either from or to)
+          return rows
+              .where((row) =>
+                  row['from_wallet_id'] == wallet.id ||
+                  row['to_wallet_id'] == wallet.id)
+              .map((row) => LedgerEntry.fromJson(row))
+              .toList();
+        });
   }
 
   // ============================================

@@ -8,18 +8,22 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   static const String _boxName = 'settings';
   static const String _themeKey = 'theme_mode';
 
+  // Cached box instance to avoid repeated openBox calls
+  Box? _settingsBox;
+
   ThemeNotifier() : super(ThemeMode.system) {
-    _loadTheme();
+    _initialize();
   }
 
-  Future<void> _loadTheme() async {
+  Future<void> _initialize() async {
     try {
-      final box = await Hive.openBox(_boxName);
-      final themeIndex = box.get(_themeKey, defaultValue: 0) as int;
+      // Open box once and cache it
+      _settingsBox = await Hive.openBox(_boxName);
+      final themeIndex = _settingsBox!.get(_themeKey, defaultValue: 0) as int;
       state = ThemeMode.values[themeIndex];
     } catch (e, stackTrace) {
       // Default to system theme if loading fails
-      debugPrint('[ThemeNotifier] Failed to load theme: $e');
+      debugPrint('[ThemeNotifier] Failed to initialize theme: $e');
       if (kDebugMode) {
         debugPrint(stackTrace.toString());
       }
@@ -30,8 +34,9 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   Future<void> setThemeMode(ThemeMode mode) async {
     state = mode;
     try {
-      final box = await Hive.openBox(_boxName);
-      await box.put(_themeKey, mode.index);
+      // Use cached box if available, otherwise open it
+      _settingsBox ??= await Hive.openBox(_boxName);
+      await _settingsBox!.put(_themeKey, mode.index);
     } catch (e, stackTrace) {
       // Log storage errors instead of silently ignoring
       debugPrint('[ThemeNotifier] Failed to save theme: $e');

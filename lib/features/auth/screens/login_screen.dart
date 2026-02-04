@@ -67,6 +67,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return '로그인 중 오류가 발생했습니다.';
   }
 
+  void _showDemoModeDialog(BuildContext context) {
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('데모 계정 선택'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '체험하고 싶은 계정 유형을 선택해주세요',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Fan demo account
+            _DemoAccountOption(
+              icon: Icons.favorite_outline,
+              title: '팬 계정',
+              description: '크리에이터 구독, 메시지 보기/보내기, DT 충전 등',
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                ref.read(authProvider.notifier).enterDemoModeAsFan();
+                context.go('/');
+              },
+            ),
+            const SizedBox(height: 12),
+            // Creator demo account
+            _DemoAccountOption(
+              icon: Icons.star_outline,
+              title: '크리에이터 계정',
+              description: '팬 메시지 확인, 브로드캐스트 전송, 통계 확인 등',
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                ref.read(authProvider.notifier).enterDemoModeAsCreator();
+                context.go('/artist/inbox');
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('취소'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -225,14 +277,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Demo mode button
                 OutlinedButton.icon(
-                  onPressed: () {
-                    ref.read(authProvider.notifier).enterDemoMode();
-                    context.go('/');
-                  },
+                  onPressed: () => _showDemoModeDialog(context),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                     side: BorderSide(
-                      color: theme.colorScheme.outline.withOpacity(0.5),
+                      color: theme.colorScheme.outline.withValues(alpha: 0.5),
                     ),
                   ),
                   icon: const Icon(Icons.play_circle_outline),
@@ -265,6 +314,82 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Demo account selection option widget
+class _DemoAccountOption extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final VoidCallback onTap;
+
+  const _DemoAccountOption({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ],
         ),
       ),
     );
