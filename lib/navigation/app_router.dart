@@ -18,11 +18,15 @@ import '../features/subscriptions/subscriptions_screen.dart';
 import '../features/help/help_center_screen.dart';
 import '../features/artist_inbox/artist_inbox_screen.dart';
 import '../features/artist_inbox/broadcast_compose_screen.dart';
+import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/register_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 
 class AppRoutes {
   static const String home = '/';
+  static const String login = '/login';
+  static const String register = '/register';
   static const String chat = '/chat';
   static const String chatThread = '/chat/:artistId';
   static const String funding = '/funding';
@@ -181,6 +185,17 @@ final appRouter = GoRouter(
         final channelId = state.uri.queryParameters['channelId'];
         return BroadcastComposeScreen(channelId: channelId);
       },
+    ),
+    // Auth Routes
+    GoRoute(
+      path: '/login',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RegisterScreen(),
     ),
   ],
 );

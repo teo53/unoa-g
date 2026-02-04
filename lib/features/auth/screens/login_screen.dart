@@ -221,7 +221,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Social login buttons
                 const SocialLoginButtons(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                // Demo mode button
+                OutlinedButton.icon(
+                  onPressed: () {
+                    ref.read(authProvider.notifier).enterDemoMode();
+                    context.go('/');
+                  },
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    side: BorderSide(
+                      color: theme.colorScheme.outline.withOpacity(0.5),
+                    ),
+                  ),
+                  icon: const Icon(Icons.play_circle_outline),
+                  label: const Text('데모 모드로 체험하기'),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '로그인 없이 앱의 주요 기능을 미리 체험해보세요',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 24),
 
                 // Register link
                 Row(

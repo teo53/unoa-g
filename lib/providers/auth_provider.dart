@@ -48,6 +48,13 @@ class AuthError extends AuthState {
   const AuthError(this.message, [this.error]);
 }
 
+/// Demo mode authenticated state (no real user)
+class AuthDemoMode extends AuthState {
+  final UserProfile demoProfile;
+
+  const AuthDemoMode({required this.demoProfile});
+}
+
 /// Auth notifier for managing authentication state
 class AuthNotifier extends StateNotifier<AuthState> {
   final SupabaseAuthService _authService;
@@ -291,6 +298,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Enter demo mode without authentication
+  void enterDemoMode() {
+    final demoProfile = UserProfile(
+      id: 'demo_user_001',
+      role: 'fan',
+      displayName: '데모 사용자',
+      avatarUrl: null,
+      bio: '데모 모드로 앱을 체험 중입니다.',
+      createdAt: DateTime.now(),
+    );
+    state = AuthDemoMode(demoProfile: demoProfile);
+  }
+
+  /// Exit demo mode
+  void exitDemoMode() {
+    state = const AuthUnauthenticated();
+  }
+
   @override
   void dispose() {
     _authSubscription?.cancel();
@@ -325,18 +350,27 @@ final currentUserProvider = Provider<User?>((ref) {
   return null;
 });
 
-/// Current user profile provider (convenience)
+/// Current user profile provider (convenience) - includes demo mode
 final currentProfileProvider = Provider<UserProfile?>((ref) {
   final authState = ref.watch(authProvider);
   if (authState is AuthAuthenticated) {
     return authState.profile;
   }
+  if (authState is AuthDemoMode) {
+    return authState.demoProfile;
+  }
   return null;
 });
 
-/// Is authenticated provider (convenience)
+/// Is authenticated provider (convenience) - includes demo mode
 final isAuthenticatedProvider = Provider<bool>((ref) {
-  return ref.watch(authProvider) is AuthAuthenticated;
+  final authState = ref.watch(authProvider);
+  return authState is AuthAuthenticated || authState is AuthDemoMode;
+});
+
+/// Is demo mode provider
+final isDemoModeProvider = Provider<bool>((ref) {
+  return ref.watch(authProvider) is AuthDemoMode;
 });
 
 /// Is creator provider (convenience)

@@ -155,6 +155,13 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      // Check if in demo mode
+      final authState = _ref.read(authProvider);
+      if (authState is AuthDemoMode) {
+        _loadDemoThreads();
+        return;
+      }
+
       final client = _ref.read(supabaseClientProvider);
       final userId = _ref.read(currentUserProvider)?.id;
 
@@ -314,6 +321,60 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
     } catch (e) {
       debugPrint('[ChatListNotifier] Error toggling pin: $e');
     }
+  }
+
+  /// Load demo data for demo mode
+  void _loadDemoThreads() {
+    final demoThreads = [
+      ChatThreadData(
+        channelId: 'demo_channel_1',
+        artistId: 'artist_1',
+        artistName: '김민지',
+        artistEnglishName: 'Minji Kim',
+        avatarUrl: null,
+        lastMessage: '오늘 공연 와줘서 너무 고마워요!',
+        lastMessageAt: DateTime.now().subtract(const Duration(minutes: 5)),
+        unreadCount: 2,
+        isOnline: true,
+        isVerified: true,
+        isPinned: true,
+        tier: 'VIP',
+        daysSubscribed: 45,
+      ),
+      ChatThreadData(
+        channelId: 'demo_channel_2',
+        artistId: 'artist_2',
+        artistName: '이준호',
+        artistEnglishName: 'Junho Lee',
+        avatarUrl: null,
+        lastMessage: '다음 주 일정 공유할게요. 확인해주세요!',
+        lastMessageAt: DateTime.now().subtract(const Duration(hours: 2)),
+        unreadCount: 1,
+        isOnline: false,
+        isVerified: true,
+        isStar: true,
+        tier: 'STANDARD',
+        daysSubscribed: 30,
+      ),
+      ChatThreadData(
+        channelId: 'demo_channel_3',
+        artistId: 'artist_3',
+        artistName: '박서연',
+        avatarUrl: null,
+        lastMessage: '사진 보내주셔서 감사합니다 :)',
+        lastMessageAt: DateTime.now().subtract(const Duration(days: 1)),
+        unreadCount: 0,
+        isOnline: false,
+        tier: 'STANDARD',
+        daysSubscribed: 15,
+      ),
+    ];
+
+    state = state.copyWith(
+      threads: demoThreads,
+      isLoading: false,
+      hasLoaded: true,
+    );
   }
 
   @override
