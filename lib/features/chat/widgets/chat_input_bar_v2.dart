@@ -439,20 +439,54 @@ class _DonationSheet extends ConsumerStatefulWidget {
 
 class _DonationSheetState extends ConsumerState<_DonationSheet> {
   final _messageController = TextEditingController();
-  int _selectedAmount = 10;
+  final _customAmountController = TextEditingController();
+  int _selectedAmount = 100;
   bool _isAnonymous = false;
   bool _isSending = false;
+  bool _isCustomAmount = false;
 
-  static const List<int> _presetAmounts = [10, 30, 50, 100, 300, 500];
+  static const List<int> _presetAmounts = [100, 500, 1000, 5000, 10000, 50000];
+  static const int _maxAmount = 1000000; // 최대 100만 DT
 
   @override
   void dispose() {
     _messageController.dispose();
+    _customAmountController.dispose();
     super.dispose();
   }
 
+  int get _effectiveAmount {
+    if (_isCustomAmount) {
+      final customValue = int.tryParse(_customAmountController.text) ?? 0;
+      return customValue.clamp(0, _maxAmount);
+    }
+    return _selectedAmount;
+  }
+
   Future<void> _sendDonation() async {
-    if (widget.balance < _selectedAmount) {
+    final amount = _effectiveAmount;
+
+    if (amount < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('최소 10 DT 이상 후원할 수 있습니다.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (amount > _maxAmount) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('최대 $_maxAmount DT까지 후원할 수 있습니다.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (widget.balance < amount) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('잔액이 부족합니다.'),
@@ -475,7 +509,7 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
       final donation = await ref.read(walletProvider.notifier).sendDonation(
         channelId: widget.channelId,
         creatorId: creatorId,
-        amountDt: _selectedAmount,
+        amountDt: amount,
         isAnonymous: _isAnonymous,
       );
 
@@ -485,7 +519,7 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
             .read(chatProvider(widget.channelId).notifier)
             .sendDonationMessage(
           content: _messageController.text.trim(),
-          amountDt: _selectedAmount,
+          amountDt: amount,
           donationId: donation['id'] as String,
         );
       }
@@ -495,7 +529,7 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
         widget.onDonationSent?.call();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$_selectedAmount DT 후원 완료!'),
+            content: Text('${_formatNumber(amount)} DT 후원 완료!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -563,21 +597,51 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _presetAmounts.map((amount) {
-              final isSelected = _selectedAmount == amount;
-              return ChoiceChip(
-                label: Text('$amount DT'),
-                selected: isSelected,
+            children: [
+              ..._presetAmounts.map((amount) {
+                final isSelected = !_isCustomAmount && _selectedAmount == amount;
+                return ChoiceChip(
+                  label: Text(_formatNumber(amount)),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() {
+                        _isCustomAmount = false;
+                        _selectedAmount = amount;
+                      });
+                    }
+                  },
+                );
+              }),
+              // Custom amount chip
+              ChoiceChip(
+                label: const Text('직접 입력'),
+                selected: _isCustomAmount,
                 onSelected: (selected) {
-                  if (selected) {
-                    setState(() {
-                      _selectedAmount = amount;
-                    });
-                  }
+                  setState(() {
+                    _isCustomAmount = selected;
+                  });
                 },
-              );
-            }).toList(),
+              ),
+            ],
           ),
+
+          // Custom amount input
+          if (_isCustomAmount) ...[
+            const SizedBox(height: 16),
+            TextField(
+              controller: _customAmountController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: '후원 금액 (DT)',
+                hintText: '10 ~ 1,000,000',
+                suffixText: 'DT',
+                border: const OutlineInputBorder(),
+                helperText: '최소 10 DT, 최대 1,000,000 DT',
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ],
           const SizedBox(height: 24),
 
           // Message input
@@ -611,7 +675,7 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
 
           // Send button
           FilledButton(
-            onPressed: _isSending ? null : _sendDonation,
+            onPressed: (_isSending || _effectiveAmount < 10) ? null : _sendDonation,
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFFEC4899),
               minimumSize: const Size.fromHeight(48),
@@ -625,11 +689,18 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
                       color: Colors.white,
                     ),
                   )
-                : Text('$_selectedAmount DT 후원하기'),
+                : Text('${_formatNumber(_effectiveAmount)} DT 후원하기'),
           ),
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
+  }
+
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 }

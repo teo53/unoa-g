@@ -12,8 +12,7 @@ class MyProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final user = MockData.currentUser;
-    final isDemoMode = ref.watch(isDemoModeProvider);
+    const user = MockData.currentUser;
     final profile = ref.watch(currentProfileProvider);
     final isCreator = profile?.isCreator ?? false;
 
@@ -66,7 +65,7 @@ class MyProfileScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.primary.withOpacity(0.2),
+                            AppColors.primary.withValues(alpha: 0.2),
                             Colors.transparent,
                           ],
                           begin: Alignment.topLeft,
@@ -138,27 +137,28 @@ class MyProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
-                // Stats Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatCard(
-                        label: '내 등급',
-                        value: user.tier,
-                        valueColor: AppColors.primary,
+                // Stats Row - Fan only sees subscription count and DT balance
+                if (!isCreator) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          label: '구독 중',
+                          value: '${user.subscriptionCount}명',
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _StatCard(
-                        label: '구독 중',
-                        value: '${user.subscriptionCount}명',
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _StatCard(
+                          label: 'DT 잔액',
+                          value: '${user.dtBalance}',
+                          valueColor: AppColors.primary,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
                 // Menu Section 1
                 _MenuSection(
@@ -184,33 +184,17 @@ class MyProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                // Creator Section (for demo mode, always show)
-                if (isDemoMode || isCreator) ...[
+                // Creator Section - ONLY for actual creators, not demo mode
+                if (isCreator) ...[
                   _MenuSection(
                     items: [
                       _MenuItem(
-                        icon: Icons.campaign,
-                        iconColor: Colors.pink,
-                        iconBgColor: Colors.pink.withOpacity(0.1),
-                        title: '펀딩 관리',
-                        subtitle: '내 펀딩 캠페인 관리',
-                        onTap: () => context.push('/creator/funding'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.inbox,
-                        iconColor: Colors.teal,
-                        iconBgColor: Colors.teal.withOpacity(0.1),
-                        title: '팬 메시지함',
-                        subtitle: '팬들의 메시지 확인',
-                        onTap: () => context.push('/artist/inbox'),
-                      ),
-                      _MenuItem(
-                        icon: Icons.send,
-                        iconColor: Colors.indigo,
-                        iconBgColor: Colors.indigo.withOpacity(0.1),
-                        title: '메시지 보내기',
-                        subtitle: '팬들에게 브로드캐스트',
-                        onTap: () => context.push('/artist/broadcast/compose'),
+                        icon: Icons.dashboard_rounded,
+                        iconColor: AppColors.primary,
+                        iconBgColor: AppColors.primary.withOpacity(0.1),
+                        title: '크리에이터 스튜디오',
+                        subtitle: '크리에이터 대시보드로 이동',
+                        onTap: () => context.go('/creator/home'),
                       ),
                     ],
                   ),

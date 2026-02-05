@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
   output: 'export', // Enable static export for Firebase Hosting
@@ -28,14 +29,50 @@ const nextConfig: NextConfig = {
   },
   // Trailing slash for Firebase Hosting compatibility
   trailingSlash: true,
-  // Skip type checking during build for demo deployment
+  // Type checking and linting should always be enabled in production
+  // Only set to true for demo/prototype deployment via NEXT_PUBLIC_DEMO_BUILD=true
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.NEXT_PUBLIC_DEMO_BUILD === 'true',
   },
-  // Skip ESLint during build
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NEXT_PUBLIC_DEMO_BUILD === 'true',
   },
 }
 
-export default nextConfig
+// Sentry configuration options
+const sentryWebpackPluginOptions = {
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options
+
+  // Organization and project slugs from Sentry
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Auth token for uploading source maps (server-side only)
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Only upload source maps in production
+  silent: process.env.NODE_ENV !== 'production',
+
+  // Upload source maps for debugging
+  widenClientFileUpload: true,
+
+  // Routes browser requests to Sentry through a Next.js rewrite
+  tunnelRoute: '/monitoring',
+
+  // Hides source maps from generated client bundles
+  hideSourceMaps: true,
+
+  // Automatically tree-shake Sentry logger statements
+  disableLogger: true,
+
+  // Enables automatic instrumentation of Vercel Cron Monitors
+  automaticVercelMonitors: true,
+}
+
+// Wrap config with Sentry if DSN is configured
+const finalConfig = process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
+  : nextConfig
+
+export default finalConfig

@@ -11,10 +11,12 @@ import 'widgets/inbox_filter_bar.dart';
 /// Shows all fan messages (replies + donation messages) for the artist
 class ArtistInboxScreen extends StatefulWidget {
   final String channelId;
+  final bool showBackButton;
 
   const ArtistInboxScreen({
     super.key,
     required this.channelId,
+    this.showBackButton = true,
   });
 
   @override
@@ -88,7 +90,12 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
 
   Widget _buildHeader(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 8, 16, 12),
+      padding: EdgeInsets.fromLTRB(
+        widget.showBackButton ? 8 : 24,
+        widget.showBackButton ? 8 : 16,
+        16,
+        12,
+      ),
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.backgroundDark.withValues(alpha: 0.95)
@@ -101,36 +108,40 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
       ),
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => context.pop(),
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-              size: 20,
+          if (widget.showBackButton)
+            IconButton(
+              onPressed: () => context.pop(),
+              icon: Icon(
+                Icons.arrow_back_ios_new,
+                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                size: 20,
+              ),
             ),
-          ),
           Expanded(
             child: Text(
               '팬 메시지',
-              textAlign: TextAlign.center,
+              textAlign: widget.showBackButton ? TextAlign.center : TextAlign.left,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: widget.showBackButton ? 18 : 24,
                 fontWeight: FontWeight.w700,
                 color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ),
-          // Broadcast compose button
-          IconButton(
-            onPressed: () {
-              context.push('/artist/broadcast/compose');
-            },
-            icon: Icon(
-              Icons.edit_square,
-              color: AppColors.primary500,
-              size: 24,
-            ),
-          ),
+          // Broadcast compose button (only show if in shell mode - no back button)
+          if (!widget.showBackButton)
+            IconButton(
+              onPressed: () {
+                context.push('/artist/broadcast/compose');
+              },
+              icon: Icon(
+                Icons.edit_square,
+                color: AppColors.primary500,
+                size: 24,
+              ),
+            )
+          else
+            const SizedBox(width: 48), // Placeholder for alignment
         ],
       ),
     );

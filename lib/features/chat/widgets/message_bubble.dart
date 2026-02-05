@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/premium_effects.dart';
 import '../../../data/models/message.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -235,6 +236,8 @@ class _FanBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isVerifiedArtist = message.isSenderVerifiedArtist;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -269,34 +272,109 @@ class _FanBubble extends StatelessWidget {
           ),
           const SizedBox(width: 8),
 
-          // Bubble - uno-a (2) style: bg-[#FCECEF] dark:bg-[#3F181C]
-          Container(
-            constraints: const BoxConstraints(maxWidth: 240),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 10,
-            ),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.bubbleFanDark
-                  : AppColors.bubbleFanLight,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(4),
-                bottomLeft: Radius.circular(18),
-                bottomRight: Radius.circular(18),
+          // Bubble with optional artist highlight
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Artist name badge (if sender is verified artist)
+              if (isVerifiedArtist && message.senderDisplayName != null) ...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Artist star badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.star.withValues(alpha: 0.2),
+                            AppColors.vip.withValues(alpha: 0.15),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.star.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            size: 10,
+                            color: AppColors.star,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            message.senderDisplayName!,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? AppColors.star
+                                  : Colors.amber[800],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+              ],
+
+              // Bubble
+              Container(
+                constraints: const BoxConstraints(maxWidth: 240),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.bubbleFanDark
+                      : AppColors.bubbleFanLight,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    topRight: Radius.circular(4),
+                    bottomLeft: Radius.circular(18),
+                    bottomRight: Radius.circular(18),
+                  ),
+                  // Subtle glow for verified artist
+                  boxShadow: isVerifiedArtist
+                      ? [
+                          BoxShadow(
+                            color: AppColors.star.withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                  // Subtle gradient border for verified artist
+                  border: isVerifiedArtist
+                      ? Border.all(
+                          color: AppColors.star.withValues(alpha: 0.3),
+                          width: 1,
+                        )
+                      : null,
+                ),
+                child: Text(
+                  message.content,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: isDark
+                        ? const Color(0xFFFFCDD2)
+                        : AppColors.textMainLight,
+                  ),
+                ),
               ),
-            ),
-            child: Text(
-              message.content,
-              style: TextStyle(
-                fontSize: 15,
-                height: 1.5,
-                color: isDark
-                    ? const Color(0xFFFFCDD2) // Light pink text for dark mode
-                    : AppColors.textMainLight,
-              ),
-            ),
+            ],
           ),
         ],
       ),

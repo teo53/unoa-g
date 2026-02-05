@@ -10,10 +10,12 @@ import '../../shared/widgets/app_scaffold.dart';
 /// Artist uses this to send messages to all subscribers
 class BroadcastComposeScreen extends StatefulWidget {
   final String? channelId;
+  final bool showBackButton;
 
   const BroadcastComposeScreen({
     super.key,
     this.channelId,
+    this.showBackButton = true,
   });
 
   @override
@@ -131,7 +133,12 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
 
   Widget _buildHeader(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 8, 16, 12),
+      padding: EdgeInsets.fromLTRB(
+        widget.showBackButton ? 8 : 24,
+        widget.showBackButton ? 8 : 16,
+        16,
+        12,
+      ),
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.backgroundDark.withValues(alpha: 0.95)
@@ -144,25 +151,27 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
       ),
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => context.pop(),
-            icon: Icon(
-              Icons.close,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+          if (widget.showBackButton)
+            IconButton(
+              onPressed: () => context.pop(),
+              icon: Icon(
+                Icons.close,
+                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+              ),
             ),
-          ),
           Expanded(
             child: Text(
-              '메시지 보내기',
-              textAlign: TextAlign.center,
+              widget.showBackButton ? '메시지 보내기' : '브로드캐스트',
+              textAlign: widget.showBackButton ? TextAlign.center : TextAlign.left,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: widget.showBackButton ? 18 : 24,
                 fontWeight: FontWeight.w700,
                 color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ),
-          const SizedBox(width: 48), // Balance
+          if (widget.showBackButton)
+            const SizedBox(width: 48), // Balance
         ],
       ),
     );
@@ -252,34 +261,129 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
   }
 
   Widget _buildTextInput(bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
-        ),
-      ),
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        maxLines: 10,
-        minLines: 5,
-        decoration: InputDecoration(
-          hintText: '팬들에게 전할 메시지를 입력하세요...',
-          hintStyle: TextStyle(
-            color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Placeholder insertion chips (Bubble-style personalization)
+        _buildPlaceholderChips(isDark),
+        const SizedBox(height: 12),
+
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            ),
           ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+          child: TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            maxLines: 10,
+            minLines: 5,
+            decoration: InputDecoration(
+              hintText: '팬들에게 전할 메시지를 입력하세요...\n예: {fanName}님, 오늘도 응원 감사합니다!',
+              hintStyle: TextStyle(
+                color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(16),
+            ),
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.5,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
         ),
-        style: TextStyle(
-          fontSize: 16,
-          height: 1.5,
-          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+      ],
+    );
+  }
+
+  /// Placeholder chips for Bubble-style personalization
+  Widget _buildPlaceholderChips(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.auto_fix_high,
+              size: 16,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '개인화 태그',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Tooltip(
+              message: '각 팬에게 맞춤형 메시지로 표시됩니다',
+              child: Icon(
+                Icons.help_outline,
+                size: 14,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _PlaceholderChip(
+              label: '팬 이름',
+              placeholder: '{fanName}',
+              description: '각 팬의 닉네임으로 표시',
+              onTap: () => _insertPlaceholder('{fanName}'),
+              isDark: isDark,
+            ),
+            _PlaceholderChip(
+              label: '구독일수',
+              placeholder: '{subscribeDays}',
+              description: '구독 중인 일수로 표시',
+              onTap: () => _insertPlaceholder('{subscribeDays}'),
+              isDark: isDark,
+            ),
+            _PlaceholderChip(
+              label: '등급',
+              placeholder: '{tier}',
+              description: '구독 등급으로 표시',
+              onTap: () => _insertPlaceholder('{tier}'),
+              isDark: isDark,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _insertPlaceholder(String placeholder) {
+    final text = _controller.text;
+    final selection = _controller.selection;
+
+    // Insert placeholder at cursor position
+    final newText = text.replaceRange(
+      selection.start,
+      selection.end,
+      placeholder,
+    );
+
+    _controller.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(
+        offset: selection.start + placeholder.length,
       ),
     );
+
+    // Focus back on text field
+    _focusNode.requestFocus();
   }
 
   Widget _buildBottomCTA(bool isDark) {
@@ -435,6 +539,63 @@ class _TypeChip extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Placeholder chip for Bubble-style personalization tags
+class _PlaceholderChip extends StatelessWidget {
+  final String label;
+  final String placeholder;
+  final String description;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _PlaceholderChip({
+    required this.label,
+    required this.placeholder,
+    required this.description,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: description,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.add_circle_outline,
+                size: 14,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
         ),
       ),
     );

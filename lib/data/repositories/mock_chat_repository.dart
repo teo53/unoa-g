@@ -99,6 +99,9 @@ class MockChatRepository implements IChatRepository {
       updatedAt: now,
     );
 
+    // Get the simulated fan name for personalization demo
+    const demoFanName = '별빛팬'; // In real app, this would be the current user's display name
+
     // Create mock messages for channel_1
     _messages['channel_1'] = [
       // Creator broadcast - Image
@@ -108,7 +111,8 @@ class MockChatRepository implements IChatRepository {
         senderId: 'artist_1',
         senderType: 'artist',
         deliveryScope: DeliveryScope.broadcast,
-        content: '새 2D 아바타 공개! 어때요? 🎨',
+        content: '$demoFanName님! 새 2D 아바타 공개! 어때요? 🎨',
+        templateContent: '{fanName}님! 새 2D 아바타 공개! 어때요? 🎨', // Bubble-style placeholder
         messageType: BroadcastMessageType.image,
         mediaUrl: 'https://picsum.photos/seed/vtuber_art/800/600',
         mediaMetadata: {
@@ -156,14 +160,15 @@ class MockChatRepository implements IChatRepository {
         senderName: '하늘달',
         senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
       ),
-      // Creator broadcast - Text
+      // Creator broadcast - Text (with Bubble-style personalization)
       BroadcastMessage(
         id: 'msg_broadcast_1',
         channelId: 'channel_1',
         senderId: 'artist_1',
         senderType: 'artist',
         deliveryScope: DeliveryScope.broadcast,
-        content: '오늘 방송 와줘서 고마워요! 내일도 저녁 9시에 만나요~ 🌙',
+        content: '$demoFanName님, 오늘 방송 와줘서 고마워요! 내일도 저녁 9시에 만나요~ 🌙',
+        templateContent: '{fanName}님, 오늘 방송 와줘서 고마워요! 내일도 저녁 9시에 만나요~ 🌙',
         createdAt: now.subtract(const Duration(hours: 2)),
         senderName: '하늘달',
         senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
@@ -178,14 +183,15 @@ class MockChatRepository implements IChatRepository {
         content: '새 아바타 너무 예뻐요!! 오늘 방송도 재밌었어요!',
         createdAt: now.subtract(const Duration(hours: 2, minutes: 30)),
       ),
-      // Another creator broadcast
+      // Another creator broadcast (with personalization)
       BroadcastMessage(
         id: 'msg_broadcast_0',
         channelId: 'channel_1',
         senderId: 'artist_1',
         senderType: 'artist',
         deliveryScope: DeliveryScope.broadcast,
-        content: '다들 뭐하고 있어요? 저는 노래 커버 녹음 중이에요 🎤',
+        content: '$demoFanName님! 뭐하고 있어요? 저는 노래 커버 녹음 중이에요 🎤',
+        templateContent: '{fanName}님! 뭐하고 있어요? 저는 노래 커버 녹음 중이에요 🎤',
         createdAt: now.subtract(const Duration(days: 1)),
         senderName: '하늘달',
         senderAvatarUrl: 'https://picsum.photos/seed/vtuber1/200',
@@ -540,16 +546,23 @@ class MockArtistInboxRepository implements IArtistInboxRepository {
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
 
+    // Check if content has personalization placeholders
+    final hasPlaceholders = content.contains('{fanName}') ||
+        content.contains('{subscribeDays}') ||
+        content.contains('{tier}');
+
     return BroadcastMessage(
       id: 'broadcast_${DateTime.now().millisecondsSinceEpoch}',
       channelId: channelId,
       senderId: 'artist_1', // Would be current artist
       senderType: 'artist',
       deliveryScope: DeliveryScope.broadcast,
-      content: content,
+      content: content, // Store original for now, personalized on display
       messageType: messageType,
       mediaUrl: mediaUrl,
       createdAt: DateTime.now(),
+      // Store template if it has placeholders
+      templateContent: hasPlaceholders ? content : null,
     );
   }
 

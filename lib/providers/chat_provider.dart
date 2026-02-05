@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/supabase/supabase_client.dart';
 import '../data/models/broadcast_message.dart';
 import '../data/models/reply_quota.dart';
 import '../data/models/channel.dart';
@@ -240,14 +239,20 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final now = DateTime.now();
     final messages = <BroadcastMessage>[];
 
-    // Artist welcome message
+    // Get fan's display name for personalization
+    final demoProfile = _ref.read(currentProfileProvider);
+    final fanName = demoProfile?.displayName ?? '데모 팬';
+
+    // Artist welcome message (with Bubble-style personalization)
+    // Template: "{fanName}님, 안녕하세요!" becomes "데모 팬님, 안녕하세요!"
     messages.add(BroadcastMessage(
       id: 'demo_msg_1_${thread.channelId}',
       channelId: thread.channelId,
       senderId: thread.artistId,
       senderType: 'artist',
       deliveryScope: DeliveryScope.broadcast,
-      content: '안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
+      content: '$fanName님, 안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
+      templateContent: '{fanName}님, 안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
       createdAt: now.subtract(const Duration(days: 7)),
       senderName: thread.artistName,
       senderAvatarUrl: thread.avatarUrl,
@@ -269,14 +274,15 @@ class ChatNotifier extends StateNotifier<ChatState> {
       isRead: true,
     ));
 
-    // Artist daily message
+    // Artist daily message (with personalization)
     messages.add(BroadcastMessage(
       id: 'demo_msg_3_${thread.channelId}',
       channelId: thread.channelId,
       senderId: thread.artistId,
       senderType: 'artist',
       deliveryScope: DeliveryScope.broadcast,
-      content: '오늘 하루도 모두 화이팅! 행복한 하루 보내세요 ☀️',
+      content: '$fanName님, 오늘 하루도 화이팅! 행복한 하루 보내세요 ☀️',
+      templateContent: '{fanName}님, 오늘 하루도 화이팅! 행복한 하루 보내세요 ☀️',
       createdAt: now.subtract(const Duration(days: 3)),
       senderName: thread.artistName,
       senderAvatarUrl: thread.avatarUrl,

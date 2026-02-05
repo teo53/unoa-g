@@ -53,6 +53,11 @@ class BroadcastMessage {
   final String? senderTier;
   final int? senderDaysSubscribed;
 
+  // Bubble-style personalization (for broadcast messages)
+  // templateContent stores the original message with placeholders like {fanName}
+  // content stores the personalized version for each fan
+  final String? templateContent;
+
   const BroadcastMessage({
     required this.id,
     required this.channelId,
@@ -78,7 +83,39 @@ class BroadcastMessage {
     this.senderAvatarUrl,
     this.senderTier,
     this.senderDaysSubscribed,
+    this.templateContent,
   });
+
+  /// Check if message has personalization placeholders
+  bool get hasPersonalization =>
+      templateContent != null && templateContent!.contains('{');
+
+  /// Available placeholders for Bubble-style personalization
+  static const List<String> placeholders = [
+    '{fanName}',     // Fan's display name
+    '{subscribeDays}', // Days subscribed
+    '{tier}',        // Subscription tier
+  ];
+
+  /// Get personalized content for a specific fan
+  /// Returns content with placeholders replaced by actual fan data
+  String getPersonalizedContent({
+    required String fanName,
+    int? subscribeDays,
+    String? tier,
+  }) {
+    String text = templateContent ?? content ?? '';
+
+    text = text.replaceAll('{fanName}', fanName);
+    if (subscribeDays != null) {
+      text = text.replaceAll('{subscribeDays}', subscribeDays.toString());
+    }
+    if (tier != null) {
+      text = text.replaceAll('{tier}', tier);
+    }
+
+    return text;
+  }
 
   bool get isFromArtist => senderType == 'artist';
   bool get isFromFan => senderType == 'fan';
@@ -121,6 +158,7 @@ class BroadcastMessage {
       senderAvatarUrl: json['sender_avatar_url'] as String?,
       senderTier: json['sender_tier'] as String?,
       senderDaysSubscribed: json['sender_days_subscribed'] as int?,
+      templateContent: json['template_content'] as String?,
     );
   }
 
@@ -144,6 +182,7 @@ class BroadcastMessage {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
       'deleted_at': deletedAt?.toIso8601String(),
+      'template_content': templateContent,
     };
   }
 
@@ -172,6 +211,7 @@ class BroadcastMessage {
     String? senderAvatarUrl,
     String? senderTier,
     int? senderDaysSubscribed,
+    String? templateContent,
   }) {
     return BroadcastMessage(
       id: id ?? this.id,
@@ -198,6 +238,7 @@ class BroadcastMessage {
       senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
       senderTier: senderTier ?? this.senderTier,
       senderDaysSubscribed: senderDaysSubscribed ?? this.senderDaysSubscribed,
+      templateContent: templateContent ?? this.templateContent,
     );
   }
 

@@ -104,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               onTap: () {
                 Navigator.of(dialogContext).pop();
                 ref.read(authProvider.notifier).enterDemoModeAsCreator();
-                context.go('/artist/inbox');
+                context.go('/creator/home');
               },
             ),
           ],
