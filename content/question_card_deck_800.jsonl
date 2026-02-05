@@ -1,0 +1,800 @@
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 기분을 날씨로 표현하면?", "tags": ["기분", "날씨", "가벼운"], "answer_hint": "맑음/흐림/소나기 등 한마디면 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 마시고 싶은 음료 하나만!", "tags": ["음료", "취향", "선택"], "answer_hint": "메뉴 하나만 말하면 됩니다"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 출근길에 들은 첫 번째 노래는?", "tags": ["음악", "출근", "일상"], "answer_hint": "제목이나 분위기만 짧게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 신고 있는 신발 색깔은?", "tags": ["패션", "디테일", "가벼운"], "answer_hint": "색깔 하나만 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 아침에 일어나서 제일 먼저 한 일은?", "tags": ["아침", "루틴", "일상"], "answer_hint": "한 문장이면 충분"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 가장 먹고 싶은 간식은?", "tags": ["간식", "취향", "음식"], "answer_hint": "간식 이름 하나만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 하루를 이모지 하나로 표현하면?", "tags": ["이모지", "기분", "가벼운"], "answer_hint": "이모지 하나 + 짧은 이유"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "최근에 본 귀여운 동물 사진이 있다면?", "tags": ["동물", "귀여움", "일상"], "answer_hint": "어떤 동물이었는지만 짧게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 자주 쓰는 말버릇이 있어?", "tags": ["말버릇", "습관", "재미"], "answer_hint": "한마디면 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 손님에게 처음 건넨 인사는 뭐였어?", "tags": ["인사", "접객", "메이드"], "answer_hint": "실제 인사말 그대로 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 머리 스타일은 어떤 느낌?", "tags": ["헤어", "패션", "외모"], "answer_hint": "묶음/내림/리본 등 짧게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 입은 앞치마(에이프런) 색깔은?", "tags": ["의상", "메이드", "디테일"], "answer_hint": "색깔이나 포인트만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "출근 전에 꼭 하는 루틴 하나?", "tags": ["루틴", "습관", "일상"], "answer_hint": "한 가지만 짧게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 주머니에 뭐가 들어있어?", "tags": ["소지품", "디테일", "재미"], "answer_hint": "있는 것 하나만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 가장 많이 웃은 순간은?", "tags": ["웃음", "기분", "일상"], "answer_hint": "한 문장 요약"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 듣고 싶은 칭찬이 있다면?", "tags": ["칭찬", "소통", "가벼운"], "answer_hint": "솔직하게 한마디"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 빠져 있는 색깔이 있어?", "tags": ["색깔", "취향", "트렌드"], "answer_hint": "색 이름만 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 카페에서 제일 잘 나간 메뉴는?", "tags": ["메뉴", "카페", "메이드"], "answer_hint": "메뉴명 하나만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "마지막으로 찍은 셀카는 어떤 표정?", "tags": ["셀카", "표정", "재미"], "answer_hint": "표정 묘사 한마디"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 이 순간 딱 하고 싶은 한마디?", "tags": ["한마디", "자유", "소통"], "answer_hint": "진짜 하고 싶은 말 그대로"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 제일 먼저 눈에 띈 손님 특징은?", "tags": ["손님", "관찰", "메이드"], "answer_hint": "개인특정 없이 인상만", "safety_notes": "특정 손님 식별 불가하게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 자주 보는 SNS 앱은?", "tags": ["SNS", "취향", "디지털"], "answer_hint": "앱 이름만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "아침형 vs 저녁형?", "tags": ["성향", "선택", "가벼운"], "answer_hint": "둘 중 하나 + 이유 한줄"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "좋아하는 계절은?", "tags": ["계절", "취향", "가벼운"], "answer_hint": "계절 하나만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 몇 시에 일어났어?", "tags": ["기상", "일상", "루틴"], "answer_hint": "시간만 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "카페에서 제일 좋아하는 자리는 어디?", "tags": ["카페", "공간", "메이드"], "answer_hint": "창가/카운터 등 짧게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 즐겨 듣는 음악 장르는?", "tags": ["음악", "장르", "취향"], "answer_hint": "장르명 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 컨디션을 점수로 매기면? (10점 만점)", "tags": ["컨디션", "점수", "가벼운"], "answer_hint": "숫자 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 배고파? 배불러?", "tags": ["배고픔", "상태", "가벼운"], "answer_hint": "한마디면 충분"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "최근에 새로 배운 단어나 표현?", "tags": ["단어", "배움", "재미"], "answer_hint": "단어 하나 + 뜻"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "좋아하는 향기가 있어?", "tags": ["향기", "취향", "감각"], "answer_hint": "바닐라/라벤더 등 하나만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 네일 색깔은?", "tags": ["네일", "패션", "디테일"], "answer_hint": "색 이름이나 '안 했어'도 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "최근 가장 많이 사용한 이모티콘은?", "tags": ["이모티콘", "소통", "재미"], "answer_hint": "이모티콘 하나 보여주기"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 점심 뭐 먹었어?", "tags": ["점심", "음식", "일상"], "answer_hint": "메뉴명만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "카페 BGM으로 지금 뭐가 나오고 있어?", "tags": ["BGM", "음악", "카페"], "answer_hint": "장르나 분위기만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "강아지파? 고양이파?", "tags": ["동물", "선택", "취향"], "answer_hint": "둘 중 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 가장 갖고 싶은 물건 하나?", "tags": ["위시", "물건", "가벼운"], "answer_hint": "물건 이름만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 처음 만든 음료는 뭐였어?", "tags": ["음료", "카페", "메이드"], "answer_hint": "메뉴명 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "지금 기분을 색깔로 표현하면?", "tags": ["색깔", "기분", "감성"], "answer_hint": "색 하나만"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 입버릇처럼 흥얼거리는 노래?", "tags": ["노래", "습관", "음악"], "answer_hint": "제목이나 멜로디 묘사"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "메이드 일을 시작하게 된 계기가 뭐야?", "tags": ["계기", "시작", "메이드", "스토리"], "answer_hint": "에피소드 하나 정도면 OK", "safety_notes": "구체적 업소명/위치 제외"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "손님이 기뻐할 때 가장 보람 느끼는 순간은?", "tags": ["보람", "접객", "감정", "메이드"], "answer_hint": "구체적 장면 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "오늘 가장 기억에 남는 주문은 뭐였어?", "tags": ["주문", "에피소드", "카페"], "answer_hint": "메뉴나 상황 묘사"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "메이드 의상 입을 때 가장 좋아하는 포인트는?", "tags": ["의상", "패션", "메이드", "취향"], "answer_hint": "리본/프릴/색감 등"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "일하면서 가장 많이 발전한 스킬이 뭐라고 생각해?", "tags": ["성장", "스킬", "일", "자기평가"], "answer_hint": "스킬 하나 + 간단한 이유"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "단골 손님이 생기면 어떤 기분이야?", "tags": ["단골", "감정", "접객", "소통"], "answer_hint": "솔직한 기분 한두 문장"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "쉬는 날에 주로 뭐 하면서 보내?", "tags": ["휴일", "취미", "일상", "쉼"], "answer_hint": "주요 활동 1-2가지"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "일하다가 실수했을 때 어떻게 수습해?", "tags": ["실수", "대처", "일", "에피소드"], "answer_hint": "가벼운 실수 에피소드로"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "메이드로서 가장 자신 있는 메뉴 추천은?", "tags": ["메뉴", "추천", "자신감", "카페"], "answer_hint": "메뉴 + 추천 이유"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "일 끝나고 집에 가면 제일 먼저 하는 일은?", "tags": ["퇴근", "루틴", "일상", "쉼"], "answer_hint": "행동 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "요즘 관심 가는 취미나 배우고 싶은 것?", "tags": ["취미", "관심사", "배움", "자기계발"], "answer_hint": "취미 하나 + 간단한 이유"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "손님에게 받은 칭찬 중 가장 기억에 남는 건?", "tags": ["칭찬", "기억", "접객", "감동"], "answer_hint": "칭찬 내용 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "메이드 일의 의외로 힘든 부분이 있다면?", "tags": ["고충", "솔직", "일", "현실"], "answer_hint": "가벼운 수준으로 솔직하게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "좋아하는 캐릭터나 마스코트가 있어?", "tags": ["캐릭터", "취향", "애니", "서브컬처"], "answer_hint": "캐릭터명 + 이유 한줄"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "손님에게 불러줄 수 있는 별명이 있다면?", "tags": ["별명", "접객", "소통", "재미"], "answer_hint": "별명 하나 + 유래"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "카페 인테리어에서 가장 마음에 드는 부분은?", "tags": ["인테리어", "카페", "공간", "취향"], "answer_hint": "포인트 하나 설명"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "일할 때 긴장되는 순간이 있어?", "tags": ["긴장", "일", "감정", "솔직"], "answer_hint": "상황 하나 짧게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "요즘 SNS에서 본 것 중 가장 재밌었던 건?", "tags": ["SNS", "재미", "트렌드", "일상"], "answer_hint": "내용 간단히 설명"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "메이드 콘셉트 중에서 가장 해보고 싶은 테마는?", "tags": ["콘셉트", "테마", "메이드", "상상"], "answer_hint": "테마 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "이 일을 하면서 가장 놀랐던 순간은?", "tags": ["놀람", "에피소드", "일", "발견"], "answer_hint": "에피소드 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "친구들은 메이드 일에 대해 어떻게 반응해?", "tags": ["친구", "반응", "일", "사회"], "answer_hint": "대표적 반응 하나", "safety_notes": "친구 실명/특정 불가"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "일하면서 자기 자신이 변했다고 느끼는 부분?", "tags": ["변화", "성장", "자기성찰", "일"], "answer_hint": "변화 포인트 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "카페에서 특별 이벤트를 할 수 있다면 뭘 하고 싶어?", "tags": ["이벤트", "아이디어", "카페", "상상"], "answer_hint": "아이디어 하나 설명"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "손님과 대화할 때 가장 즐거운 주제는?", "tags": ["대화", "주제", "접객", "소통"], "answer_hint": "주제 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 2, "card_text": "오늘 업무 중 가장 바빴던 시간대는?", "tags": ["바쁨", "업무", "시간", "일상"], "answer_hint": "시간대 + 상황 짧게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "메이드라는 직업이 자기 정체성에 어떤 영향을 줬다고 생각해?", "tags": ["정체성", "직업", "성장", "가치관"], "answer_hint": "솔직한 생각을 편하게", "safety_notes": "심리상담 대체 아님을 유의"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "'접객'이라는 행위에서 가장 중요하다고 생각하는 건 뭐야?", "tags": ["접객", "철학", "가치", "메이드"], "answer_hint": "핵심 가치 하나 + 설명"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "처음 메이드 의상을 입었을 때의 기분과 지금의 기분 차이는?", "tags": ["변화", "감정", "성장", "메이드"], "answer_hint": "과거와 현재 비교"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "이 일을 하면서 사람에 대해 새롭게 알게 된 게 있다면?", "tags": ["인사이트", "사람", "배움", "경험"], "answer_hint": "깨달음 하나 상세하게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "메이드 일을 다른 사람에게 추천한다면 어떤 말을 해주고 싶어?", "tags": ["조언", "추천", "메이드", "경험담"], "answer_hint": "진솔한 조언으로"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "손님의 미소를 보면서 어떤 감정을 느끼는지 솔직하게 말해준다면?", "tags": ["감정", "손님", "접객", "솔직"], "answer_hint": "복잡한 감정도 OK"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "'좋은 메이드'란 어떤 사람이라고 생각해?", "tags": ["이상", "가치관", "메이드", "철학"], "answer_hint": "자기만의 정의를 자유롭게"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "일과 나 자신 사이에서 경계를 어떻게 유지하고 있어?", "tags": ["경계", "자기관리", "일", "균형"], "answer_hint": "자기만의 방법 설명", "safety_notes": "심리상담 대체 아님"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "5년 후에도 이 일을 하고 있을 것 같아? 아니라면 그때 뭘 하고 있을까?", "tags": ["미래", "진로", "상상", "계획"], "answer_hint": "가볍게 상상해도 OK", "safety_notes": "구체적 개인정보 유도 금지"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "메이드 카페 문화가 더 많은 사람에게 알려진다면 어떤 점을 알려주고 싶어?", "tags": ["문화", "소개", "메이드", "인식"], "answer_hint": "알려주고 싶은 포인트 1-2가지"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "일하면서 가장 감동받았던 에피소드를 하나만 들려줄 수 있어?", "tags": ["감동", "에피소드", "스토리", "접객"], "answer_hint": "기억나는 장면 하나를 자세히"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "메이드로서의 나와 평소의 나, 어떤 점이 같고 어떤 점이 달라?", "tags": ["자아", "비교", "콘셉트", "정체성"], "answer_hint": "같은 점/다른 점 각각"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "이 일에서 얻은 가장 큰 선물은 뭐라고 생각해?", "tags": ["선물", "가치", "감사", "성장"], "answer_hint": "물질적이든 정신적이든 하나"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "손님과의 관계에서 '거리감'은 어떻게 설정하고 있어?", "tags": ["거리감", "관계", "접객", "경계"], "answer_hint": "자기만의 원칙 설명", "safety_notes": "사적 연락 유도 금지"}
+{"deck_code": "maid", "subdeck": "icebreaker", "level": 3, "card_text": "지금의 나에게 처음 시작할 때의 나에게 해주고 싶은 한마디?", "tags": ["조언", "과거", "성장", "시간"], "answer_hint": "진심 담긴 한마디"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 카페 문 열기 전에 가장 먼저 한 일은?", "tags": ["오픈", "준비", "일상"], "answer_hint": "행동 하나만"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 카페에 손님 몇 명 정도 있어?", "tags": ["손님", "현장", "실시간"], "answer_hint": "대략적 숫자"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 테이블 세팅할 때 특별히 신경 쓴 부분?", "tags": ["세팅", "디테일", "카페"], "answer_hint": "포인트 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 카페 안 온도는 어때?", "tags": ["온도", "환경", "현장"], "answer_hint": "따뜻/시원/적당 한마디"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 제일 많이 주문된 메뉴는?", "tags": ["메뉴", "인기", "카페"], "answer_hint": "메뉴명 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "방금 전 만든 음료는 뭐야?", "tags": ["음료", "현재", "카페"], "answer_hint": "메뉴명만"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 앞치마 매듭은 어떻게 묶었어?", "tags": ["의상", "디테일", "메이드"], "answer_hint": "리본/일반 등 짧게"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "카페 창밖 풍경은 지금 어때?", "tags": ["풍경", "환경", "현장"], "answer_hint": "한 문장 묘사"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 BGM 플레이리스트 테마는 뭐야?", "tags": ["BGM", "음악", "카페"], "answer_hint": "테마나 장르"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 카운터 위에 뭐가 놓여 있어?", "tags": ["카운터", "디테일", "현장"], "answer_hint": "보이는 것 1-2개"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 사용한 시럽 중 가장 좋아하는 맛은?", "tags": ["시럽", "맛", "카페"], "answer_hint": "맛 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 손에 들고 있는 건 뭐야?", "tags": ["현재", "디테일", "실시간"], "answer_hint": "물건 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 청소할 때 가장 공들인 곳은?", "tags": ["청소", "준비", "일상"], "answer_hint": "장소 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "카페에서 가장 아끼는 소품이 있어?", "tags": ["소품", "카페", "애착"], "answer_hint": "소품 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 웃긴 일이 하나라도 있었어?", "tags": ["웃김", "에피소드", "일상"], "answer_hint": "있으면 짧게, 없으면 없다고"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 신고 있는 실내화는 어떤 거야?", "tags": ["신발", "의상", "디테일"], "answer_hint": "색/종류만"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 카페에 새로 들어온 재료가 있어?", "tags": ["재료", "신메뉴", "카페"], "answer_hint": "재료명 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 가장 깨끗한 테이블 번호는?", "tags": ["테이블", "청결", "현장"], "answer_hint": "번호나 위치"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 제일 예쁘게 나온 라떼아트는?", "tags": ["라떼아트", "스킬", "카페"], "answer_hint": "모양 묘사"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "카페 냉장고 안에 지금 뭐가 있어?", "tags": ["냉장고", "재료", "현장"], "answer_hint": "눈에 띄는 것 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 손님이 가장 많았던 시간은?", "tags": ["피크", "시간", "업무"], "answer_hint": "시간대만"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 카페에 떠도는 향기는?", "tags": ["향기", "환경", "감각"], "answer_hint": "커피/베이킹 등"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 접시 깨진 거 없지?", "tags": ["접시", "해프닝", "일상"], "answer_hint": "무사/깨짐 한마디"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "카페 앞 간판 오늘 뭐라고 적혀 있어?", "tags": ["간판", "카페", "디테일"], "answer_hint": "문구 짧게"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 가장 복잡했던 주문은?", "tags": ["주문", "에피소드", "업무"], "answer_hint": "메뉴 조합 짧게"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 에어컨(히터) 온도 몇 도로 맞춰놨어?", "tags": ["온도", "환경", "디테일"], "answer_hint": "온도 숫자"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 카페 오픈 시간은 몇 시였어?", "tags": ["오픈", "시간", "일상"], "answer_hint": "시간만"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "테이블 위 꽃이나 장식 오늘 바꿨어?", "tags": ["장식", "디테일", "카페"], "answer_hint": "바꿈/안 바꿈 + 한마디"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 제일 먼저 온 손님은 몇 시에 왔어?", "tags": ["첫손님", "시간", "일상"], "answer_hint": "대략적 시간만", "safety_notes": "손님 특정 금지"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 카페 조명은 어떤 분위기야?", "tags": ["조명", "분위기", "환경"], "answer_hint": "밝기/색감 한마디"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 설거지 몇 번 했어?", "tags": ["설거지", "업무", "일상"], "answer_hint": "횟수만"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "카페에 반려식물이 있어?", "tags": ["식물", "카페", "디테일"], "answer_hint": "있으면 이름/종류"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 가장 이쁘게 플레이팅한 디저트는?", "tags": ["디저트", "플레이팅", "카페"], "answer_hint": "디저트명 + 한줄 묘사"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 카페 밖 날씨는 어때?", "tags": ["날씨", "환경", "현장"], "answer_hint": "한마디 날씨"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 컵 세척 몇 개쯤 했어?", "tags": ["세척", "업무", "숫자"], "answer_hint": "대략적 숫자"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "카페 메뉴판에서 제일 마음에 드는 글씨체는?", "tags": ["메뉴판", "디자인", "카페"], "answer_hint": "어떤 메뉴의 글씨인지"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 택배나 배송 온 거 있어?", "tags": ["택배", "일상", "카페"], "answer_hint": "있으면 뭐가 왔는지"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "지금 스피커에서 나오는 노래 제목 알아?", "tags": ["노래", "BGM", "현장"], "answer_hint": "제목이나 '모르겠다'도 OK"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 티 타임에 가장 인기 있는 차 종류는?", "tags": ["차", "인기", "카페"], "answer_hint": "차 이름 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 1, "card_text": "카페 화장실에 오늘 비치한 향기는?", "tags": ["향기", "디테일", "카페"], "answer_hint": "향 이름이나 종류"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "오늘 하루의 업무 흐름을 간단히 타임라인으로 설명해줄 수 있어?", "tags": ["타임라인", "업무", "일상", "구조"], "answer_hint": "주요 시간대별 핵심 활동 3-4개"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "카페 오픈 준비 과정에서 가장 중요하게 생각하는 단계는?", "tags": ["오픈", "준비", "프로세스", "가치"], "answer_hint": "단계 하나 + 이유 설명"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "오늘 손님과 나눈 대화 중 인상 깊었던 건?", "tags": ["대화", "손님", "에피소드", "소통"], "answer_hint": "대화 주제나 느낌 설명", "safety_notes": "손님 특정 정보 제외"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "메뉴 신작을 개발한다면 어떤 걸 만들고 싶어?", "tags": ["신메뉴", "아이디어", "카페", "창의"], "answer_hint": "컨셉 + 재료 아이디어"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "바쁜 시간대와 한가한 시간대, 각각 어떤 기분이야?", "tags": ["시간대", "감정", "업무", "비교"], "answer_hint": "각각의 기분 짧게"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "카페 인테리어를 하나 바꿀 수 있다면 뭘 바꾸고 싶어?", "tags": ["인테리어", "아이디어", "카페", "변화"], "answer_hint": "하나 + 이유"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "손님이 떠난 후 테이블 정리하면서 어떤 생각을 해?", "tags": ["정리", "생각", "일상", "감정"], "answer_hint": "솔직한 내면의 소리"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "카페에서 가장 좋아하는 시간대와 그 이유는?", "tags": ["시간대", "취향", "카페", "이유"], "answer_hint": "시간대 + 구체적 이유"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "음료 만들 때 자기만의 비법이나 습관이 있어?", "tags": ["비법", "음료", "스킬", "카페"], "answer_hint": "작은 노하우 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "오늘 일하면서 가장 뿌듯했던 순간은?", "tags": ["뿌듯", "성취", "일상", "감정"], "answer_hint": "구체적 순간 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "카페 동료와 오늘 나눈 재밌는 대화가 있어?", "tags": ["동료", "대화", "재미", "일상"], "answer_hint": "주제나 내용 가볍게", "safety_notes": "동료 실명 제외"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "새로운 손님이 왔을 때 첫인상은 어떻게 파악하는 편이야?", "tags": ["첫인상", "관찰", "접객", "스킬"], "answer_hint": "자기만의 관찰 포인트"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "메이드 카페만의 특별한 서비스 중 가장 자신 있는 건?", "tags": ["서비스", "자신감", "메이드", "스킬"], "answer_hint": "서비스 하나 + 자신감 포인트"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "퇴근 후 카페에서의 하루를 되돌아볼 때 어떤 기분이야?", "tags": ["퇴근", "회고", "감정", "일상"], "answer_hint": "오늘의 기분 솔직하게"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "카페에서 쓰는 도구(머신/도구) 중 가장 애착 가는 건?", "tags": ["도구", "애착", "카페", "직업"], "answer_hint": "도구 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "혼자 오는 손님과 단체 손님, 접객 방식이 달라?", "tags": ["접객", "방식", "비교", "스킬"], "answer_hint": "차이점 짧게 설명"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "오늘 카페 매출이 평소보다 좋았어? 분위기로 느낄 수 있어?", "tags": ["매출", "분위기", "감각", "업무"], "answer_hint": "느낌만 가볍게", "safety_notes": "구체적 매출 금액 공개 불필요"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "카페에서 가장 조용한 코너는 어디야? 그곳의 매력은?", "tags": ["공간", "코너", "카페", "매력"], "answer_hint": "장소 + 분위기 설명"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "오늘 실수하거나 당황한 순간이 있었어?", "tags": ["실수", "당황", "에피소드", "솔직"], "answer_hint": "가벼운 에피소드로"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "메뉴 사진 찍을 때 자기만의 앵글이나 팁이 있어?", "tags": ["사진", "팁", "메뉴", "SNS"], "answer_hint": "촬영 팁 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "카페에서 꼭 유지하고 싶은 분위기나 룰이 있다면?", "tags": ["분위기", "룰", "가치", "카페"], "answer_hint": "하나 + 이유"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "오늘 디저트 플레이팅하면서 어떤 생각을 했어?", "tags": ["디저트", "플레이팅", "생각", "일상"], "answer_hint": "그때의 생각이나 기분"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "계절이 바뀔 때 카페에서 가장 먼저 변하는 건 뭐야?", "tags": ["계절", "변화", "카페", "관찰"], "answer_hint": "메뉴/장식/분위기 등 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "단골 손님과 처음 온 손님, 대하는 방식에 차이가 있어?", "tags": ["단골", "신규", "접객", "비교"], "answer_hint": "차이점 설명"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 2, "card_text": "오늘 카페에서 찍은 사진 중 가장 마음에 드는 건?", "tags": ["사진", "오늘", "카페", "기록"], "answer_hint": "어떤 사진인지 설명"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "하루 동안 카페에서 느끼는 감정의 변화를 솔직하게 이야기해줄 수 있어?", "tags": ["감정", "변화", "솔직", "일상"], "answer_hint": "시간 흐름에 따른 감정 설명"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "카페라는 공간이 자기에게 어떤 의미가 있는지 이야기해준다면?", "tags": ["공간", "의미", "가치", "카페"], "answer_hint": "개인적인 의미를 자유롭게"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "손님이 떠난 후 빈 카페에 혼자 있을 때의 기분은 어때?", "tags": ["혼자", "공간", "감정", "마감"], "answer_hint": "그 순간의 감정 솔직하게"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "카페에서의 하루가 자기 삶의 리듬에 어떤 영향을 주고 있어?", "tags": ["리듬", "삶", "영향", "일상"], "answer_hint": "생활 패턴이나 마인드 변화"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "완벽한 하루의 카페 영업은 어떤 모습일까?", "tags": ["이상", "완벽", "카페", "상상"], "answer_hint": "이상적인 하루 그려보기"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "카페에서 만난 사람들이 자기 세계관에 어떤 영향을 줬어?", "tags": ["사람", "영향", "세계관", "성장"], "answer_hint": "인상적인 영향 하나"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "일상적인 업무(세척, 정리 등)를 하면서 명상 같은 기분이 드는 순간이 있어?", "tags": ["명상", "업무", "감각", "일상"], "answer_hint": "있으면 그 순간 묘사"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "카페의 사계절 중 가장 좋아하는 시기와 그때의 풍경을 묘사해준다면?", "tags": ["계절", "풍경", "카페", "묘사"], "answer_hint": "계절 + 구체적 풍경"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "오늘 하루를 한 편의 짧은 이야기로 만든다면 제목은 뭐가 될까?", "tags": ["제목", "스토리", "창의", "회고"], "answer_hint": "제목 + 간단한 줄거리"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "카페에서 일하면서 '시간'에 대한 감각이 변한 부분이 있어?", "tags": ["시간", "감각", "변화", "철학"], "answer_hint": "시간 감각의 변화 설명"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "가장 기억에 남는 '카페의 하루'를 처음부터 끝까지 이야기해줄 수 있어?", "tags": ["에피소드", "기억", "스토리", "카페"], "answer_hint": "하루 전체를 이야기체로"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "카페 마감 후 불을 끌 때의 기분을 자세히 말해준다면?", "tags": ["마감", "감정", "순간", "카페"], "answer_hint": "그 순간의 감정과 생각"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "매일 반복되는 업무에서 매일 다르게 느껴지는 건 뭐야?", "tags": ["반복", "차이", "관찰", "일상"], "answer_hint": "미세한 차이 포인트"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "카페라는 공간을 떠나게 된다면 가장 그리울 것 같은 순간은?", "tags": ["그리움", "이별", "카페", "감정"], "answer_hint": "구체적인 순간이나 장면"}
+{"deck_code": "maid", "subdeck": "daily_scene", "level": 3, "card_text": "오늘 하루를 색깔과 향기로 표현한다면 어떤 조합이야?", "tags": ["색깔", "향기", "감각", "표현"], "answer_hint": "색 + 향 조합 + 이유"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 카페를 처음 알게 된 건 언제야?", "tags": ["처음", "발견", "계기"], "answer_hint": "시기나 상황 짧게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "첫 출근 날 가장 기억나는 건?", "tags": ["첫출근", "기억", "에피소드"], "answer_hint": "장면 하나만"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 만든 음료는 뭐였어?", "tags": ["첫음료", "시작", "카페"], "answer_hint": "메뉴명 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 의상 처음 입어본 날 누구한테 먼저 보여줬어?", "tags": ["의상", "처음", "반응"], "answer_hint": "누구인지만 (실명X)", "safety_notes": "실명 제외"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "이 일 전에 해본 아르바이트가 있어?", "tags": ["이전", "아르바이트", "경험"], "answer_hint": "종류만 짧게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "면접 때 가장 긴장됐던 질문은?", "tags": ["면접", "긴장", "에피소드"], "answer_hint": "질문 내용만"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 손님에게 인사했을 때 떨렸어?", "tags": ["첫인사", "긴장", "시작"], "answer_hint": "떨렸다/안 떨렸다 + 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 이름(닉네임)은 어떻게 정했어?", "tags": ["닉네임", "유래", "메이드"], "answer_hint": "유래 짧게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "연습할 때 가장 어려웠던 서비스 스킬은?", "tags": ["연습", "스킬", "어려움"], "answer_hint": "스킬 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 팁(칭찬)을 받았을 때 기분은?", "tags": ["칭찬", "처음", "감정"], "answer_hint": "기분 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "어린 시절 꿈은 뭐였어?", "tags": ["꿈", "어린시절", "배경"], "answer_hint": "직업이나 꿈 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 카페에 관심 갖게 된 이유가 서브컬처 때문이야?", "tags": ["서브컬처", "관심", "계기"], "answer_hint": "맞다/아니다 + 이유"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "학생 때 좋아했던 과목은?", "tags": ["학생", "과목", "과거"], "answer_hint": "과목 하나", "safety_notes": "학교명 제외"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 일 하기 전 자기 성격을 한마디로?", "tags": ["성격", "과거", "자기소개"], "answer_hint": "한마디 표현"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "가족은 이 일에 대해 알고 있어?", "tags": ["가족", "반응", "일"], "answer_hint": "알고있다/모른다 + 한마디", "safety_notes": "가족 상세정보 제외"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 라떼아트 성공했을 때 모양은?", "tags": ["라떼아트", "성공", "처음"], "answer_hint": "모양 묘사"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 카페를 처음 방문한 건 손님으로서? 아니면 바로 일을 시작?", "tags": ["처음방문", "계기", "순서"], "answer_hint": "둘 중 하나 + 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "트레이닝 기간은 얼마나 됐어?", "tags": ["트레이닝", "기간", "시작"], "answer_hint": "기간만"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 일하면서 가장 당황했던 상황은?", "tags": ["당황", "처음", "에피소드"], "answer_hint": "상황 짧게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "이 일을 시작할 때 주변 반응은 어땠어?", "tags": ["주변", "반응", "시작"], "answer_hint": "대표적 반응 하나", "safety_notes": "지인 실명 제외"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 문화를 알게 된 매체는? (애니/만화/SNS 등)", "tags": ["매체", "발견", "서브컬처"], "answer_hint": "매체 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "첫 월급으로 뭐 했어?", "tags": ["첫월급", "기억", "소비"], "answer_hint": "사용처 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "일 시작하고 가장 먼저 친해진 동료는 어떤 사람이었어?", "tags": ["동료", "친분", "시작"], "answer_hint": "성격이나 특징만", "safety_notes": "실명 제외"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 단골이 생겼을 때 어떤 기분이었어?", "tags": ["단골", "처음", "감정"], "answer_hint": "기분 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 활동명 외에 후보였던 이름이 있어?", "tags": ["활동명", "후보", "재미"], "answer_hint": "후보명 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "일 시작 전에 메이드 카페에 대한 이미지는 어땠어?", "tags": ["이미지", "선입견", "변화"], "answer_hint": "이미지 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 메이크업 연습할 때 어땠어?", "tags": ["메이크업", "연습", "시작"], "answer_hint": "결과나 느낌 짧게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "이 일의 매력을 처음 느낀 구체적 순간은?", "tags": ["매력", "발견", "순간"], "answer_hint": "순간 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "첫 이벤트(생일/기념일 등)에 참여했을 때 느낌은?", "tags": ["이벤트", "처음", "감정"], "answer_hint": "느낌 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 일 시작하고 가장 먼저 변한 습관은?", "tags": ["습관", "변화", "시작"], "answer_hint": "습관 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "채용 공고를 보고 지원한 거야, 아니면 추천?", "tags": ["지원", "계기", "시작"], "answer_hint": "경로만 짧게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "첫 날 실수한 에피소드가 있어?", "tags": ["첫날", "실수", "에피소드"], "answer_hint": "가벼운 실수 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 일 하기 전 커피에 관심 있었어?", "tags": ["커피", "관심", "이전"], "answer_hint": "있었다/없었다"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 혼자 오픈(마감) 맡았을 때 기분은?", "tags": ["혼자", "책임", "처음"], "answer_hint": "기분 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "첫 번째 '단골'이 된 메뉴가 있어? (자기가 자주 만드는)", "tags": ["메뉴", "자주", "카페"], "answer_hint": "메뉴명 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 카페 면접에서 자기 PR은 뭐라고 했어?", "tags": ["면접", "PR", "자기소개"], "answer_hint": "핵심 한마디"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "이 일을 시작한 나이는?", "tags": ["나이", "시작", "시기"], "answer_hint": "대략적 시기만", "safety_notes": "구체적 생년월일 불필요"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "처음 손님에게 '감사합니다' 말할 때 어색했어?", "tags": ["인사", "어색함", "시작"], "answer_hint": "어색했다/자연스러웠다"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "메이드 일 시작 전 좋아했던 애니나 만화는?", "tags": ["애니", "만화", "취향"], "answer_hint": "작품명 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 1, "card_text": "이 일을 시작하겠다고 결심한 결정적 한마디(또는 계기)는?", "tags": ["결심", "계기", "시작"], "answer_hint": "계기 한 문장"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 일을 시작하기 전과 후, 자기 자신에 대한 인식이 어떻게 변했어?", "tags": ["변화", "자기인식", "성장", "비교"], "answer_hint": "전후 비교로 솔직하게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "트레이닝 기간 중 가장 기억에 남는 에피소드는?", "tags": ["트레이닝", "에피소드", "성장", "기억"], "answer_hint": "에피소드 하나 상세히"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "이 일을 시작하면서 잃은 것과 얻은 것이 있다면?", "tags": ["득실", "변화", "솔직", "성장"], "answer_hint": "각각 하나씩"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "선배 메이드에게서 배운 가장 인상적인 조언은?", "tags": ["선배", "조언", "배움", "메이드"], "answer_hint": "조언 내용 하나", "safety_notes": "선배 실명 제외"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "첫 이벤트를 기획해봤을 때의 과정과 결과는?", "tags": ["이벤트", "기획", "경험", "성장"], "answer_hint": "과정과 결과 짧게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 카페 업계에 대한 오해 중 바로잡고 싶은 게 있다면?", "tags": ["오해", "인식", "메이드", "사회"], "answer_hint": "오해 하나 + 실제 설명"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "가장 힘들었던 시기는 언제였고, 어떻게 넘겼어?", "tags": ["힘듦", "극복", "시기", "성장"], "answer_hint": "시기 + 극복 방법", "safety_notes": "심리상담 대체 아님"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 활동을 하면서 새로 생긴 꿈이나 목표가 있어?", "tags": ["꿈", "목표", "미래", "변화"], "answer_hint": "목표 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "다른 메이드들과 비교했을 때 자기만의 강점이라고 생각하는 건?", "tags": ["강점", "차별점", "자기평가", "메이드"], "answer_hint": "강점 하나 + 구체적 사례"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "카페에서 있었던 가장 감동적인 에피소드는?", "tags": ["감동", "에피소드", "스토리", "접객"], "answer_hint": "에피소드 하나 상세히"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "이 일을 하면서 대인관계 스킬이 어떻게 변했어?", "tags": ["대인관계", "스킬", "변화", "성장"], "answer_hint": "구체적 변화 포인트"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 콘셉트를 잡을 때 참고한 캐릭터나 영감이 있어?", "tags": ["콘셉트", "영감", "캐릭터", "창작"], "answer_hint": "참고 소스 + 어떤 부분을"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "이 업계에서 일하면서 가장 성장했다고 느끼는 스킬은?", "tags": ["성장", "스킬", "경험", "자기평가"], "answer_hint": "스킬 + 에피소드"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 일을 그만두고 싶었던 순간이 있었다면?", "tags": ["그만두고싶음", "솔직", "고민", "극복"], "answer_hint": "순간 + 그때 생각", "safety_notes": "부정적 감정 과도 유도 금지"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "가장 재미있었던 카페 이벤트의 뒷이야기를 들려줘!", "tags": ["이벤트", "비하인드", "재미", "에피소드"], "answer_hint": "준비 과정이나 비하인드"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "처음 팬(단골)이 생겼을 때 기분과 책임감에 대해 이야기해줄래?", "tags": ["팬", "단골", "감정", "책임감"], "answer_hint": "기분 + 느낀 책임감"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 의상 이외에 해보고 싶은 콘셉트 의상이 있어?", "tags": ["의상", "콘셉트", "상상", "패션"], "answer_hint": "콘셉트 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "이 일을 하면서 가장 크게 성장한 시점은 언제라고 생각해?", "tags": ["성장", "시점", "자기성찰", "변화"], "answer_hint": "시점 + 성장 내용"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "카페 밖에서 메이드 일 경험이 도움이 된 적 있어?", "tags": ["경험", "활용", "일상", "스킬"], "answer_hint": "구체적 상황 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "후배가 들어왔을 때 가장 먼저 가르쳐주는 건 뭐야?", "tags": ["후배", "가르침", "노하우", "메이드"], "answer_hint": "가르침 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 업계에서만 쓰는 독특한 용어나 은어가 있어?", "tags": ["용어", "은어", "업계", "재미"], "answer_hint": "용어 1-2개 + 뜻"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "자기만의 '시그니처 서비스'가 있다면 뭐야?", "tags": ["시그니처", "서비스", "차별화", "메이드"], "answer_hint": "서비스 내용 설명"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "메이드 활동 중 SNS에서 가장 반응이 좋았던 게시물은?", "tags": ["SNS", "반응", "기록", "활동"], "answer_hint": "게시물 내용 설명"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "이 일에서 가장 예상 못 했던 즐거움은?", "tags": ["예상밖", "즐거움", "발견", "일"], "answer_hint": "즐거움 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 2, "card_text": "처음 '진짜 메이드가 됐다'고 느낀 순간은?", "tags": ["자격", "순간", "성장", "정체성"], "answer_hint": "구체적 순간 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "메이드 카페 문화가 자기 인생에서 어떤 챕터에 해당한다고 생각해?", "tags": ["인생", "챕터", "의미", "철학"], "answer_hint": "비유적으로도 OK"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "이 일을 통해 '사람'에 대해 가장 깊이 배운 것은?", "tags": ["사람", "배움", "인사이트", "성장"], "answer_hint": "깨달음을 깊이 있게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "메이드로서의 커리어를 한 편의 성장 스토리로 요약한다면?", "tags": ["커리어", "성장", "스토리", "요약"], "answer_hint": "시작-전개-현재"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "이 일을 하면서 자기가 가장 변화한 '가치관'은 뭐야?", "tags": ["가치관", "변화", "성장", "철학"], "answer_hint": "변화 전후 비교"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "메이드 문화가 사회에 기여하는 점이 있다고 생각해?", "tags": ["사회", "기여", "메이드", "가치"], "answer_hint": "자기 관점에서 자유롭게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "이 업계에서의 경험이 자기 다음 챕터에 어떤 도움이 될 거라 생각해?", "tags": ["미래", "도움", "경험", "연결"], "answer_hint": "구체적인 연결고리"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "가장 힘들었던 시기의 자기에게 편지를 쓴다면 뭐라고 할래?", "tags": ["편지", "과거", "위로", "성장"], "answer_hint": "진심 담긴 메시지로"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "메이드 카페를 운영하는 사람이 된다면 어떤 카페를 만들고 싶어?", "tags": ["운영", "이상", "카페", "비전"], "answer_hint": "카페 콘셉트 상세히"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "이 일에서 얻은 경험 중 평생 간직하고 싶은 건?", "tags": ["경험", "간직", "가치", "소중"], "answer_hint": "경험이나 감정 하나 깊게"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "메이드 카페 문화를 모르는 사람에게 이 세계를 설명한다면?", "tags": ["설명", "문화", "소개", "외부"], "answer_hint": "핵심을 쉽게 전달"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "이 일을 하면서 '내가 생각하는 프로페셔널리즘'이 변했어?", "tags": ["프로", "직업관", "변화", "성장"], "answer_hint": "변화 포인트 설명"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "10년 후, 이 시절을 돌아본다면 어떤 기억이 가장 먼저 떠오를 것 같아?", "tags": ["10년후", "기억", "미래", "회고"], "answer_hint": "예상되는 기억 하나"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "메이드 카페 문화의 미래는 어떻게 될 거라 생각해?", "tags": ["미래", "문화", "전망", "메이드"], "answer_hint": "자기 관점의 예측"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "이 일에서의 경험을 책으로 쓴다면 제목은 뭐가 될까?", "tags": ["책", "제목", "스토리", "창의"], "answer_hint": "제목 + 간단한 이유"}
+{"deck_code": "maid", "subdeck": "behind_story", "level": 3, "card_text": "메이드 일을 하면서 발견한 '자기 자신의 의외의 면'은?", "tags": ["자기발견", "의외", "성장", "정체성"], "answer_hint": "의외의 면 하나 깊게 설명"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "지금 마법으로 하나만 소환할 수 있다면 뭘 부를 거야?", "tags": ["마법", "소환", "상상", "재미"], "answer_hint": "물건/동물 하나만"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "'오늘의 특별 주문'을 콘셉트로 만든다면 이름은?", "tags": ["메뉴", "콘셉트", "창의", "카페"], "answer_hint": "메뉴명 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페에 요정이 살고 있다면 어디에 숨어 있을까?", "tags": ["요정", "상상", "카페", "귀여움"], "answer_hint": "장소 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "손님에게 마법의 인사를 건넨다면 뭐라고 할까?", "tags": ["인사", "마법", "콘셉트", "접객"], "answer_hint": "인사말 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 메이드 칭호를 하나 만든다면?", "tags": ["칭호", "콘셉트", "재미", "메이드"], "answer_hint": "칭호 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페 마스코트를 만든다면 어떤 동물이야?", "tags": ["마스코트", "동물", "상상", "카페"], "answer_hint": "동물 + 특징 한마디"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘 사용할 마법 주문 한마디를 만들어줘!", "tags": ["주문", "마법", "창의", "재미"], "answer_hint": "짧은 주문 한마디"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "비밀 메뉴가 있다면 이름과 재료는?", "tags": ["비밀메뉴", "상상", "카페", "창의"], "answer_hint": "이름 + 재료 간단히"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 럭키 아이템을 하나 정해준다면?", "tags": ["럭키", "아이템", "운세", "재미"], "answer_hint": "아이템 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페에 비밀 통로가 있다면 어디로 이어질까?", "tags": ["비밀통로", "상상", "판타지", "카페"], "answer_hint": "장소 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "요일마다 다른 콘셉트라면 오늘은 무슨 요일 콘셉트?", "tags": ["요일", "콘셉트", "상상", "메이드"], "answer_hint": "콘셉트명 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "손님에게 줄 수 있는 '버프' 한 가지는?", "tags": ["버프", "게임", "상상", "재미"], "answer_hint": "버프 효과 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페 BGM을 마법으로 바꿀 수 있다면 어떤 장르로?", "tags": ["BGM", "마법", "음악", "상상"], "answer_hint": "장르 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기만의 변신 포즈를 하나 만든다면?", "tags": ["변신", "포즈", "콘셉트", "재미"], "answer_hint": "포즈 묘사 짧게"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 행운 컬러를 하나 지정해준다면?", "tags": ["행운", "컬러", "운세", "재미"], "answer_hint": "색 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페 메뉴에 마법 효과가 있다면 어떤 효과?", "tags": ["마법", "메뉴", "효과", "상상"], "answer_hint": "효과 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "메이드 모드 ON! 지금 전투력은 몇 퍼센트?", "tags": ["전투력", "게임", "상태", "재미"], "answer_hint": "퍼센트 숫자"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 메이드 테마곡을 하나 정한다면?", "tags": ["테마곡", "음악", "콘셉트", "선택"], "answer_hint": "노래 제목이나 분위기"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "마법의 앞치마에 숨겨진 능력이 있다면?", "tags": ["앞치마", "마법", "능력", "상상"], "answer_hint": "능력 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "손님을 맞이하는 나만의 시그니처 제스처는?", "tags": ["제스처", "시그니처", "접객", "콘셉트"], "answer_hint": "동작 묘사 짧게"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "RPG에서 메이드 클래스의 특수 스킬명은?", "tags": ["RPG", "스킬", "게임", "상상"], "answer_hint": "스킬명 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페가 우주선이라면 자기 역할은?", "tags": ["우주", "역할", "상상", "SF"], "answer_hint": "역할 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "메이드 카페 공식 응원구호를 만든다면?", "tags": ["응원", "구호", "콘셉트", "팀"], "answer_hint": "구호 한 문장"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘 손님에게 줄 '작은 행복 쿠폰' 내용은?", "tags": ["쿠폰", "행복", "선물", "상상"], "answer_hint": "쿠폰 효과 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "마법소녀로 변신한다면 무기는 뭐야?", "tags": ["마법소녀", "무기", "변신", "상상"], "answer_hint": "무기 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 메이드 운세를 한마디로?", "tags": ["운세", "한마디", "재미", "콘셉트"], "answer_hint": "운세 한 문장"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페 안에 숨겨진 보물이 있다면 어디에?", "tags": ["보물", "숨김", "상상", "카페"], "answer_hint": "장소 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기를 동물로 표현하면 뭐야?", "tags": ["동물", "자기표현", "상상", "성격"], "answer_hint": "동물 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 비밀 암호를 하나 정해줘!", "tags": ["암호", "비밀", "재미", "콘셉트"], "answer_hint": "짧은 암호 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페에 유령이 산다면 어떤 유령일까?", "tags": ["유령", "상상", "귀여움", "카페"], "answer_hint": "귀여운 유령 설정"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "메이드 카드게임이 있다면 자기 카드의 능력치는?", "tags": ["카드", "능력치", "게임", "자기표현"], "answer_hint": "능력치 2-3개"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "마법의 거울에 비친 오늘의 자기 모습은?", "tags": ["거울", "마법", "자기표현", "상상"], "answer_hint": "묘사 한마디"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페의 수호신이 있다면 어떤 모습일까?", "tags": ["수호신", "상상", "카페", "판타지"], "answer_hint": "모습 묘사"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘 만든 음료에 이름을 붙인다면?", "tags": ["이름", "음료", "창의", "카페"], "answer_hint": "이름 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기만의 마법 지팡이가 있다면 어떤 모양?", "tags": ["지팡이", "마법", "디자인", "상상"], "answer_hint": "모양 묘사"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘 카페에 한 가지 마법을 걸 수 있다면?", "tags": ["마법", "카페", "상상", "효과"], "answer_hint": "마법 효과 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "메이드 왕국이 있다면 자기 직위는?", "tags": ["왕국", "직위", "상상", "콘셉트"], "answer_hint": "직위 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "카페 메뉴판이 주문서(스펠북)라면 어떤 디자인?", "tags": ["메뉴판", "디자인", "판타지", "상상"], "answer_hint": "디자인 묘사"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 필살기를 하나 만든다면 이름은?", "tags": ["필살기", "이름", "게임", "재미"], "answer_hint": "기술명 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 1, "card_text": "손님에게 거는 '미소 마법'의 레벨은 1~10 중?", "tags": ["미소", "마법", "레벨", "재미"], "answer_hint": "숫자 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페가 이세계에 있다면 어떤 세계관이 어울릴까?", "tags": ["이세계", "세계관", "상상", "카페"], "answer_hint": "세계관 설정 짧게"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 캐릭터의 배경 설정을 만든다면 어떤 스토리?", "tags": ["캐릭터", "배경", "스토리", "창작"], "answer_hint": "간단한 배경 스토리"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페가 RPG 던전이라면 보스는 누구(무엇)?", "tags": ["RPG", "던전", "보스", "상상"], "answer_hint": "보스 설정 짧게"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "마법의 레시피북에 추가할 신메뉴와 그 마법 효과는?", "tags": ["레시피", "마법", "신메뉴", "창의"], "answer_hint": "메뉴 + 효과 설명"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 팀으로 히어로 그룹을 만든다면 팀명과 역할은?", "tags": ["히어로", "팀", "역할", "상상"], "answer_hint": "팀명 + 자기 역할"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페 손님이 모두 판타지 종족이라면 어떤 종족이 올까?", "tags": ["판타지", "종족", "손님", "상상"], "answer_hint": "종족 2-3개"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 카페 뮤지컬을 만든다면 오프닝 넘버 제목은?", "tags": ["뮤지컬", "제목", "음악", "창의"], "answer_hint": "제목 + 분위기"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페가 우주 정거장이라면 오늘의 미션은?", "tags": ["우주", "미션", "SF", "상상"], "answer_hint": "미션 내용 짧게"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "마법의 재료로 '행복 포션'을 만든다면 레시피는?", "tags": ["포션", "레시피", "마법", "창의"], "answer_hint": "재료 3가지 + 효과"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페가 도서관이라면 추천 도서 한 권은?", "tags": ["도서관", "추천", "책", "상상"], "answer_hint": "책 제목 하나 (실재/가상)"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 전사로서 오늘 맞서야 할 적은?", "tags": ["전사", "적", "배틀", "상상"], "answer_hint": "적 설정 (피로/추위 등)"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페를 아이돌 그룹처럼 유닛으로 나눈다면?", "tags": ["유닛", "아이돌", "팀", "상상"], "answer_hint": "유닛 이름 + 컨셉"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "타임머신으로 카페를 한 시대로 보낸다면 어느 시대?", "tags": ["타임머신", "시대", "상상", "역사"], "answer_hint": "시대 + 그때의 카페 모습"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페 안에 비밀 방이 하나 더 있다면 어떤 용도?", "tags": ["비밀방", "용도", "상상", "카페"], "answer_hint": "용도 + 인테리어"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 버전 자기소개를 RPG 캐릭터 소개처럼 해준다면?", "tags": ["RPG", "캐릭터소개", "자기표현", "재미"], "answer_hint": "이름/클래스/스킬 형식"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페 OST 앨범을 만든다면 첫 번째 트랙 제목은?", "tags": ["OST", "앨범", "음악", "창의"], "answer_hint": "곡명 + 분위기"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "마법 학교에서 메이드 과목이 있다면 시험 문제는?", "tags": ["마법학교", "시험", "재미", "상상"], "answer_hint": "시험 문제 하나"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페가 해적선이라면 자기 해적 이름과 포지션은?", "tags": ["해적", "이름", "포지션", "상상"], "answer_hint": "이름 + 역할"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 카페 만화를 그린다면 제1화 제목과 내용은?", "tags": ["만화", "제1화", "스토리", "창작"], "answer_hint": "제목 + 줄거리 2-3줄"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "요일별 메이드 변신 콘셉트를 정해본다면?", "tags": ["요일", "변신", "콘셉트", "시리즈"], "answer_hint": "2-3개 요일만 예시"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페 마스코트의 이름, 성격, 특기를 만들어줘!", "tags": ["마스코트", "캐릭터", "창작", "카페"], "answer_hint": "3가지 요소 각각"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 콘셉트 사진집을 만든다면 테마는?", "tags": ["사진집", "테마", "콘셉트", "창의"], "answer_hint": "테마 + 분위기 설명"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페에 계절별 한정 마법이 있다면 봄 마법은?", "tags": ["계절", "마법", "봄", "상상"], "answer_hint": "마법 이름 + 효과"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "메이드 카페 보드게임을 만든다면 어떤 규칙?", "tags": ["보드게임", "규칙", "게임", "창의"], "answer_hint": "핵심 규칙 2-3개"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 2, "card_text": "카페가 동화 속 세계라면 지금은 어떤 동화?", "tags": ["동화", "세계", "상상", "콘셉트"], "answer_hint": "동화 제목 + 이유"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "메이드 카페를 테마로 단편소설을 쓴다면 첫 문장과 마지막 문장은?", "tags": ["소설", "첫문장", "창작", "스토리"], "answer_hint": "첫 문장 + 마지막 문장"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "카페가 다차원 포탈이라면, 이 카페에서만 가능한 특별한 경험은?", "tags": ["다차원", "포탈", "특별", "상상"], "answer_hint": "경험 설명 상세히"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "자기만의 메이드 세계관을 하나 만들어 본다면? (설정/규칙/주인공)", "tags": ["세계관", "설정", "창작", "깊이"], "answer_hint": "세계관 3요소 각각 설명"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "메이드 카페의 역사를 100년 후의 사람에게 설명하는 다큐멘터리를 만든다면?", "tags": ["다큐", "100년후", "문화", "역사"], "answer_hint": "다큐 제목 + 핵심 내용"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "카페가 마법학원이라면 자기가 가르치는 수업의 커리큘럼은?", "tags": ["학원", "수업", "커리큘럼", "상상"], "answer_hint": "수업명 + 주요 내용"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "메이드 카페를 배경으로 한 게임의 엔딩 시나리오를 만들어 본다면?", "tags": ["게임", "엔딩", "시나리오", "창작"], "answer_hint": "엔딩 스토리 짧게"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "카페의 사계절을 각각 하나의 캐릭터로 의인화한다면?", "tags": ["사계절", "의인화", "캐릭터", "창의"], "answer_hint": "봄~겨울 각 캐릭터 특징"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "메이드 문화를 주제로 전시회를 연다면 섹션 구성은?", "tags": ["전시회", "섹션", "문화", "기획"], "answer_hint": "섹션 3-4개 + 내용"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "카페가 마법의 나라의 대사관이라면 어떤 외교를 할까?", "tags": ["대사관", "외교", "마법나라", "상상"], "answer_hint": "외교 활동 설명"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "메이드 카페 유니버스의 빌런은 누구이고 어떻게 물리칠까?", "tags": ["빌런", "유니버스", "배틀", "스토리"], "answer_hint": "빌런 설정 + 격퇴 방법"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "카페의 모든 메뉴에 마법 스토리를 붙인다면 시그니처 메뉴의 전설은?", "tags": ["전설", "메뉴", "스토리", "세계관"], "answer_hint": "메뉴의 전설 이야기"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "메이드 카페 주제의 뮤지컬 대본 핵심 장면을 하나 만들어 본다면?", "tags": ["뮤지컬", "장면", "대본", "창작"], "answer_hint": "핵심 장면 대사 포함"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "카페가 다른 차원과 연결된 게이트라면, 다른 차원의 메이드는 어떤 모습?", "tags": ["다른차원", "메이드", "상상", "SF"], "answer_hint": "다른 차원 메이드 설정"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "자기를 주인공으로 한 메이드 애니메이션의 오프닝 영상을 묘사해본다면?", "tags": ["애니", "오프닝", "묘사", "창작"], "answer_hint": "영상 흐름 묘사"}
+{"deck_code": "maid", "subdeck": "roleplay_flavor", "level": 3, "card_text": "카페 100주년 기념 타임캡슐에 넣을 세 가지와 미래에 보내는 메시지는?", "tags": ["타임캡슐", "미래", "메시지", "기념"], "answer_hint": "아이템 3개 + 메시지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 감사하게 느끼는 것 하나는?", "tags": ["감사", "감정", "가벼운"], "answer_hint": "하나만 짧게"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "스트레스 풀 때 하는 일은?", "tags": ["스트레스", "해소", "일상"], "answer_hint": "방법 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 행복한 순간은?", "tags": ["행복", "순간", "일상"], "answer_hint": "순간 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기 자신에게 해주고 싶은 칭찬 한마디?", "tags": ["칭찬", "자기", "긍정"], "answer_hint": "칭찬 한마디"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "최근에 감동받은 작은 일은?", "tags": ["감동", "작은일", "일상"], "answer_hint": "사건 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "좋아하는 명언이나 좌우명이 있어?", "tags": ["명언", "좌우명", "가치관"], "answer_hint": "한 문장"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "혼자만의 시간에 주로 뭘 해?", "tags": ["혼자", "시간", "취미"], "answer_hint": "활동 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 듣고 싶은 말은?", "tags": ["듣고싶은말", "감정", "소통"], "answer_hint": "한마디"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기한테 가장 소중한 물건은?", "tags": ["소중", "물건", "애착"], "answer_hint": "물건 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "최근에 용기 낸 일이 있어?", "tags": ["용기", "도전", "경험"], "answer_hint": "작은 일이라도 OK"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "지금 가장 응원하고 싶은 사람은?", "tags": ["응원", "사람", "관계"], "answer_hint": "누구인지(실명X) + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기를 한 단어로 표현하면?", "tags": ["자기표현", "한단어", "정체성"], "answer_hint": "단어 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 많이 하는 고민은? (가볍게)", "tags": ["고민", "요즘", "가벼운"], "answer_hint": "주제만 짧게", "safety_notes": "깊은 상담 유도 금지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "행복할 때 무의식적으로 하는 행동이 있어?", "tags": ["행복", "습관", "무의식"], "answer_hint": "행동 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기한테 가장 잘 맞는 색깔은?", "tags": ["색깔", "자기표현", "취향"], "answer_hint": "색 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 마음이 따뜻해지는 노래는?", "tags": ["노래", "따뜻", "감성"], "answer_hint": "노래 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 편안하게 느끼는 장소는?", "tags": ["장소", "편안", "쉼"], "answer_hint": "장소 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 읽고 있는 책이나 보고 있는 작품은?", "tags": ["책", "작품", "취미"], "answer_hint": "제목 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기한테 가장 잘 맞는 계절은?", "tags": ["계절", "성격", "취향"], "answer_hint": "계절 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "최근에 새로 도전해본 것이 있어?", "tags": ["도전", "새로움", "경험"], "answer_hint": "도전 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기를 꽃에 비유하면 뭘까?", "tags": ["꽃", "비유", "자기표현"], "answer_hint": "꽃 이름 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 기대하는 일은?", "tags": ["기대", "미래", "긍정"], "answer_hint": "기대하는 것 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기가 생각하는 '작은 사치'는?", "tags": ["사치", "작은행복", "취향"], "answer_hint": "사치 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 좋아하는 시간대는?", "tags": ["시간대", "취향", "일상"], "answer_hint": "시간대 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 자기에게 가장 필요한 건?", "tags": ["필요", "자기관리", "현재"], "answer_hint": "하나만 솔직하게"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기 인생의 BGM을 정한다면?", "tags": ["BGM", "인생", "음악"], "answer_hint": "노래 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 마지막으로 울었던 이유는? (가볍게)", "tags": ["울음", "감정", "솔직"], "answer_hint": "이유만 짧게", "safety_notes": "깊은 트라우마 유도 금지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "하루 중 가장 '나다운' 시간은?", "tags": ["나다운", "시간", "정체성"], "answer_hint": "시간대 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기한테 주고 싶은 선물은?", "tags": ["선물", "자기", "위로"], "answer_hint": "선물 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 편하게 지내는 사람은?", "tags": ["편한사람", "관계", "일상"], "answer_hint": "관계만(실명X)"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기만의 힐링 방법이 있어?", "tags": ["힐링", "방법", "자기관리"], "answer_hint": "방법 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "최근에 자기 자신이 대견했던 순간은?", "tags": ["대견", "성취", "긍정"], "answer_hint": "순간 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 좋아하는 냄새는?", "tags": ["냄새", "감각", "취향"], "answer_hint": "냄새 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "지금 마음의 날씨는?", "tags": ["마음", "날씨", "감정"], "answer_hint": "날씨 비유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 자주 생각나는 추억이 있어?", "tags": ["추억", "기억", "감성"], "answer_hint": "추억 하나 짧게"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기한테 가장 맞는 동물은?", "tags": ["동물", "자기표현", "성격"], "answer_hint": "동물 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "오늘 하루를 한마디로 요약하면?", "tags": ["요약", "하루", "한마디"], "answer_hint": "한마디"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기만의 행운의 숫자가 있어?", "tags": ["숫자", "행운", "개인"], "answer_hint": "숫자 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 감사 인사를 하고 싶은 사람은?", "tags": ["감사", "인사", "관계"], "answer_hint": "누구(실명X) + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기가 가장 좋아하는 자기 장점은?", "tags": ["장점", "긍정", "자기평가"], "answer_hint": "장점 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "일과 자기 자신 사이에서 밸런스를 유지하는 비결은?", "tags": ["밸런스", "일", "자기관리", "비결"], "answer_hint": "자기만의 방법 설명"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "가장 힘들었을 때 자기를 지탱해준 것은?", "tags": ["힘듦", "지탱", "극복", "감사"], "answer_hint": "지탱해준 것 + 이유", "safety_notes": "상담 대체 아님"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기 인생에서 터닝포인트라고 생각하는 순간은?", "tags": ["터닝포인트", "인생", "변화", "성장"], "answer_hint": "순간 하나 + 설명"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "5년 전의 자기와 지금의 자기, 가장 달라진 점은?", "tags": ["변화", "5년전", "성장", "비교"], "answer_hint": "달라진 점 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기가 소중히 여기는 '관계의 규칙'이 있다면?", "tags": ["관계", "규칙", "가치관", "소통"], "answer_hint": "규칙 하나 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "가장 영향을 많이 준 사람(실명 없이)은 어떤 사람이야?", "tags": ["영향", "사람", "성장", "가치관"], "answer_hint": "관계와 영향 설명", "safety_notes": "실명 제외"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기가 되고 싶은 '어른'의 모습은?", "tags": ["미래", "이상", "어른", "가치관"], "answer_hint": "구체적 모습 설명"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "포기하고 싶었지만 포기하지 않은 경험이 있다면?", "tags": ["포기", "인내", "경험", "성장"], "answer_hint": "경험 + 결과", "safety_notes": "과도한 고통 묘사 유도 금지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기가 생각하는 '진짜 강한 사람'은 어떤 사람이야?", "tags": ["강함", "가치관", "사람", "철학"], "answer_hint": "자기 정의를 자유롭게"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "일하면서 배운 '사람 대하는 법' 중 가장 중요한 건?", "tags": ["소통", "배움", "일", "관계"], "answer_hint": "하나 + 에피소드"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기에게 '성공'이란 어떤 의미야?", "tags": ["성공", "정의", "가치관", "철학"], "answer_hint": "자기 정의 설명"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "가장 후회하는 것과 가장 잘한 것, 각각 하나씩?", "tags": ["후회", "잘한일", "회고", "솔직"], "answer_hint": "각각 짧게", "safety_notes": "과도한 부정 유도 금지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "외로울 때 자기만의 대처법은?", "tags": ["외로움", "대처", "자기관리", "방법"], "answer_hint": "방법 하나", "safety_notes": "상담 대체 아님"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기가 생각하는 '좋은 인간관계'의 조건은?", "tags": ["인간관계", "조건", "가치관", "소통"], "answer_hint": "조건 1-2가지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "지금의 자기에게 가장 큰 도전은 뭐야?", "tags": ["도전", "현재", "성장", "목표"], "answer_hint": "도전 하나 + 상황"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기만의 '마음 리셋' 방법이 있어?", "tags": ["리셋", "마음", "자기관리", "방법"], "answer_hint": "방법 설명"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "가장 기억에 남는 선물(받은 것 또는 준 것)은?", "tags": ["선물", "기억", "감동", "관계"], "answer_hint": "선물 + 에피소드"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기 인생의 모토를 새로 만든다면?", "tags": ["모토", "인생", "가치관", "창의"], "answer_hint": "모토 한 문장"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "누군가에게 용기를 주고 싶다면 어떤 말을 할래?", "tags": ["용기", "응원", "메시지", "따뜻"], "answer_hint": "응원 메시지 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기가 가장 자신 없는 부분과 그걸 극복하려는 노력은?", "tags": ["약점", "극복", "솔직", "성장"], "answer_hint": "약점 + 노력 설명", "safety_notes": "자기비하 유도 금지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "10년 후의 자기에게 보내는 편지 한 줄은?", "tags": ["편지", "미래", "한줄", "감성"], "answer_hint": "한 줄 메시지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기가 가장 편안하게 느끼는 사람의 특징은?", "tags": ["편안", "사람", "특징", "관계"], "answer_hint": "특징 1-2가지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "꿈에서라도 하고 싶은 일이 있다면?", "tags": ["꿈", "소원", "상상", "자유"], "answer_hint": "하고 싶은 일 하나"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기에게 '쉼'이란 어떤 의미야?", "tags": ["쉼", "정의", "가치관", "자기관리"], "answer_hint": "자기 정의 설명"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 2, "card_text": "가장 기억에 남는 팬(손님)과의 대화 주제는?", "tags": ["대화", "팬", "기억", "소통"], "answer_hint": "주제와 느낌", "safety_notes": "상대방 특정 금지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기 인생에서 가장 큰 '전환점'은 무엇이었고, 그게 지금의 자기를 어떻게 만들었어?", "tags": ["전환점", "인생", "성장", "깊이"], "answer_hint": "전환점 + 영향 상세히", "safety_notes": "상담 대체 아님, 부담 없이"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "사람들이 자기에 대해 모르는, 하지만 알아줬으면 하는 부분이 있다면?", "tags": ["알아줬으면", "솔직", "정체성", "소통"], "answer_hint": "숨겨진 면 하나 깊게"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기가 세상에 남기고 싶은 것 하나는?", "tags": ["유산", "가치", "세상", "철학"], "answer_hint": "남기고 싶은 것 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "가장 두려운 것과 그 두려움에 어떻게 대처하고 있는지?", "tags": ["두려움", "대처", "솔직", "용기"], "answer_hint": "두려움 + 대처 방법", "safety_notes": "공포증/트라우마 유도 금지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "'행복'이란 무엇인지, 자기만의 정의를 내린다면?", "tags": ["행복", "정의", "철학", "가치관"], "answer_hint": "자기만의 행복론"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "지금까지 살면서 가장 큰 깨달음은 뭐였어?", "tags": ["깨달음", "인생", "지혜", "경험"], "answer_hint": "깨달음 + 상황"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기 인생을 영화로 만든다면 어떤 장르이고, 지금은 어떤 장면?", "tags": ["영화", "장르", "인생", "창의"], "answer_hint": "장르 + 현재 장면"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "가장 존경하는 사람(실명 없이)의 어떤 점을 존경해?", "tags": ["존경", "사람", "가치관", "배움"], "answer_hint": "존경 포인트 상세히", "safety_notes": "실명 제외"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "'나'라는 사람의 설명서를 쓴다면 어떤 내용이 들어갈까?", "tags": ["설명서", "자기", "정체성", "창의"], "answer_hint": "주요 항목 3-4가지"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "세상에 하나만 바꿀 수 있다면 무엇을 바꾸고 싶어?", "tags": ["세상", "변화", "가치관", "소원"], "answer_hint": "바꾸고 싶은 것 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기가 생각하는 '진짜 어른이 되는 것'의 의미는?", "tags": ["어른", "의미", "성장", "철학"], "answer_hint": "자기만의 정의"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "지금의 자기를 한 편의 시로 표현한다면?", "tags": ["시", "자기표현", "창의", "감성"], "answer_hint": "짧은 시 형식으로도 OK"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기 인생에서 가장 '용기 있었던 순간'과 그 결과는?", "tags": ["용기", "순간", "결과", "경험"], "answer_hint": "순간 + 결과 + 느낌"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "만약 과거의 자기에게 딱 한 가지 충고를 할 수 있다면?", "tags": ["과거", "충고", "시간", "지혜"], "answer_hint": "충고 + 이유"}
+{"deck_code": "maid", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기 삶에서 가장 아름다운 순간은 언제였어?", "tags": ["아름다운", "순간", "인생", "감성"], "answer_hint": "순간 상세히 묘사"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 기분을 노래 제목으로 표현하면?", "tags": ["기분", "노래", "가벼운"], "answer_hint": "제목 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 듣고 있는 음악은?", "tags": ["음악", "현재", "취향"], "answer_hint": "곡명이나 '안 듣고 있다'"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 아침에 먹은 건?", "tags": ["아침", "음식", "일상"], "answer_hint": "메뉴명만"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 빠져 있는 취미는?", "tags": ["취미", "요즘", "관심사"], "answer_hint": "취미 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 신고 있는 신발은?", "tags": ["신발", "패션", "디테일"], "answer_hint": "종류/색깔"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 컨디션을 별점으로 매기면? (5점 만점)", "tags": ["컨디션", "별점", "가벼운"], "answer_hint": "숫자 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 자주 가는 편의점 간식은?", "tags": ["간식", "편의점", "취향"], "answer_hint": "상품명 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "마지막으로 본 영상(유튜브/틱톡 등)은?", "tags": ["영상", "SNS", "일상"], "answer_hint": "내용 짧게"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "좋아하는 라면 종류는?", "tags": ["라면", "음식", "선택"], "answer_hint": "라면 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 하늘 봤어?", "tags": ["하늘", "일상", "가벼운"], "answer_hint": "봤다/안 봤다 + 한마디"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "아이돌 시절 습관 중 아직도 남아있는 건?", "tags": ["습관", "아이돌", "과거"], "answer_hint": "습관 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "커피 vs 차?", "tags": ["음료", "선택", "취향"], "answer_hint": "둘 중 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 가장 많이 쓰는 앱은?", "tags": ["앱", "디지털", "일상"], "answer_hint": "앱 이름만"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 거울 몇 번 봤어?", "tags": ["거울", "습관", "재미"], "answer_hint": "횟수"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 머릿속에 있는 단어 하나는?", "tags": ["단어", "현재", "자유"], "answer_hint": "단어 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 잠은 잘 자고 있어?", "tags": ["수면", "건강", "일상"], "answer_hint": "한마디"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "가장 최근에 웃은 이유는?", "tags": ["웃음", "이유", "일상"], "answer_hint": "이유 짧게"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "핸드폰 배경화면은 뭐야?", "tags": ["배경화면", "취향", "디지털"], "answer_hint": "무슨 이미지인지"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 즐겨 보는 드라마나 예능은?", "tags": ["드라마", "예능", "취향"], "answer_hint": "제목 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "아침형 인간? 올빼미형?", "tags": ["성향", "선택", "일상"], "answer_hint": "둘 중 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 가장 많이 한 행동은?", "tags": ["행동", "오늘", "일상"], "answer_hint": "행동 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 입고 있는 옷 색깔은?", "tags": ["옷", "색깔", "패션"], "answer_hint": "색 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 가장 자주 연락하는 사람은?", "tags": ["연락", "사람", "관계"], "answer_hint": "관계만(실명X)"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "좋아하는 날씨는?", "tags": ["날씨", "취향", "가벼운"], "answer_hint": "날씨 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 가장 먹고 싶은 음식은?", "tags": ["음식", "욕구", "현재"], "answer_hint": "음식 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "마지막으로 사진 찍은 건 뭐야?", "tags": ["사진", "최근", "일상"], "answer_hint": "뭘 찍었는지만"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 뭐에 돈을 제일 많이 써?", "tags": ["소비", "요즘", "일상"], "answer_hint": "항목 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "좋아하는 숫자가 있어?", "tags": ["숫자", "취향", "개인"], "answer_hint": "숫자 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 가장 먼저 한 일은?", "tags": ["아침", "루틴", "일상"], "answer_hint": "행동 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 기분을 음식으로 표현하면?", "tags": ["기분", "음식", "비유"], "answer_hint": "음식 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 플레이리스트에 새로 추가한 노래는?", "tags": ["노래", "플레이리스트", "음악"], "answer_hint": "곡명 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "바다 vs 산?", "tags": ["선택", "자연", "취향"], "answer_hint": "둘 중 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 한 운동이 있어?", "tags": ["운동", "건강", "일상"], "answer_hint": "운동 종류나 '안 했다'"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 창밖 풍경은 어때?", "tags": ["풍경", "현재", "환경"], "answer_hint": "한 문장 묘사"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "최근에 받은 택배는 뭐야?", "tags": ["택배", "쇼핑", "일상"], "answer_hint": "물건 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "아이돌 시절 별명이 있었어?", "tags": ["별명", "아이돌", "과거"], "answer_hint": "별명 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "오늘 하루를 한 글자로 표현하면?", "tags": ["한글자", "하루", "표현"], "answer_hint": "글자 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "가장 좋아하는 색 조합은?", "tags": ["색조합", "취향", "디자인"], "answer_hint": "색 2개"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "지금 가방 안에 뭐가 들어있어?", "tags": ["가방", "소지품", "일상"], "answer_hint": "물건 1-2개"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 1, "card_text": "요즘 가장 기대하는 것 하나는?", "tags": ["기대", "긍정", "요즘"], "answer_hint": "기대하는 것 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "아이돌 활동을 시작하게 된 계기가 뭐야?", "tags": ["계기", "시작", "아이돌", "스토리"], "answer_hint": "에피소드 하나", "safety_notes": "그룹명/실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 시절 가장 좋아했던 무대 의상은?", "tags": ["의상", "무대", "아이돌", "취향"], "answer_hint": "의상 묘사"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "연습생 시절의 하루 일과는 어땠어?", "tags": ["연습생", "일과", "과거", "일상"], "answer_hint": "타임라인 짧게"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "아이돌 활동 후 일상에서 가장 달라진 점은?", "tags": ["변화", "일상", "전후", "비교"], "answer_hint": "달라진 점 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "무대에서 가장 좋아했던 포지션(센터/메인보컬 등)은?", "tags": ["포지션", "무대", "아이돌", "취향"], "answer_hint": "포지션 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "연습할 때 가장 많이 들었던 장르의 음악은?", "tags": ["연습", "음악", "장르", "아이돌"], "answer_hint": "장르 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 시절 팬에게 받은 것 중 가장 기억에 남는 건?", "tags": ["팬", "선물", "기억", "감동"], "answer_hint": "선물이나 메시지 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "지금 다시 무대에 선다면 어떤 노래를 부르고 싶어?", "tags": ["무대", "노래", "상상", "아이돌"], "answer_hint": "곡명 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 시절 가장 긴장됐던 무대는?", "tags": ["긴장", "무대", "에피소드", "아이돌"], "answer_hint": "무대 상황 짧게"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "쉬는 날에 주로 뭘 하면서 보냈어? (활동 당시)", "tags": ["휴일", "활동시절", "일상", "과거"], "answer_hint": "주요 활동"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "연습생 동기들과의 추억 중 하나를 들려줄 수 있어?", "tags": ["동기", "추억", "연습생", "우정"], "answer_hint": "에피소드 하나", "safety_notes": "실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "아이돌 활동과 지금 생활의 공통점이 있다면?", "tags": ["공통점", "현재", "과거", "비교"], "answer_hint": "공통점 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "가장 자신 있었던 퍼포먼스는?", "tags": ["퍼포먼스", "자신감", "아이돌", "무대"], "answer_hint": "어떤 퍼포먼스인지"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 시절 먹방(식사) 에피소드가 있어?", "tags": ["먹방", "식사", "에피소드", "과거"], "answer_hint": "재밌는 에피소드 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "팬미팅에서 가장 기억에 남는 순간은?", "tags": ["팬미팅", "기억", "팬", "순간"], "answer_hint": "순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "아이돌 시절 좋아했던 선배 아이돌은?", "tags": ["선배", "롤모델", "아이돌", "취향"], "answer_hint": "그룹이나 특징만"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 중 웃긴 실수 에피소드가 있다면?", "tags": ["실수", "웃김", "에피소드", "무대"], "answer_hint": "가벼운 실수 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "가장 많이 연습한 안무는 뭐였어?", "tags": ["안무", "연습", "노력", "아이돌"], "answer_hint": "어떤 안무인지"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 시절 자기만의 루틴이 있었어?", "tags": ["루틴", "활동시절", "습관", "아이돌"], "answer_hint": "루틴 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "요즘 음악 시장에서 주목하고 있는 건?", "tags": ["음악시장", "트렌드", "관심", "현재"], "answer_hint": "트렌드나 아티스트"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "아이돌 활동 경험이 현재 어떤 면에서 도움이 돼?", "tags": ["경험", "도움", "현재", "성장"], "answer_hint": "도움되는 점 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 당시 가장 좋아했던 연습실의 특징은?", "tags": ["연습실", "공간", "기억", "아이돌"], "answer_hint": "특징 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "무대 전 긴장 풀기 위해 하던 행동은?", "tags": ["긴장풀기", "루틴", "무대", "방법"], "answer_hint": "행동 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "아이돌 시절 가장 많이 먹었던 음식은?", "tags": ["음식", "아이돌", "식사", "과거"], "answer_hint": "음식 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 2, "card_text": "활동 시절의 자기와 지금의 자기, 어떤 점이 같아?", "tags": ["같은점", "과거", "현재", "비교"], "answer_hint": "같은 점 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "아이돌이라는 경험이 자기 정체성에 어떤 영향을 줬어?", "tags": ["정체성", "영향", "아이돌", "성장"], "answer_hint": "영향을 솔직하게"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "무대 위의 자기와 무대 아래의 자기, 어떤 관계야?", "tags": ["무대", "자아", "관계", "정체성"], "answer_hint": "둘의 관계 설명"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "아이돌 활동을 그만둔 후 가장 크게 변한 가치관은?", "tags": ["가치관", "변화", "은퇴후", "성장"], "answer_hint": "변화 포인트 상세히"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "팬과의 관계에서 가장 중요하다고 생각하는 건?", "tags": ["팬", "관계", "가치", "소통"], "answer_hint": "핵심 가치 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "아이돌 문화가 자기에게 남긴 가장 큰 선물은?", "tags": ["선물", "아이돌", "가치", "감사"], "answer_hint": "선물 하나 깊게"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "다시 그 시절로 돌아갈 수 있다면, 한 가지 다르게 하고 싶은 건?", "tags": ["과거", "다시", "선택", "회고"], "answer_hint": "하나 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "아이돌 활동을 모르는 사람에게 그 세계를 설명한다면?", "tags": ["설명", "아이돌", "문화", "외부"], "answer_hint": "핵심을 쉽게"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "'꿈을 쫓는다는 것'에 대해 자기 경험을 바탕으로 말해준다면?", "tags": ["꿈", "경험", "인사이트", "가치"], "answer_hint": "경험 기반 인사이트"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "지금의 자기에게 데뷔 직전의 자기가 해주고 싶은 말은?", "tags": ["데뷔", "메시지", "과거", "성장"], "answer_hint": "진심 담긴 한마디"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "아이돌 산업에 대해 바깥에서 모르는 긍정적인 면은?", "tags": ["산업", "긍정", "인사이트", "문화"], "answer_hint": "긍정적 측면 설명"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "활동을 마친 후 '나는 누구인가'라는 질문에 어떻게 답했어?", "tags": ["정체성", "질문", "은퇴후", "자아"], "answer_hint": "당시의 답 + 지금의 답"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "아이돌 경험이 인간관계에 어떤 영향을 줬어?", "tags": ["인간관계", "영향", "경험", "변화"], "answer_hint": "구체적 영향 설명"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "무대에서의 마지막 순간(또는 가장 인상적인 순간)을 떠올린다면?", "tags": ["마지막", "무대", "기억", "감정"], "answer_hint": "순간 + 감정 상세히"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "아이돌 이후의 삶에서 새롭게 발견한 자기 자신은?", "tags": ["발견", "자기", "새로운", "성장"], "answer_hint": "새로운 면 하나"}
+{"deck_code": "ex_idol", "subdeck": "icebreaker", "level": 3, "card_text": "후배 아이돌에게 해주고 싶은 조언이 있다면?", "tags": ["조언", "후배", "아이돌", "경험담"], "answer_hint": "진솔한 조언"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 아침 루틴은 어땠어?", "tags": ["아침", "루틴", "일상"], "answer_hint": "주요 행동 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 있는 곳의 분위기는?", "tags": ["환경", "현재", "분위기"], "answer_hint": "한 문장 묘사", "safety_notes": "정확한 위치 제외"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 점심 뭐 먹을 예정이야?", "tags": ["점심", "음식", "계획"], "answer_hint": "메뉴나 '아직 모름'"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 운동하고 있어?", "tags": ["운동", "건강", "일상"], "answer_hint": "종류나 '안 하고 있다'"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 가장 오래 한 일은?", "tags": ["활동", "시간", "일상"], "answer_hint": "활동 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 옆에 있는 물건은 뭐야?", "tags": ["물건", "현재", "디테일"], "answer_hint": "물건 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 날씨가 기분에 영향 줬어?", "tags": ["날씨", "기분", "영향"], "answer_hint": "줬다/안 줬다 + 한마디"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 자주 가는 카페나 가게가 있어?", "tags": ["카페", "가게", "일상"], "answer_hint": "종류만(점포명 선택)", "safety_notes": "정확한 위치 제외"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 스마트폰 스크린타임은 어느 정도?", "tags": ["스크린타임", "디지털", "일상"], "answer_hint": "대략적 시간"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "아이돌 때와 다른 지금의 아침 모습은?", "tags": ["아침", "비교", "일상", "변화"], "answer_hint": "차이점 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 들은 소리 중 가장 좋았던 건?", "tags": ["소리", "감각", "일상"], "answer_hint": "소리 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 마시고 있는(마실) 음료는?", "tags": ["음료", "현재", "일상"], "answer_hint": "음료명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 산책했어?", "tags": ["산책", "건강", "일상"], "answer_hint": "했다/안 했다"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 자주 입는 스타일은?", "tags": ["패션", "스타일", "일상"], "answer_hint": "스타일 키워드"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 가장 맛있게 먹은 건?", "tags": ["음식", "맛", "오늘"], "answer_hint": "음식 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 방 안 온도는 어때?", "tags": ["온도", "환경", "현재"], "answer_hint": "따뜻/시원/추움"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 요리한 거 있어?", "tags": ["요리", "일상", "활동"], "answer_hint": "메뉴나 '안 했다'"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 잠드는 시간은 보통 몇 시?", "tags": ["수면", "시간", "일상"], "answer_hint": "시간대"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 만난 사람이 있어?", "tags": ["만남", "사람", "일상"], "answer_hint": "관계만(실명X)"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 방에서 보이는 풍경은?", "tags": ["풍경", "환경", "현재"], "answer_hint": "한 문장 묘사"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 택시/버스/지하철 탔어?", "tags": ["교통", "이동", "일상"], "answer_hint": "수단이나 '안 탔다'"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 장바구니에 넣어둔 거 있어?", "tags": ["쇼핑", "장바구니", "일상"], "answer_hint": "물건 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 가장 기분 좋았던 순간은?", "tags": ["기분", "순간", "긍정"], "answer_hint": "순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "아이돌 때 안 했는데 지금 하는 것은?", "tags": ["변화", "새로운", "비교"], "answer_hint": "활동 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 SNS에 뭐 올렸어?", "tags": ["SNS", "게시", "일상"], "answer_hint": "내용이나 '안 올렸다'"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 쓰고 있는 향수나 바디로션은?", "tags": ["향수", "뷰티", "일상"], "answer_hint": "제품명이나 향"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 카페인 몇 잔 마셨어?", "tags": ["카페인", "커피", "일상"], "answer_hint": "잔 수"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 가장 많이 듣는 팟캐스트/라디오가 있어?", "tags": ["팟캐스트", "미디어", "취향"], "answer_hint": "프로그램명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 제일 오래 머문 장소는?", "tags": ["장소", "시간", "일상"], "answer_hint": "장소 종류만", "safety_notes": "정확한 주소 제외"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 충전 중인 기기가 있어?", "tags": ["기기", "디지털", "디테일"], "answer_hint": "기기 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 배달 자주 시켜?", "tags": ["배달", "음식", "일상"], "answer_hint": "자주/가끔 + 메뉴"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 하루 중 가장 바빴던 시간은?", "tags": ["바쁨", "시간", "일상"], "answer_hint": "시간대"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "아이돌 시절에 비해 지금 여유로운 부분은?", "tags": ["여유", "비교", "변화"], "answer_hint": "여유로운 점 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 물 몇 잔 마셨어?", "tags": ["물", "건강", "일상"], "answer_hint": "잔 수"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 켜져 있는 조명은 어떤 색?", "tags": ["조명", "환경", "디테일"], "answer_hint": "색이나 밝기"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "요즘 자주 보는 유튜브 채널은?", "tags": ["유튜브", "채널", "취향"], "answer_hint": "채널명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 가장 오래 본 화면은?", "tags": ["화면", "시간", "디지털"], "answer_hint": "앱/사이트명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "아이돌 때 못 했는데 지금 맘껏 하는 건?", "tags": ["자유", "변화", "비교"], "answer_hint": "활동 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "오늘 가장 많이 걸은 거리는?", "tags": ["걷기", "건강", "일상"], "answer_hint": "대략적 거리/시간"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 1, "card_text": "지금 방 안 가장 눈에 띄는 물건은?", "tags": ["물건", "공간", "디테일"], "answer_hint": "물건 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 활동 때와 비교해서 지금의 하루 루틴은 어떻게 달라?", "tags": ["루틴", "비교", "변화", "일상"], "answer_hint": "주요 차이점 설명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 자기 관리에 가장 신경 쓰는 부분은?", "tags": ["자기관리", "건강", "뷰티", "일상"], "answer_hint": "관리 포인트 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 때 먹지 못했던 음식 중 지금 맘껏 먹는 건?", "tags": ["음식", "자유", "비교", "일상"], "answer_hint": "음식 + 느낌"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 하루 중 가장 소중한 시간은 언제야?", "tags": ["소중", "시간", "일상", "가치"], "answer_hint": "시간대 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "연습실에서의 하루와 지금의 하루를 비교해준다면?", "tags": ["연습실", "비교", "일상", "변화"], "answer_hint": "핵심 차이 2-3가지"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 새롭게 시도하고 있는 것이 있어?", "tags": ["도전", "새로움", "현재", "성장"], "answer_hint": "시도하는 것 + 계기"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 시절에는 당연했는데 지금은 특별하게 느껴지는 건?", "tags": ["특별", "변화", "감상", "비교"], "answer_hint": "특별한 것 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 SNS를 어떻게 활용하고 있어?", "tags": ["SNS", "활용", "현재", "소통"], "answer_hint": "활용 방법 설명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "일상에서 아이돌 시절 트레이닝이 도움되는 순간은?", "tags": ["트레이닝", "도움", "일상", "경험"], "answer_hint": "구체적 상황 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 가장 즐거운 일과 가장 귀찮은 일은?", "tags": ["즐거움", "귀찮음", "일상", "비교"], "answer_hint": "각각 하나씩"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 때 배운 시간 관리법을 지금도 쓰고 있어?", "tags": ["시간관리", "스킬", "활용", "일상"], "answer_hint": "방법 + 쓰고있다/아니다"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 자주 만나는 사람들과 주로 뭐 하면서 보내?", "tags": ["친구", "활동", "일상", "관계"], "answer_hint": "활동 1-2가지", "safety_notes": "실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 활동 후 '평범한 일상'의 매력을 느끼는 순간은?", "tags": ["일상", "매력", "변화", "감상"], "answer_hint": "매력적인 순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 자기 스타일(패션/메이크업)에 어떤 변화가 있어?", "tags": ["스타일", "변화", "패션", "현재"], "answer_hint": "변화 포인트"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "일상에서 '이건 아이돌 때 경험 덕분이야'라고 느끼는 순간은?", "tags": ["경험", "덕분", "일상", "성장"], "answer_hint": "구체적 상황 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 뭘 배우고 있거나 배우고 싶은 게 있어?", "tags": ["배움", "관심사", "성장", "현재"], "answer_hint": "배우는 것 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 때와 지금, 먹는 양이나 스타일이 달라졌어?", "tags": ["식사", "변화", "건강", "비교"], "answer_hint": "변화 설명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "주말에 주로 어떻게 보내?", "tags": ["주말", "여가", "일상", "쉼"], "answer_hint": "주요 활동"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 자기 방/집에서 가장 좋아하는 코너는?", "tags": ["공간", "집", "취향", "쉼"], "answer_hint": "코너 + 이유", "safety_notes": "주소 제외"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 활동 후 새로 생긴 취미가 있다면?", "tags": ["취미", "새로운", "변화", "현재"], "answer_hint": "취미 + 시작 계기"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 건강관리를 위해 특별히 하는 것은?", "tags": ["건강", "관리", "일상", "습관"], "answer_hint": "방법 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "아이돌 시절의 일상과 지금의 일상, 어느 쪽이 더 좋아?", "tags": ["비교", "선호", "일상", "솔직"], "answer_hint": "솔직한 선호 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 일상에서 가장 '아이돌답다'고 느끼는 순간은?", "tags": ["아이돌답다", "순간", "일상", "정체성"], "answer_hint": "순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "밤에 잠들기 전 주로 뭘 해?", "tags": ["취침전", "루틴", "일상", "습관"], "answer_hint": "주요 행동"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 2, "card_text": "요즘 가장 신경 쓰이는 생활 습관은?", "tags": ["습관", "생활", "관심", "일상"], "answer_hint": "습관 하나"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "아이돌 후의 일상에서 가장 큰 '자유'는 뭐라고 생각해?", "tags": ["자유", "일상", "변화", "가치"], "answer_hint": "자유 + 그것의 의미"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "지금의 일상을 통해 자기 자신에 대해 새롭게 알게 된 건?", "tags": ["자기발견", "일상", "성장", "인사이트"], "answer_hint": "새로운 발견 상세히"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "아이돌 때의 스케줄과 지금의 자유로운 시간, 각각의 장단점은?", "tags": ["스케줄", "자유", "비교", "장단점"], "answer_hint": "각각의 장단점"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "일상에서 '나만의 무대'라고 느끼는 순간이 있어?", "tags": ["무대", "일상", "전환", "의미"], "answer_hint": "순간과 그 느낌"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "일상의 반복 속에서 의미를 찾는 자기만의 방법은?", "tags": ["반복", "의미", "방법", "일상"], "answer_hint": "방법 설명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "아이돌 이후의 삶에서 가장 도전적이었던 적응 과정은?", "tags": ["적응", "도전", "변화", "성장"], "answer_hint": "적응 과정 상세히"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "지금의 하루가 미래의 자기에게 어떤 의미가 될 것 같아?", "tags": ["미래", "의미", "일상", "가치"], "answer_hint": "예상되는 의미"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "일상에서 가장 평화로운 순간을 상세하게 묘사해준다면?", "tags": ["평화", "순간", "묘사", "감성"], "answer_hint": "감각적으로 묘사"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "아이돌 때와 지금, '시간'의 흐름을 느끼는 방식이 달라졌어?", "tags": ["시간", "감각", "변화", "철학"], "answer_hint": "달라진 시간 감각"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "지금의 일상을 하나의 단어로 정의한다면?", "tags": ["정의", "단어", "일상", "자기표현"], "answer_hint": "단어 + 상세한 이유"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "일상 속에서 '아, 이 시간이 소중하다'고 느끼는 구체적 순간은?", "tags": ["소중", "순간", "일상", "감사"], "answer_hint": "순간 상세히"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "아이돌에서 일상으로의 전환이 자기 삶의 질에 어떤 영향을 줬어?", "tags": ["전환", "삶의질", "영향", "변화"], "answer_hint": "긍정/부정 양면"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "지금의 일상 중 10년 후에도 계속하고 싶은 건?", "tags": ["10년후", "지속", "일상", "가치"], "answer_hint": "지속하고 싶은 것 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "혼자 보내는 시간의 의미가 아이돌 때와 어떻게 달라졌어?", "tags": ["혼자", "시간", "의미", "변화"], "answer_hint": "변화 설명"}
+{"deck_code": "ex_idol", "subdeck": "daily_scene", "level": 3, "card_text": "지금의 하루를 다큐멘터리로 찍는다면 가장 인상적인 장면은?", "tags": ["다큐", "장면", "일상", "표현"], "answer_hint": "장면 상세 묘사"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "오디션을 본 적 있어?", "tags": ["오디션", "시작", "경험"], "answer_hint": "봤다/안봤다 + 한마디"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습생 기간은 얼마나 됐어?", "tags": ["연습생", "기간", "과거"], "answer_hint": "기간만"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "첫 무대에서의 감정을 한마디로?", "tags": ["첫무대", "감정", "기억"], "answer_hint": "감정 한마디"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 가장 좋아했던 간식은?", "tags": ["간식", "활동시절", "일상"], "answer_hint": "간식 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습실에서 가장 많이 했던 행동은?", "tags": ["연습실", "행동", "과거"], "answer_hint": "행동 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 잠이 부족할 때 어떻게 버텼어?", "tags": ["수면부족", "버팀", "방법"], "answer_hint": "방법 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "첫 번째 팬레터는 어떤 내용이었어?", "tags": ["팬레터", "처음", "감동"], "answer_hint": "내용 요약", "safety_notes": "팬 특정 금지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 당시 컴백 준비 중 가장 긴장된 순간은?", "tags": ["컴백", "긴장", "준비"], "answer_hint": "순간 짧게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습 중 가장 많이 들은 피드백은?", "tags": ["피드백", "연습", "성장"], "answer_hint": "피드백 내용 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 가장 좋아했던 의상 스타일은?", "tags": ["의상", "스타일", "취향"], "answer_hint": "스타일 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "숙소 생활에서 가장 기억나는 건?", "tags": ["숙소", "기억", "일상"], "answer_hint": "에피소드 짧게", "safety_notes": "위치/실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 중 가장 많이 먹었던 편의점 음식은?", "tags": ["편의점", "음식", "과거"], "answer_hint": "음식 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "첫 무대 전날 밤의 기분은?", "tags": ["전날밤", "첫무대", "감정"], "answer_hint": "기분 한마디"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 자주 가던 장소(유형)는?", "tags": ["장소", "활동시절", "일상"], "answer_hint": "장소 종류만", "safety_notes": "정확한 위치 제외"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습생 때 가장 힘들었던 과목(보컬/댄스/랩 등)은?", "tags": ["과목", "힘듦", "연습생"], "answer_hint": "과목 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 해어스타일 중 가장 마음에 들었던 건?", "tags": ["헤어", "스타일", "과거"], "answer_hint": "스타일 묘사"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "첫 녹음실 경험은 어땠어?", "tags": ["녹음실", "처음", "경험"], "answer_hint": "느낌 짧게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 가장 재밌었던 촬영은?", "tags": ["촬영", "재미", "에피소드"], "answer_hint": "어떤 촬영인지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습 중 가장 성취감 느꼈던 순간은?", "tags": ["성취", "연습", "순간"], "answer_hint": "순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 팬을 처음 만났을 때 기분은?", "tags": ["팬", "처음만남", "감정"], "answer_hint": "기분 한마디"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "가장 오래 연습한 안무의 특징은?", "tags": ["안무", "연습", "특징"], "answer_hint": "어떤 동작인지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 중 가장 추웠던/더웠던 무대는?", "tags": ["날씨", "무대", "에피소드"], "answer_hint": "상황 짧게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습생 동기 중 제일 재밌었던 사람의 특징은?", "tags": ["동기", "재미", "성격"], "answer_hint": "특징만(실명X)", "safety_notes": "실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 가장 많이 불렀던 노래는?", "tags": ["노래", "많이불름", "과거"], "answer_hint": "곡 제목이나 특징"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "이동 중 버스/밴에서 주로 뭘 했어?", "tags": ["이동", "버스", "일상"], "answer_hint": "행동 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "데뷔 소식을 들었을 때 제일 먼저 한 건?", "tags": ["데뷔", "소식", "반응"], "answer_hint": "행동이나 감정 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 중 뮤비 촬영 시 가장 인상적이었던 세트는?", "tags": ["뮤비", "세트", "인상적"], "answer_hint": "세트 묘사"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습생 때 자유시간에 주로 뭘 했어?", "tags": ["자유시간", "연습생", "여가"], "answer_hint": "활동 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 가장 감동받은 팬 이벤트는?", "tags": ["팬이벤트", "감동", "기억"], "answer_hint": "이벤트 내용 짧게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "무대에서 실수한 적 있어? (가볍게)", "tags": ["실수", "무대", "에피소드"], "answer_hint": "가벼운 실수 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 제일 좋아했던 방송/무대는?", "tags": ["방송", "무대", "기억"], "answer_hint": "어떤 방송/무대인지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습생 때 가장 존경했던 선배의 특징은?", "tags": ["선배", "존경", "특징"], "answer_hint": "특징만(실명X)", "safety_notes": "실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 중 새벽까지 연습한 적 있어?", "tags": ["새벽", "연습", "노력"], "answer_hint": "있다/없다 + 한마디"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "첫 방송 출연 때 기억나는 건?", "tags": ["첫방송", "기억", "긴장"], "answer_hint": "기억 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 '이건 비밀'이라고 했던 소소한 것은?", "tags": ["비밀", "소소", "재미"], "answer_hint": "가벼운 비밀 하나", "safety_notes": "민감 정보 제외"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "연습 중 좌절했다가 다시 일어난 경험이 있어?", "tags": ["좌절", "극복", "연습"], "answer_hint": "에피소드 짧게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 가장 자주 쓴 화장품은?", "tags": ["화장품", "뷰티", "과거"], "answer_hint": "제품 종류"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "무대 준비하면서 가장 시간 많이 걸린 건?", "tags": ["준비", "시간", "무대"], "answer_hint": "부분 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "활동 시절 다른 팀과 친하게 지냈던 에피소드가 있어?", "tags": ["다른팀", "친분", "에피소드"], "answer_hint": "에피소드 하나", "safety_notes": "팀명/실명 선택적"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 1, "card_text": "가장 마지막 활동(무대/방송)의 기분은?", "tags": ["마지막", "활동", "감정"], "answer_hint": "기분 한마디"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "연습생 시절 가장 큰 성장을 이끈 순간은?", "tags": ["성장", "순간", "연습생", "변화"], "answer_hint": "순간 + 성장 내용"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "데뷔 전과 후의 자기 인식 차이는?", "tags": ["데뷔", "자기인식", "변화", "비교"], "answer_hint": "전후 비교"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동 시절 팬과의 관계에서 가장 기억에 남는 에피소드는?", "tags": ["팬", "관계", "에피소드", "감동"], "answer_hint": "에피소드 상세히", "safety_notes": "팬 특정 금지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "아이돌 활동 중 가장 성장했다고 느낀 스킬은?", "tags": ["스킬", "성장", "아이돌", "자기평가"], "answer_hint": "스킬 + 에피소드"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동을 마치기로 한 결정의 배경은? (공유 가능한 범위에서)", "tags": ["은퇴", "결정", "배경", "솔직"], "answer_hint": "공유 가능한 범위에서", "safety_notes": "민감 사유 강요 금지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "아이돌 산업에서 배운 가장 값진 교훈은?", "tags": ["교훈", "산업", "배움", "경험"], "answer_hint": "교훈 하나 + 에피소드"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "멤버(동료)들과의 관계에서 가장 좋았던 기억은?", "tags": ["멤버", "관계", "기억", "우정"], "answer_hint": "기억 하나", "safety_notes": "실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "무대 위에서 가장 '살아있다'고 느낀 순간은?", "tags": ["살아있음", "무대", "순간", "감정"], "answer_hint": "순간 + 감정 상세히"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "팬들에게 전하지 못한 이야기가 있다면?", "tags": ["팬", "이야기", "솔직", "메시지"], "answer_hint": "전하고 싶은 이야기"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동 중 가장 도전적이었던 프로젝트는?", "tags": ["도전", "프로젝트", "활동", "경험"], "answer_hint": "프로젝트 + 도전 내용"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "아이돌 생활에서 가장 의외였던 점은?", "tags": ["의외", "발견", "아이돌", "인사이트"], "answer_hint": "의외의 점 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동 시절 가장 큰 위기와 그 극복 방법은?", "tags": ["위기", "극복", "활동", "성장"], "answer_hint": "위기 + 극복", "safety_notes": "과도한 고통 묘사 유도 금지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "무대 뒤에서의 일상을 팬들이 안다면 놀랄 부분은?", "tags": ["무대뒤", "일상", "비하인드", "발견"], "answer_hint": "놀랄 만한 것 하나"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "아이돌 활동이 자기 예술적 감각에 준 영향은?", "tags": ["예술", "감각", "영향", "성장"], "answer_hint": "구체적 영향"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동 중 팬과 가장 가까웠다고 느낀 순간은?", "tags": ["팬", "가까움", "순간", "소통"], "answer_hint": "순간 + 느낌"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "연습생 때 가장 많이 들었던 음악의 영향은?", "tags": ["음악", "영향", "연습생", "취향"], "answer_hint": "어떤 영향인지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동 시절의 '최고의 날'을 꼽는다면?", "tags": ["최고", "날", "활동", "기억"], "answer_hint": "그 날의 에피소드"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "아이돌로서 가장 힘들었던 건 체력? 멘탈? 인간관계?", "tags": ["힘듦", "영역", "아이돌", "솔직"], "answer_hint": "하나 선택 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "멤버(동료)에게 지금 전하고 싶은 한마디는?", "tags": ["멤버", "메시지", "감사", "우정"], "answer_hint": "한마디", "safety_notes": "실명 제외"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동 중 자기만의 무대 루틴이 있었어?", "tags": ["루틴", "무대", "습관", "아이돌"], "answer_hint": "루틴 상세히"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "팬미팅에서 가장 준비를 많이 한 건?", "tags": ["팬미팅", "준비", "노력", "에피소드"], "answer_hint": "준비 내용 설명"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동 시절 가장 큰 영감을 준 선배/아티스트의 특징은?", "tags": ["영감", "선배", "아티스트", "롤모델"], "answer_hint": "특징 + 영향", "safety_notes": "실명 선택적"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "아이돌 활동에서 자기가 가장 성숙해진 계기는?", "tags": ["성숙", "계기", "성장", "아이돌"], "answer_hint": "계기 + 변화"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "무대 실수를 커버한 경험이 있어? 어떻게 했어?", "tags": ["실수", "커버", "무대", "대처"], "answer_hint": "에피소드 + 대처법"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 2, "card_text": "활동을 마친 직후의 감정은 어땠어?", "tags": ["은퇴직후", "감정", "솔직", "변화"], "answer_hint": "복잡한 감정 솔직하게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌 활동 전체를 한 편의 이야기로 요약한다면 어떤 스토리야?", "tags": ["스토리", "요약", "활동전체", "서사"], "answer_hint": "시작-전개-끝"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "그 시절 가장 빛났던 순간과 가장 어두웠던 순간을 모두 이야기해줄 수 있어?", "tags": ["빛", "어둠", "대비", "솔직"], "answer_hint": "각각 상세히", "safety_notes": "과도한 고통 유도 금지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌이라는 경험을 통해 '사람'에 대해 배운 가장 깊은 것은?", "tags": ["사람", "배움", "깊이", "인사이트"], "answer_hint": "깊은 인사이트"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "무대와 팬 사이의 거리감에 대해 솔직하게 이야기한다면?", "tags": ["거리감", "팬", "무대", "솔직"], "answer_hint": "솔직한 생각 상세히"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌 활동이 자기의 '사랑'에 대한 생각을 어떻게 바꿨어?", "tags": ["사랑", "변화", "가치관", "성장"], "answer_hint": "변화 설명"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌 산업의 빛과 그림자를 균형 있게 이야기해준다면?", "tags": ["빛", "그림자", "산업", "균형"], "answer_hint": "양면을 공정하게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "지금의 자기가 데뷔 당시의 자기에게 쓰는 장문 편지의 핵심은?", "tags": ["편지", "과거", "메시지", "성장"], "answer_hint": "핵심 메시지 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "'꿈을 이룬다는 것'과 '꿈이 끝난 후'에 대해 솔직하게 이야기해줄 수 있어?", "tags": ["꿈", "끝", "이후", "철학"], "answer_hint": "두 측면 모두 솔직하게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌 경험이 자기의 삶 전체에서 어떤 무게를 차지해?", "tags": ["무게", "인생", "비중", "가치"], "answer_hint": "비중과 의미 설명"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "활동을 마친 후 가장 긴 밤을 보낸 적이 있다면 그때 어떤 생각을 했어?", "tags": ["긴밤", "생각", "감정", "은퇴후"], "answer_hint": "그때의 생각들", "safety_notes": "부정 감정 과도 유도 금지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌로서의 자기와 지금의 자기를 모두 포함하는 하나의 정체성은?", "tags": ["정체성", "통합", "과거", "현재"], "answer_hint": "통합적 정체성 설명"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "미래에 자기 이야기를 누군가에게 들려준다면 어떤 메시지를 담고 싶어?", "tags": ["메시지", "미래", "이야기", "가치"], "answer_hint": "핵심 메시지"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌 문화에 대해 세상에 오해 없이 전하고 싶은 한 가지는?", "tags": ["오해", "진실", "문화", "전달"], "answer_hint": "한 가지를 깊이 있게"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "만약 자서전을 쓴다면 제목과 첫 문장은?", "tags": ["자서전", "제목", "첫문장", "창의"], "answer_hint": "제목 + 첫 문장"}
+{"deck_code": "ex_idol", "subdeck": "behind_story", "level": 3, "card_text": "아이돌 경험이 '나'라는 사람을 어떻게 조각했는지 말해준다면?", "tags": ["조각", "정체성", "경험", "성장"], "answer_hint": "조각된 부분들 설명"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "지금 솔로 앨범을 낸다면 타이틀곡 제목은?", "tags": ["앨범", "타이틀", "상상", "음악"], "answer_hint": "제목 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대에 한 가지 마법을 쓸 수 있다면?", "tags": ["마법", "무대", "상상", "재미"], "answer_hint": "마법 효과 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기만의 응원봉 디자인은?", "tags": ["응원봉", "디자인", "팬", "상상"], "answer_hint": "모양/색깔 묘사"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "아이돌 게임 캐릭터가 된다면 스킬명은?", "tags": ["게임", "캐릭터", "스킬", "상상"], "answer_hint": "스킬명 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 센터 포즈를 하나 만든다면?", "tags": ["센터", "포즈", "무대", "재미"], "answer_hint": "포즈 묘사"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "콘서트 앵콜곡으로 부를 노래 한 곡은?", "tags": ["콘서트", "앵콜", "노래", "선택"], "answer_hint": "곡명 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "팬미팅에서 할 미니게임을 하나 만든다면?", "tags": ["팬미팅", "게임", "아이디어", "재미"], "answer_hint": "게임 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대 위에서의 자기 별명을 새로 만든다면?", "tags": ["별명", "무대", "콘셉트", "재미"], "answer_hint": "별명 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "솔로 뮤비의 배경 장소를 고른다면?", "tags": ["뮤비", "장소", "상상", "연출"], "answer_hint": "장소 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대 의상을 직접 디자인한다면 포인트는?", "tags": ["의상", "디자인", "무대", "패션"], "answer_hint": "디자인 포인트"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "팬에게 보내는 마법의 한마디는?", "tags": ["팬", "마법", "메시지", "콘셉트"], "answer_hint": "한마디"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기 테마곡의 분위기를 정한다면?", "tags": ["테마곡", "분위기", "음악", "상상"], "answer_hint": "분위기 묘사"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대에 등장할 때 연출 효과를 고른다면?", "tags": ["연출", "등장", "무대", "상상"], "answer_hint": "효과 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "라이벌 아이돌(가상)과의 배틀곡 제목은?", "tags": ["라이벌", "배틀", "가상", "음악"], "answer_hint": "제목 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "팬에게 줄 '럭키 포토카드' 콘셉트는?", "tags": ["포토카드", "콘셉트", "팬", "디자인"], "answer_hint": "콘셉트 묘사"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 아이돌 모드 전투력은?", "tags": ["전투력", "모드", "재미", "상태"], "answer_hint": "퍼센트 숫자"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "이세계에서 아이돌을 한다면 어떤 장르의 음악?", "tags": ["이세계", "장르", "상상", "음악"], "answer_hint": "장르 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "콘서트 굿즈를 하나 만든다면?", "tags": ["굿즈", "디자인", "콘서트", "팬"], "answer_hint": "굿즈 아이디어"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대에서 쓸 소품을 하나 고른다면?", "tags": ["소품", "무대", "연출", "선택"], "answer_hint": "소품 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기만의 팬 호칭을 만든다면?", "tags": ["팬", "호칭", "콘셉트", "네이밍"], "answer_hint": "호칭 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "아이돌 RPG에서 자기 직업군은?", "tags": ["RPG", "직업", "게임", "상상"], "answer_hint": "직업 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대 위 시그니처 제스처를 만든다면?", "tags": ["시그니처", "제스처", "무대", "콘셉트"], "answer_hint": "동작 묘사"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "가상 유닛을 만든다면 유닛명과 콘셉트는?", "tags": ["유닛", "콘셉트", "가상", "팀"], "answer_hint": "이름 + 콘셉트"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대 배경 VCR을 만든다면 어떤 영상?", "tags": ["VCR", "영상", "무대", "연출"], "answer_hint": "영상 내용 짧게"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "팬 사인회에서 특별히 해주고 싶은 건?", "tags": ["사인회", "특별", "팬", "서비스"], "answer_hint": "아이디어 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 아이돌 미션을 하나 정한다면?", "tags": ["미션", "아이돌", "도전", "재미"], "answer_hint": "미션 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "콘서트 인트로 멘트를 만들어본다면?", "tags": ["인트로", "멘트", "콘서트", "콘셉트"], "answer_hint": "멘트 한 문장"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기를 표현하는 이모지 조합 3개는?", "tags": ["이모지", "자기표현", "재미", "상징"], "answer_hint": "이모지 3개"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "가상 콜라보를 한다면 어떤 장르의 아티스트와?", "tags": ["콜라보", "장르", "가상", "음악"], "answer_hint": "장르/타입 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대 조명 색을 하나 고른다면?", "tags": ["조명", "색", "무대", "연출"], "answer_hint": "색 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "팬에게 보내는 보이스 메시지 한마디는?", "tags": ["보이스", "메시지", "팬", "콘셉트"], "answer_hint": "한마디"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "아이돌 카페를 연다면 시그니처 메뉴는?", "tags": ["카페", "메뉴", "아이돌", "상상"], "answer_hint": "메뉴명 + 특징"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대 위 승리 포즈를 만든다면?", "tags": ["승리", "포즈", "무대", "재미"], "answer_hint": "포즈 묘사"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기를 꽃에 비유한 솔로곡 제목은?", "tags": ["꽃", "솔로곡", "비유", "음악"], "answer_hint": "제목 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "팬 투어를 기획한다면 어디로?", "tags": ["투어", "장소", "팬", "기획"], "answer_hint": "장소 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "아이돌 세계관에서 자기의 초능력은?", "tags": ["초능력", "세계관", "상상", "캐릭터"], "answer_hint": "초능력 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "오늘의 팬 서비스 아이디어 하나!", "tags": ["팬서비스", "아이디어", "재미", "소통"], "answer_hint": "아이디어 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "무대 의상에 자기만의 시그니처 액세서리를 추가한다면?", "tags": ["액세서리", "시그니처", "의상", "패션"], "answer_hint": "액세서리 하나"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "팬과 함께하는 챌린지를 만든다면?", "tags": ["챌린지", "팬", "참여", "아이디어"], "answer_hint": "챌린지 내용"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 1, "card_text": "자기 이름으로 된 별이 있다면 어떤 별?", "tags": ["별", "이름", "상상", "로맨틱"], "answer_hint": "별 묘사"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "솔로 앨범의 트랙리스트를 5곡 정도 만들어본다면?", "tags": ["트랙리스트", "앨범", "음악", "창의"], "answer_hint": "곡 제목 3-5개"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "가상의 콘서트를 기획한다면 세트리스트 하이라이트는?", "tags": ["콘서트", "세트리스트", "기획", "무대"], "answer_hint": "하이라이트 2-3곡"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "자기만의 아이돌 세계관 스토리를 만든다면?", "tags": ["세계관", "스토리", "창작", "아이돌"], "answer_hint": "세계관 설정 짧게"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 생존 프로그램에 다시 나간다면 자기 PR 무대는?", "tags": ["서바이벌", "PR", "무대", "상상"], "answer_hint": "무대 컨셉 + 곡"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "팬과 함께하는 리얼리티 프로그램을 기획한다면?", "tags": ["리얼리티", "기획", "팬", "프로그램"], "answer_hint": "프로그램 콘셉트"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "뮤비 감독이 된다면 어떤 스토리의 뮤비를 만들고 싶어?", "tags": ["뮤비", "감독", "스토리", "연출"], "answer_hint": "스토리 + 비주얼"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 멘토링 프로그램을 만든다면 커리큘럼은?", "tags": ["멘토링", "커리큘럼", "아이돌", "기획"], "answer_hint": "주요 과목 3-4개"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "콘서트 VIP석 특전을 기획한다면?", "tags": ["VIP", "특전", "콘서트", "기획"], "answer_hint": "특전 내용"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "자기를 주인공으로 한 웹드라마 1화 줄거리는?", "tags": ["웹드라마", "줄거리", "창작", "스토리"], "answer_hint": "1화 줄거리 짧게"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 테마 보드게임의 핵심 룰을 만든다면?", "tags": ["보드게임", "룰", "아이돌", "창의"], "answer_hint": "핵심 룰 2-3개"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "가상의 월드투어 첫 도시와 마지막 도시는?", "tags": ["월드투어", "도시", "기획", "상상"], "answer_hint": "첫 도시 + 마지막 도시"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "팬을 위한 ASMR 콘텐츠를 만든다면 주제는?", "tags": ["ASMR", "콘텐츠", "팬", "아이디어"], "answer_hint": "주제 + 분위기"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 카드게임에서 자기 카드의 능력치와 특수 스킬은?", "tags": ["카드게임", "능력치", "스킬", "상상"], "answer_hint": "능력치 + 스킬"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "무대 의상 라인을 디자인한다면 시즌 테마는?", "tags": ["의상", "디자인", "시즌", "패션"], "answer_hint": "테마 + 핵심 아이템"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "자기만의 음악 레이블을 만든다면 이름과 콘셉트는?", "tags": ["레이블", "이름", "콘셉트", "비전"], "answer_hint": "이름 + 콘셉트 설명"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "팬과 함께 만드는 앨범 자켓 아이디어는?", "tags": ["앨범자켓", "아이디어", "팬", "디자인"], "answer_hint": "자켓 콘셉트"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 요리 대결에 나간다면 자신작은?", "tags": ["요리", "대결", "자신작", "재미"], "answer_hint": "메뉴 + 자신감"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "콘서트 엔딩 멘트를 지금 쓴다면?", "tags": ["엔딩", "멘트", "콘서트", "감성"], "answer_hint": "멘트 내용"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "가상의 유닛 앨범 콘셉트를 만든다면?", "tags": ["유닛", "앨범", "콘셉트", "창작"], "answer_hint": "유닛명 + 앨범 콘셉트"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 세계관 애니메이션을 만든다면 자기 캐릭터 설정은?", "tags": ["애니", "캐릭터", "설정", "창작"], "answer_hint": "캐릭터 설정 상세"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "팬과 함께하는 사진전을 연다면 테마와 대표작은?", "tags": ["사진전", "테마", "팬", "예술"], "answer_hint": "테마 + 대표작 설명"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 다큐멘터리를 직접 만든다면 어떤 이야기를 담고 싶어?", "tags": ["다큐", "이야기", "아이돌", "진정성"], "answer_hint": "담고 싶은 이야기"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "자기 이름을 딴 향수를 만든다면 어떤 향?", "tags": ["향수", "이름", "디자인", "감각"], "answer_hint": "향 구성 설명"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "무대 위 퍼포먼스에 특수 효과를 더한다면?", "tags": ["퍼포먼스", "특수효과", "무대", "연출"], "answer_hint": "효과 + 연출 아이디어"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 2, "card_text": "아이돌 테마파크를 만든다면 메인 어트랙션은?", "tags": ["테마파크", "어트랙션", "상상", "기획"], "answer_hint": "어트랙션 콘셉트"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "자기의 아이돌 인생을 한 편의 뮤지컬로 만든다면 핵심 넘버와 클라이맥스는?", "tags": ["뮤지컬", "넘버", "클라이맥스", "창작"], "answer_hint": "핵심 장면 + 노래"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "50년 후 아이돌 문화는 어떤 모습일까? 자기가 상상하는 미래의 아이돌은?", "tags": ["미래", "아이돌", "문화", "상상"], "answer_hint": "미래 아이돌 비전"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "자기의 아이돌 경험을 토대로 소설을 쓴다면 등장인물과 갈등 구조는?", "tags": ["소설", "등장인물", "갈등", "창작"], "answer_hint": "캐릭터 + 갈등"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "아이돌 박물관을 만든다면 전시 구성과 하이라이트는?", "tags": ["박물관", "전시", "아이돌", "기획"], "answer_hint": "전시 섹션 + 하이라이트"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "가상의 마지막 콘서트를 기획한다면 시작부터 끝까지 어떤 흐름?", "tags": ["콘서트", "마지막", "기획", "감성"], "answer_hint": "전체 흐름 설명"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "아이돌 아카데미를 설립한다면 교육 철학과 커리큘럼은?", "tags": ["아카데미", "교육", "철학", "비전"], "answer_hint": "철학 + 핵심 과목"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "자기만의 음악 세계관을 처음부터 끝까지 만들어본다면?", "tags": ["세계관", "음악", "완성", "창작"], "answer_hint": "세계관 전체 구성"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "아이돌과 팬의 관계를 주제로 한 영화 시나리오의 핵심 장면은?", "tags": ["영화", "시나리오", "팬", "관계"], "answer_hint": "핵심 장면 상세히"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "100년 후 자기가 만든 음악이 남아있다면 어떤 곡이 남을까?", "tags": ["100년후", "음악", "유산", "상상"], "answer_hint": "곡 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "아이돌 문화 다큐멘터리 시리즈를 만든다면 에피소드 구성은?", "tags": ["다큐", "시리즈", "에피소드", "기획"], "answer_hint": "에피소드 3-4개"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "무대 위의 순간을 하나의 미술 작품으로 표현한다면?", "tags": ["미술", "작품", "무대", "예술"], "answer_hint": "작품 콘셉트 + 표현"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "아이돌 경험을 다음 세대에 전하는 편지 형식의 콘텐츠를 만든다면?", "tags": ["편지", "다음세대", "전달", "가치"], "answer_hint": "편지 핵심 내용"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "자기의 아이돌 시대를 타임캡슐에 담는다면 세 가지 아이템과 메시지는?", "tags": ["타임캡슐", "아이템", "메시지", "기념"], "answer_hint": "아이템 3개 + 메시지"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "아이돌 경험을 바탕으로 한 테드톡 발표를 한다면 주제와 핵심 메시지는?", "tags": ["테드톡", "발표", "주제", "메시지"], "answer_hint": "주제 + 핵심 메시지"}
+{"deck_code": "ex_idol", "subdeck": "roleplay_flavor", "level": 3, "card_text": "자기의 음악과 무대를 하나의 예술 설치 작품으로 재해석한다면?", "tags": ["설치작품", "재해석", "예술", "창의"], "answer_hint": "작품 콘셉트 상세"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 감사한 것 하나는?", "tags": ["감사", "긍정", "일상"], "answer_hint": "하나만 짧게"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "스트레스 받을 때 하는 일은?", "tags": ["스트레스", "해소", "방법"], "answer_hint": "방법 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 행복하다고 느끼는 때는?", "tags": ["행복", "순간", "현재"], "answer_hint": "순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기에게 해주고 싶은 칭찬은?", "tags": ["칭찬", "자기", "긍정"], "answer_hint": "한마디"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "좋아하는 명언이 있어?", "tags": ["명언", "가치관", "인용"], "answer_hint": "한 문장"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "혼자만의 시간에 뭘 해?", "tags": ["혼자", "여가", "쉼"], "answer_hint": "활동 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 듣고 싶은 말은?", "tags": ["듣고싶은말", "감정", "소통"], "answer_hint": "한마디"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 소중한 물건은?", "tags": ["소중", "물건", "애착"], "answer_hint": "물건 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "최근 용기 낸 일은?", "tags": ["용기", "도전", "경험"], "answer_hint": "일 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기를 단어 하나로 정의한다면?", "tags": ["한단어", "자기표현", "정체성"], "answer_hint": "단어 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 가장 많이 하는 생각은?", "tags": ["생각", "요즘", "내면"], "answer_hint": "주제만 짧게"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "행복할 때 무의식적으로 하는 건?", "tags": ["행복", "습관", "무의식"], "answer_hint": "행동 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "좋아하는 향기는?", "tags": ["향기", "감각", "취향"], "answer_hint": "향 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 편안한 장소는?", "tags": ["장소", "편안", "쉼"], "answer_hint": "장소 종류"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 보고 있는 작품(책/영화 등)은?", "tags": ["작품", "취미", "현재"], "answer_hint": "제목 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기한테 맞는 계절은?", "tags": ["계절", "성격", "취향"], "answer_hint": "계절 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "최근 새로 시도한 건?", "tags": ["시도", "새로움", "도전"], "answer_hint": "시도 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "꽃에 비유하면 자기는?", "tags": ["꽃", "비유", "자기표현"], "answer_hint": "꽃 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 기대하는 것은?", "tags": ["기대", "미래", "긍정"], "answer_hint": "기대 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기만의 '작은 사치'는?", "tags": ["사치", "행복", "취향"], "answer_hint": "사치 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "아이돌 시절의 자기에게 한마디 한다면?", "tags": ["과거", "한마디", "메시지"], "answer_hint": "한마디"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "하루 중 제일 좋아하는 시간대는?", "tags": ["시간대", "취향", "일상"], "answer_hint": "시간대 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 자기에게 필요한 건?", "tags": ["필요", "자기관리", "현재"], "answer_hint": "하나 솔직하게"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "인생의 BGM을 정한다면?", "tags": ["BGM", "인생", "음악"], "answer_hint": "곡 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "언제가 가장 자기답다고 느껴?", "tags": ["나다운", "시간", "정체성"], "answer_hint": "시간대 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기에게 주고 싶은 선물은?", "tags": ["선물", "자기", "위로"], "answer_hint": "선물 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "힐링 방법은?", "tags": ["힐링", "방법", "자기관리"], "answer_hint": "방법 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기가 대견한 순간은?", "tags": ["대견", "성취", "긍정"], "answer_hint": "순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "마음의 날씨는?", "tags": ["마음", "날씨", "감정"], "answer_hint": "날씨 비유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자주 생각나는 추억은?", "tags": ["추억", "기억", "과거"], "answer_hint": "추억 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "하루를 한마디로 요약하면?", "tags": ["요약", "하루", "한마디"], "answer_hint": "한마디"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "좋아하는 자기 장점은?", "tags": ["장점", "긍정", "자기평가"], "answer_hint": "장점 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "가장 그리운 순간은?", "tags": ["그리움", "순간", "감성"], "answer_hint": "순간 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "지금 응원하고 싶은 사람은?", "tags": ["응원", "사람", "관계"], "answer_hint": "관계만(실명X)"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "무대에서 느꼈던 감정 중 가장 좋았던 건?", "tags": ["감정", "무대", "기억"], "answer_hint": "감정 한마디"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "요즘 감사 인사 하고 싶은 사람은?", "tags": ["감사", "사람", "관계"], "answer_hint": "관계만(실명X)"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "자기 인생의 키워드 3개는?", "tags": ["키워드", "인생", "자기표현"], "answer_hint": "키워드 3개"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "최근에 눈물이 났던 이유가 있어? (가볍게)", "tags": ["울음", "감정", "솔직"], "answer_hint": "이유만 짧게", "safety_notes": "깊은 트라우마 유도 금지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "팬에게 가장 전하고 싶은 감정은?", "tags": ["팬", "감정", "메시지"], "answer_hint": "감정 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 1, "card_text": "오늘 자기에게 점수를 준다면?", "tags": ["점수", "자기평가", "오늘"], "answer_hint": "점수 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "아이돌 활동 후 자기 정체성을 다시 찾는 과정은 어땠어?", "tags": ["정체성", "과정", "은퇴후", "성장"], "answer_hint": "과정 솔직하게"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "무대 위의 환호와 일상의 고요함, 어떻게 밸런스를 잡아?", "tags": ["밸런스", "무대", "일상", "적응"], "answer_hint": "자기만의 방법"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "팬에게 받은 사랑이 자기 삶에 어떤 영향을 줬어?", "tags": ["팬", "사랑", "영향", "감사"], "answer_hint": "구체적 영향"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "아이돌 후의 삶에서 가장 어려웠던 적응 포인트는?", "tags": ["적응", "어려움", "은퇴후", "성장"], "answer_hint": "포인트 + 극복"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "'성공'의 정의가 아이돌 전과 후로 어떻게 달라졌어?", "tags": ["성공", "정의", "변화", "가치관"], "answer_hint": "전후 비교"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "가장 힘들었을 때 자기를 지탱해준 건?", "tags": ["힘듦", "지탱", "극복", "감사"], "answer_hint": "지탱해준 것", "safety_notes": "상담 대체 아님"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "아이돌 경험이 '사랑'에 대한 생각을 어떻게 바꿨어?", "tags": ["사랑", "변화", "경험", "가치관"], "answer_hint": "변화 설명"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "지금의 자기에게 가장 큰 도전은?", "tags": ["도전", "현재", "성장", "목표"], "answer_hint": "도전 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "팬과의 관계에서 배운 가장 큰 교훈은?", "tags": ["팬", "교훈", "관계", "배움"], "answer_hint": "교훈 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "혼자일 때 외로움을 느끼면 어떻게 해?", "tags": ["외로움", "대처", "방법", "자기관리"], "answer_hint": "방법 하나", "safety_notes": "상담 대체 아님"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "아이돌 시절과 지금, 자기가 가장 소중히 여기는 가치의 변화는?", "tags": ["가치", "변화", "성장", "비교"], "answer_hint": "변화 포인트"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "무대를 그리워하는 순간이 있어? 어떤 때?", "tags": ["그리움", "무대", "순간", "감정"], "answer_hint": "순간 + 감정"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기 인생의 모토를 지금 새로 만든다면?", "tags": ["모토", "인생", "가치관", "현재"], "answer_hint": "모토 한 문장"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "힘든 사람에게 용기를 준다면 어떤 말을 해주고 싶어?", "tags": ["용기", "응원", "메시지", "따뜻"], "answer_hint": "응원 메시지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "아이돌 이후 새롭게 발견한 자기의 강점은?", "tags": ["강점", "발견", "성장", "자기평가"], "answer_hint": "강점 하나 + 에피소드"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "10년 후의 자기에게 보내는 메시지 한 줄은?", "tags": ["10년후", "메시지", "미래", "감성"], "answer_hint": "한 줄 메시지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "함께 있으면 가장 마음이 편한 사람의 공통점은?", "tags": ["편안", "사람", "특징", "관계"], "answer_hint": "특징 1-2가지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "아이돌 활동에서 가장 큰 후회와 가장 큰 자부심은?", "tags": ["후회", "자부심", "활동", "솔직"], "answer_hint": "각각 하나씩", "safety_notes": "과도한 부정 유도 금지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "꿈에서라도 하고 싶은 일은?", "tags": ["꿈", "소원", "자유", "상상"], "answer_hint": "하고 싶은 일 하나"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "'쉼'이란 자기에게 어떤 의미?", "tags": ["쉼", "의미", "가치관", "자기관리"], "answer_hint": "자기 정의"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "팬들에게 가장 미안한 것과 가장 감사한 것은?", "tags": ["미안", "감사", "팬", "솔직"], "answer_hint": "각각 하나씩"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "지금 자기가 가장 자신 없는 부분과 극복 노력은?", "tags": ["약점", "극복", "솔직", "성장"], "answer_hint": "약점 + 노력", "safety_notes": "자기비하 유도 금지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "자기가 되고 싶은 '30대/40대'의 모습은?", "tags": ["미래", "이상", "자기", "가치관"], "answer_hint": "구체적 모습"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "아이돌 경험이 현재의 인간관계에 어떤 영향을?", "tags": ["인간관계", "영향", "경험", "변화"], "answer_hint": "영향 설명"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 2, "card_text": "지금 가장 감사한 팬과의 기억은?", "tags": ["감사", "팬", "기억", "따뜻"], "answer_hint": "기억 하나", "safety_notes": "팬 특정 금지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "아이돌이라는 꿈을 꾸고, 이루고, 지나온 지금, '꿈'이란 뭐라고 생각해?", "tags": ["꿈", "정의", "인생", "철학"], "answer_hint": "깊은 생각 자유롭게"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "무대 위의 함성이 사라진 후, 자기를 지탱하는 가장 큰 힘은?", "tags": ["힘", "지탱", "은퇴후", "가치"], "answer_hint": "가장 큰 힘 상세히"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "아이돌 경험 전체를 통해 '나'라는 사람이 어떻게 완성되었다고 느껴?", "tags": ["완성", "자기", "경험", "성장"], "answer_hint": "성장 과정 총체적으로"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "팬과의 관계가 자기 인생에서 어떤 의미를 갖는지 깊이 이야기해줄 수 있어?", "tags": ["팬", "의미", "관계", "깊이"], "answer_hint": "의미를 깊이 있게"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "지금까지 살면서 가장 큰 깨달음은?", "tags": ["깨달음", "인생", "지혜", "경험"], "answer_hint": "깨달음 + 상황"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기 인생을 영화로 만든다면 장르와 지금의 장면은?", "tags": ["영화", "장르", "인생", "창의"], "answer_hint": "장르 + 현재 장면"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "세상에 하나만 바꿀 수 있다면?", "tags": ["세상", "변화", "가치관", "소원"], "answer_hint": "바꾸고 싶은 것 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "자서전의 마지막 장 제목과 첫 문장을 쓴다면?", "tags": ["자서전", "마지막장", "창의", "인생"], "answer_hint": "제목 + 첫 문장"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "'진짜 강한 사람'이란 어떤 사람이라고 생각해?", "tags": ["강함", "정의", "가치관", "철학"], "answer_hint": "자기만의 정의"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "미래에 자기 이야기를 누군가 듣는다면, 어떤 감정을 느꼈으면 좋겠어?", "tags": ["미래", "감정", "이야기", "전달"], "answer_hint": "바라는 감정 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "'나'라는 사람의 설명서를 쓴다면 핵심 항목은?", "tags": ["설명서", "자기", "정체성", "창의"], "answer_hint": "핵심 항목 3-4가지"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "과거의 자기에게 딱 한 가지 충고를 한다면?", "tags": ["과거", "충고", "지혜", "시간"], "answer_hint": "충고 + 이유"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "자기 삶에서 가장 아름다운 순간은?", "tags": ["아름다운", "순간", "인생", "감성"], "answer_hint": "순간 상세 묘사"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "아이돌이었던 과거와 지금의 자기를 모두 안아줄 수 있는 한마디는?", "tags": ["포용", "한마디", "과거", "현재"], "answer_hint": "한마디 + 의미"}
+{"deck_code": "ex_idol", "subdeck": "deep_but_safe", "level": 3, "card_text": "100년 후에도 남길 수 있는 자기만의 메시지가 있다면?", "tags": ["100년후", "메시지", "유산", "가치"], "answer_hint": "메시지 + 의미"}
