@@ -18,12 +18,21 @@ import '../features/subscriptions/subscriptions_screen.dart';
 import '../features/help/help_center_screen.dart';
 import '../features/artist_inbox/artist_inbox_screen.dart';
 import '../features/artist_inbox/broadcast_compose_screen.dart';
+import '../features/creator/creator_analytics_screen.dart';
+import '../features/creator/creator_dm_screen.dart';
+import '../features/creator/creator_crm_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/funding/creator_funding_screen.dart';
 import '../features/funding/create_campaign_screen.dart';
+import '../features/creator/creator_dashboard_screen.dart';
+import '../features/creator/creator_profile_screen.dart';
+import '../features/creator/creator_chat_tab_screen.dart';
+import '../features/creator/creator_my_channel_screen.dart';
+import '../features/creator/creator_profile_edit_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
+import '../shared/widgets/creator_bottom_nav_bar.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -45,24 +54,31 @@ class AppRoutes {
   static const String subscriptions = '/subscriptions';
   static const String help = '/help';
 
-  // Artist Inbox Routes
+  // Legacy Artist Inbox Routes (kept for backward compatibility)
   static const String artistInbox = '/artist/inbox';
   static const String artistInboxThread = '/artist/inbox/:fanUserId';
   static const String broadcastCompose = '/artist/broadcast/compose';
 
-  // Creator Funding Routes
+  // Creator Routes (with bottom navigation) - 4탭 구조
+  static const String creatorDashboard = '/creator/dashboard';
+  static const String creatorChat = '/creator/chat';
   static const String creatorFunding = '/creator/funding';
+  static const String creatorProfile = '/creator/profile';
   static const String createCampaign = '/creator/funding/create';
   static const String editCampaign = '/creator/funding/edit/:campaignId';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _creatorShellNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: AppRoutes.login,
   routes: [
+    // ============================================
+    // Fan Shell Route (with fan bottom navigation)
+    // ============================================
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
@@ -104,12 +120,58 @@ final appRouter = GoRouter(
         ),
       ],
     ),
+
+    // ================================================
+    // Creator Shell Route (with creator bottom navigation)
+    // 4탭 구조: 대시보드, 채팅, 펀딩, 프로필
+    // ================================================
+    ShellRoute(
+      navigatorKey: _creatorShellNavigatorKey,
+      builder: (context, state, child) {
+        return CreatorShell(
+          currentPath: state.uri.path,
+          child: child,
+        );
+      },
+      routes: [
+        // 대시보드 - CRM 통합 (수익, 통계, 팬 관리)
+        GoRoute(
+          path: '/creator/dashboard',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: CreatorDashboardScreen(),
+          ),
+        ),
+        // 채팅 - 내 채널 + 구독 아티스트 리스트
+        GoRoute(
+          path: '/creator/chat',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: CreatorChatTabScreen(),
+          ),
+        ),
+        // 펀딩 - 내 캠페인 관리 + 탐색
+        GoRoute(
+          path: '/creator/funding',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: CreatorFundingScreen(),
+          ),
+        ),
+        // 프로필
+        GoRoute(
+          path: '/creator/profile',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: CreatorProfileScreen(),
+          ),
+        ),
+      ],
+    ),
+
+    // ============================================
+    // Full Screen Routes (no bottom navigation)
+    // ============================================
     GoRoute(
       path: '/chat/:artistId',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => ChatThreadScreenV2(
-        // artistId is used as channelId for backward compatibility
-        // In production, resolve channelId from artistId via provider
         channelId: state.pathParameters['artistId']!,
       ),
     ),
@@ -165,23 +227,23 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HelpCenterScreen(),
     ),
-    // Artist Inbox Routes
+
+    // Legacy Artist Inbox Routes (for backward compatibility from profile)
     GoRoute(
       path: '/artist/inbox',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final channelId = state.uri.queryParameters['channelId'] ?? 'channel_1';
-        return ArtistInboxScreen(channelId: channelId);
+        return ArtistInboxScreen(channelId: channelId, showBackButton: true);
       },
     ),
     GoRoute(
       path: '/artist/inbox/:fanUserId',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        // Fan thread screen - would show conversation with specific fan
-        // For now, redirect back to inbox
         return ArtistInboxScreen(
           channelId: state.uri.queryParameters['channelId'] ?? 'channel_1',
+          showBackButton: true,
         );
       },
     ),
@@ -190,9 +252,10 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final channelId = state.uri.queryParameters['channelId'];
-        return BroadcastComposeScreen(channelId: channelId);
+        return BroadcastComposeScreen(channelId: channelId, showBackButton: true);
       },
     ),
+
     // Auth Routes
     GoRoute(
       path: '/login',
@@ -204,12 +267,39 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RegisterScreen(),
     ),
-    // Creator Funding Routes
+
+    // Creator Broadcast Compose
     GoRoute(
-      path: '/creator/funding',
+      path: '/creator/broadcast',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CreatorFundingScreen(),
+      builder: (context, state) {
+        final channelId = state.uri.queryParameters['channelId'];
+        return BroadcastComposeScreen(channelId: channelId, showBackButton: true);
+      },
     ),
+
+    // Creator CRM (full screen)
+    GoRoute(
+      path: '/creator/crm',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CreatorCRMScreen(),
+    ),
+
+    // Creator My Channel (broadcast chat)
+    GoRoute(
+      path: '/creator/my-channel',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CreatorMyChannelScreen(),
+    ),
+
+    // Creator Profile Edit
+    GoRoute(
+      path: '/creator/profile/edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CreatorProfileEditScreen(),
+    ),
+
+    // Creator Funding Detail Routes (full screen)
     GoRoute(
       path: '/creator/funding/create',
       parentNavigatorKey: _rootNavigatorKey,
@@ -225,6 +315,7 @@ final appRouter = GoRouter(
   ],
 );
 
+/// Fan Shell - Main shell for fan users with bottom navigation
 class MainShell extends StatelessWidget {
   final Widget child;
   final String currentPath;
@@ -268,6 +359,55 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppScaffold(
       bottomNavigationBar: BottomNavBar(
+        currentIndex: _calculateIndex(currentPath),
+        onTap: (index) => _navigateToTab(context, index),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Creator Shell - Shell for creator users with creator bottom navigation
+/// 4탭 구조: 대시보드, 채팅, 펀딩, 프로필
+class CreatorShell extends StatelessWidget {
+  final Widget child;
+  final String currentPath;
+
+  const CreatorShell({
+    super.key,
+    required this.child,
+    required this.currentPath,
+  });
+
+  int _calculateIndex(String path) {
+    if (path.startsWith('/creator/dashboard')) return 0;
+    if (path.startsWith('/creator/chat')) return 1;
+    if (path.startsWith('/creator/funding')) return 2;
+    if (path.startsWith('/creator/profile')) return 3;
+    return 0;
+  }
+
+  void _navigateToTab(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        context.go('/creator/dashboard');  // 대시보드 - CRM 통합
+        break;
+      case 1:
+        context.go('/creator/chat');  // 채팅 - 내 채널 + 구독
+        break;
+      case 2:
+        context.go('/creator/funding');  // 펀딩 - 내 캠페인 + 탐색
+        break;
+      case 3:
+        context.go('/creator/profile');  // 프로필
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      bottomNavigationBar: CreatorBottomNavBar(
         currentIndex: _calculateIndex(currentPath),
         onTap: (index) => _navigateToTab(context, index),
       ),

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
+
+// 웹 링크 URL 상수 (실제 운영 시 변경 필요)
+const String _termsOfServiceUrl = 'https://unoa.app/terms';
+const String _privacyPolicyUrl = 'https://unoa.app/privacy';
 
 /// 설정 화면
 ///
@@ -12,6 +17,28 @@ import '../../shared/widgets/app_scaffold.dart';
 /// 다크 모드 토글이 여기서 동작함
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  /// 외부 URL을 브라우저에서 열기
+  static Future<void> _launchUrl(String url, BuildContext context) async {
+    final uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('링크를 열 수 없습니다: $url')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('링크를 열 수 없습니다: $url')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -203,20 +230,22 @@ class SettingsScreen extends ConsumerWidget {
                       _SettingsItem(
                         icon: Icons.description_outlined,
                         title: '이용약관',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('이용약관 페이지 준비 중')),
-                          );
-                        },
+                        trailing: Icon(
+                          Icons.open_in_new,
+                          size: 16,
+                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                        ),
+                        onTap: () => _launchUrl(_termsOfServiceUrl, context),
                       ),
                       _SettingsItem(
                         icon: Icons.privacy_tip_outlined,
                         title: '개인정보 처리방침',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('개인정보 처리방침 페이지 준비 중')),
-                          );
-                        },
+                        trailing: Icon(
+                          Icons.open_in_new,
+                          size: 16,
+                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                        ),
+                        onTap: () => _launchUrl(_privacyPolicyUrl, context),
                       ),
                       _SettingsItem(
                         icon: Icons.info_outline,
