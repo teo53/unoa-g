@@ -22,7 +22,12 @@
       "Bash(git commit:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(flutter test:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(npm install:*)",
+      "Bash(firebase:*)",
+      "Bash(git fetch:*)"
     ]
   }
 }
