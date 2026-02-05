@@ -334,11 +334,11 @@ class _CreatorDashboardScreenState
       children: [
         Expanded(
           child: _QuickActionCard(
-            icon: Icons.send_rounded,
-            label: '브로드캐스트',
+            icon: Icons.chat_bubble_rounded,
+            label: '채팅',
             color: AppColors.primary,
             isDark: isDark,
-            onTap: () => context.push('/creator/broadcast'),
+            onTap: () => context.go('/creator/chat'),
           ),
         ),
         const SizedBox(width: 10),
@@ -386,11 +386,11 @@ class _CreatorDashboardScreenState
       child: Column(
         children: [
           SizedBox(
-            height: 140,
+            height: 180,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: data.map((item) {
-                final height = (item.value / maxValue) * 100;
+                final height = (item.value / maxValue) * 120;
                 final isLast = item == data.last;
                 return Expanded(
                   child: Padding(
@@ -594,7 +594,7 @@ class _CreatorDashboardScreenState
         _StatCard(
           icon: Icons.send_rounded,
           iconColor: Colors.blue,
-          label: '이번 달 브로드캐스트',
+          label: '보낸 전체메시지',
           value: '12',
           isDark: isDark,
         ),
@@ -809,7 +809,7 @@ class _StatCard extends StatelessWidget {
               const Spacer(),
             ],
           ),
-          const SizedBox(height: 12),
+          const Spacer(),
           Text(
             value,
             style: TextStyle(
@@ -818,13 +818,15 @@ class _StatCard extends StatelessWidget {
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/mock/mock_data.dart';
 import '../../data/models/artist.dart';
+import '../../data/models/creator_content.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
 class ArtistProfileScreen extends StatefulWidget {
@@ -22,6 +23,17 @@ class ArtistProfileScreen extends StatefulWidget {
 class _ArtistProfileScreenState extends State<ArtistProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
+  // Mock social links data (실제로는 아티스트 데이터에서 가져와야 함)
+  final SocialLinks _socialLinks = const SocialLinks(
+    instagram: 'https://instagram.com/starlight_official',
+    youtube: 'https://youtube.com/@starlight_music',
+    tiktok: 'https://tiktok.com/@starlight_dance',
+    twitter: 'https://twitter.com/starlight_twt',
+  );
+
+  // Mock theme color (실제로는 아티스트 데이터에서 가져와야 함)
+  Color get _artistThemeColor => AppColors.primary500;
 
   @override
   void initState() {
@@ -43,6 +55,19 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('YouTube를 열 수 없습니다')),
+        );
+      }
+    }
+  }
+
+  Future<void> _openSocialLink(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('링크를 열 수 없습니다')),
         );
       }
     }
@@ -406,6 +431,16 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
 
                       const SizedBox(height: 20),
 
+                      // Social Links (좌측 정렬)
+                      if (_socialLinks.hasAnyLink)
+                        _SocialLinksSection(
+                          socialLinks: _socialLinks,
+                          themeColor: _artistThemeColor,
+                          onLinkTap: _openSocialLink,
+                        ),
+
+                      const SizedBox(height: 20),
+
                       // Action Buttons Grid
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -415,11 +450,13 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                             _ActionButton(
                               icon: Icons.chat_bubble_outline,
                               label: 'DM',
+                              themeColor: _artistThemeColor,
                               onTap: () => context.push('/chat/${widget.artistId}'),
                             ),
                             _ActionButton(
                               icon: Icons.card_giftcard,
                               label: '드롭',
+                              themeColor: _artistThemeColor,
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('드롭 스토어 준비 중')),
@@ -430,6 +467,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                               icon: Icons.groups,
                               label: '이벤트',
                               isPrimary: true,
+                              themeColor: _artistThemeColor,
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('이벤트 페이지 준비 중')),
@@ -786,23 +824,26 @@ class _HighlightItem extends StatelessWidget {
   }
 }
 
-/// Action Button Widget - Uses primary600 for filled state
+/// Action Button Widget - Uses artist theme color for filled state
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isPrimary;
+  final Color? themeColor;
   final VoidCallback? onTap;
 
   const _ActionButton({
     required this.icon,
     required this.label,
     this.isPrimary = false,
+    this.themeColor,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveThemeColor = themeColor ?? AppColors.primary600;
 
     return GestureDetector(
       onTap: onTap,
@@ -813,7 +854,7 @@ class _ActionButton extends StatelessWidget {
             height: 56,
             decoration: BoxDecoration(
               color: isPrimary
-                  ? AppColors.primary600
+                  ? effectiveThemeColor
                   : (isDark ? AppColors.surfaceDark : Colors.grey[100]),
               borderRadius: BorderRadius.circular(16),
               border: isPrimary
@@ -1911,6 +1952,115 @@ class _FancamListItem extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Social Links Section Widget - 좌측 정렬 소셜 링크 아이콘
+class _SocialLinksSection extends StatelessWidget {
+  final SocialLinks socialLinks;
+  final Color themeColor;
+  final Function(String) onLinkTap;
+
+  const _SocialLinksSection({
+    required this.socialLinks,
+    required this.themeColor,
+    required this.onLinkTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start, // 좌측 정렬
+        children: [
+          if (socialLinks.instagram != null &&
+              socialLinks.instagram!.isNotEmpty)
+            _SocialIconButton(
+              label: 'IG',
+              color: themeColor,
+              onTap: () => onLinkTap(socialLinks.instagram!),
+            ),
+          if (socialLinks.youtube != null && socialLinks.youtube!.isNotEmpty)
+            _SocialIconButton(
+              icon: Icons.play_circle_outline,
+              color: themeColor,
+              onTap: () => onLinkTap(socialLinks.youtube!),
+            ),
+          if (socialLinks.tiktok != null && socialLinks.tiktok!.isNotEmpty)
+            _SocialIconButton(
+              label: 'TT',
+              color: themeColor,
+              onTap: () => onLinkTap(socialLinks.tiktok!),
+            ),
+          if (socialLinks.twitter != null && socialLinks.twitter!.isNotEmpty)
+            _SocialIconButton(
+              label: 'X',
+              color: themeColor,
+              onTap: () => onLinkTap(socialLinks.twitter!),
+            ),
+          // Custom links
+          ...socialLinks.customLinks.map((link) => _SocialIconButton(
+                icon: Icons.link,
+                color: themeColor,
+                onTap: () => onLinkTap(link.url),
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+/// Social Icon Button Widget
+class _SocialIconButton extends StatelessWidget {
+  final IconData? icon;
+  final String? label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SocialIconButton({
+    this.icon,
+    this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: color.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: icon != null
+                ? Icon(
+                    icon,
+                    size: 18,
+                    color: color,
+                  )
+                : Text(
+                    label ?? '',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+          ),
         ),
       ),
     );
