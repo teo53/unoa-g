@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/theme/app_colors.dart';
 import '../widgets/auth_form.dart';
 import '../widgets/social_login_buttons.dart';
 
@@ -19,6 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  bool _showLoginForm = false;
 
   @override
   void dispose() {
@@ -67,61 +69,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return '로그인 중 오류가 발생했습니다.';
   }
 
-  void _showDemoModeDialog(BuildContext context) {
-    final theme = Theme.of(context);
+  void _enterDemoAsFan() {
+    ref.read(authProvider.notifier).enterDemoModeAsFan();
+    context.go('/');
+  }
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('데모 계정 선택'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '체험하고 싶은 계정 유형을 선택해주세요',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Fan demo account
-            _DemoAccountOption(
-              icon: Icons.favorite_outline,
-              title: '팬 계정',
-              description: '크리에이터 구독, 메시지 보기/보내기, DT 충전 등',
-              onTap: () {
-                Navigator.of(dialogContext).pop();
-                ref.read(authProvider.notifier).enterDemoModeAsFan();
-                context.go('/');
-              },
-            ),
-            const SizedBox(height: 12),
-            // Creator demo account
-            _DemoAccountOption(
-              icon: Icons.star_outline,
-              title: '크리에이터 계정',
-              description: '팬 메시지 확인, 브로드캐스트 전송, 통계 확인 등',
-              onTap: () {
-                Navigator.of(dialogContext).pop();
-                ref.read(authProvider.notifier).enterDemoModeAsCreator();
-                context.go('/creator/home');
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('취소'),
-          ),
-        ],
-      ),
-    );
+  void _enterDemoAsCreator() {
+    ref.read(authProvider.notifier).enterDemoModeAsCreator();
+    context.go('/creator/dashboard');
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
@@ -156,111 +117,98 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 40),
 
-                // Error message
-                if (_errorMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: theme.colorScheme.error,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: TextStyle(
-                              color: theme.colorScheme.onErrorContainer,
-                            ),
-                          ),
-                        ),
+                // ===== Demo Mode Selection (Always Visible) =====
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary.withValues(alpha: 0.1),
+                        AppColors.primary.withValues(alpha: 0.05),
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.2),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
-
-                // Login form
-                Form(
-                  key: _formKey,
                   child: Column(
                     children: [
-                      AuthTextField(
-                        controller: _emailController,
-                        label: '이메일',
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: Icons.email_outlined,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '이메일을 입력해주세요';
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                              .hasMatch(value)) {
-                            return '올바른 이메일 형식이 아닙니다';
-                          }
-                          return null;
-                        },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.play_circle_outline,
+                            size: 20,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '데모 모드로 체험하기',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      AuthTextField(
-                        controller: _passwordController,
-                        label: '비밀번호',
-                        obscureText: true,
-                        prefixIcon: Icons.lock_outline,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '비밀번호를 입력해주세요';
-                          }
-                          return null;
-                        },
+                      const SizedBox(height: 8),
+                      Text(
+                        '로그인 없이 앱의 주요 기능을 미리 체험해보세요',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Two demo account buttons side by side
+                      Row(
+                        children: [
+                          // Fan Account Button
+                          Expanded(
+                            child: _DemoAccountButton(
+                              icon: Icons.favorite_rounded,
+                              title: '팬 계정',
+                              subtitle: '구독 · 메시지 · 후원',
+                              color: Colors.pink,
+                              isDark: isDark,
+                              onTap: _enterDemoAsFan,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Creator Account Button
+                          Expanded(
+                            child: _DemoAccountButton(
+                              icon: Icons.star_rounded,
+                              title: '크리에이터',
+                              subtitle: '대시보드 · CRM · 분석',
+                              color: Colors.amber,
+                              isDark: isDark,
+                              onTap: _enterDemoAsCreator,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
 
-                // Forgot password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => context.push('/forgot-password'),
-                    child: const Text('비밀번호를 잊으셨나요?'),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
 
-                // Login button
-                FilledButton(
-                  onPressed: _isLoading ? null : _handleEmailLogin,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('로그인'),
-                ),
-                const SizedBox(height: 24),
-
-                // Divider
+                // Divider with "계정이 있으신가요?"
                 Row(
                   children: [
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        '또는',
+                        '계정이 있으신가요?',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -269,32 +217,148 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const Expanded(child: Divider()),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // Social login buttons
-                const SocialLoginButtons(),
-                const SizedBox(height: 24),
+                // Toggle login form button
+                if (!_showLoginForm)
+                  OutlinedButton.icon(
+                    onPressed: () => setState(() => _showLoginForm = true),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      side: BorderSide(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    icon: const Icon(Icons.email_outlined),
+                    label: const Text('이메일로 로그인'),
+                  ),
 
-                // Demo mode button
-                OutlinedButton.icon(
-                  onPressed: () => _showDemoModeDialog(context),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    side: BorderSide(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                // Login form (shown when toggled)
+                if (_showLoginForm) ...[
+                  // Error message
+                  if (_errorMessage != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: theme.colorScheme.error,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(
+                                color: theme.colorScheme.onErrorContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // Login form
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        AuthTextField(
+                          controller: _emailController,
+                          label: '이메일',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: Icons.email_outlined,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '이메일을 입력해주세요';
+                            }
+                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                .hasMatch(value)) {
+                              return '올바른 이메일 형식이 아닙니다';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        AuthTextField(
+                          controller: _passwordController,
+                          label: '비밀번호',
+                          obscureText: true,
+                          prefixIcon: Icons.lock_outline,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '비밀번호를 입력해주세요';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  icon: const Icon(Icons.play_circle_outline),
-                  label: const Text('데모 모드로 체험하기'),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '로그인 없이 앱의 주요 기능을 미리 체험해보세요',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                  const SizedBox(height: 8),
+
+                  // Forgot password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => context.push('/forgot-password'),
+                      child: const Text('비밀번호를 잊으셨나요?'),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+
+                  // Login button
+                  FilledButton(
+                    onPressed: _isLoading ? null : _handleEmailLogin,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('로그인'),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Back button
+                  TextButton(
+                    onPressed: () => setState(() => _showLoginForm = false),
+                    child: const Text('뒤로'),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          '또는',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Social login buttons
+                  const SocialLoginButtons(),
+                ],
+
                 const SizedBox(height: 24),
 
                 // Register link
@@ -320,78 +384,101 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-/// Demo account selection option widget
-class _DemoAccountOption extends StatelessWidget {
+/// Demo account button for quick access
+class _DemoAccountButton extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String description;
+  final String subtitle;
+  final Color color;
+  final bool isDark;
   final VoidCallback onTap;
 
-  const _DemoAccountOption({
+  const _DemoAccountButton({
     required this.icon,
     required this.title,
-    required this.description,
+    required this.subtitle,
+    required this.color,
+    required this.isDark,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: color.withValues(alpha: 0.3),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
-                shape: BoxShape.circle,
+          child: Column(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 26,
+                ),
               ),
-              child: Icon(
-                icon,
-                color: theme.colorScheme.primary,
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '체험하기',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
+

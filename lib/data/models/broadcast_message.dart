@@ -23,6 +23,47 @@ enum BroadcastMessageType {
   voice,
 }
 
+/// 메시지 수정 이력
+class MessageEditHistory {
+  final String id;
+  final String messageId;
+  final String previousContent;
+  final String newContent;
+  final DateTime editedAt;
+  final String? editReason;
+
+  const MessageEditHistory({
+    required this.id,
+    required this.messageId,
+    required this.previousContent,
+    required this.newContent,
+    required this.editedAt,
+    this.editReason,
+  });
+
+  factory MessageEditHistory.fromJson(Map<String, dynamic> json) {
+    return MessageEditHistory(
+      id: json['id'] as String,
+      messageId: json['message_id'] as String,
+      previousContent: json['previous_content'] as String,
+      newContent: json['new_content'] as String,
+      editedAt: DateTime.parse(json['edited_at'] as String),
+      editReason: json['edit_reason'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'message_id': messageId,
+      'previous_content': previousContent,
+      'new_content': newContent,
+      'edited_at': editedAt.toIso8601String(),
+      'edit_reason': editReason,
+    };
+  }
+}
+
 class BroadcastMessage {
   final String id;
   final String channelId;
@@ -58,6 +99,11 @@ class BroadcastMessage {
   // content stores the personalized version for each fan
   final String? templateContent;
 
+  // 수정 이력 관련 필드
+  final bool isEdited;
+  final DateTime? lastEditedAt;
+  final List<MessageEditHistory>? editHistory;
+
   const BroadcastMessage({
     required this.id,
     required this.channelId,
@@ -84,6 +130,9 @@ class BroadcastMessage {
     this.senderTier,
     this.senderDaysSubscribed,
     this.templateContent,
+    this.isEdited = false,
+    this.lastEditedAt,
+    this.editHistory,
   });
 
   /// Check if message has personalization placeholders
@@ -159,6 +208,15 @@ class BroadcastMessage {
       senderTier: json['sender_tier'] as String?,
       senderDaysSubscribed: json['sender_days_subscribed'] as int?,
       templateContent: json['template_content'] as String?,
+      isEdited: json['is_edited'] as bool? ?? false,
+      lastEditedAt: json['last_edited_at'] != null
+          ? DateTime.parse(json['last_edited_at'] as String)
+          : null,
+      editHistory: json['edit_history'] != null
+          ? (json['edit_history'] as List)
+              .map((e) => MessageEditHistory.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
     );
   }
 
@@ -183,6 +241,9 @@ class BroadcastMessage {
       'updated_at': updatedAt?.toIso8601String(),
       'deleted_at': deletedAt?.toIso8601String(),
       'template_content': templateContent,
+      'is_edited': isEdited,
+      'last_edited_at': lastEditedAt?.toIso8601String(),
+      'edit_history': editHistory?.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -212,6 +273,9 @@ class BroadcastMessage {
     String? senderTier,
     int? senderDaysSubscribed,
     String? templateContent,
+    bool? isEdited,
+    DateTime? lastEditedAt,
+    List<MessageEditHistory>? editHistory,
   }) {
     return BroadcastMessage(
       id: id ?? this.id,
@@ -239,6 +303,9 @@ class BroadcastMessage {
       senderTier: senderTier ?? this.senderTier,
       senderDaysSubscribed: senderDaysSubscribed ?? this.senderDaysSubscribed,
       templateContent: templateContent ?? this.templateContent,
+      isEdited: isEdited ?? this.isEdited,
+      lastEditedAt: lastEditedAt ?? this.lastEditedAt,
+      editHistory: editHistory ?? this.editHistory,
     );
   }
 

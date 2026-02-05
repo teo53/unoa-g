@@ -17,7 +17,6 @@ import '../features/notifications/notifications_screen.dart';
 import '../features/subscriptions/subscriptions_screen.dart';
 import '../features/help/help_center_screen.dart';
 import '../features/artist_inbox/artist_inbox_screen.dart';
-import '../features/artist_inbox/broadcast_compose_screen.dart';
 import '../features/creator/creator_analytics_screen.dart';
 import '../features/creator/creator_dm_screen.dart';
 import '../features/creator/creator_crm_screen.dart';
@@ -57,15 +56,16 @@ class AppRoutes {
   // Legacy Artist Inbox Routes (kept for backward compatibility)
   static const String artistInbox = '/artist/inbox';
   static const String artistInboxThread = '/artist/inbox/:fanUserId';
-  static const String broadcastCompose = '/artist/broadcast/compose';
 
-  // Creator Routes (with bottom navigation) - 4탭 구조
+  // Creator Routes (with bottom navigation) - 5탭 구조
   static const String creatorDashboard = '/creator/dashboard';
   static const String creatorChat = '/creator/chat';
   static const String creatorFunding = '/creator/funding';
+  static const String creatorDiscover = '/creator/discover';
   static const String creatorProfile = '/creator/profile';
   static const String createCampaign = '/creator/funding/create';
   static const String editCampaign = '/creator/funding/edit/:campaignId';
+  static const String creatorContent = '/creator/content';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -123,7 +123,7 @@ final appRouter = GoRouter(
 
     // ================================================
     // Creator Shell Route (with creator bottom navigation)
-    // 4탭 구조: 대시보드, 채팅, 펀딩, 프로필
+    // 5탭 구조: 대시보드, 채팅, 펀딩, 탐색, 프로필
     // ================================================
     ShellRoute(
       navigatorKey: _creatorShellNavigatorKey,
@@ -153,6 +153,13 @@ final appRouter = GoRouter(
           path: '/creator/funding',
           pageBuilder: (context, state) => const NoTransitionPage(
             child: CreatorFundingScreen(),
+          ),
+        ),
+        // 탐색 - 다른 아티스트 탐색 (팬용 탐색 화면 재사용)
+        GoRoute(
+          path: '/creator/discover',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: DiscoverScreen(),
           ),
         ),
         // 프로필
@@ -247,15 +254,6 @@ final appRouter = GoRouter(
         );
       },
     ),
-    GoRoute(
-      path: '/artist/broadcast/compose',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final channelId = state.uri.queryParameters['channelId'];
-        return BroadcastComposeScreen(channelId: channelId, showBackButton: true);
-      },
-    ),
-
     // Auth Routes
     GoRoute(
       path: '/login',
@@ -266,16 +264,6 @@ final appRouter = GoRouter(
       path: '/register',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RegisterScreen(),
-    ),
-
-    // Creator Broadcast Compose
-    GoRoute(
-      path: '/creator/broadcast',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final channelId = state.uri.queryParameters['channelId'];
-        return BroadcastComposeScreen(channelId: channelId, showBackButton: true);
-      },
     ),
 
     // Creator CRM (full screen)
@@ -368,7 +356,7 @@ class MainShell extends StatelessWidget {
 }
 
 /// Creator Shell - Shell for creator users with creator bottom navigation
-/// 4탭 구조: 대시보드, 채팅, 펀딩, 프로필
+/// 5탭 구조: 대시보드, 채팅, 펀딩, 탐색, 프로필
 class CreatorShell extends StatelessWidget {
   final Widget child;
   final String currentPath;
@@ -383,7 +371,8 @@ class CreatorShell extends StatelessWidget {
     if (path.startsWith('/creator/dashboard')) return 0;
     if (path.startsWith('/creator/chat')) return 1;
     if (path.startsWith('/creator/funding')) return 2;
-    if (path.startsWith('/creator/profile')) return 3;
+    if (path.startsWith('/creator/discover')) return 3;
+    if (path.startsWith('/creator/profile')) return 4;
     return 0;
   }
 
@@ -399,6 +388,9 @@ class CreatorShell extends StatelessWidget {
         context.go('/creator/funding');  // 펀딩 - 내 캠페인 + 탐색
         break;
       case 3:
+        context.go('/creator/discover');  // 탐색 - 아티스트 탐색
+        break;
+      case 4:
         context.go('/creator/profile');  // 프로필
         break;
     }

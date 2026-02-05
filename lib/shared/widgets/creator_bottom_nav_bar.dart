@@ -55,13 +55,21 @@ class CreatorBottomNavBar extends StatelessWidget {
             isSelected: currentIndex == 2,
             onTap: () => onTap(2),
           ),
+          // 탐색 - 다른 아티스트 탐색
+          _CreatorNavItem(
+            icon: Icons.explore_rounded,
+            outlinedIcon: Icons.explore_outlined,
+            label: '탐색',
+            isSelected: currentIndex == 3,
+            onTap: () => onTap(3),
+          ),
           // 프로필
           _CreatorNavItem(
             icon: Icons.person_rounded,
             outlinedIcon: Icons.person_outline_rounded,
             label: '프로필',
-            isSelected: currentIndex == 3,
-            onTap: () => onTap(3),
+            isSelected: currentIndex == 4,
+            onTap: () => onTap(4),
             isProfile: true,
           ),
         ],

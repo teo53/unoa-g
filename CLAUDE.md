@@ -7,11 +7,83 @@ This file provides guidance for AI assistants working with the UNO A codebase.
 **UNO A** is a Korean artist-to-fan messaging platform built with Flutter, similar to Fromm/Bubble. It enables K-pop artists to send broadcast messages to subscribers, who can then reply using a token-based system.
 
 ### Core Features
-- **Broadcast Chat System**: Artists send messages to all subscribers; fans see a personalized 1:1 chat experience
+- **Group Chat System**: Artists see all fan messages in a group chat view; fans see a personalized 1:1 chat experience
 - **Token-Based Replies**: Fans get 3 reply tokens per artist broadcast
 - **DT (Digital Token) Currency**: In-app currency for donations and premium features
 - **Subscription Tiers**: BASIC, STANDARD, VIP with different perks
 - **Character Limit Progression**: Reply limits increase based on subscription age (50-300 chars)
+
+---
+
+## ⚠️ 채팅 시스템 핵심 컨셉 (CRITICAL - 반드시 숙지)
+
+### 채팅 구조 = 단체 채팅방 형태 (Bubble/Fromm 스타일)
+
+**절대로 "브로드캐스트"를 별도의 탭이나 기능으로 만들지 말 것!**
+채팅 자체가 이 구조이며, 별도의 브로드캐스트 기능이 필요 없음.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    크리에이터 화면                        │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │ [팬A] 오늘 공연 최고였어요!                        │   │
+│  │ [팬B] 사랑해요 ❤️                                │   │
+│  │ [나] 고마워요 여러분~                   → 전체전송  │   │
+│  │ [팬C] 다음 공연 언제예요?                         │   │
+│  │ [팬A] 앵콜 감사합니다!                            │   │
+│  └─────────────────────────────────────────────────┘   │
+│  → 단체톡방처럼 모든 팬 메시지가 타임라인에 보임          │
+│  → 메시지 입력 → 모든 팬에게 전송됨                     │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│                      팬A 화면                           │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │ [나] 오늘 공연 최고였어요!                        │   │
+│  │ [크리에이터] 고마워요 여러분~                      │   │
+│  │ [나] 앵콜 감사합니다!                            │   │
+│  └─────────────────────────────────────────────────┘   │
+│  → 1:1 채팅처럼 자신의 메시지 + 크리에이터 메시지만 보임  │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 핵심 규칙
+
+| 구분 | 크리에이터 | 팬 |
+|------|-----------|-----|
+| 메시지 전송 | 모든 팬에게 전송됨 | 해당 채팅방에만 전송 |
+| 메시지 조회 | 모든 팬 메시지 + 본인 메시지 | 본인 메시지 + 크리에이터 메시지만 |
+| UI 형태 | 단체톡방 | 1:1 채팅처럼 보임 |
+
+### 크리에이터 채팅 탭 구조
+
+```
+CreatorChatTabScreen (2탭 구조)
+├── 탭 1: 내 채널 (단체톡방 형태)
+│   ├── 통합 메시지 리스트 (모든 팬 + 크리에이터 메시지)
+│   │   - 팬 메시지: 왼쪽 정렬 + 팬 이름/티어 표시
+│   │   - 크리에이터 메시지: 오른쪽 정렬 + "전체" 표시
+│   ├── 메시지 입력 바 (하단 고정)
+│   │   - 입력한 메시지 → 모든 팬에게 전송
+│   └── 각 팬 메시지에 하트 반응 버튼
+│
+└── 탭 2: 구독 아티스트
+    └── 크리에이터가 팬으로서 구독한 다른 아티스트 채팅 리스트
+```
+
+### ❌ 잘못된 구현 (하지 말 것)
+- 별도의 "브로드캐스트" 탭 만들기
+- 별도의 "브로드캐스트 작성" 버튼 만들기
+- 크리에이터 채팅을 팬과 동일한 1:1 UI로 만들기
+- artist_inbox를 메인 채팅 탭으로 사용하기
+
+### ✅ 올바른 구현
+- 크리에이터 채팅 탭 = 단체톡방 UI
+- 메시지 입력창에서 바로 전체 전송
+- 모든 팬 메시지가 시간순으로 통합 표시
+- 팬별 이름/티어/후원 배지 표시
+
+---
 
 ## Technology Stack
 
@@ -55,7 +127,14 @@ unoa-g/
 │   │       └── mock_chat_repository.dart # Mock implementation
 │   ├── features/                 # Feature-based organization
 │   │   ├── artist_inbox/         # Artist dashboard screens
+│   │   │   ├── broadcast_compose_screen.dart  # 브로드캐스트 작성
+│   │   │   └── widgets/
+│   │   │       └── media_preview_confirmation.dart  # 미디어 전송 확인
 │   │   ├── chat/                 # Fan chat screens
+│   │   ├── creator/              # Creator-specific screens
+│   │   │   ├── creator_dashboard_screen.dart  # 대시보드
+│   │   │   ├── creator_profile_screen.dart    # 프로필
+│   │   │   └── creator_profile_edit_screen.dart  # 프로필 편집
 │   │   ├── discover/             # Artist discovery
 │   │   ├── help/                 # Help center
 │   │   ├── home/                 # Home screen
@@ -434,6 +513,24 @@ AccessibleTapTarget(
 // Extensions
 widget.withButtonSemantics('버튼 설명')
 decorativeWidget.excludeSemantics()
+```
+
+## Creator Routes (크리에이터 라우트)
+
+```dart
+// 크리에이터 메인 탭 (하단 네비게이션 포함)
+'/creator/dashboard'      // 대시보드 - CRM 통합
+'/creator/chat'           // 채팅 - 내 채널 + 구독
+'/creator/funding'        // 펀딩 - 내 캠페인 + 탐색
+'/creator/discover'       // 탐색 - 아티스트 탐색
+'/creator/profile'        // 프로필
+
+// 전체 화면 (하단 네비게이션 없음)
+'/creator/crm'            // CRM 상세
+'/creator/my-channel'     // 내 채널 브로드캐스트
+'/creator/profile/edit'   // 프로필 편집
+'/creator/funding/create' // 캠페인 생성
+'/creator/funding/edit/:campaignId' // 캠페인 편집
 ```
 
 ## Important Notes for AI Assistants

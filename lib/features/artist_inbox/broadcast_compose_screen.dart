@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../data/repositories/mock_chat_repository.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import 'widgets/media_preview_confirmation.dart';
 
 /// Broadcast Compose Screen
 /// Artist uses this to send messages to all subscribers
@@ -26,10 +28,16 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final MockArtistInboxRepository _repository = MockArtistInboxRepository();
+  final ImagePicker _imagePicker = ImagePicker();
 
   bool _isSending = false;
   BroadcastMessageType _messageType = BroadcastMessageType.text;
   String? _mediaUrl;
+
+  // Mock data
+  static const int _subscriberCount = 1250;
+  static const String _artistName = '아티스트';
+  static const String? _artistAvatarUrl = null;
 
   @override
   void initState() {
@@ -239,25 +247,147 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
           icon: Icons.image,
           label: '사진',
           isSelected: _messageType == BroadcastMessageType.image,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('사진 첨부 기능은 준비 중입니다')),
-            );
-          },
+          onTap: _handleImagePick,
         ),
         const SizedBox(width: 8),
         _TypeChip(
           icon: Icons.mic,
           label: '음성',
           isSelected: _messageType == BroadcastMessageType.voice,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('음성 메시지 기능은 준비 중입니다')),
-            );
-          },
+          onTap: _handleVoiceRecord,
         ),
       ],
     );
+  }
+
+  /// 이미지 선택 및 확인 플로우
+  Future<void> _handleImagePick() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+
+      if (image != null && mounted) {
+        _showMediaPreviewConfirmation(
+          mediaType: MediaType.image,
+          mediaPath: image.path,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지 선택 실패: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  /// 음성 녹음 및 확인 플로우
+  Future<void> _handleVoiceRecord() async {
+    // 실제로는 오디오 녹음 기능 구현 필요
+    // 데모용으로 확인 다이얼로그만 표시
+    _showMediaPreviewConfirmation(
+      mediaType: MediaType.voice,
+      mediaPath: 'voice_message_demo.m4a',
+    );
+  }
+
+  /// 미디어 전송 확인 다이얼로그 표시
+  void _showMediaPreviewConfirmation({
+    required MediaType mediaType,
+    required String mediaPath,
+  }) {
+    MediaPreviewConfirmation.show(
+      context: context,
+      mediaType: mediaType,
+      mediaPath: mediaPath,
+      subscriberCount: _subscriberCount,
+      artistName: _artistName,
+      artistAvatarUrl: _artistAvatarUrl,
+      onConfirm: (path, caption) async {
+        await _sendMediaBroadcast(
+          mediaType: mediaType,
+          mediaPath: path,
+          caption: caption,
+        );
+      },
+      onReselect: () {
+        if (mediaType == MediaType.image) {
+          _handleImagePick();
+        } else if (mediaType == MediaType.voice) {
+          _handleVoiceRecord();
+        }
+      },
+    );
+  }
+
+  /// 미디어 브로드캐스트 전송
+  Future<void> _sendMediaBroadcast({
+    required MediaType mediaType,
+    required String mediaPath,
+    String? caption,
+  }) async {
+    final msgType = mediaType == MediaType.image
+        ? BroadcastMessageType.image
+        : mediaType == MediaType.video
+            ? BroadcastMessageType.video
+            : BroadcastMessageType.voice;
+
+    try {
+      await _repository.sendBroadcast(
+        widget.channelId ?? 'channel_1',
+        caption ?? '',
+        messageType: msgType,
+        mediaUrl: mediaPath,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(_getMediaSentMessage(mediaType)),
+              ],
+            ),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('전송 실패: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  String _getMediaSentMessage(MediaType type) {
+    switch (type) {
+      case MediaType.image:
+        return '사진이 전송되었습니다';
+      case MediaType.video:
+        return '동영상이 전송되었습니다';
+      case MediaType.voice:
+        return '음성 메시지가 전송되었습니다';
+    }
   }
 
   Widget _buildTextInput(bool isDark) {

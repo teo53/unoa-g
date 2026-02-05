@@ -194,7 +194,7 @@ class MyProfileScreen extends ConsumerWidget {
                         iconBgColor: AppColors.primary.withOpacity(0.1),
                         title: '크리에이터 스튜디오',
                         subtitle: '크리에이터 대시보드로 이동',
-                        onTap: () => context.go('/creator/home'),
+                        onTap: () => context.go('/creator/dashboard'),
                       ),
                     ],
                   ),

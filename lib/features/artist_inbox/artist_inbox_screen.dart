@@ -128,20 +128,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
               ),
             ),
           ),
-          // Broadcast compose button (only show if in shell mode - no back button)
-          if (!widget.showBackButton)
-            IconButton(
-              onPressed: () {
-                context.push('/artist/broadcast/compose');
-              },
-              icon: Icon(
-                Icons.edit_square,
-                color: AppColors.primary500,
-                size: 24,
-              ),
-            )
-          else
-            const SizedBox(width: 48), // Placeholder for alignment
+          const SizedBox(width: 48), // Placeholder for alignment
         ],
       ),
     );

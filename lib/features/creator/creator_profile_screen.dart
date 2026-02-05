@@ -55,135 +55,11 @@ class CreatorProfileScreen extends ConsumerWidget {
               children: [
                 const SizedBox(height: 24),
 
-                // Avatar
-                Stack(
-                  children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.primary.withValues(alpha: 0.3),
-                            AppColors.primary600.withValues(alpha: 0.1),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: profile?.avatarUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: profile!.avatarUrl!,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  color: isDark
-                                      ? Colors.grey[800]
-                                      : Colors.grey[200],
-                                  child: const Icon(Icons.person, size: 48),
-                                ),
-                              )
-                            : Container(
-                                color: isDark
-                                    ? Colors.grey[800]
-                                    : Colors.grey[200],
-                                child: Icon(
-                                  Icons.person,
-                                  size: 48,
-                                  color: isDark
-                                      ? Colors.grey[600]
-                                      : Colors.grey[400],
-                                ),
-                              ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isDark
-                                ? AppColors.backgroundDark
-                                : AppColors.backgroundLight,
-                            width: 3,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                // Name with creator badge
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      profile?.displayName ?? '크리에이터',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: isDark
-                            ? AppColors.textMainDark
-                            : AppColors.textMainLight,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.star,
-                            size: 12,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '크리에이터',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 4),
-
-                // Bio
-                Text(
-                  profile?.bio ?? '크리에이터 모드로 데모 중',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color:
-                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                  ),
+                // Tappable Profile Area - Avatar, Name, Bio
+                _TappableProfileArea(
+                  profile: profile,
+                  isDark: isDark,
+                  onTap: () => context.push('/creator/profile/edit'),
                 ),
 
                 const SizedBox(height: 24),
@@ -192,39 +68,6 @@ class CreatorProfileScreen extends ConsumerWidget {
                 _buildStatsRow(isDark),
 
                 const SizedBox(height: 24),
-
-                // Profile Customization Section
-                _MenuSection(
-                  title: '프로필 꾸미기',
-                  items: [
-                    _MenuItem(
-                      icon: Icons.person_rounded,
-                      iconColor: AppColors.primary,
-                      iconBgColor: AppColors.primary.withValues(alpha: 0.1),
-                      title: '프로필 편집',
-                      subtitle: '아바타, 배경, 소개글, 테마 색상',
-                      onTap: () => context.push('/creator/profile/edit'),
-                    ),
-                    _MenuItem(
-                      icon: Icons.link_rounded,
-                      iconColor: Colors.blue,
-                      iconBgColor: Colors.blue.withValues(alpha: 0.1),
-                      title: '소셜 링크 관리',
-                      subtitle: 'Instagram, YouTube, TikTok 등',
-                      onTap: () => context.push('/creator/profile/edit'),
-                    ),
-                    _MenuItem(
-                      icon: Icons.verified_rounded,
-                      iconColor: Colors.amber,
-                      iconBgColor: Colors.amber.withValues(alpha: 0.1),
-                      title: '뱃지 & 스타일',
-                      subtitle: '인증 뱃지 스타일, 프로필 레이아웃',
-                      onTap: () => context.push('/creator/profile/edit'),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
 
                 // Creator Management Section
                 _MenuSection(
@@ -703,4 +546,201 @@ class _MenuItem {
     required this.onTap,
     this.isExternalLink = false,
   });
+}
+
+/// Tappable profile area that navigates to profile edit screen
+class _TappableProfileArea extends StatelessWidget {
+  final UserAuthProfile? profile;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _TappableProfileArea({
+    required this.profile,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          decoration: BoxDecoration(
+            color: isDark
+                ? AppColors.surfaceDark.withValues(alpha: 0.5)
+                : AppColors.surfaceLight.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            ),
+          ),
+          child: Column(
+            children: [
+              // Avatar with edit indicator
+              Stack(
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary.withValues(alpha: 0.3),
+                          AppColors.primary600.withValues(alpha: 0.1),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: profile?.avatarUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: profile!.avatarUrl!,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: isDark
+                                    ? Colors.grey[800]
+                                    : Colors.grey[200],
+                                child: const Icon(Icons.person, size: 48),
+                              ),
+                            )
+                          : Container(
+                              color: isDark
+                                  ? Colors.grey[800]
+                                  : Colors.grey[200],
+                              child: Icon(
+                                Icons.person,
+                                size: 48,
+                                color: isDark
+                                    ? Colors.grey[600]
+                                    : Colors.grey[400],
+                              ),
+                            ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.backgroundDark
+                              : AppColors.backgroundLight,
+                          width: 3,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Name with creator badge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      profile?.displayName ?? '크리에이터',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? AppColors.textMainDark
+                            : AppColors.textMainLight,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.star,
+                          size: 12,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '크리에이터',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // Bio
+              Text(
+                profile?.bio ?? '크리에이터 모드로 데모 중',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              const SizedBox(height: 12),
+
+              // Edit hint
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.touch_app_outlined,
+                    size: 14,
+                    color: AppColors.primary.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '탭하여 프로필 수정',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.primary.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
