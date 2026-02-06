@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/funding_provider.dart';
 
 /// Screen for creating or editing a funding campaign
 class CreateCampaignScreen extends ConsumerStatefulWidget {
@@ -60,11 +61,23 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
     super.dispose();
   }
 
-  Future<void> _loadCampaignData() async {
-    // For demo mode or actual loading
-    final isDemoMode = ref.read(isDemoModeProvider);
-    if (isDemoMode) {
-      // Load demo data
+  void _loadCampaignData() {
+    final fundingState = ref.read(fundingProvider);
+    final campaign = ref.read(fundingProvider.notifier).getCampaignById(widget.campaignId!);
+
+    if (campaign != null) {
+      _titleController.text = campaign.title;
+      _subtitleController.text = campaign.subtitle ?? '';
+      _descriptionController.text = campaign.description ?? '';
+      _goalAmountController.text = campaign.goalAmountDt > 0
+          ? campaign.goalAmountDt.toString()
+          : '';
+      _selectedCategory = campaign.category;
+      _startDate = campaign.startAt;
+      _endDate = campaign.endAt;
+      _coverImageUrl = campaign.coverImageUrl;
+    } else {
+      // Fallback demo data for editing
       _titleController.text = '데모 펀딩 제목';
       _subtitleController.text = '데모 부제목';
       _descriptionController.text = '데모 펀딩 설명입니다.';
@@ -73,7 +86,6 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
       _startDate = DateTime.now();
       _endDate = DateTime.now().add(const Duration(days: 30));
     }
-    // TODO: Load actual campaign data from Supabase
   }
 
   @override
@@ -539,7 +551,6 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
       setState(() {
         if (isStart) {
           _startDate = picked;
-          // Adjust end date if needed
           if (_endDate != null && _endDate!.difference(picked).inDays < 7) {
             _endDate = picked.add(const Duration(days: 7));
           }
@@ -552,22 +563,14 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
 
   void _selectImage() {
     // Demo mode: use placeholder image
-    final isDemoMode = ref.read(isDemoModeProvider);
-    if (isDemoMode) {
-      setState(() {
-        _coverImageUrl = 'https://picsum.photos/seed/${DateTime.now().millisecondsSinceEpoch}/1200/675';
-      });
-      return;
-    }
-    // TODO: Implement actual image picker
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('이미지 선택 기능은 준비 중입니다')),
-    );
+    setState(() {
+      _coverImageUrl =
+          'https://picsum.photos/seed/${DateTime.now().millisecondsSinceEpoch}/1200/675';
+    });
   }
 
   void _onStepContinue() {
     if (_currentStep < 3) {
-      // Validate current step
       bool isValid = true;
 
       switch (_currentStep) {
@@ -611,18 +614,45 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
   }
 
   Future<void> _saveDraft() async {
-    // Demo mode: just show success message
-    final isDemoMode = ref.read(isDemoModeProvider);
-    if (isDemoMode) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('임시저장 되었습니다 (데모)')),
+    setState(() => _isLoading = true);
+
+    try {
+      await ref.read(fundingProvider.notifier).saveDraft(
+        existingCampaignId: widget.campaignId,
+        title: _titleController.text.isNotEmpty
+            ? _titleController.text
+            : '제목 없음 (임시저장)',
+        subtitle: _subtitleController.text.isNotEmpty
+            ? _subtitleController.text
+            : null,
+        description: _descriptionController.text.isNotEmpty
+            ? _descriptionController.text
+            : null,
+        category: _selectedCategory,
+        coverImageUrl: _coverImageUrl,
+        goalAmountDt: int.tryParse(_goalAmountController.text) ?? 0,
+        startAt: _startDate,
+        endAt: _endDate,
       );
-      return;
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('임시저장 되었습니다'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('저장 실패: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-    // TODO: Implement actual save draft
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('임시저장 기능은 준비 중입니다')),
-    );
   }
 
   Future<void> _submitCampaign() async {
@@ -635,28 +665,47 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    // Demo mode: just show success message
-    final isDemoMode = ref.read(isDemoModeProvider);
-    if (isDemoMode) {
-      await Future.delayed(const Duration(seconds: 1));
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_isEditing ? '펀딩이 수정되었습니다 (데모)' : '펀딩이 등록되었습니다 (데모)'),
-          ),
-        );
-        Navigator.pop(context);
-      }
+    if (_endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('종료일을 선택해주세요')),
+      );
       return;
     }
 
-    // TODO: Implement actual campaign submission
-    setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('펀딩 등록 기능은 준비 중입니다')),
-    );
+    setState(() => _isLoading = true);
+
+    try {
+      await ref.read(fundingProvider.notifier).submitCampaign(
+        existingCampaignId: widget.campaignId,
+        title: _titleController.text,
+        subtitle: _subtitleController.text.isNotEmpty
+            ? _subtitleController.text
+            : null,
+        description: _descriptionController.text,
+        category: _selectedCategory,
+        coverImageUrl: _coverImageUrl,
+        goalAmountDt: int.parse(_goalAmountController.text),
+        startAt: _startDate,
+        endAt: _endDate!,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_isEditing ? '펀딩이 수정되었습니다' : '펀딩이 등록되었습니다'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('등록 실패: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 }

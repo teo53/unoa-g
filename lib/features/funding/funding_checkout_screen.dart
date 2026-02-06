@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/funding_provider.dart';
 import 'funding_result_screen.dart';
 
 /// Checkout screen for funding pledge
-class FundingCheckoutScreen extends StatefulWidget {
+class FundingCheckoutScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> campaign;
   final Map<String, dynamic> tier;
   final int extraSupport;
@@ -17,25 +19,17 @@ class FundingCheckoutScreen extends StatefulWidget {
   });
 
   @override
-  State<FundingCheckoutScreen> createState() => _FundingCheckoutScreenState();
+  ConsumerState<FundingCheckoutScreen> createState() => _FundingCheckoutScreenState();
 }
 
-class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
-  final _supabase = Supabase.instance.client;
+class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
   final _messageController = TextEditingController();
 
   bool _isAnonymous = false;
   bool _agreeTerms = false;
   bool _isLoading = false;
-  int? _walletBalance;
 
   int get _totalAmount => (widget.tier['price_dt'] as int? ?? 0) + widget.extraSupport;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadWalletBalance();
-  }
 
   @override
   void dispose() {
@@ -43,23 +37,12 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
     super.dispose();
   }
 
-  Future<void> _loadWalletBalance() async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) return;
-
-      final response = await _supabase
-          .from('wallets')
-          .select('balance_dt')
-          .eq('user_id', userId)
-          .single();
-
-      setState(() {
-        _walletBalance = response['balance_dt'] as int?;
-      });
-    } catch (e) {
-      // Ignore errors
+  int? get _walletBalance {
+    final isDemoMode = ref.read(isDemoModeProvider);
+    if (isDemoMode) {
+      return ref.read(demoWalletBalanceProvider);
     }
+    return null;
   }
 
   Future<void> _submitPledge() async {
@@ -70,61 +53,52 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       return;
     }
 
-    if (_walletBalance != null && _walletBalance! < _totalAmount) {
+    final balance = _walletBalance;
+    if (balance != null && balance < _totalAmount) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('DT 잔액이 부족합니다')),
       );
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      final response = await _supabase.functions.invoke(
-        'funding-pledge',
-        body: {
-          'campaignId': widget.campaign['id'],
-          'tierId': widget.tier['id'],
-          'amountDt': widget.tier['price_dt'],
-          'extraSupportDt': widget.extraSupport,
-          'isAnonymous': _isAnonymous,
-          'supportMessage': _messageController.text.isNotEmpty
-              ? _messageController.text
-              : null,
-        },
+      final pledge = await ref.read(fundingProvider.notifier).submitPledge(
+        campaignId: widget.campaign['id'] as String,
+        tierId: widget.tier['id'] as String,
+        amountDt: widget.tier['price_dt'] as int? ?? 0,
+        extraSupportDt: widget.extraSupport,
+        isAnonymous: _isAnonymous,
+        supportMessage: _messageController.text.isNotEmpty
+            ? _messageController.text
+            : null,
       );
 
-      final data = response.data as Map<String, dynamic>?;
+      if (!mounted) return;
 
-      if (data?['success'] == true) {
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => FundingResultScreen(
-              success: true,
-              campaign: widget.campaign,
-              tier: widget.tier,
-              totalAmount: _totalAmount,
-              pledgeId: data?['pledgeId'],
-              newBalance: data?['newBalance'],
-            ),
+      final newBalance = ref.read(demoWalletBalanceProvider);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FundingResultScreen(
+            success: true,
+            campaign: widget.campaign,
+            tier: widget.tier,
+            totalAmount: _totalAmount,
+            pledgeId: pledge.id,
+            newBalance: newBalance,
           ),
-        );
-      } else {
-        throw Exception(data?['message'] ?? '후원에 실패했습니다');
-      }
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
 
       String errorMessage = '후원 중 오류가 발생했습니다';
-      if (e.toString().contains('Insufficient DT balance') ||
-          e.toString().contains('DT 잔액')) {
+      if (e.toString().contains('잔액')) {
         errorMessage = 'DT 잔액이 부족합니다';
-      } else if (e.toString().contains('sold out') ||
-          e.toString().contains('품절')) {
+      } else if (e.toString().contains('품절') || e.toString().contains('sold out')) {
         errorMessage = '선택한 리워드가 품절되었습니다';
       }
 
@@ -141,19 +115,17 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
         ),
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hasInsufficientBalance =
-        _walletBalance != null && _walletBalance! < _totalAmount;
+    final walletBalance = ref.watch(demoWalletBalanceProvider);
+    final isDemoMode = ref.watch(isDemoModeProvider);
+    final displayBalance = isDemoMode ? walletBalance : (_walletBalance ?? 0);
+    final hasInsufficientBalance = displayBalance < _totalAmount;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
@@ -239,9 +211,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                               ),
                             ),
                             Text(
-                              _walletBalance != null
-                                  ? '잔액: ${_formatNumber(_walletBalance!)} DT'
-                                  : '잔액 확인 중...',
+                              '잔액: ${_formatNumber(displayBalance)} DT',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: hasInsufficientBalance
@@ -257,7 +227,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                       if (hasInsufficientBalance)
                         TextButton(
                           onPressed: () {
-                            // TODO: Navigate to DT purchase
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('DT 충전 페이지로 이동합니다 (데모)')),
+                            );
                           },
                           child: const Text('충전하기'),
                         ),
@@ -340,9 +312,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                       Switch(
                         value: _isAnonymous,
                         onChanged: (value) {
-                          setState(() {
-                            _isAnonymous = value;
-                          });
+                          setState(() => _isAnonymous = value);
                         },
                         activeColor: AppColors.primary,
                       ),
@@ -355,9 +325,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                 // Terms agreement
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      _agreeTerms = !_agreeTerms;
-                    });
+                    setState(() => _agreeTerms = !_agreeTerms);
                   },
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,9 +333,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                       Checkbox(
                         value: _agreeTerms,
                         onChanged: (value) {
-                          setState(() {
-                            _agreeTerms = value ?? false;
-                          });
+                          setState(() => _agreeTerms = value ?? false);
                         },
                         activeColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
