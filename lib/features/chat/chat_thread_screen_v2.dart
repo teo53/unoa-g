@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,9 @@ import '../../providers/chat_provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import '../../shared/widgets/message_action_sheet.dart';
+import '../../shared/widgets/skeleton_loader.dart';
+import '../../shared/widgets/error_boundary.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/chat_input_bar_v2.dart';
 import 'widgets/voice_message_widget.dart';
@@ -30,6 +34,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   late final ScrollController _scrollController;
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
+  bool _showScrollToBottom = false;
 
   @override
   void initState() {
@@ -46,7 +51,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       curve: Curves.easeOut,
     );
 
-    // Add scroll listener for pagination
+    // Add scroll listener for pagination and scroll-to-bottom FAB
     _scrollController.addListener(_onScroll);
   }
 
@@ -65,16 +70,269 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     if (position.pixels >= position.maxScrollExtent - threshold) {
       ref.read(chatProvider(widget.channelId).notifier).loadMoreMessages();
     }
+
+    // Show/hide scroll-to-bottom button
+    final showButton = position.pixels > 300;
+    if (showButton != _showScrollToBottom) {
+      setState(() => _showScrollToBottom = showButton);
+    }
   }
 
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
+      HapticFeedback.lightImpact();
       _scrollController.animateTo(
         0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // Message action handlers
+  // ═══════════════════════════════════════════════════════════
+
+  void _showMessageActionSheet(BuildContext context, BroadcastMessage message) {
+    if (message.deletedAt != null) return; // Can't act on deleted messages
+
+    final isOwnMessage = message.isFromFan;
+    final canEdit = isOwnMessage &&
+        message.messageType == BroadcastMessageType.text &&
+        DateTime.now().difference(message.createdAt).inHours < 24;
+
+    HapticFeedback.mediumImpact();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => MessageActionSheet(
+        message: message,
+        isOwnMessage: isOwnMessage,
+        canEdit: canEdit,
+        canDelete: isOwnMessage,
+        onCopy: () => _copyMessage(message),
+        onEdit: canEdit ? () => _showEditDialog(message) : null,
+        onDelete: isOwnMessage ? () => _showDeleteConfirmation(message) : null,
+        onReact: (emoji) => _reactToMessage(message.id, emoji),
+      ),
+    );
+  }
+
+  void _copyMessage(BroadcastMessage message) {
+    if (message.content != null && message.content!.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: message.content!));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('메시지가 복사되었습니다'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showDeleteConfirmation(BroadcastMessage message) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('메시지 삭제'),
+        content: const Text('이 메시지를 삭제하시겠습니까?\n삭제된 메시지는 복구할 수 없습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              '취소',
+              style: TextStyle(
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final success = await ref
+                  .read(chatProvider(widget.channelId).notifier)
+                  .deleteMessage(message.id);
+              if (success && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('메시지가 삭제되었습니다'),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                );
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditDialog(BroadcastMessage message) {
+    final controller = TextEditingController(text: message.content);
+    final chatState = ref.read(chatProvider(widget.channelId));
+    final characterLimit = chatState.characterLimit;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('메시지 수정'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                maxLength: characterLimit,
+                maxLines: 5,
+                minLines: 1,
+                onChanged: (_) => setDialogState(() {}),
+                decoration: InputDecoration(
+                  hintText: '메시지를 입력하세요',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                '취소',
+                style: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: controller.text.trim().isEmpty ||
+                      controller.text.trim() == message.content
+                  ? null
+                  : () async {
+                      Navigator.pop(ctx);
+                      final success = await ref
+                          .read(chatProvider(widget.channelId).notifier)
+                          .editMessage(message.id, controller.text.trim());
+                      if (success && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('메시지가 수정되었습니다'),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        );
+                      }
+                    },
+              child: const Text('수정'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _reactToMessage(String messageId, String emoji) {
+    ref.read(chatProvider(widget.channelId).notifier).reactToMessage(messageId, emoji);
+  }
+
+  Widget _buildPinnedBanner(BuildContext context, ChatState chatState, bool isDark) {
+    final pinnedMessages = chatState.messages
+        .where((m) => m.isPinned && m.deletedAt == null)
+        .toList();
+
+    if (pinnedMessages.isEmpty) return const SizedBox.shrink();
+
+    final latest = pinnedMessages.last;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.primary.withValues(alpha: 0.12)
+            : AppColors.primary.withValues(alpha: 0.06),
+        border: Border(
+          bottom: BorderSide(
+            color: isDark
+                ? AppColors.primary.withValues(alpha: 0.2)
+                : AppColors.primary.withValues(alpha: 0.15),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.push_pin_rounded,
+            size: 16,
+            color: AppColors.primary.withValues(alpha: 0.8),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '공지',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary.withValues(alpha: 0.8),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  latest.content ?? '',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (pinnedMessages.length > 1)
+            Container(
+              margin: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '+${pinnedMessages.length - 1}',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -96,35 +354,40 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       );
     }
 
-    // Show error state
+    // Show error state with enterprise ErrorDisplay
     if (chatState.error != null && chatState.messages.isEmpty) {
       return AppScaffold(
         showStatusBar: true,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
+        child: Column(
+          children: [
+            // Show header even in error state for navigation
+            Container(
+              padding: const EdgeInsets.fromLTRB(8, 8, 16, 12),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.pop(),
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      size: 20,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                chatState.error!,
-                style: TextStyle(
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () {
+            ),
+            Expanded(
+              child: ErrorDisplay(
+                error: chatState.error!,
+                title: '메시지를 불러올 수 없습니다',
+                icon: Icons.chat_bubble_outline_rounded,
+                onRetry: () {
+                  HapticFeedback.mediumImpact();
                   ref.read(chatProvider(widget.channelId).notifier).loadInitialData();
                 },
-                child: const Text('다시 시도'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -140,9 +403,55 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
             // Header
             _buildHeader(context, chatState, walletState, isDark),
 
-            // Messages list
+            // Pinned message banner
+            _buildPinnedBanner(context, chatState, isDark),
+
+            // Messages list with scroll-to-bottom FAB
             Expanded(
-              child: _buildMessagesList(context, chatState, isDark),
+              child: Stack(
+                children: [
+                  _buildMessagesList(context, chatState, isDark),
+                  // Scroll to bottom FAB
+                  if (_showScrollToBottom)
+                    Positioned(
+                      right: 16,
+                      bottom: 12,
+                      child: AnimatedOpacity(
+                        opacity: _showScrollToBottom ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: GestureDetector(
+                          onTap: _scrollToBottom,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.surfaceDark.withValues(alpha: 0.95)
+                                  : Colors.white.withValues(alpha: 0.95),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                                width: 0.5,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
 
             // Input bar
@@ -320,24 +629,10 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     final messages = chatState.messages;
 
     if (messages.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.chat_bubble_outline,
-              size: 64,
-              color: isDark ? Colors.grey[700] : Colors.grey[300],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '아직 메시지가 없습니다',
-              style: TextStyle(
-                color: isDark ? Colors.grey[500] : Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        title: '아직 메시지가 없습니다',
+        message: '아티스트의 첫 메시지를 기다려보세요!',
+        icon: Icons.chat_bubble_outline_rounded,
       );
     }
 
@@ -347,12 +642,16 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       padding: const EdgeInsets.all(16),
       itemCount: messages.length + (chatState.hasMoreMessages ? 1 : 0),
       itemBuilder: (context, index) {
-        // Show loading indicator at top
+        // Show loading skeleton at top when loading more
         if (chatState.hasMoreMessages && index == messages.length) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: CircularProgressIndicator(),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              children: const [
+                SkeletonMessageBubble(isFromArtist: true, width: 180),
+                SizedBox(height: 12),
+                SkeletonMessageBubble(isFromArtist: false, width: 140),
+              ],
             ),
           );
         }
@@ -377,6 +676,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
               artistAvatarUrl: chatState.channel?.avatarUrl,
               artistName: chatState.channel?.name ?? '',
               showAvatar: _shouldShowAvatar(message, previousMessage),
+              onLongPress: () => _showMessageActionSheet(context, message),
+              onReact: (emoji) => _reactToMessage(message.id, emoji),
             ),
           ],
         );
@@ -474,6 +775,8 @@ class MessageBubbleV2 extends StatelessWidget {
   final String? artistAvatarUrl;
   final String artistName;
   final bool showAvatar;
+  final VoidCallback? onLongPress;
+  final Function(String emoji)? onReact;
 
   const MessageBubbleV2({
     super.key,
@@ -482,11 +785,18 @@ class MessageBubbleV2 extends StatelessWidget {
     this.artistAvatarUrl,
     required this.artistName,
     this.showAvatar = true,
+    this.onLongPress,
+    this.onReact,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Deleted message placeholder
+    if (message.deletedAt != null) {
+      return _buildDeletedBubble(context, isDark);
+    }
 
     // Donation message styling
     if (message.isDonation) {
@@ -500,148 +810,235 @@ class MessageBubbleV2 extends StatelessWidget {
     }
   }
 
-  Widget _buildArtistBubble(BuildContext context, bool isDark) {
+  Widget _buildDeletedBubble(BuildContext context, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: isArtist ? MainAxisAlignment.start : MainAxisAlignment.end,
         children: [
-          if (showAvatar)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ClipOval(
-                child: artistAvatarUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: artistAvatarUrl!,
-                        width: 36,
-                        height: 36,
-                        fit: BoxFit.cover,
-                      )
-                    : Container(
-                        width: 36,
-                        height: 36,
-                        color: Colors.grey,
-                        child: const Icon(Icons.person, size: 20),
-                      ),
+          if (isArtist) const SizedBox(width: 44),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF0F0F0),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                width: 0.5,
               ),
-            )
-          else
-            const SizedBox(width: 44),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (showAvatar)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      artistName,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? AppColors.textSubDark
-                            : AppColors.textSubLight,
-                      ),
-                    ),
-                  ),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF2D2D2D) : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: _buildContent(context, isDark),
+                Icon(
+                  Icons.block_rounded,
+                  size: 14,
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, left: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _formatTime(message.createdAt),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isDark
-                              ? AppColors.textSubDark
-                              : AppColors.textSubLight,
-                        ),
-                      ),
-                      if (message.isHighlighted) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.push_pin,
-                          size: 10,
-                          color: AppColors.primary,
-                        ),
-                      ],
-                    ],
+                const SizedBox(width: 6),
+                Text(
+                  '삭제된 메시지입니다',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 60), // Space for alignment
+          if (!isArtist) const SizedBox(width: 0),
         ],
       ),
     );
   }
 
-  Widget _buildUserBubble(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          const SizedBox(width: 60), // Space for alignment
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    message.content ?? '',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, right: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (message.isRead == true) ...[
-                        const Icon(
-                          Icons.done_all,
-                          size: 12,
-                          color: Colors.blue,
+  Widget _buildArtistBubble(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showAvatar)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ClipOval(
+                  child: artistAvatarUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: artistAvatarUrl!,
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          width: 36,
+                          height: 36,
+                          color: Colors.grey,
+                          child: const Icon(Icons.person, size: 20),
                         ),
-                        const SizedBox(width: 4),
-                      ],
-                      Text(
-                        _formatTime(message.createdAt),
+                ),
+              )
+            else
+              const SizedBox(width: 44),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (showAvatar)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        artistName,
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                           color: isDark
                               ? AppColors.textSubDark
                               : AppColors.textSubLight,
                         ),
                       ),
-                    ],
+                    ),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2D2D2D) : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: _buildContent(context, isDark),
                   ),
-                ),
-              ],
+                  // Reactions bar
+                  if (message.reactions != null && message.reactions!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: MessageReactionsBar(
+                        reactions: message.reactions,
+                        onTapReaction: onReact,
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, left: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _formatTime(message.createdAt),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
+                          ),
+                        ),
+                        if (message.isEdited) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            '(수정됨)',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: isDark ? Colors.grey[600] : Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                        if (message.isPinned || message.isHighlighted) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.push_pin_rounded,
+                            size: 10,
+                            color: AppColors.primary,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 60), // Space for alignment
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserBubble(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const SizedBox(width: 60), // Space for alignment
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      message.content ?? '',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  // Reactions bar
+                  if (message.reactions != null && message.reactions!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: MessageReactionsBar(
+                        reactions: message.reactions,
+                        onTapReaction: onReact,
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, right: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (message.isEdited) ...[
+                          Text(
+                            '(수정됨)',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: isDark ? Colors.grey[600] : Colors.grey[400],
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        if (message.isRead == true) ...[
+                          const Icon(
+                            Icons.done_all,
+                            size: 12,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          _formatTime(message.createdAt),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -819,7 +1216,7 @@ class MessageBubbleV2 extends StatelessWidget {
   }
 }
 
-/// Skeleton loading state
+/// Skeleton loading state using enterprise SkeletonLoader components
 class _ChatSkeleton extends StatelessWidget {
   final bool isDark;
 
@@ -841,19 +1238,14 @@ class _ChatSkeleton extends StatelessWidget {
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _SkeletonBox(
-                      width: 32,
-                      height: 32,
-                      isCircle: true,
-                      isDark: isDark,
-                    ),
-                    const SizedBox(width: 8),
-                    _SkeletonBox(width: 80, height: 16, isDark: isDark),
+                  children: const [
+                    SkeletonLoader.circle(size: 32),
+                    SizedBox(width: 8),
+                    SkeletonLoader.text(width: 80, height: 16),
                   ],
                 ),
               ),
-              _SkeletonBox(width: 50, height: 24, isDark: isDark),
+              const SkeletonLoader(width: 50, height: 24),
             ],
           ),
         ),
@@ -863,47 +1255,16 @@ class _ChatSkeleton extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(16),
             physics: const NeverScrollableScrollPhysics(),
-            children: [
-              for (int i = 0; i < 5; i++) ...[
-                if (i % 2 == 0)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SkeletonBox(
-                        width: 36,
-                        height: 36,
-                        isCircle: true,
-                        isDark: isDark,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 3,
-                        child: _SkeletonBox(
-                          width: double.infinity,
-                          height: 60,
-                          isDark: isDark,
-                        ),
-                      ),
-                      const Spacer(),
-                    ],
-                  )
-                else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const Spacer(),
-                      Expanded(
-                        flex: 2,
-                        child: _SkeletonBox(
-                          width: double.infinity,
-                          height: 40,
-                          isDark: isDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 16),
-              ],
+            children: const [
+              SkeletonMessageBubble(isFromArtist: true, width: 220),
+              SizedBox(height: 16),
+              SkeletonMessageBubble(isFromArtist: false, width: 160),
+              SizedBox(height: 16),
+              SkeletonMessageBubble(isFromArtist: true, width: 180),
+              SizedBox(height: 16),
+              SkeletonMessageBubble(isFromArtist: false, width: 140),
+              SizedBox(height: 16),
+              SkeletonMessageBubble(isFromArtist: true, width: 200),
             ],
           ),
         ),
@@ -912,50 +1273,18 @@ class _ChatSkeleton extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: Row(
-            children: [
-              _SkeletonBox(width: 24, height: 24, isCircle: true, isDark: isDark),
-              const SizedBox(width: 12),
+            children: const [
+              SkeletonLoader.circle(size: 24),
+              SizedBox(width: 12),
               Expanded(
-                child: _SkeletonBox(
-                  width: double.infinity,
-                  height: 44,
-                  isDark: isDark,
-                ),
+                child: SkeletonLoader(width: double.infinity, height: 44),
               ),
-              const SizedBox(width: 12),
-              _SkeletonBox(width: 40, height: 40, isCircle: true, isDark: isDark),
+              SizedBox(width: 12),
+              SkeletonLoader.circle(size: 40),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Simple skeleton box widget
-class _SkeletonBox extends StatelessWidget {
-  final double width;
-  final double height;
-  final bool isCircle;
-  final bool isDark;
-
-  const _SkeletonBox({
-    required this.width,
-    required this.height,
-    this.isCircle = false,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[800] : Colors.grey[300],
-        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: isCircle ? null : BorderRadius.circular(8),
-      ),
     );
   }
 }

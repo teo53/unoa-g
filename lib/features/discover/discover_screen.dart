@@ -1,17 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
+import '../../core/utils/animation_utils.dart';
 import '../../data/mock/mock_data.dart';
 import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/section_header.dart';
+import '../../shared/widgets/skeleton_loader.dart';
 
-class DiscoverScreen extends StatelessWidget {
+class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
+
+  @override
+  State<DiscoverScreen> createState() => _DiscoverScreenState();
+}
+
+class _DiscoverScreenState extends State<DiscoverScreen> {
+  bool _isLoading = true;
+  int _selectedCategory = 0;
+  final List<String> _categories = ['전체', '아이돌', '배우', '가수'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   void _showFilterSheet(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
@@ -111,123 +138,230 @@ class DiscoverScreen extends StatelessWidget {
 
         // Content
         Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Categories
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Row(
-                    children: [
-                      _CategoryChip(label: '전체', isSelected: true),
-                      const SizedBox(width: 8),
-                      _CategoryChip(label: '아이돌'),
-                      const SizedBox(width: 8),
-                      _CategoryChip(label: '배우'),
-                      const SizedBox(width: 8),
-                      _CategoryChip(label: '가수'),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Featured Artist Banner
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _FeaturedBanner(
-                    artist: MockData.trendingArtists.first,
-                    onTap: () => context.push(
-                      '/artist/${MockData.trendingArtists.first.id}',
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Recommended Artists
-                const SectionHeader(
-                  title: '추천 아티스트',
-                  trailing: '더보기',
-                ),
-                const SizedBox(height: 16),
-
-                // Artists Grid
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.75,
-                    ),
-                    itemCount: MockData.trendingArtists.length,
-                    itemBuilder: (context, index) {
-                      final artist = MockData.trendingArtists[index];
-                      return _DiscoverArtistCard(
-                        name: artist.name,
-                        group: artist.group,
-                        avatarUrl: artist.avatarUrl,
-                        followerCount: artist.formattedFollowers,
-                        isVerified: artist.isVerified,
-                        onTap: () => context.push('/artist/${artist.id}'),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 100),
-              ],
+          child: RefreshIndicator(
+            onRefresh: () async {
+              HapticFeedback.mediumImpact();
+              await _loadData();
+            },
+            color: AppColors.primary,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: _isLoading
+                  ? _buildSkeletonContent(isDark)
+                  : _buildContent(context, isDark),
             ),
           ),
         ),
       ],
     );
   }
-}
 
-/// Category Chip using primary600 for selected state
-class _CategoryChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-
-  const _CategoryChip({
-    required this.label,
-    this.isSelected = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? AppColors.primary600
-            : (isDark ? AppColors.surfaceDark : Colors.white),
-        borderRadius: BorderRadius.circular(20),
-        border: isSelected
-            ? null
-            : Border.all(
-                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+  Widget _buildSkeletonContent(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Categories skeleton
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            children: List.generate(4, (index) => Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SkeletonLoader(
+                width: 60,
+                height: 32,
+                borderRadius: BorderRadius.circular(20),
               ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: isSelected
-              ? Colors.white
-              : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+            )),
+          ),
         ),
-      ),
+
+        const SizedBox(height: 24),
+
+        // Featured banner skeleton
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: SkeletonLoader.card(
+            width: double.infinity,
+            height: 180,
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Section title skeleton
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              SkeletonLoader.text(width: 100, height: 18),
+              SkeletonLoader.text(width: 40, height: 14),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Grid skeleton
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.75,
+            ),
+            itemCount: 4,
+            itemBuilder: (context, index) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: SkeletonLoader.card(
+                    width: double.infinity,
+                    height: double.infinity,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const SkeletonLoader.text(width: 80, height: 14),
+                const SizedBox(height: 4),
+                const SkeletonLoader.text(width: 50, height: 12),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 100),
+      ],
+    );
+  }
+
+  Widget _buildContent(BuildContext context, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Categories
+        SlideFadeAnimation.fromLeft(
+          delay: const Duration(milliseconds: 50),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: _categories.asMap().entries.map((entry) {
+                final index = entry.key;
+                final label = entry.value;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedCategory = index);
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: _selectedCategory == index
+                            ? AppColors.primary600
+                            : (isDark ? AppColors.surfaceDark : Colors.white),
+                        borderRadius: BorderRadius.circular(20),
+                        border: _selectedCategory == index
+                            ? null
+                            : Border.all(
+                                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                              ),
+                      ),
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: _selectedCategory == index
+                              ? Colors.white
+                              : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Featured Artist Banner
+        SlideFadeAnimation.fromBottom(
+          delay: const Duration(milliseconds: 100),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: _FeaturedBanner(
+              artist: MockData.trendingArtists.first,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                context.push(
+                  '/artist/${MockData.trendingArtists.first.id}',
+                );
+              },
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Recommended Artists
+        SlideFadeAnimation.fromBottom(
+          delay: const Duration(milliseconds: 150),
+          child: const SectionHeader(
+            title: '추천 아티스트',
+            trailing: '더보기',
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Artists Grid
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.75,
+            ),
+            itemCount: MockData.trendingArtists.length,
+            itemBuilder: (context, index) {
+              final artist = MockData.trendingArtists[index];
+              return FadeInAnimation(
+                delay: Duration(milliseconds: 200 + (60 * index)),
+                child: ScaleOnTap(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    context.push('/artist/${artist.id}');
+                  },
+                  child: _DiscoverArtistCard(
+                    name: artist.name,
+                    group: artist.group,
+                    avatarUrl: artist.avatarUrl,
+                    followerCount: artist.formattedFollowers,
+                    isVerified: artist.isVerified,
+                    onTap: () => context.push('/artist/${artist.id}'),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 100),
+      ],
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,6 +28,7 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   final MediaService _mediaService = MediaService();
   bool _isComposing = false;
   bool _isSending = false;
+  bool _showAttachPanel = false;
   Timer? _typingTimer;
 
   @override
@@ -249,23 +251,44 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Media button
-              IconButton(
-                onPressed: _isSending ? null : _pickAndSendImage,
-                icon: Icon(
-                  Icons.add_photo_alternate_outlined,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+              // + Button (KakaoTalk style)
+              GestureDetector(
+                onTap: _isSending
+                    ? null
+                    : () {
+                        setState(() {
+                          _showAttachPanel = !_showAttachPanel;
+                        });
+                        // Dismiss keyboard when opening panel
+                        if (_showAttachPanel) {
+                          FocusScope.of(context).unfocus();
+                        }
+                      },
+                child: AnimatedRotation(
+                  turns: _showAttachPanel ? 0.125 : 0, // 45 degree rotation
+                  duration: const Duration(milliseconds: 200),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: _showAttachPanel
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: _showAttachPanel
+                          ? AppColors.primary
+                          : isDark
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
+                      size: 26,
+                    ),
+                  ),
                 ),
               ),
-
-              // Donation button
-              IconButton(
-                onPressed: _showDonationSheet,
-                icon: Icon(
-                  Icons.favorite_border,
-                  color: const Color(0xFFEC4899),
-                ),
-              ),
+              const SizedBox(width: 4),
 
               // Text input
               Expanded(
@@ -278,6 +301,13 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
                   child: TextField(
                     controller: _controller,
                     onChanged: _onTextChanged,
+                    onTap: () {
+                      if (_showAttachPanel) {
+                        setState(() {
+                          _showAttachPanel = false;
+                        });
+                      }
+                    },
                     maxLines: null,
                     maxLength: characterLimit,
                     buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
@@ -335,6 +365,349 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
                       ),
               ),
             ],
+          ),
+
+          // Expandable attachment panel (KakaoTalk style)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            child: _showAttachPanel
+                ? _buildAttachPanel(isDark)
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttachPanel(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _AttachPanelItem(
+            icon: Icons.photo_library_rounded,
+            label: '앨범',
+            color: const Color(0xFF4CAF50),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              _pickAndSendImage();
+            },
+          ),
+          _AttachPanelItem(
+            icon: Icons.camera_alt_rounded,
+            label: '카메라',
+            color: const Color(0xFF2196F3),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              _pickAndSendCamera();
+            },
+          ),
+          _AttachPanelItem(
+            icon: Icons.mic_rounded,
+            label: '음성메시지',
+            color: const Color(0xFFFF9800),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              _showVoiceMessageSheet();
+            },
+          ),
+          _AttachPanelItem(
+            icon: Icons.favorite_rounded,
+            label: '후원',
+            color: const Color(0xFFEC4899),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              _showDonationSheet();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickAndSendCamera() async {
+    try {
+      final picker = ImagePicker();
+      final photo = await picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1280,
+        imageQuality: 80,
+      );
+      if (photo == null) return;
+
+      setState(() => _isSending = true);
+
+      final result = await _mediaService.uploadMedia(
+        photo,
+        channelId: widget.channelId,
+        userId: ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
+      );
+
+      if (result != null) {
+        await ref.read(chatProvider(widget.channelId).notifier).sendMediaMessage(
+          mediaUrl: result.url,
+          messageType: 'image',
+          mediaMetadata: result.metadata,
+        );
+        widget.onMessageSent?.call();
+      }
+    } catch (e) {
+      _showError('카메라 촬영에 실패했습니다.');
+    } finally {
+      setState(() => _isSending = false);
+    }
+  }
+
+  void _showVoiceMessageSheet() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _VoiceMessageSheet(isDark: isDark),
+    );
+  }
+}
+
+/// KakaoTalk-style attachment panel item
+class _AttachPanelItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _AttachPanelItem({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 72,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: isDark ? 0.2 : 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: color, size: 26),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Voice message recording sheet (demo)
+class _VoiceMessageSheet extends StatefulWidget {
+  final bool isDark;
+
+  const _VoiceMessageSheet({required this.isDark});
+
+  @override
+  State<_VoiceMessageSheet> createState() => _VoiceMessageSheetState();
+}
+
+class _VoiceMessageSheetState extends State<_VoiceMessageSheet> {
+  bool _isRecording = false;
+  int _recordingSeconds = 0;
+  Timer? _timer;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _toggleRecording() {
+    setState(() {
+      _isRecording = !_isRecording;
+      if (_isRecording) {
+        _recordingSeconds = 0;
+        _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+          setState(() => _recordingSeconds++);
+          if (_recordingSeconds >= 60) {
+            _stopAndSend();
+          }
+        });
+      } else {
+        _timer?.cancel();
+      }
+    });
+  }
+
+  void _stopAndSend() {
+    _timer?.cancel();
+    setState(() => _isRecording = false);
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('음성 메시지 (${_recordingSeconds}초) 전송! (데모)'),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  String _formatTime(int seconds) {
+    final min = (seconds ~/ 60).toString().padLeft(2, '0');
+    final sec = (seconds % 60).toString().padLeft(2, '0');
+    return '$min:$sec';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        24,
+        24,
+        MediaQuery.of(context).padding.bottom + 24,
+      ),
+      decoration: BoxDecoration(
+        color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: widget.isDark ? Colors.grey[700] : Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          Text(
+            '음성 메시지',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: widget.isDark ? Colors.white : Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _isRecording ? '녹음 중...' : '버튼을 눌러 녹음을 시작하세요',
+            style: TextStyle(
+              fontSize: 13,
+              color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Timer display
+          Text(
+            _formatTime(_recordingSeconds),
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.w300,
+              fontFeatures: const [FontFeature.tabularFigures()],
+              color: _isRecording
+                  ? AppColors.primary
+                  : widget.isDark
+                      ? Colors.grey[500]
+                      : Colors.grey[400],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Record / Stop button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_isRecording) ...[
+                // Cancel button
+                GestureDetector(
+                  onTap: () {
+                    _timer?.cancel();
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: widget.isDark ? Colors.grey[800] : Colors.grey[200],
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 32),
+              ],
+
+              // Main record/send button
+              GestureDetector(
+                onTap: _isRecording ? _stopAndSend : _toggleRecording,
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: _isRecording
+                        ? AppColors.primary
+                        : const Color(0xFFFF9800),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: (_isRecording ? AppColors.primary : const Color(0xFFFF9800))
+                            .withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    _isRecording ? Icons.send_rounded : Icons.mic_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          Text(
+            '최대 1분',
+            style: TextStyle(
+              fontSize: 11,
+              color: widget.isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
           ),
         ],
       ),

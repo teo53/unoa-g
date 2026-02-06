@@ -544,8 +544,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // Simulate artist reply after a delay
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
+      try {
         _addDemoArtistReply();
+      } catch (_) {
+        // Provider may have been disposed
       }
     });
 
@@ -579,6 +581,176 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     state = state.copyWith(
       messages: [...state.messages, artistReply],
+      quota: state.quota?.copyWith(
+        tokensAvailable: 3,
+        tokensUsed: 0,
+        updatedAt: DateTime.now(),
+      ),
+    );
+  }
+
+  /// Delete a message (own messages only)
+  Future<bool> deleteMessage(String messageId) async {
+    final authState = _ref.read(authProvider);
+
+    if (authState is AuthDemoMode) {
+      return _deleteDemoMessage(messageId);
+    }
+
+    try {
+      final client = _ref.read(supabaseClientProvider);
+
+      await client.from('messages').update({
+        'deleted_at': DateTime.now().toIso8601String(),
+        'content': null,
+      }).eq('id', messageId);
+
+      state = state.copyWith(
+        messages: state.messages.map((m) {
+          if (m.id == messageId) {
+            return m.copyWith(
+              deletedAt: DateTime.now(),
+              content: '',
+            );
+          }
+          return m;
+        }).toList(),
+      );
+
+      return true;
+    } catch (e) {
+      debugPrint('[ChatNotifier] deleteMessage error: $e');
+      return false;
+    }
+  }
+
+  bool _deleteDemoMessage(String messageId) {
+    state = state.copyWith(
+      messages: state.messages.map((m) {
+        if (m.id == messageId) {
+          return m.copyWith(
+            deletedAt: DateTime.now(),
+            content: '',
+          );
+        }
+        return m;
+      }).toList(),
+    );
+    return true;
+  }
+
+  /// Edit a message (within 24 hours, text only)
+  Future<bool> editMessage(String messageId, String newContent) async {
+    final message = state.messages.cast<BroadcastMessage?>().firstWhere(
+      (m) => m?.id == messageId,
+      orElse: () => null,
+    );
+    if (message == null) return false;
+
+    // 24-hour window check
+    if (DateTime.now().difference(message.createdAt).inHours >= 24) {
+      return false;
+    }
+
+    final authState = _ref.read(authProvider);
+
+    if (authState is AuthDemoMode) {
+      return _editDemoMessage(messageId, newContent);
+    }
+
+    try {
+      final client = _ref.read(supabaseClientProvider);
+
+      await client.from('messages').update({
+        'content': newContent,
+        'is_edited': true,
+        'last_edited_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', messageId);
+
+      _updateMessageInState(messageId, (m) => m.copyWith(
+        content: newContent,
+        isEdited: true,
+        lastEditedAt: DateTime.now(),
+      ));
+
+      return true;
+    } catch (e) {
+      debugPrint('[ChatNotifier] editMessage error: $e');
+      return false;
+    }
+  }
+
+  bool _editDemoMessage(String messageId, String newContent) {
+    _updateMessageInState(messageId, (m) => m.copyWith(
+      content: newContent,
+      isEdited: true,
+      lastEditedAt: DateTime.now(),
+    ));
+    return true;
+  }
+
+  /// React to a message with an emoji
+  Future<bool> reactToMessage(String messageId, String emoji) async {
+    final userId = _ref.read(currentUserProvider)?.id ?? 'demo_user';
+
+    final message = state.messages.cast<BroadcastMessage?>().firstWhere(
+      (m) => m?.id == messageId,
+      orElse: () => null,
+    );
+    if (message == null) return false;
+
+    final reactions = Map<String, List<String>>.from(
+      message.reactions?.map((k, v) => MapEntry(k, List<String>.from(v))) ?? {},
+    );
+
+    // Toggle reaction
+    if (reactions[emoji]?.contains(userId) == true) {
+      reactions[emoji]!.remove(userId);
+      if (reactions[emoji]!.isEmpty) reactions.remove(emoji);
+    } else {
+      reactions.putIfAbsent(emoji, () => []);
+      reactions[emoji]!.add(userId);
+    }
+
+    _updateMessageInState(messageId, (m) => m.copyWith(
+      reactions: reactions,
+    ));
+
+    return true;
+  }
+
+  /// Pin/unpin a message as announcement
+  Future<bool> togglePinMessage(String messageId) async {
+    final message = state.messages.cast<BroadcastMessage?>().firstWhere(
+      (m) => m?.id == messageId,
+      orElse: () => null,
+    );
+    if (message == null) return false;
+
+    final newPinned = !message.isPinned;
+
+    // Check max 3 pinned messages
+    if (newPinned) {
+      final pinnedCount = state.messages.where((m) => m.isPinned).length;
+      if (pinnedCount >= 3) return false;
+    }
+
+    _updateMessageInState(messageId, (m) => m.copyWith(
+      isPinned: newPinned,
+      pinnedAt: newPinned ? DateTime.now() : null,
+    ));
+
+    return true;
+  }
+
+  /// Helper to update a single message in state
+  void _updateMessageInState(String messageId, BroadcastMessage Function(BroadcastMessage) updater) {
+    state = state.copyWith(
+      messages: state.messages.map((m) {
+        if (m.id == messageId) return updater(m);
+        return m;
+      }).toList(),
     );
   }
 

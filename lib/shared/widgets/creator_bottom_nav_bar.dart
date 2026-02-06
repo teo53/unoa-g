@@ -147,8 +147,8 @@ class _CreatorNavItem extends StatelessWidget {
                     top: -4,
                     right: -4,
                     child: Container(
-                      width: 16,
-                      height: 16,
+                      width: 10,
+                      height: 10,
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
@@ -157,16 +157,6 @@ class _CreatorNavItem extends StatelessWidget {
                               ? AppColors.surfaceDark
                               : AppColors.surfaceLight,
                           width: 2,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '3',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
                         ),
                       ),
                     ),

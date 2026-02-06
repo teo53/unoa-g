@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/animation_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../data/repositories/mock_chat_repository.dart';
+import '../../shared/widgets/skeleton_loader.dart';
 
 /// Creator Dashboard Screen - CRM 통합 대시보드
 /// - 수익 요약 및 통계
@@ -58,7 +61,11 @@ class _CreatorDashboardScreenState
         // Content
         Expanded(
           child: RefreshIndicator(
-            onRefresh: _loadStats,
+            onRefresh: () async {
+              HapticFeedback.mediumImpact();
+              await _loadStats();
+            },
+            color: AppColors.primary,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(20),
@@ -66,37 +73,80 @@ class _CreatorDashboardScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Revenue Summary Card
-                  _buildRevenueSummaryCard(isDark, isDemoMode),
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 50),
+                    child: _buildRevenueSummaryCard(isDark, isDemoMode),
+                  ),
                   const SizedBox(height: 20),
 
                   // Quick Actions
-                  _buildSectionTitle('빠른 실행', isDark),
-                  const SizedBox(height: 12),
-                  _buildQuickActions(context, isDark),
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('빠른 실행', isDark),
+                        const SizedBox(height: 12),
+                        _buildQuickActions(context, isDark),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
 
                   // Revenue Chart Section
-                  _buildSectionTitle('월별 수익 추이', isDark, onMore: () => context.push('/creator/crm')),
-                  const SizedBox(height: 12),
-                  _buildRevenueChart(isDark),
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 150),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('월별 수익 추이', isDark, onMore: () => context.push('/creator/crm')),
+                        const SizedBox(height: 12),
+                        _buildRevenueChart(isDark),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
 
                   // Fan Insights
-                  _buildSectionTitle('팬 인사이트', isDark, onMore: () => context.push('/creator/crm')),
-                  const SizedBox(height: 12),
-                  _buildFanInsights(isDark),
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 200),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('팬 인사이트', isDark, onMore: () => context.push('/creator/crm')),
+                        const SizedBox(height: 12),
+                        _buildFanInsights(isDark),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
 
                   // Stats Grid
-                  _buildSectionTitle('오늘의 현황', isDark),
-                  const SizedBox(height: 12),
-                  _buildStatsGrid(isDark),
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 250),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('오늘의 현황', isDark),
+                        const SizedBox(height: 12),
+                        _buildStatsGrid(isDark),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
 
                   // Recent Activity
-                  _buildSectionTitle('최근 활동', isDark),
-                  const SizedBox(height: 12),
-                  _buildRecentActivity(isDark),
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 300),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('최근 활동', isDark),
+                        const SizedBox(height: 12),
+                        _buildRecentActivity(isDark),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -554,11 +604,14 @@ class _CreatorDashboardScreenState
 
   Widget _buildStatsGrid(bool isDark) {
     if (_isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(),
-        ),
+      return GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 2.2,
+        children: List.generate(4, (_) => _SkeletonStatCard(isDark: isDark)),
       );
     }
 
@@ -568,7 +621,7 @@ class _CreatorDashboardScreenState
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.6,
+      childAspectRatio: 2.2,
       children: [
         _StatCard(
           icon: Icons.mail_rounded,
@@ -784,49 +837,53 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+          // Icon area
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 22),
+          ),
+          const SizedBox(width: 12),
+          // Text area
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  ),
                 ),
-                child: Icon(icon, color: iconColor, size: 18),
-              ),
-              const Spacer(),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -932,6 +989,42 @@ class _FanTierItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SkeletonStatCard extends StatelessWidget {
+  final bool isDark;
+  const _SkeletonStatCard({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
+      ),
+      child: Row(
+        children: [
+          const SkeletonLoader(width: 44, height: 44, borderRadius: BorderRadius.all(Radius.circular(12))),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                SkeletonLoader.text(width: 48, height: 18),
+                SizedBox(height: 6),
+                SkeletonLoader.text(width: 72, height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

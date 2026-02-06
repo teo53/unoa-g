@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/animation_utils.dart';
 import '../../data/mock/mock_data.dart';
 import '../../providers/chat_list_provider.dart';
 import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/avatar_with_badge.dart';
+import '../../shared/widgets/skeleton_loader.dart';
+import '../../shared/widgets/error_boundary.dart';
 import 'widgets/chat_list_tile.dart';
 
 class ChatListScreen extends ConsumerWidget {
@@ -43,8 +47,13 @@ class ChatListScreen extends ConsumerWidget {
                 ),
                 child: IconButton(
                   onPressed: () {
+                    HapticFeedback.lightImpact();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('새 메시지 기능 준비 중')),
+                      SnackBar(
+                        content: const Text('새 메시지 기능 준비 중'),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
                     );
                   },
                   icon: Icon(
@@ -98,23 +107,6 @@ class ChatListScreen extends ConsumerWidget {
         Expanded(
           child: _buildChatList(context, ref, chatListState, isDark),
         ),
-
-        // FAB
-        Padding(
-          padding: const EdgeInsets.only(right: 20, bottom: 20),
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: FloatingActionButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('새 대화 시작 기능 준비 중')),
-                );
-              },
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.edit, color: Colors.white),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -125,86 +117,75 @@ class ChatListScreen extends ConsumerWidget {
     ChatListState state,
     bool isDark,
   ) {
-    // Show loading indicator
+    // Show skeleton loading
     if (state.isLoading && !state.hasLoaded) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    // Show error state
-    if (state.error != null && state.threads.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              state.error!,
-              style: TextStyle(
-                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(chatListProvider.notifier).refresh();
-              },
-              child: const Text('다시 시도'),
-            ),
-          ],
+      return ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        itemCount: 6,
+        itemBuilder: (context, index) => const SkeletonListTile(
+          showAvatar: true,
+          showSubtitle: true,
+          showTrailing: true,
+          avatarSize: 52,
         ),
       );
     }
 
-    // Show empty state
+    // Show error state with enterprise ErrorDisplay
+    if (state.error != null && state.threads.isEmpty) {
+      return ErrorDisplay(
+        error: state.error!,
+        icon: Icons.wifi_off_rounded,
+        title: '연결 오류',
+        message: state.error,
+        onRetry: () {
+          HapticFeedback.mediumImpact();
+          ref.read(chatListProvider.notifier).refresh();
+        },
+      );
+    }
+
+    // Show empty state with enterprise EmptyState
     if (state.threads.isEmpty && state.hasLoaded) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.chat_bubble_outline,
-              size: 64,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '아직 구독 중인 채널이 없습니다',
-              style: TextStyle(
-                fontSize: 16,
-                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '아티스트를 검색하고 구독해보세요!',
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-              ),
-            ),
-          ],
+      return EmptyState(
+        title: '아직 구독 중인 채널이 없습니다',
+        message: '아티스트를 검색하고 구독해보세요!',
+        icon: Icons.chat_bubble_outline_rounded,
+        action: FilledButton.icon(
+          onPressed: () => context.go('/discover'),
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.primary600,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          icon: const Icon(Icons.search, size: 18),
+          label: const Text('아티스트 둘러보기'),
         ),
       );
     }
 
     // Show chat list with pull-to-refresh
     return RefreshIndicator(
-      onRefresh: () => ref.read(chatListProvider.notifier).refresh(),
+      onRefresh: () async {
+        HapticFeedback.mediumImpact();
+        await ref.read(chatListProvider.notifier).refresh();
+      },
+      color: AppColors.primary,
       child: ListView.builder(
         padding: EdgeInsets.zero,
         itemCount: state.threads.length,
         itemBuilder: (context, index) {
           final thread = state.threads[index];
-          return ChatListTile(
-            chat: thread.toChatThread(),
-            onTap: () => context.push('/chat/${thread.channelId}'),
+          return FadeInAnimation(
+            delay: Duration(milliseconds: 30 * index),
+            child: ChatListTile(
+              chat: thread.toChatThread(),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                context.push('/chat/${thread.channelId}');
+              },
+            ),
           );
         },
       ),

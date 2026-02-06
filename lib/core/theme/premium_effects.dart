@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'app_radius.dart';
 
 /// UNO A Premium Effects
 ///
@@ -96,7 +97,7 @@ class PremiumEffects {
       end: Alignment.bottomRight,
       colors: AppColors.primaryGradient,
     ),
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(AppRadius.lg),
     boxShadow: primaryCtaShadows,
   );
 
@@ -107,7 +108,7 @@ class PremiumEffects {
       end: Alignment.bottomRight,
       colors: AppColors.premiumGradient,
     ),
-    borderRadius: BorderRadius.circular(16),
+    borderRadius: BorderRadius.circular(AppRadius.lg),
     boxShadow: premiumCardShadows,
   );
 
@@ -118,7 +119,7 @@ class PremiumEffects {
       end: Alignment.bottomRight,
       colors: AppColors.subtleGradient,
     ),
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(AppRadius.lg),
   );
 
   // ═══════════════════════════════════════════════════════════════
@@ -127,7 +128,7 @@ class PremiumEffects {
 
   /// Primary Filled Button - WCAG 준수 primary600
   static BoxDecoration primaryButtonDecoration({
-    double borderRadius = 12,
+    double borderRadius = AppRadius.md,
     bool withGlow = false,
   }) => BoxDecoration(
     color: AppColors.primary600,
@@ -137,7 +138,7 @@ class PremiumEffects {
 
   /// Secondary Button - 투명 배경 + 테두리
   static BoxDecoration secondaryButtonDecoration({
-    double borderRadius = 12,
+    double borderRadius = AppRadius.md,
     bool isDark = false,
   }) => BoxDecoration(
     color: isDark ? AppColors.surfaceDark : AppColors.surface,
@@ -149,7 +150,7 @@ class PremiumEffects {
 
   /// Destructive Button - Danger 색상 사용
   static BoxDecoration destructiveButtonDecoration({
-    double borderRadius = 12,
+    double borderRadius = AppRadius.md,
   }) => BoxDecoration(
     color: AppColors.danger,
     borderRadius: BorderRadius.circular(borderRadius),
@@ -157,7 +158,7 @@ class PremiumEffects {
 
   /// Destructive Outline Button
   static BoxDecoration destructiveOutlineDecoration({
-    double borderRadius = 12,
+    double borderRadius = AppRadius.md,
     bool isDark = false,
   }) => BoxDecoration(
     color: Colors.transparent,
@@ -188,7 +189,7 @@ class PremiumEffects {
   /// Create rounded container with optional glow
   static BoxDecoration roundedContainer({
     Color? color,
-    double borderRadius = 16,
+    double borderRadius = AppRadius.lg,
     Border? border,
     bool withGlow = false,
     bool strongGlow = false,
@@ -203,6 +204,57 @@ class PremiumEffects {
           : null,
     );
   }
+}
+
+/// KRDS 4단계 엘리베이션 시스템
+///
+/// KRDS style_08 기반 시멘틱 쉐도우 레벨
+/// Basic → Interaction → Elevated → Critical/Modal
+class KRDSElevation {
+  KRDSElevation._();
+
+  /// Level 1 (Basic) - 카드, 리스트 아이템 기본 상태
+  static List<BoxShadow> get level1 => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.08),
+      blurRadius: 4,
+      spreadRadius: 0,
+      offset: const Offset(0, 2),
+    ),
+  ];
+
+  /// Level 2 (Interaction) - 호버, 포커스, 선택 상태
+  static List<BoxShadow> get level2 => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.12),
+      blurRadius: 8,
+      spreadRadius: 0,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  /// Level 3 (Elevated) - FAB, 드롭다운, 팝오버
+  static List<BoxShadow> get level3 => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.16),
+      blurRadius: 16,
+      spreadRadius: 0,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  /// Level 4 (Critical/Modal) - 모달, 다이얼로그, 바텀시트
+  static List<BoxShadow> get level4 => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.22),
+      blurRadius: 24,
+      spreadRadius: 0,
+      offset: const Offset(0, 12),
+    ),
+  ];
+
+  /// Dimmed overlay - 모달 뒤 배경 어둡게
+  static Color get dimmedOverlay => Colors.black.withOpacity(0.4);
 }
 
 /// Animation durations for premium effects

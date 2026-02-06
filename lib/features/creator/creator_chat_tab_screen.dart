@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_list_provider.dart';
+import '../../shared/widgets/message_action_sheet.dart';
 
 /// 크리에이터 채팅 탭 화면
 ///
@@ -34,6 +36,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final Set<String> _heartedMessages = {};
+  bool _showAttachPanel = false;
 
   // Mock messages - 실제로는 provider에서 가져옴
   final List<_GroupChatMessage> _messages = [];
@@ -156,6 +159,321 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         _heartedMessages.add(messageId);
       }
     });
+  }
+
+  /// 크리에이터 자신의 메시지 Long Press 시 액션 시트 표시
+  void _showCreatorMessageActionSheet(
+    BuildContext context,
+    _GroupChatMessage message,
+    bool isDark,
+  ) {
+    HapticFeedback.mediumImpact();
+
+    final canEdit = DateTime.now().difference(message.timestamp).inHours < 24;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 16),
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[700] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+
+              // Message preview
+              if (message.content.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.grey[850] : const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      message.content.length > 80
+                          ? '${message.content.substring(0, 80)}...'
+                          : message.content,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 8),
+              Divider(height: 1, thickness: 0.5, color: isDark ? Colors.grey[800] : Colors.grey[200]),
+
+              // Copy
+              _buildActionTile(
+                icon: Icons.copy_rounded,
+                label: '복사',
+                isDark: isDark,
+                onTap: () {
+                  Navigator.pop(context);
+                  Clipboard.setData(ClipboardData(text: message.content));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('메시지가 복사되었습니다'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                },
+              ),
+
+              // Edit (within 24 hours)
+              if (canEdit)
+                _buildActionTile(
+                  icon: Icons.edit_rounded,
+                  label: '수정',
+                  isDark: isDark,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showCreatorEditDialog(context, message, isDark);
+                  },
+                ),
+
+              // Pin as announcement
+              _buildActionTile(
+                icon: Icons.push_pin_outlined,
+                label: '공지 등록',
+                isDark: isDark,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    // Toggle pin on this message
+                    // Mark as pinned (announcement) in demo mode
+                    final idx = _messages.indexWhere((m) => m.id == message.id);
+                    if (idx >= 0) {
+                      // In demo mode, we just show a snackbar
+                      // Real implementation would call the repository's pinMessage()
+                    }
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('공지로 등록되었습니다'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                },
+              ),
+
+              // Delete
+              _buildActionTile(
+                icon: Icons.delete_outline_rounded,
+                label: '삭제',
+                isDark: isDark,
+                isDestructive: true,
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDeleteConfirmation(context, message, isDark);
+                },
+              ),
+
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionTile({
+    required IconData icon,
+    required String label,
+    required bool isDark,
+    bool isDestructive = false,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: isDestructive
+                  ? const Color(0xFFEF4444)
+                  : isDark ? Colors.grey[300] : Colors.grey[700],
+            ),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: isDestructive
+                    ? const Color(0xFFEF4444)
+                    : isDark ? Colors.grey[200] : Colors.grey[800],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context,
+    _GroupChatMessage message,
+    bool isDark,
+  ) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('메시지 삭제'),
+        content: const Text('이 메시지를 삭제하시겠습니까?\n모든 팬에게 전송된 메시지가 삭제됩니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              '취소',
+              style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600]),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() {
+                _messages.removeWhere((m) => m.id == message.id);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('메시지가 삭제되었습니다'),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 크리에이터 메시지 수정 다이얼로그
+  void _showCreatorEditDialog(
+    BuildContext context,
+    _GroupChatMessage message,
+    bool isDark,
+  ) {
+    final controller = TextEditingController(text: message.content);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('메시지 수정'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '수정된 메시지는 모든 팬에게 반영됩니다.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                maxLines: 5,
+                minLines: 1,
+                onChanged: (_) => setDialogState(() {}),
+                decoration: InputDecoration(
+                  hintText: '메시지를 입력하세요',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                '취소',
+                style: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: controller.text.trim().isEmpty ||
+                      controller.text.trim() == message.content
+                  ? null
+                  : () {
+                      Navigator.pop(ctx);
+                      setState(() {
+                        final idx = _messages.indexWhere((m) => m.id == message.id);
+                        if (idx >= 0) {
+                          _messages[idx] = _GroupChatMessage(
+                            id: message.id,
+                            content: controller.text.trim(),
+                            fanId: message.fanId,
+                            fanName: message.fanName,
+                            fanTier: message.fanTier,
+                            isFromCreator: message.isFromCreator,
+                            timestamp: message.timestamp,
+                            readCount: message.readCount,
+                            totalSubscribers: message.totalSubscribers,
+                            donationAmount: message.donationAmount,
+                            isDirectReplyMessage: message.isDirectReplyMessage,
+                            replyToFanId: message.replyToFanId,
+                            replyToFanName: message.replyToFanName,
+                            replyToContent: message.replyToContent,
+                            isEdited: true,
+                          );
+                        }
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('메시지가 수정되었습니다'),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      );
+                    },
+              child: const Text('수정'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// 팬 메시지 Long Press 시 답장 옵션 바텀시트 표시
@@ -753,7 +1071,11 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                           isHearted: _heartedMessages.contains(message.id),
                           onHeartTap: () => _toggleHeart(message.id),
                           onLongPress: message.isFromCreator
-                              ? null
+                              ? () => _showCreatorMessageActionSheet(
+                                    context,
+                                    message,
+                                    isDark,
+                                  )
                               : () => _showReplyOptionsSheet(
                                     context,
                                     message,
@@ -820,74 +1142,223 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
           ),
         ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Image picker
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('이미지 첨부 기능은 준비 중입니다')),
-              );
-            },
-            icon: Icon(
-              Icons.add_photo_alternate_outlined,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-          ),
-          const SizedBox(width: 8),
-
-          // Input field
-          Expanded(
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 100),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[800] : Colors.grey[100],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: TextField(
-                controller: _messageController,
-                maxLines: null,
-                decoration: InputDecoration(
-                  hintText: '모든 팬에게 메시지 보내기...',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[500] : Colors.grey[400],
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // + Button (KakaoTalk style)
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showAttachPanel = !_showAttachPanel;
+                  });
+                  if (_showAttachPanel) {
+                    FocusScope.of(context).unfocus();
+                  }
+                },
+                child: AnimatedRotation(
+                  turns: _showAttachPanel ? 0.125 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: _showAttachPanel
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: _showAttachPanel
+                          ? AppColors.primary
+                          : isDark
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
+                      size: 26,
+                    ),
                   ),
                 ),
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
+              ),
+              const SizedBox(width: 4),
+
+              // Input field
+              Expanded(
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 100),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey[800] : Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: TextField(
+                    controller: _messageController,
+                    maxLines: null,
+                    onTap: () {
+                      if (_showAttachPanel) {
+                        setState(() => _showAttachPanel = false);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      hintText: '모든 팬에게 메시지 보내기...',
+                      hintStyle: TextStyle(
+                        color: isDark ? Colors.grey[500] : Colors.grey[400],
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                    ),
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
+              const SizedBox(width: 8),
 
-          // Send button
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: _sendMessage,
-              icon: const Icon(
-                Icons.send_rounded,
-                color: Colors.white,
-                size: 20,
+              // Send button
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  onPressed: _sendMessage,
+                  icon: const Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
               ),
-              padding: EdgeInsets.zero,
-            ),
+            ],
+          ),
+
+          // Expandable attachment panel (KakaoTalk style)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            child: _showAttachPanel
+                ? _buildCreatorAttachPanel(isDark)
+                : const SizedBox.shrink(),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCreatorAttachPanel(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildAttachItem(
+            icon: Icons.photo_library_rounded,
+            label: '앨범',
+            color: const Color(0xFF4CAF50),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('앨범에서 이미지를 선택합니다 (데모)'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          _buildAttachItem(
+            icon: Icons.camera_alt_rounded,
+            label: '카메라',
+            color: const Color(0xFF2196F3),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('카메라를 실행합니다 (데모)'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          _buildAttachItem(
+            icon: Icons.mic_rounded,
+            label: '음성메시지',
+            color: const Color(0xFFFF9800),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('음성 메시지 녹음 (데모)'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          _buildAttachItem(
+            icon: Icons.poll_rounded,
+            label: '투표',
+            color: const Color(0xFF9C27B0),
+            isDark: isDark,
+            onTap: () {
+              setState(() => _showAttachPanel = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('팬 투표 만들기 (데모)'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttachItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 72,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: isDark ? 0.2 : 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: color, size: 26),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1224,7 +1695,9 @@ class _GroupChatBubble extends StatelessWidget {
     final totalSubscribers = message.totalSubscribers ?? 0;
     final isDirectReply = message.isDirectReplyMessage;
 
-    return Padding(
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -1297,6 +1770,15 @@ class _GroupChatBubble extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 3),
+              if (message.isEdited)
+                Text(
+                  '(수정됨)',
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: isDark ? Colors.grey[500] : Colors.grey[400],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               Text(
                 _formatTime(message.timestamp),
                 style: TextStyle(
@@ -1323,8 +1805,8 @@ class _GroupChatBubble extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1:1 답장인 경우 원본 메시지 인용
-                if (isDirectReply && message.replyToContent != null) ...[
+                // 답장인 경우 원본 메시지 인용 (1:1 및 전체답장 모두)
+                if (message.replyToContent != null) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
@@ -1341,19 +1823,39 @@ class _GroupChatBubble extends StatelessWidget {
                         Row(
                           children: [
                             Icon(
-                              Icons.reply_rounded,
+                              isDirectReply ? Icons.reply_rounded : Icons.campaign_rounded,
                               size: 12,
                               color: Colors.white.withValues(alpha: 0.8),
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              '${message.replyToFanName}님에게 답장',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withValues(alpha: 0.9),
+                            Expanded(
+                              child: Text(
+                                '${message.replyToFanName}님에게 답장',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
                               ),
                             ),
+                            if (!isDirectReply) ...[
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '전체공개',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white.withValues(alpha: 0.95),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -1402,6 +1904,7 @@ class _GroupChatBubble extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -1672,6 +2175,7 @@ class _GroupChatMessage {
   final String? replyToFanId; // 답장 대상 팬 ID
   final String? replyToFanName; // 답장 대상 팬 이름
   final String? replyToContent; // 원본 메시지 내용
+  final bool isEdited; // 수정 여부
 
   _GroupChatMessage({
     required this.id,
@@ -1688,5 +2192,6 @@ class _GroupChatMessage {
     this.replyToFanId,
     this.replyToFanName,
     this.replyToContent,
+    this.isEdited = false,
   });
 }

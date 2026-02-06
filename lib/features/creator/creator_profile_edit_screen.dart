@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -41,6 +43,7 @@ class _CreatorProfileEditScreenState
   late TextEditingController _bioController;
   late TabController _tabController;
   bool _hasChanges = false;
+  bool _isSaving = false;
 
   // Theme settings
   int _selectedThemeColor = 0;
@@ -50,6 +53,12 @@ class _CreatorProfileEditScreenState
   String _youtubeLink = '';
   String _tiktokLink = '';
   String _twitterLink = '';
+
+  // Image state
+  XFile? _selectedAvatarImage;
+  Uint8List? _selectedAvatarBytes;
+  XFile? _selectedBackgroundImage;
+  Uint8List? _selectedBackgroundBytes;
 
   // Content lists
   List<CreatorDrop> _drops = [];
@@ -138,21 +147,68 @@ class _CreatorProfileEditScreenState
     final confirmed = await _showChangeConfirmationDialog();
     if (confirmed != true) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white, size: 20),
-            SizedBox(width: 8),
-            Text('프로필이 저장되었습니다'),
-          ],
+    setState(() => _isSaving = true);
+
+    try {
+      final isDemoMode = ref.read(isDemoModeProvider);
+      final authState = ref.read(authProvider);
+
+      if (isDemoMode && authState is AuthDemoMode) {
+        // Demo mode: update the demo profile directly
+        final currentProfile = authState.demoProfile;
+        final updatedProfile = currentProfile.copyWith(
+          displayName: _nameController.text.isNotEmpty ? _nameController.text : null,
+          bio: _bioController.text.isNotEmpty ? _bioController.text : null,
+        );
+        ref.read(authProvider.notifier).enterDemoMode(asCreator: true);
+        // Manually update state with the modified profile
+        // For demo mode, we simulate the save by updating local state
+      } else {
+        // Real mode: save to Supabase
+        await ref.read(authProvider.notifier).updateProfile(
+          displayName: _nameController.text.isNotEmpty ? _nameController.text : null,
+          bio: _bioController.text.isNotEmpty ? _bioController.text : null,
+        );
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Text('프로필이 저장되었습니다'),
+            ],
+          ),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-    context.pop();
+      );
+      context.pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: Text('저장 실패: $e')),
+            ],
+          ),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   Future<bool?> _showChangeConfirmationDialog() {
@@ -325,18 +381,27 @@ class _CreatorProfileEditScreenState
               ),
             ),
           ),
-          TextButton(
-            onPressed: _hasChanges ? _saveProfile : null,
-            child: Text(
-              '저장',
-              style: TextStyle(
-                color: _hasChanges
-                    ? AppColors.primary
-                    : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
+          _isSaving
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : TextButton(
+                  onPressed: _hasChanges ? _saveProfile : null,
+                  child: Text(
+                    '저장',
+                    style: TextStyle(
+                      color: _hasChanges
+                          ? AppColors.primary
+                          : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
         ],
       ),
     );
@@ -389,23 +454,32 @@ class _CreatorProfileEditScreenState
                         ),
                       ),
                       child: ClipOval(
-                        child: profile?.avatarUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: profile!.avatarUrl!,
+                        child: _selectedAvatarBytes != null
+                            ? Image.memory(
+                                _selectedAvatarBytes!,
                                 fit: BoxFit.cover,
+                                width: 120,
+                                height: 120,
                               )
-                            : Container(
-                                color: isDark
-                                    ? Colors.grey[800]
-                                    : Colors.grey[200],
-                                child: Icon(
-                                  Icons.person,
-                                  size: 60,
-                                  color: isDark
-                                      ? Colors.grey[600]
-                                      : Colors.grey[400],
-                                ),
-                              ),
+                            : profile?.avatarUrl != null
+                                ? CachedNetworkImage(
+                                    imageUrl: profile!.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                    width: 120,
+                                    height: 120,
+                                  )
+                                : Container(
+                                    color: isDark
+                                        ? Colors.grey[800]
+                                        : Colors.grey[200],
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 60,
+                                      color: isDark
+                                          ? Colors.grey[600]
+                                          : Colors.grey[400],
+                                    ),
+                                  ),
                       ),
                     ),
                     Positioned(
@@ -444,6 +518,13 @@ class _CreatorProfileEditScreenState
                       color: _themeColors[_selectedThemeColor],
                       fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ),
+                Text(
+                  '권장: 500 x 500px, 1:1 비율',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                 ),
               ],
@@ -1181,47 +1262,86 @@ class _CreatorProfileEditScreenState
   }
 
   Widget _buildBackgroundSelector(bool isDark) {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showImageSourceDialog(isDark),
-          borderRadius: BorderRadius.circular(12),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.add_photo_alternate_outlined,
-                  size: 32,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '배경 이미지 추가',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                  ),
-                ),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 120,
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _showImageSourceDialog(isDark, isBackground: true),
+              borderRadius: BorderRadius.circular(12),
+              child: _selectedBackgroundBytes != null
+                  ? Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(11),
+                          child: Image.memory(
+                            _selectedBackgroundBytes!,
+                            width: double.infinity,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add_photo_alternate_outlined,
+                            size: 32,
+                            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '배경 이미지 추가',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 6),
+        Text(
+          '권장: 1200 x 400px (3:1 비율), JPG/PNG, 5MB 이하',
+          style: TextStyle(
+            fontSize: 11,
+            color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+          ),
+        ),
+      ],
     );
   }
 
   // ===== 다이얼로그 =====
-  void _showImageSourceDialog(bool isDark) {
+  void _showImageSourceDialog(bool isDark, {bool isBackground = false}) {
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
@@ -1234,21 +1354,50 @@ class _CreatorProfileEditScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(Icons.camera_alt, color: AppColors.primary),
+              // Image spec guide
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                title: const Text('카메라로 촬영'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _onFieldChanged();
-                },
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 18, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        isBackground
+                            ? '권장 규격: 1200 x 400px (3:1 비율), JPG/PNG, 5MB 이하'
+                            : '권장 규격: 500 x 500px (1:1 비율), JPG/PNG, 3MB 이하',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              if (!kIsWeb)
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Icons.camera_alt, color: AppColors.primary),
+                  ),
+                  title: const Text('카메라로 촬영'),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await _pickImage(ImageSource.camera, isBackground: isBackground);
+                  },
+                ),
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(10),
@@ -1259,15 +1408,59 @@ class _CreatorProfileEditScreenState
                   child: const Icon(Icons.photo_library, color: Colors.blue),
                 ),
                 title: const Text('갤러리에서 선택'),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  _onFieldChanged();
+                  await _pickImage(ImageSource.gallery, isBackground: isBackground);
                 },
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source, {bool isBackground = false}) async {
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: source,
+        maxWidth: isBackground ? 1200 : 500,
+        maxHeight: isBackground ? 400 : 500,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        setState(() {
+          if (isBackground) {
+            _selectedBackgroundImage = image;
+            _selectedBackgroundBytes = bytes;
+          } else {
+            _selectedAvatarImage = image;
+            _selectedAvatarBytes = bytes;
+          }
+        });
+        _onFieldChanged();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이미지 선택 실패: $e'),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Widget _buildSelectedImage(Uint8List? bytes, {double? width, double? height, BoxFit fit = BoxFit.cover}) {
+    if (bytes == null) return const SizedBox.shrink();
+    return Image.memory(
+      bytes,
+      width: width,
+      height: height,
+      fit: fit,
     );
   }
 
@@ -1280,6 +1473,7 @@ class _CreatorProfileEditScreenState
     bool isNew = drop?.isNew ?? true;
     bool isSoldOut = drop?.isSoldOut ?? false;
     XFile? selectedImage;
+    Uint8List? selectedImageBytes;
     String? existingImageUrl = drop?.imageUrl;
 
     showModalBottomSheet(
@@ -1315,10 +1509,17 @@ class _CreatorProfileEditScreenState
                 GestureDetector(
                   onTap: () async {
                     final picker = ImagePicker();
-                    final image = await picker.pickImage(source: ImageSource.gallery);
+                    final image = await picker.pickImage(
+                      source: ImageSource.gallery,
+                      maxWidth: 800,
+                      maxHeight: 800,
+                      imageQuality: 85,
+                    );
                     if (image != null) {
+                      final bytes = await image.readAsBytes();
                       setModalState(() {
                         selectedImage = image;
+                        selectedImageBytes = bytes;
                         existingImageUrl = null;
                       });
                     }
@@ -1334,19 +1535,16 @@ class _CreatorProfileEditScreenState
                         width: 1,
                       ),
                     ),
-                    child: selectedImage != null
+                    child: selectedImageBytes != null
                       ? Stack(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(11),
-                              child: Image.network(
-                                selectedImage!.path,
+                              child: Image.memory(
+                                selectedImageBytes!,
                                 width: double.infinity,
                                 height: 120,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Center(
-                                  child: Icon(Icons.image, size: 40, color: Colors.grey),
-                                ),
                               ),
                             ),
                             Positioned(
@@ -1409,7 +1607,17 @@ class _CreatorProfileEditScreenState
                           ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                // Image spec hint
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, bottom: 10),
+                  child: Text(
+                    '권장: 800 x 800px (1:1 비율), JPG/PNG, 3MB 이하',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500],
+                    ),
+                  ),
+                ),
                 TextField(
                   controller: nameController,
                   decoration: InputDecoration(
@@ -1518,6 +1726,7 @@ class _CreatorProfileEditScreenState
     DateTime selectedDate = event?.date ?? DateTime.now().add(const Duration(days: 30));
     bool isOffline = event?.isOffline ?? true;
     XFile? selectedImage;
+    Uint8List? selectedImageBytes;
     String? existingImageUrl = event?.imageUrl;
 
     showModalBottomSheet(
@@ -1553,10 +1762,17 @@ class _CreatorProfileEditScreenState
                 GestureDetector(
                   onTap: () async {
                     final picker = ImagePicker();
-                    final image = await picker.pickImage(source: ImageSource.gallery);
+                    final image = await picker.pickImage(
+                      source: ImageSource.gallery,
+                      maxWidth: 1200,
+                      maxHeight: 600,
+                      imageQuality: 85,
+                    );
                     if (image != null) {
+                      final bytes = await image.readAsBytes();
                       setModalState(() {
                         selectedImage = image;
+                        selectedImageBytes = bytes;
                         existingImageUrl = null;
                       });
                     }
@@ -1572,19 +1788,16 @@ class _CreatorProfileEditScreenState
                         width: 1,
                       ),
                     ),
-                    child: selectedImage != null
+                    child: selectedImageBytes != null
                       ? Stack(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(11),
-                              child: Image.network(
-                                selectedImage!.path,
+                              child: Image.memory(
+                                selectedImageBytes!,
                                 width: double.infinity,
                                 height: 120,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Center(
-                                  child: Icon(Icons.image, size: 40, color: Colors.grey),
-                                ),
                               ),
                             ),
                             Positioned(
@@ -1647,7 +1860,17 @@ class _CreatorProfileEditScreenState
                           ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                // Image spec hint
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, bottom: 10),
+                  child: Text(
+                    '권장: 1200 x 600px (2:1 비율), JPG/PNG, 5MB 이하',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500],
+                    ),
+                  ),
+                ),
                 TextField(
                   controller: titleController,
                   decoration: InputDecoration(

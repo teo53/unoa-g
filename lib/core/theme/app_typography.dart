@@ -10,6 +10,7 @@ class AppTypography {
         fontWeight: FontWeight.w900,
         color: color,
         letterSpacing: -0.5,
+        height: 1.5,
       );
 
   static TextStyle displayMedium(Color color) => _baseStyle.copyWith(
@@ -17,6 +18,7 @@ class AppTypography {
         fontWeight: FontWeight.w700,
         color: color,
         letterSpacing: -0.3,
+        height: 1.5,
       );
 
   // Headings
@@ -24,18 +26,21 @@ class AppTypography {
         fontSize: 24,
         fontWeight: FontWeight.w700,
         color: color,
+        height: 1.5,
       );
 
   static TextStyle headlineMedium(Color color) => _baseStyle.copyWith(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: color,
+        height: 1.5,
       );
 
   static TextStyle headlineSmall(Color color) => _baseStyle.copyWith(
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: color,
+        height: 1.5,
       );
 
   // Body
@@ -43,6 +48,7 @@ class AppTypography {
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: color,
+        height: 1.5,
       );
 
   static TextStyle bodyMedium(Color color) => _baseStyle.copyWith(
@@ -56,6 +62,7 @@ class AppTypography {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: color,
+        height: 1.5,
       );
 
   // Labels
@@ -63,18 +70,21 @@ class AppTypography {
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: color,
+        height: 1.5,
       );
 
   static TextStyle labelMedium(Color color) => _baseStyle.copyWith(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: color,
+        height: 1.5,
       );
 
   static TextStyle labelSmall(Color color) => _baseStyle.copyWith(
         fontSize: 11,
         fontWeight: FontWeight.w500,
         color: color,
+        height: 1.5,
       );
 
   // Caption
@@ -82,6 +92,7 @@ class AppTypography {
         fontSize: 10,
         fontWeight: FontWeight.w500,
         color: color,
+        height: 1.5,
       );
 
   // Button
@@ -89,5 +100,6 @@ class AppTypography {
         fontSize: 14,
         fontWeight: FontWeight.w700,
         color: color,
+        height: 1.5,
       );
 }

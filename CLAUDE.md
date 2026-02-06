@@ -2,6 +2,15 @@
 
 This file provides guidance for AI assistants working with the UNO A codebase.
 
+## 로컬 개발 환경
+
+| 항목 | 경로 |
+|------|------|
+| Flutter SDK | `C:\Users\mapdr\flutter_sdk\flutter` |
+| Flutter 실행 | `export PATH="/c/Users/mapdr/flutter_sdk/flutter/bin:$PATH"` (bash) |
+
+> **중요**: Flutter 명령어 실행 전 반드시 위 PATH 설정을 먼저 실행할 것.
+
 ## Project Overview
 
 **UNO A** is a Korean artist-to-fan messaging platform built with Flutter, similar to Fromm/Bubble. It enables K-pop artists to send broadcast messages to subscribers, who can then reply using a token-based system.

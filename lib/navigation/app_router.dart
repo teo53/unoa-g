@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../features/home/home_screen.dart';
 import '../features/chat/chat_list_screen.dart';
@@ -265,6 +266,27 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RegisterScreen(),
     ),
+    // Placeholder routes for auth flows (prevent crash on navigation)
+    GoRoute(
+      path: '/forgot-password',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const _PlaceholderScreen(title: '비밀번호 재설정'),
+    ),
+    GoRoute(
+      path: '/terms',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const _PlaceholderScreen(title: '이용약관'),
+    ),
+    GoRoute(
+      path: '/privacy',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const _PlaceholderScreen(title: '개인정보처리방침'),
+    ),
+    GoRoute(
+      path: '/guardian-consent',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const _PlaceholderScreen(title: '보호자 동의'),
+    ),
 
     // Creator CRM (full screen)
     GoRoute(
@@ -404,6 +426,63 @@ class CreatorShell extends StatelessWidget {
         onTap: (index) => _navigateToTab(context, index),
       ),
       child: child,
+    );
+  }
+}
+
+/// Placeholder screen for routes that are not yet implemented
+class _PlaceholderScreen extends StatelessWidget {
+  final String title;
+
+  const _PlaceholderScreen({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.construction_rounded,
+                size: 64,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '준비 중인 기능입니다',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.grey[300] : Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '$title 페이지는 곧 오픈됩니다.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

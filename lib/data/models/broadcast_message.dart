@@ -104,6 +104,14 @@ class BroadcastMessage {
   final DateTime? lastEditedAt;
   final List<MessageEditHistory>? editHistory;
 
+  // 이모지 반응 (emoji -> userId 리스트)
+  final Map<String, List<String>>? reactions;
+
+  // 공지 (핀) 관련 필드
+  final bool isPinned;
+  final DateTime? pinnedAt;
+  final String? pinnedBy;
+
   const BroadcastMessage({
     required this.id,
     required this.channelId,
@@ -133,6 +141,10 @@ class BroadcastMessage {
     this.isEdited = false,
     this.lastEditedAt,
     this.editHistory,
+    this.reactions,
+    this.isPinned = false,
+    this.pinnedAt,
+    this.pinnedBy,
   });
 
   /// Check if message has personalization placeholders
@@ -217,6 +229,19 @@ class BroadcastMessage {
               .map((e) => MessageEditHistory.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
+      reactions: json['reactions'] != null
+          ? (json['reactions'] as Map<String, dynamic>).map(
+              (key, value) => MapEntry(
+                key,
+                (value as List).map((e) => e as String).toList(),
+              ),
+            )
+          : null,
+      isPinned: json['is_pinned'] as bool? ?? false,
+      pinnedAt: json['pinned_at'] != null
+          ? DateTime.parse(json['pinned_at'] as String)
+          : null,
+      pinnedBy: json['pinned_by'] as String?,
     );
   }
 
@@ -244,6 +269,10 @@ class BroadcastMessage {
       'is_edited': isEdited,
       'last_edited_at': lastEditedAt?.toIso8601String(),
       'edit_history': editHistory?.map((e) => e.toJson()).toList(),
+      'reactions': reactions,
+      'is_pinned': isPinned,
+      'pinned_at': pinnedAt?.toIso8601String(),
+      'pinned_by': pinnedBy,
     };
   }
 
@@ -276,6 +305,10 @@ class BroadcastMessage {
     bool? isEdited,
     DateTime? lastEditedAt,
     List<MessageEditHistory>? editHistory,
+    Map<String, List<String>>? reactions,
+    bool? isPinned,
+    DateTime? pinnedAt,
+    String? pinnedBy,
   }) {
     return BroadcastMessage(
       id: id ?? this.id,
@@ -306,6 +339,10 @@ class BroadcastMessage {
       isEdited: isEdited ?? this.isEdited,
       lastEditedAt: lastEditedAt ?? this.lastEditedAt,
       editHistory: editHistory ?? this.editHistory,
+      reactions: reactions ?? this.reactions,
+      isPinned: isPinned ?? this.isPinned,
+      pinnedAt: pinnedAt ?? this.pinnedAt,
+      pinnedBy: pinnedBy ?? this.pinnedBy,
     );
   }
 
