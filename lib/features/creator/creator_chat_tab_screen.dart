@@ -221,6 +221,11 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ),
                 ),
 
+              const SizedBox(height: 12),
+
+              // Emoji reaction row
+              _buildEmojiReactionRow(context, message, isDark),
+
               const SizedBox(height: 8),
               Divider(height: 1, thickness: 0.5, color: isDark ? Colors.grey[800] : Colors.grey[200]),
 
@@ -262,12 +267,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 onTap: () {
                   Navigator.pop(context);
                   setState(() {
-                    // Toggle pin on this message
-                    // Mark as pinned (announcement) in demo mode
                     final idx = _messages.indexWhere((m) => m.id == message.id);
                     if (idx >= 0) {
-                      // In demo mode, we just show a snackbar
-                      // Real implementation would call the repository's pinMessage()
+                      // Demo mode: show snackbar
                     }
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -296,6 +298,73 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Emoji reaction data for action sheets
+  static const List<_EmojiReaction> _reactions = [
+    _EmojiReaction(icon: Icons.favorite_rounded, color: Color(0xFFFF4B6E), label: '좋아요', emoji: '❤️'),
+    _EmojiReaction(icon: Icons.thumb_up_rounded, color: Color(0xFF5B8DEF), label: '최고', emoji: '👍'),
+    _EmojiReaction(icon: Icons.celebration_rounded, color: Color(0xFFFFAB40), label: '축하', emoji: '🎉'),
+    _EmojiReaction(icon: Icons.sentiment_very_satisfied_rounded, color: Color(0xFFFFCA28), label: '웃겨', emoji: '😂'),
+    _EmojiReaction(icon: Icons.auto_awesome_rounded, color: Color(0xFFAB47BC), label: '감동', emoji: '✨'),
+    _EmojiReaction(icon: Icons.local_fire_department_rounded, color: Color(0xFFFF7043), label: '불타오르네', emoji: '🔥'),
+  ];
+
+  Widget _buildEmojiReactionRow(BuildContext context, _GroupChatMessage message, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: _reactions.map((reaction) {
+          return GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.pop(context);
+              _handleReaction(message.id, reaction.emoji);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF2A2A2A)
+                        : const Color(0xFFF0F0F0),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    reaction.icon,
+                    size: 22,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  reaction.label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: isDark ? Colors.grey[500] : Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _handleReaction(String messageId, String emoji) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$emoji 반응을 보냈습니다'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -624,7 +693,14 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+
+              // Emoji quick reactions
+              _buildEmojiReactionRow(context, originalMessage, isDark),
+
+              const SizedBox(height: 16),
+              Divider(height: 1, thickness: 0.5, color: isDark ? Colors.grey[700] : Colors.grey[200]),
+              const SizedBox(height: 16),
 
               // 답장 타입 선택
               Text(
@@ -806,6 +882,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         isDirectReply ? Icons.send : Icons.campaign,
@@ -2193,5 +2270,19 @@ class _GroupChatMessage {
     this.replyToFanName,
     this.replyToContent,
     this.isEdited = false,
+  });
+}
+
+class _EmojiReaction {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String emoji;
+
+  const _EmojiReaction({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.emoji,
   });
 }
