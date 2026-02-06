@@ -155,10 +155,11 @@ class Campaign {
 
   int get daysLeft {
     if (endAt == null) return 0;
-    return endAt!.difference(DateTime.now()).inDays;
+    final diff = endAt!.difference(DateTime.now()).inDays;
+    return diff < 0 ? 0 : diff;
   }
 
-  bool get isEnded => daysLeft < 0 || status == CampaignStatus.completed;
+  bool get isEnded => (endAt != null && endAt!.isBefore(DateTime.now())) || status == CampaignStatus.completed;
   bool get isActive => status == CampaignStatus.active && !isEnded;
   bool get isDraft => status == CampaignStatus.draft;
   bool get isSuccessful => fundingPercent >= 100;
@@ -317,9 +318,11 @@ class FundingState {
   List<Campaign> get exploreCampaigns =>
       allCampaigns.where((c) => c.status == CampaignStatus.active).toList();
 
-  /// My active campaigns
+  /// My active campaigns (includes paused - they show in 진행중 tab)
   List<Campaign> get myActiveCampaigns =>
-      myCampaigns.where((c) => c.status == CampaignStatus.active).toList();
+      myCampaigns.where((c) =>
+          c.status == CampaignStatus.active ||
+          c.status == CampaignStatus.paused).toList();
 
   /// My draft campaigns
   List<Campaign> get myDraftCampaigns =>

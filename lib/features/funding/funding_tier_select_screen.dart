@@ -23,10 +23,11 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
 
   Map<String, dynamic>? get _selectedTier {
     if (_selectedTierId == null) return null;
-    return widget.tiers.firstWhere(
-      (t) => t['id'] == _selectedTierId,
-      orElse: () => {},
-    );
+    try {
+      return widget.tiers.firstWhere((t) => t['id'] == _selectedTierId);
+    } catch (_) {
+      return null;
+    }
   }
 
   int get _totalAmount {
@@ -331,7 +332,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _selectedTierId == null
+                    onPressed: (_selectedTierId == null || _selectedTier == null)
                         ? null
                         : () {
                             Navigator.push(

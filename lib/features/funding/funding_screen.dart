@@ -220,7 +220,7 @@ class _CampaignCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -281,7 +281,7 @@ class _CampaignCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: (campaign.fundingPercent / 100).clamp(0, 1),
+                      value: (campaign.fundingPercent / 100).clamp(0.0, 1.0),
                       backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
                       valueColor: AlwaysStoppedAnimation<Color>(
                         campaign.fundingPercent >= 100 ? AppColors.success : AppColors.primary,

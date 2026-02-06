@@ -250,7 +250,7 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary600.withOpacity(0.3),
+            color: AppColors.primary600.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -270,7 +270,7 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
               ),
               Expanded(
                 child: _SummaryStatItem(
@@ -282,7 +282,7 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
               ),
               Expanded(
                 child: _SummaryStatItem(
@@ -327,7 +327,7 @@ class _SummaryStatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white.withOpacity(0.9), size: 20),
+        Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 20),
         const SizedBox(height: 8),
         Text(
           value,
@@ -342,7 +342,7 @@ class _SummaryStatItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 11,
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
           ),
         ),
       ],
@@ -672,7 +672,7 @@ class _CreatorCampaignCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -713,7 +713,7 @@ class _CreatorCampaignCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -752,7 +752,7 @@ class _CreatorCampaignCard extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
-                        value: (campaign.fundingPercent / 100).clamp(0, 1),
+                        value: (campaign.fundingPercent / 100).clamp(0.0, 1.0),
                         backgroundColor: isDark
                             ? AppColors.surfaceAltDark
                             : AppColors.surfaceAlt,
@@ -826,7 +826,7 @@ class _CreatorCampaignCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.warning.withOpacity(0.15),
+                              color: AppColors.warning.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -903,27 +903,27 @@ class _CreatorCampaignCard extends StatelessWidget {
 
     switch (status) {
       case CampaignStatus.active:
-        bgColor = AppColors.success.withOpacity(0.9);
+        bgColor = AppColors.success.withValues(alpha: 0.9);
         textColor = Colors.white;
         label = '진행중';
         break;
       case CampaignStatus.draft:
-        bgColor = AppColors.warning.withOpacity(0.9);
+        bgColor = AppColors.warning.withValues(alpha: 0.9);
         textColor = Colors.white;
         label = '준비중';
         break;
       case CampaignStatus.paused:
-        bgColor = AppColors.warning.withOpacity(0.9);
+        bgColor = AppColors.warning.withValues(alpha: 0.9);
         textColor = Colors.white;
         label = '일시정지';
         break;
       case CampaignStatus.completed:
-        bgColor = Colors.grey.withOpacity(0.9);
+        bgColor = Colors.grey.withValues(alpha: 0.9);
         textColor = Colors.white;
         label = '종료';
         break;
       case CampaignStatus.cancelled:
-        bgColor = AppColors.danger.withOpacity(0.9);
+        bgColor = AppColors.danger.withValues(alpha: 0.9);
         textColor = Colors.white;
         label = '취소됨';
         break;
@@ -1198,7 +1198,7 @@ class _ExploreCampaignCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -1262,7 +1262,7 @@ class _ExploreCampaignCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: (campaign.fundingPercent / 100).clamp(0, 1),
+                      value: (campaign.fundingPercent / 100).clamp(0.0, 1.0),
                       backgroundColor: isDark
                           ? AppColors.surfaceAltDark
                           : AppColors.surfaceAlt,

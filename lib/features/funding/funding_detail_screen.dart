@@ -296,7 +296,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
-              value: (fundingPercent / 100).clamp(0, 1),
+              value: (fundingPercent / 100).clamp(0.0, 1.0),
               backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
               valueColor: AlwaysStoppedAnimation<Color>(
                 fundingPercent >= 100 ? AppColors.success : AppColors.primary,
@@ -393,7 +393,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
         border: Border.all(
           color: isDisabled
               ? (isDark ? AppColors.borderDark : AppColors.border)
-              : AppColors.primary.withOpacity(0.3),
+              : AppColors.primary.withValues(alpha: 0.3),
           width: isDisabled ? 1 : 2,
         ),
       ),

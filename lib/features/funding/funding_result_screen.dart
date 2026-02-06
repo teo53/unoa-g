@@ -42,8 +42,8 @@ class FundingResultScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: success
-                      ? AppColors.success.withOpacity(0.1)
-                      : AppColors.danger.withOpacity(0.1),
+                      ? AppColors.success.withValues(alpha: 0.1)
+                      : AppColors.danger.withValues(alpha: 0.1),
                 ),
                 child: Icon(
                   success
