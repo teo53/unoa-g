@@ -297,12 +297,20 @@ class _QuestionBanner extends ConsumerStatefulWidget {
 }
 
 class _QuestionBannerState extends ConsumerState<_QuestionBanner> {
+  bool _loadAttempted = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(dailyQuestionSetProvider(widget.channelId).notifier).load();
+      _loadQuestions();
     });
+  }
+
+  void _loadQuestions() {
+    if (!mounted) return;
+    _loadAttempted = true;
+    ref.read(dailyQuestionSetProvider(widget.channelId).notifier).load();
   }
 
   void _showQuestionSheet() {
@@ -314,7 +322,7 @@ class _QuestionBannerState extends ConsumerState<_QuestionBanner> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (_) => Padding(
         padding: const EdgeInsets.only(bottom: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -345,11 +353,93 @@ class _QuestionBannerState extends ConsumerState<_QuestionBanner> {
     final state = ref.watch(dailyQuestionSetProvider(widget.channelId));
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Hide banner for non-loaded states
-    if (state is DailyQuestionSetInitial ||
-        state is DailyQuestionSetLoading ||
-        state is DailyQuestionSetError) {
+    // Show loading indicator while loading
+    if (state is DailyQuestionSetLoading) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          border: Border(
+            bottom: BorderSide(
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary500.withValues(alpha: 0.5),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '오늘의 질문 불러오는 중...',
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Hide for initial state (before load is called)
+    if (state is DailyQuestionSetInitial) {
+      // If load hasn't been attempted yet, try again
+      if (!_loadAttempted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _loadQuestions();
+        });
+      }
       return const SizedBox.shrink();
+    }
+
+    // Error state - show retry banner
+    if (state is DailyQuestionSetError) {
+      return GestureDetector(
+        onTap: _loadQuestions,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+            border: Border(
+              bottom: BorderSide(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.how_to_vote_rounded,
+                size: 18,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '오늘의 질문 투표하기',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.refresh,
+                size: 16,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     // Get the set data
