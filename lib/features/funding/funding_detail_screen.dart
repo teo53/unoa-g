@@ -320,7 +320,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
               _buildStatItem(
                 isDark,
                 '모인 금액',
-                '${_formatNumber(campaign.currentAmountDt)} DT',
+                '${_formatNumber(campaign.currentAmountKrw)}원',
                 null,
               ),
               _buildStatDivider(isDark),
@@ -441,7 +441,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
               const SizedBox(height: 8),
 
               Text(
-                '${_formatNumber(tier.priceDt)} DT',
+                '${_formatNumber(tier.priceKrw)}원',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,

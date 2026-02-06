@@ -73,12 +73,14 @@ class Campaign {
   final String? category;
   final String? coverImageUrl;
   final CampaignStatus status;
-  final int goalAmountDt;
-  final int currentAmountDt;
+  final int goalAmountKrw;
+  final int currentAmountKrw;
   final double fundingPercent;
   final int backerCount;
   final DateTime? startAt;
   final DateTime? endAt;
+  final String? targetArtist;
+  final List<String> detailImages;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -91,19 +93,21 @@ class Campaign {
     this.category,
     this.coverImageUrl,
     this.status = CampaignStatus.draft,
-    this.goalAmountDt = 0,
-    this.currentAmountDt = 0,
+    this.goalAmountKrw = 0,
+    this.currentAmountKrw = 0,
     this.fundingPercent = 0,
     this.backerCount = 0,
     this.startAt,
     this.endAt,
+    this.targetArtist,
+    this.detailImages = const [],
     required this.createdAt,
     this.updatedAt,
   });
 
   factory Campaign.fromJson(Map<String, dynamic> json) {
-    final goalAmount = (json['goal_amount_dt'] as num?)?.toInt() ?? 0;
-    final currentAmount = (json['current_amount_dt'] as num?)?.toInt() ?? 0;
+    final goalAmount = (json['goal_amount_krw'] as num?)?.toInt() ?? 0;
+    final currentAmount = (json['current_amount_krw'] as num?)?.toInt() ?? 0;
     final percent = json['funding_percent'] != null
         ? (json['funding_percent'] as num).toDouble()
         : (goalAmount > 0 ? (currentAmount / goalAmount * 100) : 0.0);
@@ -117,12 +121,16 @@ class Campaign {
       category: json['category'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       status: CampaignStatus.fromString(json['status'] as String? ?? 'draft'),
-      goalAmountDt: goalAmount,
-      currentAmountDt: currentAmount,
+      goalAmountKrw: goalAmount,
+      currentAmountKrw: currentAmount,
       fundingPercent: percent,
       backerCount: (json['backer_count'] as num?)?.toInt() ?? 0,
       startAt: json['start_at'] != null ? DateTime.tryParse(json['start_at'] as String) : null,
       endAt: json['end_at'] != null ? DateTime.tryParse(json['end_at'] as String) : null,
+      targetArtist: json['target_artist'] as String?,
+      detailImages: json['detail_images'] != null
+          ? List<String>.from(json['detail_images'] as List)
+          : const [],
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
@@ -142,12 +150,14 @@ class Campaign {
       'category': category,
       'cover_image_url': coverImageUrl,
       'status': status.value,
-      'goal_amount_dt': goalAmountDt,
-      'current_amount_dt': currentAmountDt,
+      'goal_amount_krw': goalAmountKrw,
+      'current_amount_krw': currentAmountKrw,
       'funding_percent': fundingPercent,
       'backer_count': backerCount,
       'start_at': startAt?.toIso8601String(),
       'end_at': endAt?.toIso8601String(),
+      'target_artist': targetArtist,
+      'detail_images': detailImages,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
@@ -171,12 +181,14 @@ class Campaign {
     String? category,
     String? coverImageUrl,
     CampaignStatus? status,
-    int? goalAmountDt,
-    int? currentAmountDt,
+    int? goalAmountKrw,
+    int? currentAmountKrw,
     double? fundingPercent,
     int? backerCount,
     DateTime? startAt,
     DateTime? endAt,
+    String? targetArtist,
+    List<String>? detailImages,
   }) {
     return Campaign(
       id: id,
@@ -187,12 +199,14 @@ class Campaign {
       category: category ?? this.category,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       status: status ?? this.status,
-      goalAmountDt: goalAmountDt ?? this.goalAmountDt,
-      currentAmountDt: currentAmountDt ?? this.currentAmountDt,
+      goalAmountKrw: goalAmountKrw ?? this.goalAmountKrw,
+      currentAmountKrw: currentAmountKrw ?? this.currentAmountKrw,
       fundingPercent: fundingPercent ?? this.fundingPercent,
       backerCount: backerCount ?? this.backerCount,
       startAt: startAt ?? this.startAt,
       endAt: endAt ?? this.endAt,
+      targetArtist: targetArtist ?? this.targetArtist,
+      detailImages: detailImages ?? this.detailImages,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -205,7 +219,7 @@ class RewardTier {
   final String campaignId;
   final String title;
   final String? description;
-  final int priceDt;
+  final int priceKrw;
   final int? totalQuantity;
   final int? remainingQuantity;
   final int pledgeCount;
@@ -218,7 +232,7 @@ class RewardTier {
     required this.campaignId,
     required this.title,
     this.description,
-    required this.priceDt,
+    required this.priceKrw,
     this.totalQuantity,
     this.remainingQuantity,
     this.pledgeCount = 0,
@@ -233,7 +247,7 @@ class RewardTier {
       campaignId: json['campaign_id'] as String,
       title: json['title'] as String? ?? '리워드',
       description: json['description'] as String?,
-      priceDt: (json['price_dt'] as num?)?.toInt() ?? 0,
+      priceKrw: (json['price_krw'] as num?)?.toInt() ?? 0,
       totalQuantity: (json['total_quantity'] as num?)?.toInt(),
       remainingQuantity: (json['remaining_quantity'] as num?)?.toInt(),
       pledgeCount: (json['pledge_count'] as num?)?.toInt() ?? 0,
@@ -249,7 +263,7 @@ class RewardTier {
       'campaign_id': campaignId,
       'title': title,
       'description': description,
-      'price_dt': priceDt,
+      'price_krw': priceKrw,
       'total_quantity': totalQuantity,
       'remaining_quantity': remainingQuantity,
       'pledge_count': pledgeCount,
@@ -269,8 +283,10 @@ class Pledge {
   final String campaignId;
   final String userId;
   final String tierId;
-  final int amountDt;
-  final int extraSupportDt;
+  final String? tierTitle;
+  final String? campaignTitle;
+  final int amountKrw;
+  final int extraSupportKrw;
   final bool isAnonymous;
   final String? supportMessage;
   final String status;
@@ -281,15 +297,75 @@ class Pledge {
     required this.campaignId,
     required this.userId,
     required this.tierId,
-    required this.amountDt,
-    this.extraSupportDt = 0,
+    this.tierTitle,
+    this.campaignTitle,
+    required this.amountKrw,
+    this.extraSupportKrw = 0,
     this.isAnonymous = false,
     this.supportMessage,
     this.status = 'active',
     required this.createdAt,
   });
 
-  int get totalAmount => amountDt + extraSupportDt;
+  int get totalAmount => amountKrw + extraSupportKrw;
+}
+
+/// Backer model (for creator's backer list)
+class Backer {
+  final String id;
+  final String userId;
+  final String displayName;
+  final String? avatarUrl;
+  final String tierTitle;
+  final int amountKrw;
+  final bool isAnonymous;
+  final String? supportMessage;
+  final DateTime createdAt;
+
+  const Backer({
+    required this.id,
+    required this.userId,
+    required this.displayName,
+    this.avatarUrl,
+    required this.tierTitle,
+    required this.amountKrw,
+    this.isAnonymous = false,
+    this.supportMessage,
+    required this.createdAt,
+  });
+}
+
+/// Campaign stats model
+class CampaignStats {
+  final int totalBackers;
+  final int totalRaisedKrw;
+  final double fundingPercent;
+  final int daysLeft;
+  final int avgPledgeKrw;
+  final Map<String, int> tierDistribution;
+  final List<DailyFundingData> dailyData;
+
+  const CampaignStats({
+    required this.totalBackers,
+    required this.totalRaisedKrw,
+    required this.fundingPercent,
+    required this.daysLeft,
+    required this.avgPledgeKrw,
+    required this.tierDistribution,
+    required this.dailyData,
+  });
+}
+
+class DailyFundingData {
+  final DateTime date;
+  final int amount;
+  final int backerCount;
+
+  const DailyFundingData({
+    required this.date,
+    required this.amount,
+    required this.backerCount,
+  });
 }
 
 // ============================================================================
@@ -304,6 +380,7 @@ class FundingState {
   final int demoWalletBalance;
   final bool isLoading;
   final String? error;
+  final String searchQuery;
 
   const FundingState({
     this.allCampaigns = const [],
@@ -312,11 +389,22 @@ class FundingState {
     this.demoWalletBalance = 500000,
     this.isLoading = false,
     this.error,
+    this.searchQuery = '',
   });
+
+  /// Filter by search query
+  List<Campaign> _applySearch(List<Campaign> campaigns) {
+    if (searchQuery.isEmpty) return campaigns;
+    final q = searchQuery.toLowerCase();
+    return campaigns.where((c) =>
+        c.title.toLowerCase().contains(q) ||
+        (c.subtitle?.toLowerCase().contains(q) ?? false) ||
+        (c.category?.toLowerCase().contains(q) ?? false)).toList();
+  }
 
   /// Explore campaigns (all active, not mine)
   List<Campaign> get exploreCampaigns =>
-      allCampaigns.where((c) => c.status == CampaignStatus.active).toList();
+      _applySearch(allCampaigns.where((c) => c.status == CampaignStatus.active).toList());
 
   /// My active campaigns (includes paused - they show in 진행중 tab)
   List<Campaign> get myActiveCampaigns =>
@@ -356,8 +444,8 @@ class FundingState {
   int get totalActiveCampaigns => myActiveCampaigns.length;
   int get totalBackers =>
       myCampaigns.fold(0, (sum, c) => sum + c.backerCount);
-  int get totalRaisedDt =>
-      myCampaigns.fold(0, (sum, c) => sum + c.currentAmountDt);
+  int get totalRaisedKrw =>
+      myCampaigns.fold(0, (sum, c) => sum + c.currentAmountKrw);
 
   FundingState copyWith({
     List<Campaign>? allCampaigns,
@@ -366,6 +454,7 @@ class FundingState {
     int? demoWalletBalance,
     bool? isLoading,
     String? error,
+    String? searchQuery,
   }) {
     return FundingState(
       allCampaigns: allCampaigns ?? this.allCampaigns,
@@ -374,6 +463,7 @@ class FundingState {
       demoWalletBalance: demoWalletBalance ?? this.demoWalletBalance,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 }
@@ -438,8 +528,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: '앨범',
         coverImageUrl: 'https://picsum.photos/seed/funding1/800/450',
         status: CampaignStatus.active,
-        goalAmountDt: 50000000,
-        currentAmountDt: 42350000,
+        goalAmountKrw: 50000000,
+        currentAmountKrw: 42350000,
         fundingPercent: 84.7,
         backerCount: 1523,
         endAt: now.add(const Duration(days: 12)),
@@ -468,8 +558,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: '팬미팅',
         coverImageUrl: 'https://picsum.photos/seed/funding2/800/450',
         status: CampaignStatus.active,
-        goalAmountDt: 30000000,
-        currentAmountDt: 38500000,
+        goalAmountKrw: 30000000,
+        currentAmountKrw: 38500000,
         fundingPercent: 128.3,
         backerCount: 2891,
         endAt: now.add(const Duration(days: 2)),
@@ -494,8 +584,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: '화보집',
         coverImageUrl: 'https://picsum.photos/seed/funding3/800/450',
         status: CampaignStatus.active,
-        goalAmountDt: 20000000,
-        currentAmountDt: 15200000,
+        goalAmountKrw: 20000000,
+        currentAmountKrw: 15200000,
         fundingPercent: 76.0,
         backerCount: 847,
         endAt: now.add(const Duration(days: 25)),
@@ -519,8 +609,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: '굿즈',
         coverImageUrl: 'https://picsum.photos/seed/funding4/800/450',
         status: CampaignStatus.active,
-        goalAmountDt: 100000000,
-        currentAmountDt: 89000000,
+        goalAmountKrw: 100000000,
+        currentAmountKrw: 89000000,
         fundingPercent: 89.0,
         backerCount: 4521,
         endAt: now.add(const Duration(days: 7)),
@@ -545,8 +635,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: '서포트',
         coverImageUrl: 'https://picsum.photos/seed/funding5/800/450',
         status: CampaignStatus.active,
-        goalAmountDt: 10000000,
-        currentAmountDt: 12500000,
+        goalAmountKrw: 10000000,
+        currentAmountKrw: 12500000,
         fundingPercent: 125.0,
         backerCount: 632,
         endAt: now.add(const Duration(days: 1)),
@@ -564,8 +654,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: '앨범',
         coverImageUrl: 'https://picsum.photos/seed/mycampaign1/800/450',
         status: CampaignStatus.active,
-        goalAmountDt: 30000000,
-        currentAmountDt: 18500000,
+        goalAmountKrw: 30000000,
+        currentAmountKrw: 18500000,
         fundingPercent: 61.7,
         backerCount: 892,
         endAt: now.add(const Duration(days: 15)),
@@ -578,7 +668,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
         subtitle: '',
         category: '굿즈',
         status: CampaignStatus.draft,
-        goalAmountDt: 0,
+        goalAmountKrw: 0,
         createdAt: now.subtract(const Duration(days: 2)),
       ),
       Campaign(
@@ -590,8 +680,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: '팬미팅',
         coverImageUrl: 'https://picsum.photos/seed/mycampaignended/800/450',
         status: CampaignStatus.completed,
-        goalAmountDt: 25000000,
-        currentAmountDt: 32000000,
+        goalAmountKrw: 25000000,
+        currentAmountKrw: 32000000,
         fundingPercent: 128.0,
         backerCount: 1245,
         endAt: now.subtract(const Duration(days: 10)),
@@ -660,7 +750,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
         campaignId: campaignId,
         title: '응원 참여',
         description: '펀딩 참여 인증서 (디지털)\n감사 메시지 (카카오톡)',
-        priceDt: 5000,
+        priceKrw: 5000,
         pledgeCount: 423,
         displayOrder: 1,
       ),
@@ -669,7 +759,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
         campaignId: campaignId,
         title: '기본 리워드',
         description: '응원 참여 포함\n디지털 포토카드 5장\n팬명 크레딧 등재',
-        priceDt: 15000,
+        priceKrw: 15000,
         totalQuantity: 1000,
         remainingQuantity: 347,
         pledgeCount: 653,
@@ -681,7 +771,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
         campaignId: campaignId,
         title: '스페셜 리워드',
         description: '기본 리워드 포함\n실물 포토카드 세트\n사인 폴라로이드 1장 (랜덤)\n한정판 포스터',
-        priceDt: 50000,
+        priceKrw: 50000,
         totalQuantity: 300,
         remainingQuantity: 89,
         pledgeCount: 211,
@@ -692,7 +782,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
         campaignId: campaignId,
         title: 'VIP 리워드',
         description: '스페셜 리워드 포함\n영상 통화 팬사인회 참여권\n친필 사인 앨범\n프리미엄 굿즈 세트',
-        priceDt: 150000,
+        priceKrw: 150000,
         totalQuantity: 50,
         remainingQuantity: 0,
         pledgeCount: 50,
@@ -721,9 +811,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
     String? description,
     String? category,
     String? coverImageUrl,
-    int goalAmountDt = 0,
+    int goalAmountKrw = 0,
     DateTime? startAt,
     DateTime? endAt,
+    String? targetArtist,
+    List<String>? detailImages,
   }) async {
     final isDemoMode = _ref.read(isDemoModeProvider);
 
@@ -737,9 +829,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
         category: category,
         coverImageUrl: coverImageUrl,
         status: CampaignStatus.draft,
-        goalAmountDt: goalAmountDt,
+        goalAmountKrw: goalAmountKrw,
         startAt: startAt,
         endAt: endAt,
+        targetArtist: targetArtist,
+        detailImages: detailImages ?? const [],
         createdAt: DateTime.now(),
       );
 
@@ -763,9 +857,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
       'category': category,
       'cover_image_url': coverImageUrl,
       'status': 'draft',
-      'goal_amount_dt': goalAmountDt,
+      'goal_amount_krw': goalAmountKrw,
       'start_at': startAt?.toIso8601String(),
       'end_at': endAt?.toIso8601String(),
+      'target_artist': targetArtist,
+      'detail_images': detailImages,
     }).select().single();
 
     final newCampaign = Campaign.fromJson(response);
@@ -782,9 +878,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
     String? description,
     String? category,
     String? coverImageUrl,
-    int? goalAmountDt,
+    int? goalAmountKrw,
     DateTime? startAt,
     DateTime? endAt,
+    String? targetArtist,
+    List<String>? detailImages,
   }) async {
     final isDemoMode = _ref.read(isDemoModeProvider);
 
@@ -797,9 +895,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
             description: description,
             category: category,
             coverImageUrl: coverImageUrl,
-            goalAmountDt: goalAmountDt,
+            goalAmountKrw: goalAmountKrw,
             startAt: startAt,
             endAt: endAt,
+            targetArtist: targetArtist,
+            detailImages: detailImages,
           );
         }
         return c;
@@ -819,9 +919,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
     if (description != null) updates['description_md'] = description;
     if (category != null) updates['category'] = category;
     if (coverImageUrl != null) updates['cover_image_url'] = coverImageUrl;
-    if (goalAmountDt != null) updates['goal_amount_dt'] = goalAmountDt;
+    if (goalAmountKrw != null) updates['goal_amount_krw'] = goalAmountKrw;
     if (startAt != null) updates['start_at'] = startAt.toIso8601String();
     if (endAt != null) updates['end_at'] = endAt.toIso8601String();
+    if (targetArtist != null) updates['target_artist'] = targetArtist;
+    if (detailImages != null) updates['detail_images'] = detailImages;
 
     await client.from('funding_campaigns')
         .update(updates)
@@ -913,27 +1015,33 @@ class FundingNotifier extends StateNotifier<FundingState> {
   Future<Pledge> submitPledge({
     required String campaignId,
     required String tierId,
-    required int amountDt,
-    int extraSupportDt = 0,
+    required int amountKrw,
+    int extraSupportKrw = 0,
     bool isAnonymous = false,
     String? supportMessage,
   }) async {
     final isDemoMode = _ref.read(isDemoModeProvider);
-    final totalAmount = amountDt + extraSupportDt;
+    final totalAmount = amountKrw + extraSupportKrw;
 
     if (isDemoMode) {
       // Check wallet balance
       if (state.demoWalletBalance < totalAmount) {
-        throw Exception('DT 잔액이 부족합니다');
+        throw Exception('잔액이 부족합니다');
       }
+
+      final campaign = getCampaignById(campaignId);
+      final tiers = getTiersForCampaign(campaignId);
+      final tier = tiers.where((t) => t.id == tierId).firstOrNull;
 
       final pledge = Pledge(
         id: 'demo_pledge_${DateTime.now().millisecondsSinceEpoch}',
         campaignId: campaignId,
         userId: 'demo_user_001',
         tierId: tierId,
-        amountDt: amountDt,
-        extraSupportDt: extraSupportDt,
+        tierTitle: tier?.title,
+        campaignTitle: campaign?.title,
+        amountKrw: amountKrw,
+        extraSupportKrw: extraSupportKrw,
         isAnonymous: isAnonymous,
         supportMessage: supportMessage,
         createdAt: DateTime.now(),
@@ -942,12 +1050,12 @@ class FundingNotifier extends StateNotifier<FundingState> {
       // Update campaign stats
       final updatedAll = state.allCampaigns.map((c) {
         if (c.id == campaignId) {
-          final newAmount = c.currentAmountDt + totalAmount;
-          final newPercent = c.goalAmountDt > 0
-              ? (newAmount / c.goalAmountDt * 100)
+          final newAmount = c.currentAmountKrw + totalAmount;
+          final newPercent = c.goalAmountKrw > 0
+              ? (newAmount / c.goalAmountKrw * 100)
               : 0.0;
           return c.copyWith(
-            currentAmountDt: newAmount,
+            currentAmountKrw: newAmount,
             fundingPercent: newPercent,
             backerCount: c.backerCount + 1,
           );
@@ -971,8 +1079,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
       body: {
         'campaignId': campaignId,
         'tierId': tierId,
-        'amountDt': amountDt,
-        'extraSupportDt': extraSupportDt,
+        'amountKrw': amountKrw,
+        'extraSupportKrw': extraSupportKrw,
         'isAnonymous': isAnonymous,
         'supportMessage': supportMessage,
       },
@@ -988,8 +1096,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
       campaignId: campaignId,
       userId: client.auth.currentUser?.id ?? '',
       tierId: tierId,
-      amountDt: amountDt,
-      extraSupportDt: extraSupportDt,
+      amountKrw: amountKrw,
+      extraSupportKrw: extraSupportKrw,
       isAnonymous: isAnonymous,
       supportMessage: supportMessage,
       createdAt: DateTime.now(),
@@ -1007,9 +1115,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
     String? description,
     String? category,
     String? coverImageUrl,
-    int goalAmountDt = 0,
+    int goalAmountKrw = 0,
     DateTime? startAt,
     DateTime? endAt,
+    String? targetArtist,
+    List<String>? detailImages,
   }) async {
     if (existingCampaignId != null) {
       await updateCampaign(
@@ -1019,9 +1129,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
         description: description,
         category: category,
         coverImageUrl: coverImageUrl,
-        goalAmountDt: goalAmountDt,
+        goalAmountKrw: goalAmountKrw,
         startAt: startAt,
         endAt: endAt,
+        targetArtist: targetArtist,
+        detailImages: detailImages,
       );
       return getCampaignById(existingCampaignId)!;
     }
@@ -1032,9 +1144,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
       description: description,
       category: category,
       coverImageUrl: coverImageUrl,
-      goalAmountDt: goalAmountDt,
+      goalAmountKrw: goalAmountKrw,
       startAt: startAt,
       endAt: endAt,
+      targetArtist: targetArtist,
+      detailImages: detailImages,
     );
   }
 
@@ -1046,9 +1160,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
     String? description,
     String? category,
     String? coverImageUrl,
-    required int goalAmountDt,
+    required int goalAmountKrw,
     DateTime? startAt,
     required DateTime endAt,
+    String? targetArtist,
+    List<String>? detailImages,
   }) async {
     final isDemoMode = _ref.read(isDemoModeProvider);
 
@@ -1060,13 +1176,14 @@ class FundingNotifier extends StateNotifier<FundingState> {
         description: description,
         category: category,
         coverImageUrl: coverImageUrl,
-        goalAmountDt: goalAmountDt,
+        goalAmountKrw: goalAmountKrw,
         startAt: startAt,
         endAt: endAt,
+        targetArtist: targetArtist,
+        detailImages: detailImages,
       );
 
       if (isDemoMode) {
-        // In demo, directly activate
         await startCampaign(existingCampaignId);
       }
     } else {
@@ -1076,15 +1193,114 @@ class FundingNotifier extends StateNotifier<FundingState> {
         description: description,
         category: category,
         coverImageUrl: coverImageUrl,
-        goalAmountDt: goalAmountDt,
+        goalAmountKrw: goalAmountKrw,
         startAt: startAt,
         endAt: endAt,
+        targetArtist: targetArtist,
+        detailImages: detailImages,
       );
 
       if (isDemoMode) {
         await startCampaign(campaign.id);
       }
     }
+  }
+
+  /// Search campaigns
+  void setSearchQuery(String query) {
+    state = state.copyWith(searchQuery: query);
+  }
+
+  /// Get backers for a campaign (demo)
+  List<Backer> getBackersForCampaign(String campaignId) {
+    final campaign = getCampaignById(campaignId);
+    if (campaign == null) return [];
+
+    final now = DateTime.now();
+    final demoNames = [
+      '하늘별', '달빛소녀', '봄바람', '꿈나래', '은하수',
+      '민트초코', '해바라기', '별빛가루', '달콤이', '뮤직러버',
+      '핑크빛', '코코넛밀크', '블루오션', '스타라이트', '체리블라썸',
+    ];
+    final tiers = getTiersForCampaign(campaignId);
+    final messages = [
+      '항상 응원합니다! 💕',
+      '최고의 아티스트! 화이팅!',
+      '데뷔 때부터 팬이에요 🥰',
+      null,
+      '사랑해요! 꼭 성공하길 바랍니다',
+      null,
+      '팬미팅에서 만나요! ❤️',
+      '앨범 너무 기대돼요!',
+      null,
+      '항상 행복하세요 🌸',
+    ];
+
+    final count = campaign.backerCount.clamp(0, 15);
+    return List.generate(count, (i) {
+      final tier = tiers[i % tiers.length];
+      final isAnon = i % 7 == 3;
+      return Backer(
+        id: '${campaignId}_backer_$i',
+        userId: 'user_$i',
+        displayName: isAnon ? '익명' : demoNames[i % demoNames.length],
+        tierTitle: tier.title,
+        amountKrw: tier.priceKrw + (i % 3 == 0 ? 5000 : 0),
+        isAnonymous: isAnon,
+        supportMessage: messages[i % messages.length],
+        createdAt: now.subtract(Duration(days: i, hours: i * 3)),
+      );
+    });
+  }
+
+  /// Get stats for a campaign
+  CampaignStats getStatsForCampaign(String campaignId) {
+    final campaign = getCampaignById(campaignId);
+    if (campaign == null) {
+      return const CampaignStats(
+        totalBackers: 0, totalRaisedKrw: 0, fundingPercent: 0,
+        daysLeft: 0, avgPledgeKrw: 0, tierDistribution: {},
+        dailyData: [],
+      );
+    }
+
+    final tiers = getTiersForCampaign(campaignId);
+    final tierDist = <String, int>{};
+    for (final tier in tiers) {
+      tierDist[tier.title] = tier.pledgeCount;
+    }
+
+    final now = DateTime.now();
+    final totalDays = campaign.startAt != null
+        ? now.difference(campaign.startAt!).inDays.clamp(1, 30)
+        : 14;
+    final dailyAvg = campaign.backerCount > 0
+        ? campaign.currentAmountKrw ~/ totalDays
+        : 0;
+
+    final dailyData = List.generate(totalDays.clamp(1, 14), (i) {
+      final day = now.subtract(Duration(days: totalDays - 1 - i));
+      final variance = (i * 17 + 7) % 11 - 5; // pseudo-random variance
+      final amount = (dailyAvg + dailyAvg * variance ~/ 10).clamp(0, dailyAvg * 3);
+      final backers = (campaign.backerCount ~/ totalDays + variance).clamp(1, 100);
+      return DailyFundingData(
+        date: day,
+        amount: amount,
+        backerCount: backers,
+      );
+    });
+
+    return CampaignStats(
+      totalBackers: campaign.backerCount,
+      totalRaisedKrw: campaign.currentAmountKrw,
+      fundingPercent: campaign.fundingPercent,
+      daysLeft: campaign.daysLeft,
+      avgPledgeKrw: campaign.backerCount > 0
+          ? campaign.currentAmountKrw ~/ campaign.backerCount
+          : 0,
+      tierDistribution: tierDist,
+      dailyData: dailyData,
+    );
   }
 
   /// Refresh data
@@ -1151,6 +1367,11 @@ final myEndedCampaignsProvider = Provider<List<Campaign>>((ref) {
 /// Demo wallet balance
 final demoWalletBalanceProvider = Provider<int>((ref) {
   return ref.watch(fundingProvider).demoWalletBalance;
+});
+
+/// My pledges
+final myPledgesProvider = Provider<List<Pledge>>((ref) {
+  return ref.watch(fundingProvider).myPledges;
 });
 
 /// Funding loading state

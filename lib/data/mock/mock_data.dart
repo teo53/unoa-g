@@ -348,7 +348,7 @@ class MockData {
     },
   ];
 
-  // Feed Posts
+  // Feed Posts (legacy - kept for backward compatibility)
   static const feeds = [
     {
       'content': '오늘 녹음 끝났어요! 새 앨범 기대해주세요. 팬 여러분 덕분에 힘이 납니다.',
@@ -370,6 +370,91 @@ class MockData {
       'time': '2일 전',
       'likes': 12567,
       'comments': 1203,
+    },
+  ];
+
+  // Tab-specific Feed Posts for Artist Profile
+  // 하이라이트 탭 - 인기/추천 게시물
+  static const highlightFeeds = [
+    {
+      'content': '오늘 녹음 끝났어요! 새 앨범 기대해주세요. 팬 여러분 덕분에 힘이 납니다. 💿✨',
+      'imageUrl': AssetPaths.highlightDaily,
+      'time': '2시간 전',
+      'likes': 15234,
+      'comments': 892,
+      'isPinned': true,
+    },
+    {
+      'content': '콘서트 연습 중이에요. 이번에도 멋진 무대 보여드릴게요! 🎤🔥',
+      'imageUrl': null,
+      'time': '어제',
+      'likes': 8421,
+      'comments': 456,
+      'isPinned': false,
+    },
+    {
+      'content': '여러분 맛있는 저녁 드셨나요? 저는 오늘 삼겹살 먹었어요. 다이어트는 내일부터... 🥩😋',
+      'imageUrl': null,
+      'time': '2일 전',
+      'likes': 12567,
+      'comments': 1203,
+      'isPinned': false,
+    },
+  ];
+
+  // 공지사항 탭 - 공식 공지/일정
+  static const announcementFeeds = [
+    {
+      'content': '📢 [공지] 2월 팬미팅 일정 안내\n\n일시: 2월 15일 (토) 오후 3시\n장소: 서울 올림픽공원 핸드볼경기장\n\n티켓 오픈: 2월 1일 오후 8시\n자세한 내용은 공식 카페를 확인해주세요!',
+      'imageUrl': null,
+      'time': '1시간 전',
+      'likes': 23456,
+      'comments': 1892,
+      'isOfficial': true,
+    },
+    {
+      'content': '📢 [공지] 새 앨범 "Starlight" 발매일 확정!\n\n발매일: 2월 20일\n타이틀곡: "빛나는 밤"\n\n선주문 링크는 내일 오후 6시에 공개됩니다. 많은 관심 부탁드려요! 💫',
+      'imageUrl': null,
+      'time': '3일 전',
+      'likes': 31200,
+      'comments': 2456,
+      'isOfficial': true,
+    },
+    {
+      'content': '📢 [공지] 공식 팬카페 이전 안내\n\n기존 팬카페에서 UNO A 플랫폼으로 공식 커뮤니티를 이전합니다.\n이전 완료일: 2월 28일\n\n더 가까이서 소통해요! 🤗',
+      'imageUrl': null,
+      'time': '1주 전',
+      'likes': 18700,
+      'comments': 980,
+      'isOfficial': true,
+    },
+  ];
+
+  // 오타 레터 탭 - 개인적인 편지/일기 형식
+  static const otaLetterFeeds = [
+    {
+      'content': '오늘 하루도 수고했어요 💌\n\n요즘 날씨가 많이 추워졌는데, 다들 따뜻하게 입고 다니고 있죠? 저는 오늘 스튜디오에서 하루 종일 작업했는데, 여러분 생각하면서 열심히 했어요.\n\n내일은 더 좋은 소식 들고 올게요. 잘 자요 🌙',
+      'imageUrl': null,
+      'time': '30분 전',
+      'likes': 9876,
+      'comments': 543,
+      'isLetter': true,
+    },
+    {
+      'content': '팬 여러분에게 보내는 편지 ✉️\n\n데뷔 1주년이 다가오고 있어요. 작년 이맘때쯤 정말 떨리는 마음으로 첫 무대에 섰던 게 엊그제 같은데...\n\n항상 응원해주셔서 정말 감사합니다. 여러분이 있어서 제가 이 자리에 있을 수 있어요. 앞으로도 잘 부탁해요! 🥰',
+      'imageUrl': null,
+      'time': '1일 전',
+      'likes': 21345,
+      'comments': 1876,
+      'isLetter': true,
+    },
+    {
+      'content': '비 오는 날의 일기 🌧️\n\n오늘 비가 와서 창밖을 바라보다가 가사가 떠올랐어요. 빗소리를 배경음악 삼아 멜로디를 만들어봤는데... 나중에 들려드릴게요!\n\n여러분은 비 오는 날 뭐 하세요? 궁금해요 😊',
+      'imageUrl': null,
+      'time': '4일 전',
+      'likes': 14532,
+      'comments': 2103,
+      'isLetter': true,
     },
   ];
 

@@ -15,6 +15,8 @@ class FundingScreen extends ConsumerStatefulWidget {
 class _FundingScreenState extends ConsumerState<FundingScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isSearching = false;
+  final _searchController = TextEditingController();
 
   final List<String> _tabs = ['진행중', '마감임박', '인기', '신규'];
 
@@ -27,6 +29,7 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -61,28 +64,102 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
   Widget _buildHeader(bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        children: [
-          Text(
-            '펀딩',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textDark : AppColors.text,
+      child: _isSearching
+          ? Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search_rounded,
+                          size: 20,
+                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            autofocus: true,
+                            decoration: InputDecoration(
+                              hintText: '펀딩 검색...',
+                              hintStyle: TextStyle(
+                                fontSize: 15,
+                                color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isDark ? AppColors.textDark : AppColors.text,
+                            ),
+                            onChanged: (value) {
+                              ref.read(fundingProvider.notifier).setSearchQuery(value);
+                            },
+                          ),
+                        ),
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              ref.read(fundingProvider.notifier).setSearchQuery('');
+                            },
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _isSearching = false);
+                    _searchController.clear();
+                    ref.read(fundingProvider.notifier).setSearchQuery('');
+                  },
+                  child: Text(
+                    '취소',
+                    style: TextStyle(
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Text(
+                  '펀딩',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.textDark : AppColors.text,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    Icons.search_rounded,
+                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                  ),
+                  onPressed: () {
+                    setState(() => _isSearching = true);
+                  },
+                ),
+              ],
             ),
-          ),
-          const Spacer(),
-          IconButton(
-            icon: Icon(
-              Icons.search_rounded,
-              color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-            ),
-            onPressed: () {
-              // TODO: Implement search
-            },
-          ),
-        ],
-      ),
     );
   }
 
@@ -311,7 +388,7 @@ class _CampaignCard extends StatelessWidget {
 
                       // Amount
                       Text(
-                        '${_formatNumber(campaign.currentAmountDt)} DT',
+                        '${_formatNumber(campaign.currentAmountKrw)}원',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

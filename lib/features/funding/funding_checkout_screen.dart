@@ -29,7 +29,7 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
   bool _agreeTerms = false;
   bool _isLoading = false;
 
-  int get _totalAmount => (widget.tier['price_dt'] as int? ?? 0) + widget.extraSupport;
+  int get _totalAmount => (widget.tier['price_krw'] as int? ?? 0) + widget.extraSupport;
 
   @override
   void dispose() {
@@ -56,7 +56,7 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
     final balance = _walletBalance;
     if (balance != null && balance < _totalAmount) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('DT 잔액이 부족합니다')),
+        const SnackBar(content: Text('잔액이 부족합니다')),
       );
       return;
     }
@@ -67,8 +67,8 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
       final pledge = await ref.read(fundingProvider.notifier).submitPledge(
         campaignId: widget.campaign['id'] as String,
         tierId: widget.tier['id'] as String,
-        amountDt: widget.tier['price_dt'] as int? ?? 0,
-        extraSupportDt: widget.extraSupport,
+        amountKrw: widget.tier['price_krw'] as int? ?? 0,
+        extraSupportKrw: widget.extraSupport,
         isAnonymous: _isAnonymous,
         supportMessage: _messageController.text.isNotEmpty
             ? _messageController.text
@@ -97,7 +97,7 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
 
       String errorMessage = '후원 중 오류가 발생했습니다';
       if (e.toString().contains('잔액')) {
-        errorMessage = 'DT 잔액이 부족합니다';
+        errorMessage = '잔액이 부족합니다';
       } else if (e.toString().contains('품절') || e.toString().contains('sold out')) {
         errorMessage = '선택한 리워드가 품절되었습니다';
       }
@@ -162,21 +162,21 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
                       _buildSummaryRow(
                         isDark,
                         widget.tier['title'] ?? '리워드',
-                        '${_formatNumber(widget.tier['price_dt'] ?? 0)} DT',
+                        '${_formatNumber(widget.tier['price_krw'] ?? 0)}원',
                       ),
                       if (widget.extraSupport > 0) ...[
                         const SizedBox(height: 8),
                         _buildSummaryRow(
                           isDark,
                           '추가 후원',
-                          '+${_formatNumber(widget.extraSupport)} DT',
+                          '+${_formatNumber(widget.extraSupport)}원',
                         ),
                       ],
                       const Divider(height: 24),
                       _buildSummaryRow(
                         isDark,
                         '총 후원금액',
-                        '${_formatNumber(_totalAmount)} DT',
+                        '${_formatNumber(_totalAmount)}원',
                         isBold: true,
                         valueColor: AppColors.primary,
                       ),
@@ -203,7 +203,7 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'DT 지갑',
+                              '내 지갑',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
@@ -211,7 +211,7 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
                               ),
                             ),
                             Text(
-                              '잔액: ${_formatNumber(displayBalance)} DT',
+                              '잔액: ${_formatNumber(displayBalance)}원',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: hasInsufficientBalance
@@ -228,7 +228,7 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
                         TextButton(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('DT 충전 페이지로 이동합니다 (데모)')),
+                              const SnackBar(content: Text('충전 페이지로 이동합니다 (데모)')),
                             );
                           },
                           child: const Text('충전하기'),
@@ -433,8 +433,8 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
                       )
                     : Text(
                         hasInsufficientBalance
-                            ? 'DT 잔액 부족'
-                            : '${_formatNumber(_totalAmount)} DT 후원하기',
+                            ? '잔액 부족'
+                            : '${_formatNumber(_totalAmount)}원 후원하기',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

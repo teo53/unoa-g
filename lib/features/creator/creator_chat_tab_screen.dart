@@ -59,6 +59,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         fanTier: 'VIP',
         isFromCreator: false,
         timestamp: now.subtract(const Duration(hours: 2)),
+        reactions: {'❤️': ['creator'], '👍': ['fan_2', 'fan_3']},
       ),
       _GroupChatMessage(
         id: '2',
@@ -79,6 +80,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         timestamp: now.subtract(const Duration(hours: 1, minutes: 30)),
         readCount: 1087,
         totalSubscribers: 1250,
+        reactions: {'❤️': ['fan_1', 'fan_2', 'fan_3'], '🎉': ['fan_1']},
       ),
       _GroupChatMessage(
         id: '4',
@@ -331,15 +333,13 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF2A2A2A)
-                        : const Color(0xFFF0F0F0),
+                    color: reaction.color.withValues(alpha: isDark ? 0.2 : 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     reaction.icon,
                     size: 22,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    color: reaction.color,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -359,6 +359,33 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   }
 
   void _handleReaction(String messageId, String emoji) {
+    setState(() {
+      final messageIndex = _messages.indexWhere((m) => m.id == messageId);
+      if (messageIndex == -1) return;
+
+      final message = _messages[messageIndex];
+      final reactions = Map<String, List<String>>.from(
+        message.reactions ?? {},
+      );
+
+      const userId = 'creator';
+      final users = List<String>.from(reactions[emoji] ?? []);
+
+      if (users.contains(userId)) {
+        users.remove(userId);
+        if (users.isEmpty) {
+          reactions.remove(emoji);
+        } else {
+          reactions[emoji] = users;
+        }
+      } else {
+        users.add(userId);
+        reactions[emoji] = users;
+      }
+
+      message.reactions = reactions.isEmpty ? null : reactions;
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$emoji 반응을 보냈습니다'),
@@ -1158,6 +1185,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                                     message,
                                     isDark,
                                   ),
+                          onReaction: (emoji) => _handleReaction(message.id, emoji),
                         ),
                       ],
                     );
@@ -1570,6 +1598,7 @@ class _GroupChatBubble extends StatelessWidget {
   final bool isHearted;
   final VoidCallback onHeartTap;
   final VoidCallback? onLongPress;
+  final Function(String emoji)? onReaction;
 
   const _GroupChatBubble({
     required this.message,
@@ -1577,6 +1606,7 @@ class _GroupChatBubble extends StatelessWidget {
     required this.isHearted,
     required this.onHeartTap,
     this.onLongPress,
+    this.onReaction,
   });
 
   @override
@@ -1756,6 +1786,16 @@ class _GroupChatBubble extends StatelessWidget {
                     ),
                   ],
                 ),
+
+                // Reactions bar
+                if (message.reactions != null && message.reactions!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: MessageReactionsBar(
+                      reactions: message.reactions,
+                      onTapReaction: onReaction,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -1776,7 +1816,10 @@ class _GroupChatBubble extends StatelessWidget {
       onLongPress: onLongPress,
       child: Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -1979,6 +2022,18 @@ class _GroupChatBubble extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+
+      // Reactions bar (creator bubble)
+      if (message.reactions != null && message.reactions!.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 4, right: 8),
+          child: MessageReactionsBar(
+            reactions: message.reactions,
+            onTapReaction: onReaction,
+          ),
+        ),
         ],
       ),
     ),
@@ -2253,6 +2308,7 @@ class _GroupChatMessage {
   final String? replyToFanName; // 답장 대상 팬 이름
   final String? replyToContent; // 원본 메시지 내용
   final bool isEdited; // 수정 여부
+  Map<String, List<String>>? reactions; // emoji → [userId, ...]
 
   _GroupChatMessage({
     required this.id,
@@ -2270,6 +2326,7 @@ class _GroupChatMessage {
     this.replyToFanName,
     this.replyToContent,
     this.isEdited = false,
+    this.reactions,
   });
 }
 

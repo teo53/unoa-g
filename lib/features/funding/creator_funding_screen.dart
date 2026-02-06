@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
+import 'campaign_backers_screen.dart';
+import 'campaign_stats_screen.dart';
 import 'create_campaign_screen.dart';
 import 'funding_detail_screen.dart';
 
@@ -288,7 +290,7 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
                 child: _SummaryStatItem(
                   icon: Icons.savings_rounded,
                   label: '총 모금액',
-                  value: _formatCompactNumber(fundingState.totalRaisedDt),
+                  value: _formatCompactNumber(fundingState.totalRaisedKrw),
                 ),
               ),
             ],
@@ -537,8 +539,13 @@ class _CreatorCampaignList extends ConsumerWidget {
               title: const Text('통계 보기'),
               onTap: () {
                 Navigator.pop(sheetContext);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('통계 기능은 준비 중입니다')),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CampaignStatsScreen(
+                      campaignId: campaign.id,
+                    ),
+                  ),
                 );
               },
             ),
@@ -547,8 +554,13 @@ class _CreatorCampaignList extends ConsumerWidget {
               title: const Text('후원자 목록'),
               onTap: () {
                 Navigator.pop(sheetContext);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('후원자 목록 기능은 준비 중입니다')),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CampaignBackersScreen(
+                      campaignId: campaign.id,
+                    ),
+                  ),
                 );
               },
             ),
@@ -1010,8 +1022,8 @@ class _ExploreCampaignsTabState extends ConsumerState<_ExploreCampaignsTab>
                       ),
                       border: InputBorder.none,
                     ),
-                    onSubmitted: (value) {
-                      // TODO: Implement search
+                    onChanged: (value) {
+                      ref.read(fundingProvider.notifier).setSearchQuery(value);
                     },
                   ),
                 ),
@@ -1296,7 +1308,7 @@ class _ExploreCampaignCard extends StatelessWidget {
 
                       // Amount
                       Text(
-                        '${_formatNumber(campaign.currentAmountDt)} DT',
+                        '${_formatNumber(campaign.currentAmountKrw)}원',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

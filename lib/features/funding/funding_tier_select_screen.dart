@@ -33,7 +33,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
   int get _totalAmount {
     final tier = _selectedTier;
     if (tier == null) return _extraSupport;
-    return (tier['price_dt'] as int? ?? 0) + _extraSupport;
+    return (tier['price_krw'] as int? ?? 0) + _extraSupport;
   }
 
   @override
@@ -180,7 +180,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${_formatNumber(tier['price_dt'] ?? 0)} DT',
+                                    '${_formatNumber(tier['price_krw'] ?? 0)}원',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -270,7 +270,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                           ),
                         ),
                         child: Text(
-                          amount == 0 ? '없음' : '+$amount DT',
+                          amount == 0 ? '없음' : '+$amount원',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -317,7 +317,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                       ),
                     ),
                     Text(
-                      '${_formatNumber(_totalAmount)} DT',
+                      '${_formatNumber(_totalAmount)}원',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

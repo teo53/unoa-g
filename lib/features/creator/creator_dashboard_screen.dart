@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../data/repositories/mock_chat_repository.dart';
 import '../../shared/widgets/skeleton_loader.dart';
+import 'widgets/todays_voted_question_section.dart';
 
 /// Creator Dashboard Screen - CRM 통합 대시보드
 /// - 수익 요약 및 통계
@@ -121,9 +122,22 @@ class _CreatorDashboardScreenState
                   ),
                   const SizedBox(height: 24),
 
-                  // Stats Grid
+                  // Today's Question Cards (creator view)
                   SlideFadeAnimation.fromBottom(
                     delay: const Duration(milliseconds: 250),
+                    child: TodaysVotedQuestionSection(
+                      channelId: 'channel_1',
+                      onAnswerCard: (card, setId) {
+                        // Navigate to chat with the question context
+                        context.go('/creator/chat');
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Stats Grid
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 300),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -137,7 +151,7 @@ class _CreatorDashboardScreenState
 
                   // Recent Activity
                   SlideFadeAnimation.fromBottom(
-                    delay: const Duration(milliseconds: 300),
+                    delay: const Duration(milliseconds: 350),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

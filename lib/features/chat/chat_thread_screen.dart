@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/mock/mock_data.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/daily_question_set_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import 'widgets/daily_question_cards_panel.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/chat_input_bar.dart';
 
 /// Chat thread screen showing 1:1 conversation with an artist
 /// Implements Fromm/Bubble style broadcast chat UX
-class ChatThreadScreen extends StatefulWidget {
+class ChatThreadScreen extends ConsumerStatefulWidget {
   final String artistId;
 
   const ChatThreadScreen({
@@ -18,10 +22,10 @@ class ChatThreadScreen extends StatefulWidget {
   });
 
   @override
-  State<ChatThreadScreen> createState() => _ChatThreadScreenState();
+  ConsumerState<ChatThreadScreen> createState() => _ChatThreadScreenState();
 }
 
-class _ChatThreadScreenState extends State<ChatThreadScreen>
+class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
     with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController;
   late final AnimationController _fadeController;
@@ -224,6 +228,12 @@ class _ChatThreadScreenState extends State<ChatThreadScreen>
             ),
           ),
 
+          // Question Cards Mini Banner (for fans)
+          if (ref.watch(isAuthenticatedProvider))
+            _QuestionBanner(
+              channelId: 'channel_${widget.artistId}',
+            ),
+
           // Messages
           Expanded(
             child: ListView(
@@ -271,6 +281,152 @@ class _ChatThreadScreenState extends State<ChatThreadScreen>
           // Input Bar
           ChatInputBar(artistId: widget.artistId),
         ],
+      ),
+    );
+  }
+}
+
+/// Mini banner for daily question cards - tappable to expand
+class _QuestionBanner extends ConsumerStatefulWidget {
+  final String channelId;
+
+  const _QuestionBanner({required this.channelId});
+
+  @override
+  ConsumerState<_QuestionBanner> createState() => _QuestionBannerState();
+}
+
+class _QuestionBannerState extends ConsumerState<_QuestionBanner> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(dailyQuestionSetProvider(widget.channelId).notifier).load();
+    });
+  }
+
+  void _showQuestionSheet() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[600] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Question cards panel (full version)
+            DailyQuestionCardsPanel(
+              channelId: widget.channelId,
+              compact: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(dailyQuestionSetProvider(widget.channelId));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Hide banner for non-loaded states
+    if (state is DailyQuestionSetInitial ||
+        state is DailyQuestionSetLoading ||
+        state is DailyQuestionSetError) {
+      return const SizedBox.shrink();
+    }
+
+    // Get the set data
+    final set = switch (state) {
+      DailyQuestionSetLoaded(set: final s) => s,
+      DailyQuestionSetVoting(set: final s) => s,
+      _ => null,
+    };
+
+    if (set == null) return const SizedBox.shrink();
+
+    final hasVoted = set.hasVoted;
+    final winningCard = set.winningCard;
+
+    return GestureDetector(
+      onTap: _showQuestionSheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: hasVoted
+              ? (isDark
+                  ? AppColors.primary500.withValues(alpha: 0.08)
+                  : AppColors.primary500.withValues(alpha: 0.05))
+              : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
+          border: Border(
+            bottom: BorderSide(
+              color: hasVoted
+                  ? AppColors.primary500.withValues(alpha: 0.2)
+                  : (isDark ? AppColors.borderDark : AppColors.borderLight),
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            // Icon
+            Icon(
+              hasVoted ? Icons.check_circle_rounded : Icons.how_to_vote_rounded,
+              size: 18,
+              color: hasVoted ? AppColors.success : AppColors.primary500,
+            ),
+            const SizedBox(width: 8),
+
+            // Text
+            Expanded(
+              child: Text(
+                hasVoted
+                    ? '투표 완료 · 1위: ${winningCard?.cardText ?? ''}'
+                    : '오늘의 질문 투표하기',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: hasVoted
+                      ? (isDark ? AppColors.textSubDark : AppColors.textSubLight)
+                      : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+
+            // Right side: participant count + arrow
+            Text(
+              '${set.totalVotes}명 참여',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+            ),
+          ],
+        ),
       ),
     );
   }
