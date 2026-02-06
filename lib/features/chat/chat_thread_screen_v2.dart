@@ -5,12 +5,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
+import '../../providers/daily_question_set_provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/message_action_sheet.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 import '../../shared/widgets/error_boundary.dart';
+import 'widgets/daily_question_cards_panel.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/chat_input_bar_v2.dart';
 import 'widgets/voice_message_widget.dart';
@@ -406,11 +408,22 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
             // Pinned message banner
             _buildPinnedBanner(context, chatState, isDark),
 
-            // Messages list with scroll-to-bottom FAB
+            // Messages list with floating question banner & scroll FAB
             Expanded(
               child: Stack(
                 children: [
                   _buildMessagesList(context, chatState, isDark),
+
+                  // Floating question banner (top)
+                  Positioned(
+                    top: 8,
+                    left: 12,
+                    right: 12,
+                    child: _QuestionBannerV2(
+                      channelId: widget.channelId,
+                    ),
+                  ),
+
                   // Scroll to bottom FAB
                   if (_showScrollToBottom)
                     Positioned(
@@ -639,7 +652,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     return ListView.builder(
       controller: _scrollController,
       reverse: true, // Newest messages at bottom
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 70, 16, 16),
       itemCount: messages.length + (chatState.hasMoreMessages ? 1 : 0),
       itemBuilder: (context, index) {
         // Show loading skeleton at top when loading more
@@ -1285,6 +1298,239 @@ class _ChatSkeleton extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Daily Question Mini Banner
+// ═══════════════════════════════════════════════════════════
+
+/// Mini banner for daily question cards - tappable to expand
+class _QuestionBannerV2 extends ConsumerStatefulWidget {
+  final String channelId;
+
+  const _QuestionBannerV2({required this.channelId});
+
+  @override
+  ConsumerState<_QuestionBannerV2> createState() => _QuestionBannerV2State();
+}
+
+class _QuestionBannerV2State extends ConsumerState<_QuestionBannerV2> {
+  bool _loadAttempted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadQuestions();
+    });
+  }
+
+  void _loadQuestions() {
+    if (!mounted) return;
+    _loadAttempted = true;
+    ref.read(dailyQuestionSetProvider(widget.channelId).notifier).load();
+  }
+
+  void _showQuestionSheet() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[600] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Question cards panel (full version)
+            DailyQuestionCardsPanel(
+              channelId: widget.channelId,
+              compact: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(dailyQuestionSetProvider(widget.channelId));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Loading & initial: hide (loading is very brief ~300ms)
+    if (state is DailyQuestionSetLoading || state is DailyQuestionSetInitial) {
+      if (state is DailyQuestionSetInitial && !_loadAttempted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _loadQuestions();
+        });
+      }
+      return const SizedBox.shrink();
+    }
+
+    // Error state - hide (don't clutter UI)
+    if (state is DailyQuestionSetError) {
+      return const SizedBox.shrink();
+    }
+
+    // Get the set data
+    final set = switch (state) {
+      DailyQuestionSetLoaded(set: final s) => s,
+      DailyQuestionSetVoting(set: final s) => s,
+      _ => null,
+    };
+
+    if (set == null) return const SizedBox.shrink();
+
+    final hasVoted = set.hasVoted;
+    final winningCard = set.winningCard;
+
+    return GestureDetector(
+      onTap: _showQuestionSheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: hasVoted
+              ? LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: isDark
+                      ? [const Color(0xFF2A1515), const Color(0xFF1E1212)]
+                      : [const Color(0xFFFFF0F0), const Color(0xFFFFE8E8)],
+                )
+              : LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: isDark
+                      ? [
+                          AppColors.primary500.withValues(alpha: 0.22),
+                          AppColors.primary500.withValues(alpha: 0.12),
+                        ]
+                      : [
+                          AppColors.primary500.withValues(alpha: 0.10),
+                          AppColors.primary500.withValues(alpha: 0.05),
+                        ],
+                ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.primary500.withValues(alpha: isDark ? 0.45 : 0.3),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary500.withValues(alpha: isDark ? 0.25 : 0.10),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Emoji icon with colored background
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: hasVoted
+                    ? AppColors.primary500.withValues(alpha: 0.2)
+                    : AppColors.primary500.withValues(alpha: isDark ? 0.25 : 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  hasVoted ? '✅' : '🗳️',
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+
+            // Text
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    hasVoted ? '투표 완료!' : '오늘의 질문 투표하기',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: hasVoted
+                          ? AppColors.primary500
+                          : (isDark ? Colors.white : AppColors.textMainLight),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    hasVoted
+                        ? '1위: ${winningCard?.cardText ?? ''}'
+                        : '마음에 드는 질문에 투표해 주세요',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: hasVoted
+                          ? AppColors.primary500.withValues(alpha: 0.7)
+                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(width: 8),
+
+            // Right side badge - prominent
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary500,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${set.totalVotes}명',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 14,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

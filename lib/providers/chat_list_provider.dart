@@ -267,6 +267,13 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
         debugPrint(stackTrace.toString());
       }
 
+      // Fallback to demo data if in demo mode
+      final authState = _ref.read(authProvider);
+      if (authState is AuthDemoMode) {
+        _loadDemoThreads();
+        return;
+      }
+
       state = state.copyWith(
         isLoading: false,
         error: '채팅 목록을 불러오는데 실패했습니다.',

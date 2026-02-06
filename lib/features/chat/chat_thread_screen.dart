@@ -229,10 +229,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
           ),
 
           // Question Cards Mini Banner (for fans)
-          if (ref.watch(isAuthenticatedProvider))
-            _QuestionBanner(
-              channelId: 'channel_${widget.artistId}',
-            ),
+          _QuestionBanner(
+            channelId: 'channel_${widget.artistId}',
+          ),
 
           // Messages
           Expanded(
@@ -390,7 +389,6 @@ class _QuestionBannerState extends ConsumerState<_QuestionBanner> {
 
     // Hide for initial state (before load is called)
     if (state is DailyQuestionSetInitial) {
-      // If load hasn't been attempted yet, try again
       if (!_loadAttempted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _loadQuestions();
