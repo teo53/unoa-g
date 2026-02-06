@@ -1318,6 +1318,7 @@ class _QuestionBannerV2 extends ConsumerStatefulWidget {
 
 class _QuestionBannerV2State extends ConsumerState<_QuestionBannerV2> {
   bool _loadAttempted = false;
+  bool _dismissed = false;
 
   @override
   void initState() {
@@ -1372,6 +1373,9 @@ class _QuestionBannerV2State extends ConsumerState<_QuestionBannerV2> {
   Widget build(BuildContext context) {
     final state = ref.watch(dailyQuestionSetProvider(widget.channelId));
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Dismissed by user
+    if (_dismissed) return const SizedBox.shrink();
 
     // Loading & initial: hide (loading is very brief ~300ms)
     if (state is DailyQuestionSetLoading || state is DailyQuestionSetInitial) {
@@ -1526,6 +1530,25 @@ class _QuestionBannerV2State extends ConsumerState<_QuestionBannerV2> {
                     color: Colors.white,
                   ),
                 ],
+              ),
+            ),
+
+            // Dismiss (X) button
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _dismissed = true;
+                });
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                ),
               ),
             ),
           ],
