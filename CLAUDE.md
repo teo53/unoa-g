@@ -105,8 +105,14 @@ unoa-g/
 │   ├── main.dart                 # App entry point
 │   ├── app.dart                  # MaterialApp & ThemeProvider
 │   ├── core/
+│   │   ├── config/               # ⭐ 환경 설정 (반드시 사용)
+│   │   │   ├── app_config.dart   # 환경별 설정 (dev/staging/prod)
+│   │   │   ├── demo_config.dart  # 데모 모드 설정값
+│   │   │   └── business_config.dart  # 비즈니스 로직 상수
 │   │   ├── constants/
 │   │   │   └── asset_paths.dart  # Image/asset path constants
+│   │   ├── services/
+│   │   │   └── demo_mode_service.dart  # 데모 모드 통합 관리
 │   │   └── theme/
 │   │       ├── app_colors.dart   # WCAG-compliant color system
 │   │       ├── app_theme.dart    # Light/dark theme definitions
@@ -533,6 +539,191 @@ decorativeWidget.excludeSemantics()
 '/creator/funding/edit/:campaignId' // 캠페인 편집
 ```
 
+---
+
+## ⚠️ 환경 설정 시스템 (CRITICAL - 반드시 숙지)
+
+### 설정 파일 구조
+
+```
+lib/core/config/
+├── app_config.dart      # 환경별 설정 (dev/staging/prod)
+├── demo_config.dart     # 데모 모드 전용 설정값
+└── business_config.dart # 비즈니스 로직 상수
+```
+
+### AppConfig - 환경 설정
+```dart
+import '../../core/config/app_config.dart';
+
+// 환경 확인
+AppConfig.isDevelopment  // 개발 환경
+AppConfig.isProduction   // 프로덕션 환경
+AppConfig.enableDemoMode // 데모 모드 활성화 여부
+
+// Supabase 설정
+AppConfig.supabaseUrl
+AppConfig.supabaseAnonKey
+
+// Firebase 설정
+AppConfig.firebaseProjectId
+```
+
+### DemoConfig - 데모 데이터
+```dart
+import '../../core/config/demo_config.dart';
+
+// 데모 사용자 ID
+DemoConfig.demoCreatorId    // 'demo_creator_001'
+DemoConfig.demoFanId        // 'demo_user_001'
+
+// 데모 사용자 이름
+DemoConfig.demoCreatorName  // '하늘달 (데모)'
+DemoConfig.demoFanName      // '데모 팬'
+
+// 데모 초기값
+DemoConfig.initialDtBalance      // 15000
+DemoConfig.initialStarBalance    // 50
+DemoConfig.demoSubscriberCount   // 1234
+DemoConfig.demoMonthlyRevenue    // 1250000
+
+// 아바타 URL 생성
+DemoConfig.avatarUrl('vtuber1', size: 200)
+DemoConfig.bannerUrl('banner1', width: 400, height: 200)
+```
+
+### BusinessConfig - 비즈니스 규칙
+```dart
+import '../../core/config/business_config.dart';
+
+// 구독 티어
+BusinessConfig.subscriptionTiers  // ['BASIC', 'STANDARD', 'VIP']
+BusinessConfig.tierPricesKrw      // {'BASIC': 4900, 'STANDARD': 9900, 'VIP': 19900}
+
+// 답글 토큰
+BusinessConfig.defaultReplyTokens    // 3
+BusinessConfig.getTokensForTier('VIP')  // 5
+
+// 글자 제한 (구독 일수별)
+BusinessConfig.getCharacterLimit(120)  // 100
+
+// DT 관련
+BusinessConfig.dtPerKrw           // 1 (1 KRW = 1 DT)
+BusinessConfig.chargeAmounts      // [1000, 3000, 5000, ...]
+BusinessConfig.platformCommissionPercent  // 20.0
+BusinessConfig.creatorPayoutPercent       // 80.0
+```
+
+### 하드코딩 금지 규칙
+
+❌ **절대 하지 말 것**
+```dart
+// 하드코딩된 ID
+userId: 'demo_creator_001'
+
+// 하드코딩된 URL
+avatarUrl: 'https://picsum.photos/seed/vtuber1/200'
+
+// 하드코딩된 금액
+balanceDt: 15000
+```
+
+✅ **올바른 방법**
+```dart
+// DemoConfig 사용
+userId: DemoConfig.demoCreatorId
+
+// DemoConfig URL 생성기 사용
+avatarUrl: DemoConfig.avatarUrl('vtuber1')
+
+// DemoConfig 초기값 사용
+balanceDt: DemoConfig.initialDtBalance
+```
+
+### 프로덕션 빌드 시 환경 변수
+
+**⚠️ 필수 환경 변수 (빌드 시 반드시 지정):**
+
+| 변수 | 설명 | 필수 |
+|------|------|:----:|
+| `ENV` | `production` / `staging` / `development` | ✅ |
+| `SUPABASE_URL` | Supabase 프로젝트 URL | ✅ |
+| `SUPABASE_ANON_KEY` | Supabase 익명 키 | ✅ |
+| `SENTRY_DSN` | Sentry 에러 추적 DSN | ✅ |
+| `FIREBASE_PROJECT_ID` | Firebase 프로젝트 ID | ✅ |
+| `ENABLE_DEMO` | 데모 모드 (프로덕션에서는 `false`) | ✅ |
+| `ENABLE_ANALYTICS` | 분석 활성화 (기본: 프로덕션에서 true) | |
+| `ENABLE_CRASH_REPORTING` | 크래시 리포팅 (기본: 프로덕션에서 true) | |
+
+**프로덕션 빌드 명령어 (전체):**
+```bash
+flutter build web --release \
+  --dart-define=ENV=production \
+  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your-anon-key \
+  --dart-define=SENTRY_DSN=https://xxx@sentry.io/xxx \
+  --dart-define=FIREBASE_PROJECT_ID=your-firebase-project \
+  --dart-define=ENABLE_DEMO=false \
+  --dart-define=ENABLE_ANALYTICS=true
+```
+
+**⚠️ 주의사항:**
+- `ENABLE_DEMO=false` 없이 빌드하면 프로덕션에서도 데모 모드가 활성화될 수 있음
+- `SENTRY_DSN` 없이 빌드하면 에러 추적이 비활성화됨 (조용히 실패)
+- Firebase 사용 시 `google-services.json` (Android), `GoogleService-Info.plist` (iOS) 필요
+
+### 프로덕션 배포 체크리스트
+
+**빌드 전:**
+- [ ] 모든 환경 변수가 `--dart-define`으로 제공됨
+- [ ] `ENABLE_DEMO=false` 확인
+- [ ] Sentry DSN 설정됨
+- [ ] Firebase 설정 파일 준비 (모바일 빌드 시)
+
+**Supabase:**
+- [ ] 모든 마이그레이션 적용됨 (`supabase db push`)
+- [ ] RLS 정책 활성화됨
+- [ ] Edge Functions 배포됨
+
+**배포 후:**
+- [ ] Sentry에서 에러 수신 확인
+- [ ] 데모 모드가 비활성화되었는지 확인
+- [ ] 실제 결제 테스트 (스테이징 환경)
+
+### 데모 모드 지원 파일들
+
+데모 모드를 지원해야 하는 Provider/Service:
+- `auth_provider.dart` - `AuthDemoMode` 상태 및 `updateDemoProfile()` 메서드
+- `wallet_provider.dart` - `_loadDemoWallet()`, `addDemoBalance()`, `spendDemoBalance()` 메서드
+
+데모 모드 확인 방법:
+```dart
+final isDemoMode = ref.watch(isDemoModeProvider);
+final authState = ref.read(authProvider);
+if (authState is AuthDemoMode) {
+  // 데모 모드 전용 로직
+}
+```
+
+---
+
+## Firebase 배포
+
+### 배포 명령어
+```bash
+# 웹 빌드
+flutter build web --release
+
+# Firebase 배포
+firebase deploy --only hosting
+```
+
+### 현재 배포 URL
+- **호스팅**: https://unoa-app-demo.web.app
+- **Firebase 프로젝트**: unoa-app-demo
+
+---
+
 ## Important Notes for AI Assistants
 
 1. **Korean Language**: UI labels are in Korean. Preserve existing translations.
@@ -546,3 +737,5 @@ decorativeWidget.excludeSemantics()
 9. **Use Enterprise Components**: For new features, use the skeleton loaders, error boundaries, and animation utilities.
 10. **Accessibility**: All interactive elements should have semantic labels for screen readers.
 11. **Responsive**: Use ResponsiveLayout for screens that need tablet/desktop support.
+12. **Config 사용 필수**: 하드코딩 대신 반드시 `DemoConfig`, `BusinessConfig`, `AppConfig` 사용.
+13. **데모 모드 지원**: 새 Provider 작성 시 `AuthDemoMode` 상태 처리 필수.

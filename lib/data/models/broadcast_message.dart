@@ -13,6 +13,9 @@ enum DeliveryScope {
 
   /// Artist's reply to donation message (1:1)
   donationReply,
+
+  /// Fan message shared publicly by artist (visible to all subscribers)
+  publicShare,
 }
 
 enum BroadcastMessageType {
@@ -104,6 +107,15 @@ class BroadcastMessage {
   final DateTime? lastEditedAt;
   final List<MessageEditHistory>? editHistory;
 
+  // 리액션 관련 필드
+  final int reactionCount;
+  final bool hasReacted;
+
+  // 전체공개 관련 필드
+  final bool isPublicShared;
+  final String? sharedByArtistId;
+  final DateTime? sharedAt;
+
   const BroadcastMessage({
     required this.id,
     required this.channelId,
@@ -133,6 +145,11 @@ class BroadcastMessage {
     this.isEdited = false,
     this.lastEditedAt,
     this.editHistory,
+    this.reactionCount = 0,
+    this.hasReacted = false,
+    this.isPublicShared = false,
+    this.sharedByArtistId,
+    this.sharedAt,
   });
 
   /// Check if message has personalization placeholders
@@ -172,6 +189,7 @@ class BroadcastMessage {
   bool get isDonation =>
       deliveryScope == DeliveryScope.donationMessage ||
       deliveryScope == DeliveryScope.donationReply;
+  bool get isPublicShare => deliveryScope == DeliveryScope.publicShare || isPublicShared;
 
   factory BroadcastMessage.fromJson(Map<String, dynamic> json) {
     return BroadcastMessage(
@@ -217,6 +235,13 @@ class BroadcastMessage {
               .map((e) => MessageEditHistory.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
+      reactionCount: json['reaction_count'] as int? ?? 0,
+      hasReacted: json['has_reacted'] as bool? ?? false,
+      isPublicShared: json['is_public_shared'] as bool? ?? false,
+      sharedByArtistId: json['shared_by_artist_id'] as String?,
+      sharedAt: json['shared_at'] != null
+          ? DateTime.parse(json['shared_at'] as String)
+          : null,
     );
   }
 
@@ -244,6 +269,11 @@ class BroadcastMessage {
       'is_edited': isEdited,
       'last_edited_at': lastEditedAt?.toIso8601String(),
       'edit_history': editHistory?.map((e) => e.toJson()).toList(),
+      'reaction_count': reactionCount,
+      'has_reacted': hasReacted,
+      'is_public_shared': isPublicShared,
+      'shared_by_artist_id': sharedByArtistId,
+      'shared_at': sharedAt?.toIso8601String(),
     };
   }
 
@@ -276,6 +306,11 @@ class BroadcastMessage {
     bool? isEdited,
     DateTime? lastEditedAt,
     List<MessageEditHistory>? editHistory,
+    int? reactionCount,
+    bool? hasReacted,
+    bool? isPublicShared,
+    String? sharedByArtistId,
+    DateTime? sharedAt,
   }) {
     return BroadcastMessage(
       id: id ?? this.id,
@@ -306,6 +341,11 @@ class BroadcastMessage {
       isEdited: isEdited ?? this.isEdited,
       lastEditedAt: lastEditedAt ?? this.lastEditedAt,
       editHistory: editHistory ?? this.editHistory,
+      reactionCount: reactionCount ?? this.reactionCount,
+      hasReacted: hasReacted ?? this.hasReacted,
+      isPublicShared: isPublicShared ?? this.isPublicShared,
+      sharedByArtistId: sharedByArtistId ?? this.sharedByArtistId,
+      sharedAt: sharedAt ?? this.sharedAt,
     );
   }
 
@@ -319,6 +359,8 @@ class BroadcastMessage {
         return DeliveryScope.donationMessage;
       case 'donation_reply':
         return DeliveryScope.donationReply;
+      case 'public_share':
+        return DeliveryScope.publicShare;
       default:
         return DeliveryScope.broadcast;
     }
@@ -334,6 +376,8 @@ class BroadcastMessage {
         return 'donation_message';
       case DeliveryScope.donationReply:
         return 'donation_reply';
+      case DeliveryScope.publicShare:
+        return 'public_share';
     }
   }
 

@@ -519,6 +519,8 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
         return 'emoji';
       case BroadcastMessageType.voice:
         return 'voice';
+      case BroadcastMessageType.video:
+        return 'video';
     }
   }
 }

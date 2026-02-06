@@ -32,13 +32,13 @@ class TypingEvent {
 
 /// User presence info
 class UserPresence {
-  final String oderId;
+  final String userId;
   final bool isOnline;
   final DateTime? lastSeen;
   final String? status;
 
   const UserPresence({
-    required this.oderId,
+    required this.userId,
     required this.isOnline,
     this.lastSeen,
     this.status,
@@ -88,8 +88,8 @@ class RealtimeService {
     // Create new channel
     final channel = _supabase.channel(
       channelName,
-      opts: const RealtimeChannelConfig(
-        key: null,
+      opts: RealtimeChannelConfig(
+        key: _currentUserId,
         ack: false,
       ),
     );
@@ -138,18 +138,24 @@ class RealtimeService {
 
     // Subscribe to presence (online status)
     if (onPresenceChange != null) {
-      channel.onPresenceSync((payload) {
+      channel.onPresenceSync((_) {
+        // Get current state from the channel's presenceState()
+        final presenceState = channel.presenceState();
         final presences = <String, UserPresence>{};
 
-        for (final presence in payload.currentPresences) {
-          final userId = presence.payload['user_id'] as String?;
-          if (userId != null) {
-            presences[userId] = UserPresence(
-              oderId: userId,
-              isOnline: true,
-              lastSeen: DateTime.now(),
-              status: presence.payload['status'] as String?,
-            );
+        // Iterate through SinglePresenceState list
+        for (final singleState in presenceState) {
+          // Each singleState has a list of Presence objects
+          for (final presence in singleState.presences) {
+            final presenceUserId = presence.payload['user_id'] as String?;
+            if (presenceUserId != null) {
+              presences[presenceUserId] = UserPresence(
+                userId: presenceUserId,
+                isOnline: true,
+                lastSeen: DateTime.now(),
+                status: presence.payload['status'] as String?,
+              );
+            }
           }
         }
 
@@ -187,8 +193,8 @@ class RealtimeService {
       );
     }
 
-    // Subscribe
-    await channel.subscribe((status, error) {
+    // Subscribe (no await - returns RealtimeChannel, not Future)
+    channel.subscribe((status, error) {
       debugPrint('Channel $channelName status: $status');
       if (error != null) {
         debugPrint('Channel error: $error');
@@ -198,7 +204,7 @@ class RealtimeService {
     _channels[channelId] = channel;
 
     // Track user presence
-    await _trackPresence(channel);
+    _trackPresence(channel);
   }
 
   /// Unsubscribe from a channel
@@ -306,7 +312,7 @@ class RealtimeService {
       },
     );
 
-    await channel.subscribe();
+    channel.subscribe();
 
     return channel;
   }
@@ -337,7 +343,7 @@ class RealtimeService {
       },
     );
 
-    await channel.subscribe();
+    channel.subscribe();
 
     return channel;
   }
@@ -349,7 +355,12 @@ class RealtimeService {
 
   /// Get subscribed channel IDs
   List<String> get subscribedChannels => _channels.keys.toList();
+
+  /// Dispose all resources
+  Future<void> dispose() async {
+    await unsubscribeAll();
+  }
 }
 
-/// Singleton instance
+/// Singleton instance (optional - prefer using Provider for better lifecycle management)
 final realtimeService = RealtimeService();

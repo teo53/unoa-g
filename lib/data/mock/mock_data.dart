@@ -3,18 +3,20 @@ import '../models/message.dart';
 import '../models/user_profile.dart';
 import '../models/dt_package.dart';
 import '../../core/constants/asset_paths.dart';
+import '../../core/config/demo_config.dart';
+import '../../core/config/business_config.dart';
 
 class MockData {
-  // Current User
-  static const currentUser = UserProfile(
-    id: 'user_1',
+  // Current User - using DemoConfig values
+  static final currentUser = UserProfile(
+    id: DemoConfig.demoFanId,
     name: '김민지',
     englishName: 'Minji Kim',
     username: '@minji_love_kpop',
     avatarUrl: AssetPaths.userProfile,
-    tier: 'VIP',
+    tier: BusinessConfig.subscriptionTiers.last, // VIP
     subscriptionCount: 3,
-    dtBalance: 1250,
+    dtBalance: DemoConfig.initialDtBalance,
     nextPaymentDate: null,
   );
 
@@ -266,34 +268,34 @@ class MockData {
     },
   ];
 
-  // DT Packages
-  static const dtPackages = [
+  // DT Packages - using BusinessConfig values
+  static final dtPackages = [
     DtPackage(
       id: 'pkg_1',
       name: '스타터',
-      dtAmount: 100,
-      priceKrw: 1100,
+      dtAmount: BusinessConfig.chargeAmounts[0], // 1000
+      priceKrw: BusinessConfig.chargeAmounts[0] * BusinessConfig.dtPerKrw,
     ),
     DtPackage(
       id: 'pkg_2',
       name: '베이직',
-      dtAmount: 500,
-      priceKrw: 5500,
+      dtAmount: BusinessConfig.chargeAmounts[2], // 5000
+      priceKrw: BusinessConfig.chargeAmounts[2] * BusinessConfig.dtPerKrw,
       bonusDt: 50,
     ),
     DtPackage(
       id: 'pkg_3',
       name: '스탠다드',
-      dtAmount: 1000,
-      priceKrw: 11000,
+      dtAmount: BusinessConfig.chargeAmounts[3], // 10000
+      priceKrw: BusinessConfig.chargeAmounts[3] * BusinessConfig.dtPerKrw,
       bonusDt: 150,
       isPopular: true,
     ),
     DtPackage(
       id: 'pkg_4',
       name: '프리미엄',
-      dtAmount: 3000,
-      priceKrw: 33000,
+      dtAmount: BusinessConfig.chargeAmounts[4], // 30000
+      priceKrw: BusinessConfig.chargeAmounts[4] * BusinessConfig.dtPerKrw,
       bonusDt: 600,
     ),
   ];

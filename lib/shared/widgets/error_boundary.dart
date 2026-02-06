@@ -68,6 +68,49 @@ class ErrorDisplay extends StatelessWidget {
     this.compact = false,
   });
 
+  /// Preset: Network error
+  factory ErrorDisplay.network({VoidCallback? onRetry}) => ErrorDisplay(
+        error: NetworkException(),
+        onRetry: onRetry,
+        title: '네트워크 오류',
+        message: '인터넷 연결을 확인하고 다시 시도해주세요',
+        icon: Icons.wifi_off_rounded,
+      );
+
+  /// Preset: Server error
+  factory ErrorDisplay.server({VoidCallback? onRetry}) => ErrorDisplay(
+        error: Exception('Server error'),
+        onRetry: onRetry,
+        title: '서버 오류',
+        message: '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        icon: Icons.cloud_off_rounded,
+      );
+
+  /// Preset: Not found error
+  factory ErrorDisplay.notFound({String? itemName}) => ErrorDisplay(
+        error: NotFoundException(),
+        title: '찾을 수 없음',
+        message: '${itemName ?? '요청한 내용'}을 찾을 수 없습니다',
+        icon: Icons.search_off_rounded,
+      );
+
+  /// Preset: Permission denied
+  factory ErrorDisplay.permissionDenied() => const ErrorDisplay(
+        error: UnauthorizedException(),
+        title: '접근 권한 없음',
+        message: '이 내용을 볼 수 있는 권한이 없습니다',
+        icon: Icons.lock_outline_rounded,
+      );
+
+  /// Preset: Session expired
+  factory ErrorDisplay.sessionExpired({VoidCallback? onLogin}) => ErrorDisplay(
+        error: UnauthorizedException('Session expired'),
+        title: '세션 만료',
+        message: '다시 로그인해주세요',
+        icon: Icons.timer_off_rounded,
+        onRetry: onLogin,
+      );
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -225,6 +268,7 @@ class EmptyState extends StatelessWidget {
   final String? message;
   final IconData? icon;
   final Widget? action;
+  final bool compact;
 
   const EmptyState({
     super.key,
@@ -232,11 +276,75 @@ class EmptyState extends StatelessWidget {
     this.message,
     this.icon,
     this.action,
+    this.compact = false,
   });
+
+  /// Preset: No messages
+  factory EmptyState.noMessages({VoidCallback? onAction}) => EmptyState(
+        title: '아직 메시지가 없어요',
+        message: '첫 메시지를 보내보세요',
+        icon: Icons.chat_bubble_outline_rounded,
+        action: onAction != null
+            ? ElevatedButton(
+                onPressed: onAction,
+                child: const Text('메시지 보내기'),
+              )
+            : null,
+      );
+
+  /// Preset: No notifications
+  factory EmptyState.noNotifications() => const EmptyState(
+        title: '알림이 없어요',
+        message: '새로운 소식이 있으면 여기에 표시됩니다',
+        icon: Icons.notifications_none_rounded,
+      );
+
+  /// Preset: No search results
+  factory EmptyState.noSearchResults(String query) => EmptyState(
+        title: '검색 결과가 없어요',
+        message: '"$query"에 대한 결과를 찾을 수 없습니다',
+        icon: Icons.search_off_rounded,
+      );
+
+  /// Preset: No subscriptions
+  factory EmptyState.noSubscriptions({VoidCallback? onExplore}) => EmptyState(
+        title: '구독 중인 아티스트가 없어요',
+        message: '좋아하는 아티스트를 찾아보세요',
+        icon: Icons.person_search_rounded,
+        action: onExplore != null
+            ? ElevatedButton(
+                onPressed: onExplore,
+                child: const Text('아티스트 찾기'),
+              )
+            : null,
+      );
+
+  /// Preset: No wallet transactions
+  factory EmptyState.noTransactions() => const EmptyState(
+        title: '거래 내역이 없어요',
+        message: 'DT를 충전하거나 사용하면 여기에 표시됩니다',
+        icon: Icons.receipt_long_outlined,
+      );
+
+  /// Preset: No blocked users
+  factory EmptyState.noBlockedUsers() => const EmptyState(
+        title: '차단한 사용자가 없어요',
+        message: '차단한 사용자가 있으면 여기에 표시됩니다',
+        icon: Icons.block_outlined,
+      );
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (compact) {
+      return _CompactEmptyState(
+        title: title,
+        message: message,
+        icon: icon,
+        isDark: isDark,
+      );
+    }
 
     return Center(
       child: Padding(
@@ -286,6 +394,48 @@ class EmptyState extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Compact empty state for inline use
+class _CompactEmptyState extends StatelessWidget {
+  final String title;
+  final String? message;
+  final IconData? icon;
+  final bool isDark;
+
+  const _CompactEmptyState({
+    required this.title,
+    this.message,
+    this.icon,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon ?? Icons.inbox_outlined,
+            size: 24,
+            color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

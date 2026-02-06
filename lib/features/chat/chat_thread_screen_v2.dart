@@ -5,11 +5,15 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/wallet_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/chat_input_bar_v2.dart';
 import 'widgets/voice_message_widget.dart';
+import 'widgets/message_actions_sheet.dart';
+import 'widgets/message_edit_dialog.dart';
+import 'widgets/report_dialog.dart';
 
 /// Chat thread screen showing 1:1 conversation with an artist
 /// Uses Riverpod for state management with Supabase backend
@@ -368,6 +372,16 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
           dateSeparator = _buildDateSeparator(message.createdAt, isDark);
         }
 
+        // Check if this message belongs to the current user
+        final authState = ref.read(authProvider);
+        String? currentUserId;
+        if (authState is AuthAuthenticated) {
+          currentUserId = authState.user.id;
+        } else if (authState is AuthDemoMode) {
+          currentUserId = authState.demoProfile.id;
+        }
+        final isOwnMessage = message.senderId == currentUserId;
+
         return Column(
           children: [
             if (dateSeparator != null) dateSeparator,
@@ -377,6 +391,12 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
               artistAvatarUrl: chatState.channel?.avatarUrl,
               artistName: chatState.channel?.name ?? '',
               showAvatar: _shouldShowAvatar(message, previousMessage),
+              isOwnMessage: isOwnMessage,
+              onLongPress: () => _showMessageActions(
+                context,
+                message,
+                isOwnMessage,
+              ),
             ),
           ],
         );
@@ -465,6 +485,68 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
         return [Colors.grey[300]!, Colors.grey[400]!];
     }
   }
+
+  /// Show message actions sheet (edit, delete, report, block)
+  void _showMessageActions(
+    BuildContext context,
+    BroadcastMessage message,
+    bool isOwnMessage,
+  ) {
+    // Don't show actions for deleted messages
+    if (message.deletedAt != null) return;
+
+    MessageActionsSheet.show(
+      context: context,
+      message: message,
+      isOwnMessage: isOwnMessage,
+      onEdit: isOwnMessage ? () => _handleEditMessage(context, message) : null,
+      onDelete: isOwnMessage ? () => _handleDeleteMessage(message) : null,
+      onReport: !isOwnMessage ? _handleReportMessage : null,
+      onBlock: !isOwnMessage ? () => _handleBlockUser(message.senderId) : null,
+    );
+  }
+
+  /// Handle edit message
+  void _handleEditMessage(BuildContext context, BroadcastMessage message) {
+    MessageEditDialog.show(
+      context: context,
+      message: message,
+      maxCharacters: 300, // Based on subscription, can be dynamic
+      onEdit: (newContent) async {
+        // TODO: Call repository to update message
+        await ref.read(chatProvider(widget.channelId).notifier)
+            .editMessage(message.id, newContent);
+      },
+    );
+  }
+
+  /// Handle delete message
+  void _handleDeleteMessage(BroadcastMessage message) {
+    // The delete confirmation is already shown in MessageActionsSheet
+    ref.read(chatProvider(widget.channelId).notifier)
+        .deleteMessage(message.id);
+  }
+
+  /// Handle report message
+  Future<void> _handleReportMessage(
+    ReportReason reason,
+    String? description,
+  ) async {
+    // TODO: Call repository to submit report
+    debugPrint('Report submitted: $reason - $description');
+  }
+
+  /// Handle block user
+  void _handleBlockUser(String userId) {
+    // TODO: Call repository to block user
+    debugPrint('Blocking user: $userId');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('사용자를 차단했습니다'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 }
 
 /// Updated message bubble supporting new message model
@@ -474,6 +556,8 @@ class MessageBubbleV2 extends StatelessWidget {
   final String? artistAvatarUrl;
   final String artistName;
   final bool showAvatar;
+  final bool isOwnMessage;
+  final VoidCallback? onLongPress;
 
   const MessageBubbleV2({
     super.key,
@@ -482,22 +566,95 @@ class MessageBubbleV2 extends StatelessWidget {
     this.artistAvatarUrl,
     required this.artistName,
     this.showAvatar = true,
+    this.isOwnMessage = false,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Deleted message shows placeholder
+    if (message.deletedAt != null) {
+      return _buildDeletedBubble(context, isDark);
+    }
+
     // Donation message styling
     if (message.isDonation) {
-      return _buildDonationBubble(context, isDark);
+      return GestureDetector(
+        onLongPress: onLongPress,
+        child: _buildDonationBubble(context, isDark),
+      );
     }
 
     if (isArtist) {
-      return _buildArtistBubble(context, isDark);
+      return GestureDetector(
+        onLongPress: onLongPress,
+        child: _buildArtistBubble(context, isDark),
+      );
     } else {
-      return _buildUserBubble(context, isDark);
+      return GestureDetector(
+        onLongPress: onLongPress,
+        child: _buildUserBubble(context, isDark),
+      );
     }
+  }
+
+  Widget _buildDeletedBubble(BuildContext context, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: isOwnMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          if (!isOwnMessage) ...[
+            if (showAvatar)
+              const SizedBox(width: 44)
+            else
+              const SizedBox(width: 44),
+          ],
+          Container(
+            constraints: const BoxConstraints(maxWidth: 240),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 10,
+            ),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.grey[850]?.withValues(alpha: 0.5)
+                  : Colors.grey[200]?.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark
+                    ? Colors.grey[700]!.withValues(alpha: 0.3)
+                    : Colors.grey[300]!.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.block,
+                  size: 16,
+                  color: isDark ? Colors.grey[500] : Colors.grey[600],
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '삭제된 메시지입니다',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isOwnMessage)
+            const SizedBox(width: 60),
+        ],
+      ),
+    );
   }
 
   Widget _buildArtistBubble(BuildContext context, bool isDark) {
@@ -558,6 +715,29 @@ class MessageBubbleV2 extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (message.isEdited) ...[
+                        Text(
+                          '편집됨',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '•',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                      ],
                       Text(
                         _formatTime(message.createdAt),
                         style: TextStyle(
@@ -623,6 +803,29 @@ class MessageBubbleV2 extends StatelessWidget {
                           Icons.done_all,
                           size: 12,
                           color: Colors.blue,
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      if (message.isEdited) ...[
+                        Text(
+                          '편집됨',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '•',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
+                          ),
                         ),
                         const SizedBox(width: 4),
                       ],

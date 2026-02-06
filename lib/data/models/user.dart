@@ -30,6 +30,11 @@ class UserAuthProfile implements UserBase {
   final String locale;
   final DateTime createdAt;
   final DateTime? guardianConsentAt;
+  final int themeColorIndex;
+  final String? instagramLink;
+  final String? youtubeLink;
+  final String? tiktokLink;
+  final String? twitterLink;
 
   const UserAuthProfile({
     required this.id,
@@ -42,6 +47,11 @@ class UserAuthProfile implements UserBase {
     this.locale = 'ko-KR',
     required this.createdAt,
     this.guardianConsentAt,
+    this.themeColorIndex = 0,
+    this.instagramLink,
+    this.youtubeLink,
+    this.tiktokLink,
+    this.twitterLink,
   });
 
   factory UserAuthProfile.fromJson(Map<String, dynamic> json) {
@@ -102,6 +112,11 @@ class UserAuthProfile implements UserBase {
     bool? isBanned,
     String? locale,
     DateTime? guardianConsentAt,
+    int? themeColorIndex,
+    String? instagramLink,
+    String? youtubeLink,
+    String? tiktokLink,
+    String? twitterLink,
   }) {
     return UserAuthProfile(
       id: id,
@@ -114,6 +129,11 @@ class UserAuthProfile implements UserBase {
       locale: locale ?? this.locale,
       createdAt: createdAt,
       guardianConsentAt: guardianConsentAt ?? this.guardianConsentAt,
+      themeColorIndex: themeColorIndex ?? this.themeColorIndex,
+      instagramLink: instagramLink ?? this.instagramLink,
+      youtubeLink: youtubeLink ?? this.youtubeLink,
+      tiktokLink: tiktokLink ?? this.tiktokLink,
+      twitterLink: twitterLink ?? this.twitterLink,
     );
   }
 }

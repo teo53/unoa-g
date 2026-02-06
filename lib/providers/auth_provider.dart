@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase/supabase_client.dart';
 import '../core/supabase/supabase_auth_service.dart';
+import '../core/config/demo_config.dart';
 import '../data/models/user.dart';
 
 // Re-export unified user models for backward compatibility
@@ -303,19 +304,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void enterDemoMode({bool asCreator = false}) {
     final demoProfile = asCreator
         ? UserProfile(
-            id: 'demo_creator_001',
+            id: DemoConfig.demoCreatorId,
             role: 'creator',
-            displayName: '하늘달 (데모)',
-            avatarUrl: 'https://picsum.photos/seed/vtuber1/200',
-            bio: '버츄얼 유튜버 하늘달입니다. 데모 모드로 크리에이터 기능을 체험 중입니다.',
-            createdAt: DateTime.now().subtract(const Duration(days: 365)),
+            displayName: DemoConfig.demoCreatorName,
+            avatarUrl: DemoConfig.demoCreatorAvatarUrl,
+            bio: DemoConfig.demoCreatorBio,
+            createdAt: DateTime.now().subtract(
+              Duration(days: DemoConfig.demoAccountCreatedDaysAgo),
+            ),
           )
         : UserProfile(
-            id: 'demo_user_001',
+            id: DemoConfig.demoFanId,
             role: 'fan',
-            displayName: '데모 팬',
+            displayName: DemoConfig.demoFanName,
             avatarUrl: null,
-            bio: '데모 모드로 앱을 체험 중입니다.',
+            bio: DemoConfig.demoFanBio,
             createdAt: DateTime.now(),
           );
     state = AuthDemoMode(demoProfile: demoProfile);
@@ -334,6 +337,34 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Exit demo mode
   void exitDemoMode() {
     state = const AuthUnauthenticated();
+  }
+
+  /// Update demo profile (for demo mode only)
+  void updateDemoProfile({
+    String? displayName,
+    String? avatarUrl,
+    String? bio,
+    int? themeColorIndex,
+    String? instagramLink,
+    String? youtubeLink,
+    String? tiktokLink,
+    String? twitterLink,
+  }) {
+    final currentState = state;
+    if (currentState is! AuthDemoMode) return;
+
+    final updatedProfile = currentState.demoProfile.copyWith(
+      displayName: displayName,
+      avatarUrl: avatarUrl,
+      bio: bio,
+      themeColorIndex: themeColorIndex,
+      instagramLink: instagramLink,
+      youtubeLink: youtubeLink,
+      tiktokLink: tiktokLink,
+      twitterLink: twitterLink,
+    );
+
+    state = AuthDemoMode(demoProfile: updatedProfile);
   }
 
   @override

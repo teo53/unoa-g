@@ -703,6 +703,159 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
+  /// Edit a message (own messages only, within 24 hours)
+  Future<bool> editMessage(String messageId, String newContent) async {
+    try {
+      // Handle demo mode
+      final authState = _ref.read(authProvider);
+      if (authState is AuthDemoMode) {
+        return _editDemoMessage(messageId, newContent);
+      }
+
+      final client = _ref.read(supabaseClientProvider);
+      final userId = _ref.read(currentUserProvider)?.id;
+      if (userId == null) return false;
+
+      // Find the message
+      final message = state.messages.firstWhere(
+        (m) => m.id == messageId,
+        orElse: () => throw Exception('Message not found'),
+      );
+
+      // Verify ownership and time limit
+      if (message.senderId != userId) {
+        throw Exception('Can only edit own messages');
+      }
+
+      final hoursSinceCreation =
+          DateTime.now().difference(message.createdAt).inHours;
+      if (hoursSinceCreation >= 24) {
+        throw Exception('Can only edit messages within 24 hours');
+      }
+
+      // Only text messages can be edited
+      if (message.messageType != BroadcastMessageType.text) {
+        throw Exception('Can only edit text messages');
+      }
+
+      // Update the message
+      await client.from('messages').update({
+        'content': newContent,
+        'is_edited': true,
+        'last_edited_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', messageId).eq('sender_id', userId);
+
+      // Update local state
+      final updatedMessages = state.messages.map((m) {
+        if (m.id == messageId) {
+          return m.copyWith(
+            content: newContent,
+            isEdited: true,
+            lastEditedAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+        }
+        return m;
+      }).toList();
+
+      state = state.copyWith(messages: updatedMessages);
+      return true;
+    } catch (e, stackTrace) {
+      debugPrint('[ChatNotifier] editMessage error: $e');
+      if (kDebugMode) {
+        debugPrint(stackTrace.toString());
+      }
+      return false;
+    }
+  }
+
+  /// Edit a demo message
+  bool _editDemoMessage(String messageId, String newContent) {
+    final updatedMessages = state.messages.map((m) {
+      if (m.id == messageId) {
+        return m.copyWith(
+          content: newContent,
+          isEdited: true,
+          lastEditedAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      }
+      return m;
+    }).toList();
+
+    state = state.copyWith(messages: updatedMessages);
+    return true;
+  }
+
+  /// Delete a message (soft delete, own messages only)
+  Future<bool> deleteMessage(String messageId) async {
+    try {
+      // Handle demo mode
+      final authState = _ref.read(authProvider);
+      if (authState is AuthDemoMode) {
+        return _deleteDemoMessage(messageId);
+      }
+
+      final client = _ref.read(supabaseClientProvider);
+      final userId = _ref.read(currentUserProvider)?.id;
+      if (userId == null) return false;
+
+      // Find the message
+      final message = state.messages.firstWhere(
+        (m) => m.id == messageId,
+        orElse: () => throw Exception('Message not found'),
+      );
+
+      // Verify ownership
+      if (message.senderId != userId) {
+        throw Exception('Can only delete own messages');
+      }
+
+      // Soft delete the message
+      await client.from('messages').update({
+        'deleted_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', messageId).eq('sender_id', userId);
+
+      // Update local state
+      final updatedMessages = state.messages.map((m) {
+        if (m.id == messageId) {
+          return m.copyWith(
+            deletedAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+        }
+        return m;
+      }).toList();
+
+      state = state.copyWith(messages: updatedMessages);
+      return true;
+    } catch (e, stackTrace) {
+      debugPrint('[ChatNotifier] deleteMessage error: $e');
+      if (kDebugMode) {
+        debugPrint(stackTrace.toString());
+      }
+      return false;
+    }
+  }
+
+  /// Delete a demo message
+  bool _deleteDemoMessage(String messageId) {
+    final updatedMessages = state.messages.map((m) {
+      if (m.id == messageId) {
+        return m.copyWith(
+          deletedAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      }
+      return m;
+    }).toList();
+
+    state = state.copyWith(messages: updatedMessages);
+    return true;
+  }
+
   @override
   void dispose() {
     _messagesSubscription?.cancel();

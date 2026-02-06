@@ -27,7 +27,14 @@
       "Bash(firebase projects:list:*)",
       "Bash(npm install:*)",
       "Bash(firebase:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(gh run:*)",
+      "Bash(flutter pub add:*)",
+      "Bash(ls -la \"C:\\\\Users\\\\mapdr\\\\Downloads\\\\unoa-g-main\\\\lib\\\\data\\\\repositories\"\" --ignore=\"*.dart\" 2>/dev/null || dir \"C:UsersmapdrDownloadsunoa-g-mainlibdatarepositories \")",
+      "Bash(ls -la \"C:\\\\Users\\\\mapdr\\\\Downloads\\\\unoa-g-main\\\\lib\\\\core\\\\services\"\" 2>nul || echo \"Directory not found \")",
+      "WebFetch(domain:pub.dev)",
+      "Bash(tree:*)",
+      "Bash(node -e:*)"
     ]
   }
 }

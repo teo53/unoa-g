@@ -81,6 +81,16 @@ class _CreatorProfileEditScreenState
     _nameController = TextEditingController(text: profile?.displayName ?? '');
     _bioController = TextEditingController(text: profile?.bio ?? '');
     _tabController = TabController(length: 3, vsync: this);
+
+    // 프로필에서 테마 색상 및 소셜 링크 로드
+    if (profile != null) {
+      _selectedThemeColor = profile.themeColorIndex;
+      _instagramLink = profile.instagramLink ?? '';
+      _youtubeLink = profile.youtubeLink ?? '';
+      _tiktokLink = profile.tiktokLink ?? '';
+      _twitterLink = profile.twitterLink ?? '';
+    }
+
     _loadMockContent();
   }
 
@@ -137,6 +147,28 @@ class _CreatorProfileEditScreenState
   Future<void> _saveProfile() async {
     final confirmed = await _showChangeConfirmationDialog();
     if (confirmed != true) return;
+
+    // 데모 모드인 경우 데모 프로필 업데이트
+    final isDemoMode = ref.read(isDemoModeProvider);
+    if (isDemoMode) {
+      ref.read(authProvider.notifier).updateDemoProfile(
+        displayName: _nameController.text.isNotEmpty ? _nameController.text : null,
+        bio: _bioController.text.isNotEmpty ? _bioController.text : null,
+        themeColorIndex: _selectedThemeColor,
+        instagramLink: _instagramLink.isNotEmpty ? _instagramLink : null,
+        youtubeLink: _youtubeLink.isNotEmpty ? _youtubeLink : null,
+        tiktokLink: _tiktokLink.isNotEmpty ? _tiktokLink : null,
+        twitterLink: _twitterLink.isNotEmpty ? _twitterLink : null,
+      );
+    } else {
+      // 실제 인증된 사용자인 경우 서버에 저장
+      await ref.read(authProvider.notifier).updateProfile(
+        displayName: _nameController.text.isNotEmpty ? _nameController.text : null,
+        bio: _bioController.text.isNotEmpty ? _bioController.text : null,
+      );
+    }
+
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

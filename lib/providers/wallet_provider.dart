@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/supabase/supabase_client.dart';
+import '../core/config/demo_config.dart';
+import '../core/config/business_config.dart';
 import 'auth_provider.dart';
 
 /// Wallet data model
@@ -261,17 +263,183 @@ class WalletNotifier extends StateNotifier<WalletState> {
     _ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthAuthenticated) {
         loadWallet();
+      } else if (next is AuthDemoMode) {
+        _loadDemoWallet();
       } else if (next is AuthUnauthenticated) {
         _walletSubscription?.cancel();
         state = const WalletInitial();
       }
     });
 
-    // Initial load if already authenticated
+    // Initial load if already authenticated or in demo mode
     final authState = _ref.read(authProvider);
     if (authState is AuthAuthenticated) {
       loadWallet();
+    } else if (authState is AuthDemoMode) {
+      _loadDemoWallet();
     }
+  }
+
+  /// 데모 모드용 지갑 로드
+  void _loadDemoWallet() {
+    final authState = _ref.read(authProvider);
+    if (authState is! AuthDemoMode) return;
+
+    final isCreator = authState.demoProfile.isCreator;
+
+    // 데모 지갑 데이터 - DemoConfig 값 사용
+    final demoWallet = Wallet(
+      id: 'demo_wallet_001',
+      userId: authState.demoProfile.id,
+      balanceDt: isCreator
+          ? DemoConfig.initialDtBalance ~/ 3
+          : DemoConfig.initialDtBalance,
+      lifetimePurchasedDt: isCreator ? 10000 : 3000,
+      lifetimeSpentDt: isCreator ? 2000 : 1750,
+      lifetimeEarnedDt: isCreator ? DemoConfig.demoMonthlyRevenue ~/ 10 : 0,
+      lifetimeRefundedDt: 0,
+      createdAt: DateTime.now().subtract(
+        Duration(days: DemoConfig.demoSubscriptionDaysAgo),
+      ),
+      updatedAt: DateTime.now(),
+    );
+
+    // 데모 거래 내역
+    final demoTransactions = [
+      LedgerEntry(
+        id: 'demo_txn_1',
+        idempotencyKey: 'demo_key_1',
+        toWalletId: demoWallet.id,
+        amountDt: 1000,
+        entryType: 'purchase',
+        description: 'DT 충전',
+        status: 'completed',
+        createdAt: DateTime.now().subtract(const Duration(days: 7)),
+      ),
+      LedgerEntry(
+        id: 'demo_txn_2',
+        idempotencyKey: 'demo_key_2',
+        fromWalletId: demoWallet.id,
+        amountDt: 500,
+        entryType: 'tip',
+        description: '하늘달님에게 후원',
+        status: 'completed',
+        createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      ),
+      LedgerEntry(
+        id: 'demo_txn_3',
+        idempotencyKey: 'demo_key_3',
+        fromWalletId: demoWallet.id,
+        amountDt: 100,
+        entryType: 'subscription',
+        description: '월간 구독',
+        status: 'completed',
+        createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      ),
+      if (isCreator) ...[
+        LedgerEntry(
+          id: 'demo_txn_4',
+          idempotencyKey: 'demo_key_4',
+          toWalletId: demoWallet.id,
+          amountDt: 3000,
+          entryType: 'tip',
+          description: '팬으로부터 후원 받음',
+          status: 'completed',
+          createdAt: DateTime.now().subtract(const Duration(days: 2)),
+        ),
+        LedgerEntry(
+          id: 'demo_txn_5',
+          idempotencyKey: 'demo_key_5',
+          toWalletId: demoWallet.id,
+          amountDt: 1500,
+          entryType: 'paid_reply',
+          description: '유료 답장 수익',
+          status: 'completed',
+          createdAt: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+      ],
+    ];
+
+    // 데모 패키지
+    const demoPackages = [
+      DtPackage(id: 'dt_10', name: '10 DT', dtAmount: 10, priceKrw: 1000),
+      DtPackage(id: 'dt_50', name: '50 DT', dtAmount: 50, priceKrw: 5000),
+      DtPackage(id: 'dt_100', name: '100 DT', dtAmount: 100, bonusDt: 5, priceKrw: 10000),
+      DtPackage(id: 'dt_500', name: '500 DT', dtAmount: 500, bonusDt: 50, priceKrw: 50000, badgeText: '인기'),
+      DtPackage(id: 'dt_1000', name: '1,000 DT', dtAmount: 1000, bonusDt: 150, priceKrw: 100000, badgeText: 'BEST'),
+    ];
+
+    state = WalletLoaded(
+      wallet: demoWallet,
+      recentTransactions: demoTransactions,
+      packages: demoPackages,
+    );
+  }
+
+  /// 데모 모드에서 잔액 추가 (충전 시뮬레이션)
+  void addDemoBalance(int amount) {
+    final currentState = state;
+    if (currentState is! WalletLoaded) return;
+
+    final authState = _ref.read(authProvider);
+    if (authState is! AuthDemoMode) return;
+
+    final updatedWallet = currentState.wallet.copyWith(
+      balanceDt: currentState.wallet.balanceDt + amount,
+      lifetimePurchasedDt: currentState.wallet.lifetimePurchasedDt + amount,
+    );
+
+    final newTransaction = LedgerEntry(
+      id: 'demo_txn_${DateTime.now().millisecondsSinceEpoch}',
+      idempotencyKey: 'demo_key_${DateTime.now().millisecondsSinceEpoch}',
+      toWalletId: updatedWallet.id,
+      amountDt: amount,
+      entryType: 'purchase',
+      description: 'DT 충전 (데모)',
+      status: 'completed',
+      createdAt: DateTime.now(),
+    );
+
+    state = WalletLoaded(
+      wallet: updatedWallet,
+      recentTransactions: [newTransaction, ...currentState.recentTransactions],
+      packages: currentState.packages,
+    );
+  }
+
+  /// 데모 모드에서 잔액 차감 (후원/구독 시뮬레이션)
+  bool spendDemoBalance(int amount, String type, String description) {
+    final currentState = state;
+    if (currentState is! WalletLoaded) return false;
+
+    final authState = _ref.read(authProvider);
+    if (authState is! AuthDemoMode) return false;
+
+    if (currentState.wallet.balanceDt < amount) return false;
+
+    final updatedWallet = currentState.wallet.copyWith(
+      balanceDt: currentState.wallet.balanceDt - amount,
+      lifetimeSpentDt: currentState.wallet.lifetimeSpentDt + amount,
+    );
+
+    final newTransaction = LedgerEntry(
+      id: 'demo_txn_${DateTime.now().millisecondsSinceEpoch}',
+      idempotencyKey: 'demo_key_${DateTime.now().millisecondsSinceEpoch}',
+      fromWalletId: updatedWallet.id,
+      amountDt: amount,
+      entryType: type,
+      description: description,
+      status: 'completed',
+      createdAt: DateTime.now(),
+    );
+
+    state = WalletLoaded(
+      wallet: updatedWallet,
+      recentTransactions: [newTransaction, ...currentState.recentTransactions],
+      packages: currentState.packages,
+    );
+
+    return true;
   }
 
   Future<void> loadWallet() async {
@@ -482,8 +650,9 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
       final wallet = currentState.wallet;
 
-      // Calculate creator share (80%) and platform fee (20%)
-      final creatorShare = (amountDt * 0.8).floor();
+      // Calculate creator share and platform fee from BusinessConfig
+      final creatorShare =
+          (amountDt * BusinessConfig.creatorPayoutPercent / 100).floor();
       final platformFee = amountDt - creatorShare;
 
       final idempotencyKey =

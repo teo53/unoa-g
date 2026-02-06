@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/config/demo_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../data/repositories/mock_chat_repository.dart';
@@ -24,6 +25,14 @@ class _CreatorDashboardScreenState
   final MockArtistInboxRepository _repository = MockArtistInboxRepository();
   InboxStats? _stats;
   bool _isLoading = true;
+
+  /// Format number with comma separators
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (match) => '${match[1]},',
+        );
+  }
 
   @override
   void initState() {
@@ -299,9 +308,9 @@ class _CreatorDashboardScreenState
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            '1,245,000 DT',
-            style: TextStyle(
+          Text(
+            '${_formatNumber(DemoConfig.demoMonthlyRevenue)} DT',
+            style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
               color: Colors.white,
@@ -521,7 +530,7 @@ class _CreatorDashboardScreenState
                 ),
                 const Spacer(),
                 Text(
-                  '1,250명',
+                  '${_formatNumber(DemoConfig.demoSubscriberCount)}명',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -568,7 +577,7 @@ class _CreatorDashboardScreenState
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.6,
+      childAspectRatio: 1.1,
       children: [
         _StatCard(
           icon: Icons.mail_rounded,
@@ -784,7 +793,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
@@ -796,33 +805,33 @@ class _StatCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: iconColor, size: 18),
-              ),
-              const Spacer(),
-            ],
+          // 아이콘
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 22),
           ),
-          const Spacer(),
+          const SizedBox(height: 14),
+          // 숫자
           Text(
             value,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 34,
               fontWeight: FontWeight.w700,
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+              height: 1.0,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
+          // 레이블
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
             maxLines: 1,
