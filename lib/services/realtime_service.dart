@@ -32,13 +32,13 @@ class TypingEvent {
 
 /// User presence info
 class UserPresence {
-  final String oderId;
+  final String userId;
   final bool isOnline;
   final DateTime? lastSeen;
   final String? status;
 
   const UserPresence({
-    required this.oderId,
+    required this.userId,
     required this.isOnline,
     this.lastSeen,
     this.status,
@@ -145,7 +145,7 @@ class RealtimeService {
           final userId = presence.payload['user_id'] as String?;
           if (userId != null) {
             presences[userId] = UserPresence(
-              oderId: userId,
+              userId: userId,
               isOnline: true,
               lastSeen: DateTime.now(),
               status: presence.payload['status'] as String?,
@@ -165,6 +165,7 @@ class RealtimeService {
         event: 'typing',
         callback: (payload) {
           final event = TypingEvent.fromPayload(payload);
+          final typingTimerKey = '$channelId:${event.userId}';
 
           if (event.userId == _currentUserId) return; // Ignore own typing
 
@@ -172,14 +173,16 @@ class RealtimeService {
             typingUsers[event.userId] = event;
 
             // Set timer to remove typing indicator
-            _typingTimers[event.userId]?.cancel();
-            _typingTimers[event.userId] = Timer(typingTimeout, () {
+            _typingTimers[typingTimerKey]?.cancel();
+            _typingTimers[typingTimerKey] = Timer(typingTimeout, () {
               typingUsers.remove(event.userId);
+              _typingTimers.remove(typingTimerKey);
               onTypingChange(typingUsers.values.toList());
             });
           } else {
             typingUsers.remove(event.userId);
-            _typingTimers[event.userId]?.cancel();
+            _typingTimers[typingTimerKey]?.cancel();
+            _typingTimers.remove(typingTimerKey);
           }
 
           onTypingChange(typingUsers.values.toList());
