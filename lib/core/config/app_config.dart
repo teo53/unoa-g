@@ -89,11 +89,17 @@ class AppConfig {
   // API Configuration
   // ============================================================
 
-  /// OpenAI API Key (데모/개발 환경에서 AI 답글 제안 직접 호출용)
-  /// 빌드 시 --dart-define=OPENAI_API_KEY=sk-... 으로 주입
-  static const String openaiApiKey = String.fromEnvironment(
-    'OPENAI_API_KEY',
+  /// Anthropic Claude API Key (AI 답글 제안 직접 호출용)
+  /// 빌드 시 --dart-define=ANTHROPIC_API_KEY=sk-ant-... 으로 주입
+  static const String anthropicApiKey = String.fromEnvironment(
+    'ANTHROPIC_API_KEY',
     defaultValue: '',
+  );
+
+  /// Claude 모델 ID
+  static const String claudeModel = String.fromEnvironment(
+    'CLAUDE_MODEL',
+    defaultValue: 'claude-sonnet-4-5-20250929',
   );
 
   /// API request timeout in seconds

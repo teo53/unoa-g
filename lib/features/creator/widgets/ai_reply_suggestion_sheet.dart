@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/services/creator_pattern_service.dart';
 
 /// Bottom sheet for AI reply suggestions
 ///
@@ -89,8 +90,8 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     });
 
     try {
-      if (AppConfig.openaiApiKey.isNotEmpty) {
-        await _fetchFromGPT();
+      if (AppConfig.anthropicApiKey.isNotEmpty) {
+        await _fetchFromClaude();
       } else {
         await _fetchFromSupabase();
       }
@@ -102,54 +103,113 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     }
   }
 
-  /// GPT API 직접 호출 (데모/개발 환경)
-  Future<void> _fetchFromGPT() async {
-    final prompt = _buildPrompt(widget.fanMessagePreview ?? '');
+  /// 크리에이터의 과거 메시지에서 패턴 컨텍스트를 생성
+  String _buildPatternContext() {
+    // 데모 모드: 샘플 크리에이터 메시지로 패턴 분석
+    final sampleMessages = [
+      CreatorMessage(
+        id: 'sample_1',
+        content: '오늘 공연 와줘서 너무 고마워요~ 💕',
+        createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      ),
+      CreatorMessage(
+        id: 'sample_2',
+        content: '여러분 덕분에 힘이 나요! 항상 응원해줘서 감사합니다 🙏',
+        createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      ),
+      CreatorMessage(
+        id: 'sample_3',
+        content: '다음 주 컴백 준비 열심히 하고 있어요 기대해주세요!! ✨',
+        createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      ),
+      CreatorMessage(
+        id: 'sample_4',
+        content: 'ㅋㅋㅋ 귀여워요~ 고마워!',
+        createdAt: DateTime.now().subtract(const Duration(days: 4)),
+      ),
+      CreatorMessage(
+        id: 'sample_5',
+        content: '오늘 날씨가 너무 좋아서 산책했어요 🌸 여러분도 좋은 하루 보내세요~',
+        createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      ),
+    ];
+
+    final patternService = CreatorPatternService.instance;
+    final analysis = patternService.analyzePatterns(
+      creatorId: widget.channelId,
+      messages: sampleMessages,
+    );
+
+    return patternService.buildPatternContext(analysis);
+  }
+
+  /// Claude API 직접 호출 (데모/개발 환경)
+  Future<void> _fetchFromClaude() async {
+    final patternContext = _buildPatternContext();
+    final prompt = _buildPrompt(widget.fanMessagePreview ?? '', patternContext: patternContext);
 
     final response = await http.post(
-      Uri.parse('https://api.openai.com/v1/chat/completions'),
+      Uri.parse('https://api.anthropic.com/v1/messages'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${AppConfig.openaiApiKey}',
+        'x-api-key': AppConfig.anthropicApiKey,
+        'anthropic-version': '2023-06-01',
       },
       body: jsonEncode({
-        'model': 'gpt-4o-mini',
+        'model': AppConfig.claudeModel,
+        'max_tokens': 1024,
         'messages': [
           {'role': 'user', 'content': prompt},
         ],
-        'max_tokens': 1024,
       }),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('GPT API 오류 (${response.statusCode})');
+      throw Exception('Claude API 오류 (${response.statusCode})');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final text = data['choices'][0]['message']['content'] as String;
+    final contentList = data['content'] as List<dynamic>;
+    final text = contentList.first['text'] as String;
 
-    final suggestions = _parseGPTResponse(text);
+    final suggestions = _parseAIResponse(text);
     setState(() {
       _suggestions = suggestions;
       _isLoading = false;
     });
   }
 
-  String _buildPrompt(String fanMessage) {
-    return '당신은 K-pop/엔터테인먼트 크리에이터의 팬 메시지 답글 초안을 작성하는 도우미입니다.\n\n'
-        '[팬 메시지]\n"$fanMessage"\n\n'
-        '[안전 규칙]\n'
-        '- 친근하되 기만적이지 않게 작성\n'
-        '- "AI"라는 단어 사용 금지\n'
-        '- 각 답변 200자 이내\n\n'
-        '정확히 3개의 서로 다른 스타일의 답글 초안을 JSON 배열 형식으로 반환하세요.\n'
-        '스타일: 짧게, 따뜻하게, 재미있게\n\n'
-        '예시 형식:\n'
-        '["첫 번째 답글", "두 번째 답글", "세 번째 답글"]\n\n'
-        '답글만 출력하고 다른 설명은 포함하지 마세요.';
+  String _buildPrompt(String fanMessage, {String patternContext = ''}) {
+    final buffer = StringBuffer();
+    buffer.writeln('당신은 K-pop/엔터테인먼트 크리에이터의 팬 메시지 답글 초안을 작성하는 도우미입니다.');
+    buffer.writeln();
+
+    // 패턴 컨텍스트가 있으면 추가
+    if (patternContext.isNotEmpty) {
+      buffer.writeln(patternContext);
+      buffer.writeln();
+    }
+
+    buffer.writeln('[팬 메시지]');
+    buffer.writeln('"$fanMessage"');
+    buffer.writeln();
+    buffer.writeln('[안전 규칙]');
+    buffer.writeln('- 친근하되 기만적이지 않게 작성');
+    buffer.writeln('- "AI"라는 단어 사용 금지');
+    buffer.writeln('- 각 답변 200자 이내');
+    buffer.writeln();
+    buffer.writeln('정확히 3개의 서로 다른 스타일의 답글 초안을 JSON 배열 형식으로 반환하세요.');
+    buffer.writeln('스타일: 짧게, 따뜻하게, 재미있게');
+    buffer.writeln();
+    buffer.writeln('예시 형식:');
+    buffer.writeln('["첫 번째 답글", "두 번째 답글", "세 번째 답글"]');
+    buffer.writeln();
+    buffer.writeln('답글만 출력하고 다른 설명은 포함하지 마세요.');
+
+    return buffer.toString();
   }
 
-  List<ReplySuggestion> _parseGPTResponse(String text) {
+  List<ReplySuggestion> _parseAIResponse(String text) {
     const labels = ['짧게', '따뜻하게', '재미있게'];
 
     final match = RegExp(r'\[[\s\S]*\]').firstMatch(text);
@@ -164,7 +224,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
       }).toList();
     }
 
-    throw Exception('GPT 응답을 파싱할 수 없습니다');
+    throw Exception('AI 응답을 파싱할 수 없습니다');
   }
 
   /// Supabase Edge Function 호출 (프로덕션)
