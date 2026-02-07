@@ -111,7 +111,7 @@ CreatorChatTabScreen (2탭 구조)
 | Push Notifications | Firebase Cloud Messaging |
 | Analytics | Firebase Analytics |
 | Local Storage | Hive (hive_flutter ^1.1.0) |
-| Fonts | Noto Sans KR (via google_fonts) |
+| Fonts | Pretendard (Korean optimized) |
 | UI Framework | Material Design 3 |
 | Payments | TossPayments |
 | Code Generation | freezed, json_serializable, riverpod_generator |
@@ -140,7 +140,7 @@ unoa-g/
 │   │   │   ├── app_radius.dart      # Border radius constants (KRDS-inspired)
 │   │   │   ├── app_spacing.dart     # 8pt grid spacing system
 │   │   │   ├── app_theme.dart       # Light/dark theme + AppColorsExtension
-│   │   │   ├── app_typography.dart  # Text styles with Noto Sans KR
+│   │   │   ├── app_typography.dart  # Text styles with Pretendard
 │   │   │   └── premium_effects.dart # Shadows, glows, elevation presets
 │   │   └── utils/
 │   │       ├── accessibility_helper.dart  # Semantic wrappers, screen reader
@@ -462,7 +462,7 @@ AppRadius.full  // 999px (pill shape)
 ```
 
 ### Typography
-- Font: **Noto Sans KR** (Korean-optimized, loaded via `google_fonts`)
+- Font: **Pretendard** (Korean-optimized)
 - Line height: 1.5 for readability
 - Use `Theme.of(context).textTheme` for consistent typography
 - Categories: display, heading, body, label, caption, button
@@ -910,7 +910,7 @@ decorativeWidget.excludeSemantics()
 - `provider: ^6.1.2` - Legacy state management (being migrated)
 
 ### UI
-- `google_fonts: ^6.1.0` - Noto Sans KR font
+- `google_fonts: ^6.1.0` - Pretendard font
 - `cached_network_image: ^3.3.1` - Image caching
 - `shimmer: ^3.0.0` - Shimmer effects
 
