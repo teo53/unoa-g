@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
 /// Bottom navigation bar for creator/artist mode
+/// 5탭 구조: 대시보드, 채팅, 펀딩, 탐색, 프로필
 class CreatorBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -17,7 +18,7 @@ class CreatorBottomNavBar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         border: Border(
@@ -39,7 +40,7 @@ class CreatorBottomNavBar extends StatelessWidget {
             onTap: () => onTap(0),
             showBadge: true, // 팬 메시지 알림
           ),
-          // 채팅 - 내 채널 + 구독 아티스트 리스트
+          // 채팅 - 내 채널 + 프라이빗 카드 + 구독 아티스트
           _CreatorNavItem(
             icon: Icons.chat_bubble_rounded,
             outlinedIcon: Icons.chat_bubble_outline_rounded,

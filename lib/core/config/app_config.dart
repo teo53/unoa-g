@@ -55,6 +55,12 @@ class AppConfig {
     defaultValue: 'unoa-app-demo',
   );
 
+  /// Sentry DSN for error monitoring
+  static const String sentryDsn = String.fromEnvironment(
+    'SENTRY_DSN',
+    defaultValue: '',
+  );
+
   // ============================================================
   // Feature Flags
   // ============================================================
@@ -140,5 +146,45 @@ class AppConfig {
         return true;
       }());
     }
+  }
+
+  // ============================================================
+  // Runtime Validation
+  // ============================================================
+
+  /// Validate critical configuration at startup.
+  /// Throws [StateError] if production/staging configuration is incomplete.
+  static void validate() {
+    final errors = <String>[];
+
+    if (isProduction || isStaging) {
+      if (supabaseUrl == 'https://your-project.supabase.co' ||
+          supabaseUrl.isEmpty) {
+        errors.add('SUPABASE_URL is not configured');
+      }
+      if (supabaseAnonKey.isEmpty) {
+        errors.add('SUPABASE_ANON_KEY is not configured');
+      }
+    }
+
+    if (isProduction) {
+      if (sentryDsn.isEmpty) {
+        errors.add('SENTRY_DSN is not configured for production');
+      }
+      if (enableDemoMode) {
+        errors.add(
+            'ENABLE_DEMO should be false in production (set --dart-define=ENABLE_DEMO=false)');
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      throw StateError(
+        'AppConfig validation failed for $environment:\n'
+        '${errors.map((e) => '  - $e').join('\n')}\n\n'
+        'Please provide all required --dart-define flags.',
+      );
+    }
+
+    debugLog('AppConfig validation passed for $environment');
   }
 }

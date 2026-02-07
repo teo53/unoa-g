@@ -139,12 +139,22 @@ class ChatThreadData {
 class ChatListNotifier extends StateNotifier<ChatListState> {
   final Ref _ref;
   StreamSubscription? _subscriptionsSubscription;
+  ProviderSubscription? _authSubscription;
 
   ChatListNotifier(this._ref) : super(const ChatListState()) {
     _initialize();
   }
 
   void _initialize() {
+    // Listen to auth state changes so that when user enters demo mode,
+    // chat list automatically reloads with demo data
+    _authSubscription = _ref.listen<AuthState>(authProvider, (prev, next) {
+      if (prev.runtimeType != next.runtimeType) {
+        // Auth state changed (e.g. unauthenticated → demo mode)
+        state = const ChatListState(); // Reset state
+        loadChatThreads();
+      }
+    });
     loadChatThreads();
   }
 
@@ -380,6 +390,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
   @override
   void dispose() {
     _subscriptionsSubscription?.cancel();
+    _authSubscription?.close();
     super.dispose();
   }
 }

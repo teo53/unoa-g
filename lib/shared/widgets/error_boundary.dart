@@ -529,7 +529,7 @@ class TimeoutException implements Exception {
 
 class NotFoundException implements Exception {
   final String? message;
-  NotFoundException([this.message]);
+  const NotFoundException([this.message]);
 
   @override
   String toString() => message ?? 'Resource not found';
@@ -537,7 +537,7 @@ class NotFoundException implements Exception {
 
 class UnauthorizedException implements Exception {
   final String? message;
-  UnauthorizedException([this.message]);
+  const UnauthorizedException([this.message]);
 
   @override
   String toString() => message ?? 'Unauthorized access';

@@ -9,6 +9,9 @@ import '../data/models/user.dart';
 // Re-export unified user models for backward compatibility
 export '../data/models/user.dart' show UserAuthProfile, UserDisplayProfile, UserBase;
 
+/// Sentinel for updateDemoProfile to distinguish "not provided" from "null"
+const Object _demoSentinel = Object();
+
 /// @deprecated Use [UserAuthProfile] from data/models/user.dart instead
 /// Kept as typedef for backward compatibility
 typedef UserProfile = UserAuthProfile;
@@ -340,15 +343,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// Update demo profile (for demo mode only)
+  ///
+  /// Social link fields use [Object?] with sentinel to distinguish
+  /// "not provided" (keep existing) from "set to null" (clear the field).
+  /// Pass `null` explicitly to clear a social link.
+  /// Omit the parameter to keep the existing value.
   void updateDemoProfile({
     String? displayName,
     String? avatarUrl,
     String? bio,
     int? themeColorIndex,
-    String? instagramLink,
-    String? youtubeLink,
-    String? tiktokLink,
-    String? twitterLink,
+    Object? instagramLink = _demoSentinel,
+    Object? youtubeLink = _demoSentinel,
+    Object? tiktokLink = _demoSentinel,
+    Object? twitterLink = _demoSentinel,
   }) {
     final currentState = state;
     if (currentState is! AuthDemoMode) return;
@@ -358,10 +366,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
       avatarUrl: avatarUrl,
       bio: bio,
       themeColorIndex: themeColorIndex,
-      instagramLink: instagramLink,
-      youtubeLink: youtubeLink,
-      tiktokLink: tiktokLink,
-      twitterLink: twitterLink,
+      instagramLink: instagramLink == _demoSentinel
+          ? currentState.demoProfile.instagramLink
+          : instagramLink,
+      youtubeLink: youtubeLink == _demoSentinel
+          ? currentState.demoProfile.youtubeLink
+          : youtubeLink,
+      tiktokLink: tiktokLink == _demoSentinel
+          ? currentState.demoProfile.tiktokLink
+          : tiktokLink,
+      twitterLink: twitterLink == _demoSentinel
+          ? currentState.demoProfile.twitterLink
+          : twitterLink,
     );
 
     state = AuthDemoMode(demoProfile: updatedProfile);

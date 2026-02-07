@@ -27,6 +27,8 @@ class DailyQuestionCardsPanel extends ConsumerStatefulWidget {
 
 class _DailyQuestionCardsPanelState
     extends ConsumerState<DailyQuestionCardsPanel> {
+  bool _isExpanded = true;
+
   @override
   void initState() {
     super.initState();
@@ -100,6 +102,96 @@ class _DailyQuestionCardsPanelState
   }
 
   Widget _buildContent(DailyQuestionSet set, bool isDark, {String? votingCardId}) {
+    final title = set.hasVoted ? '투표 결과' : '오늘의 질문';
+    final subtitle = set.hasVoted
+        ? '${set.totalVotes}명 참여'
+        : '${set.totalVotes}명 참여';
+
+    return Column(
+      children: [
+        // Collapsible header
+        GestureDetector(
+          onTap: () => setState(() => _isExpanded = !_isExpanded),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                Icon(
+                  set.hasVoted ? Icons.how_to_vote_outlined : Icons.quiz_outlined,
+                  size: 18,
+                  color: set.hasVoted ? AppColors.star : AppColors.primary500,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
+                const Spacer(),
+                if (set.hasVoted)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '완료',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.success,
+                      ),
+                    ),
+                  ),
+                AnimatedRotation(
+                  turns: _isExpanded ? 0.0 : -0.25,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 22,
+                    color: isDark ? Colors.grey[500] : Colors.grey[400],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Expandable content
+        AnimatedCrossFade(
+          firstChild: _buildInnerContent(set, isDark, votingCardId: votingCardId),
+          secondChild: const SizedBox.shrink(),
+          crossFadeState: _isExpanded
+              ? CrossFadeState.showFirst
+              : CrossFadeState.showSecond,
+          duration: const Duration(milliseconds: 200),
+          sizeCurve: Curves.easeInOut,
+        ),
+
+        // Divider
+        Divider(
+          height: 1,
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInnerContent(DailyQuestionSet set, bool isDark, {String? votingCardId}) {
     if (set.hasVoted) {
       return _VotedResultView(
         set: set,
@@ -154,46 +246,18 @@ class _VotingCardsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Row(
-            children: [
-              Icon(
-                Icons.quiz_outlined,
-                size: 20,
-                color: AppColors.primary500,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '오늘의 질문',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${set.totalVotes}명 참여',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
           Text(
             '마음에 드는 질문에 투표해 주세요',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Cards
           SizedBox(
@@ -615,66 +679,10 @@ class _VotedResultView extends StatelessWidget {
     final winningCard = set.winningCard;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Row(
-            children: [
-              Icon(
-                Icons.how_to_vote_outlined,
-                size: 20,
-                color: AppColors.star,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '투표 결과',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      size: 14,
-                      color: AppColors.success,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '투표 완료',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.success,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${set.totalVotes}명이 참여했어요',
-            style: TextStyle(
-              fontSize: 13,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
-          ),
-          const SizedBox(height: 12),
-
           // Cards with results
           SizedBox(
             height: compact ? 120 : 150,

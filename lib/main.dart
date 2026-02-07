@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'core/config/app_config.dart';
 import 'core/supabase/supabase_client.dart';
 import 'core/monitoring/sentry_service.dart';
 import 'services/fcm_service.dart';
@@ -29,6 +30,9 @@ Future<void> main() async {
   // Sentry 초기화를 위해 runZonedGuarded 사용
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Validate configuration before any initialization
+    AppConfig.validate();
 
     // Set preferred orientations
     await SystemChrome.setPreferredOrientations([

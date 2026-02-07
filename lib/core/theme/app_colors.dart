@@ -108,6 +108,9 @@ class AppColors {
   /// VIP badge color
   static const Color vip = Color(0xFF8B5CF6);
 
+  /// Standard tier color
+  static const Color standard = Color(0xFF3B82F6);
+
   // ═══════════════════════════════════════════════════════════════
   // UNIFIED GRADIENTS
   // ═══════════════════════════════════════════════════════════════
@@ -129,6 +132,28 @@ class AppColors {
     Color(0xFFFF6B6B),
     Color(0xFFFF8E8E),
   ];
+
+  // ═══════════════════════════════════════════════════════════════
+  // PRIVATE CARD COLORS
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Private card gradient start (soft purple)
+  static const Color cardGradientStart = Color(0xFFE8B5FF);
+
+  /// Private card gradient end (soft pink)
+  static const Color cardGradientEnd = Color(0xFFFF8FAB);
+
+  /// Private card accent pink
+  static const Color cardAccentPink = Color(0xFFEC4899);
+
+  /// Private card warm pink (for media placeholders/fallback)
+  static const Color cardWarmPink = Color(0xFFFFB6C8);
+
+  /// Private Card Gradient - For card borders and decorative elements
+  static const List<Color> privateCardGradient = [cardGradientStart, cardGradientEnd];
+
+  /// Private Card Label Gradient - For the "private card" badge
+  static const List<Color> privateCardLabelGradient = [vip, cardAccentPink];
 
   // ═══════════════════════════════════════════════════════════════
   // DARK THEME FOUNDATION

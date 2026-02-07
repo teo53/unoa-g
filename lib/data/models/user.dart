@@ -5,6 +5,9 @@
 /// - [UserDisplayProfile]: UI display data with subscription and wallet info
 /// - [UserBase]: Common interface for all user types
 
+/// Sentinel value for copyWith to distinguish "not provided" from "set to null"
+const Object _sentinel = Object();
+
 /// Base user interface with common fields
 abstract class UserBase {
   String get id;
@@ -70,6 +73,11 @@ class UserAuthProfile implements UserBase {
       guardianConsentAt: json['guardian_consent_at'] != null
           ? DateTime.parse(json['guardian_consent_at'] as String)
           : null,
+      themeColorIndex: json['theme_color_index'] as int? ?? 0,
+      instagramLink: json['instagram_link'] as String?,
+      youtubeLink: json['youtube_link'] as String?,
+      tiktokLink: json['tiktok_link'] as String?,
+      twitterLink: json['twitter_link'] as String?,
     );
   }
 
@@ -85,6 +93,11 @@ class UserAuthProfile implements UserBase {
       'locale': locale,
       'created_at': createdAt.toIso8601String(),
       'guardian_consent_at': guardianConsentAt?.toIso8601String(),
+      'theme_color_index': themeColorIndex,
+      'instagram_link': instagramLink,
+      'youtube_link': youtubeLink,
+      'tiktok_link': tiktokLink,
+      'twitter_link': twitterLink,
     };
   }
 
@@ -104,6 +117,11 @@ class UserAuthProfile implements UserBase {
   bool get isMinorUnder19 => (age ?? 100) < 19;
   bool get hasGuardianConsent => guardianConsentAt != null;
 
+  /// copyWith with support for clearing nullable fields.
+  ///
+  /// To clear a nullable field (set to null), pass empty string ''.
+  /// To keep the existing value, omit the parameter (don't pass anything).
+  /// To set a new value, pass the new string.
   UserAuthProfile copyWith({
     String? displayName,
     String? avatarUrl,
@@ -113,10 +131,10 @@ class UserAuthProfile implements UserBase {
     String? locale,
     DateTime? guardianConsentAt,
     int? themeColorIndex,
-    String? instagramLink,
-    String? youtubeLink,
-    String? tiktokLink,
-    String? twitterLink,
+    Object? instagramLink = _sentinel,
+    Object? youtubeLink = _sentinel,
+    Object? tiktokLink = _sentinel,
+    Object? twitterLink = _sentinel,
   }) {
     return UserAuthProfile(
       id: id,
@@ -130,10 +148,18 @@ class UserAuthProfile implements UserBase {
       createdAt: createdAt,
       guardianConsentAt: guardianConsentAt ?? this.guardianConsentAt,
       themeColorIndex: themeColorIndex ?? this.themeColorIndex,
-      instagramLink: instagramLink ?? this.instagramLink,
-      youtubeLink: youtubeLink ?? this.youtubeLink,
-      tiktokLink: tiktokLink ?? this.tiktokLink,
-      twitterLink: twitterLink ?? this.twitterLink,
+      instagramLink: instagramLink == _sentinel
+          ? this.instagramLink
+          : (instagramLink as String?),
+      youtubeLink: youtubeLink == _sentinel
+          ? this.youtubeLink
+          : (youtubeLink as String?),
+      tiktokLink: tiktokLink == _sentinel
+          ? this.tiktokLink
+          : (tiktokLink as String?),
+      twitterLink: twitterLink == _sentinel
+          ? this.twitterLink
+          : (twitterLink as String?),
     );
   }
 }

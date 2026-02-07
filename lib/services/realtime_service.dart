@@ -174,18 +174,23 @@ class RealtimeService {
 
           if (event.userId == _currentUserId) return; // Ignore own typing
 
+          // Use composite key so unsubscribeFromChannel can find timers
+          final timerKey = '$channelId:${event.userId}';
+
           if (event.isTyping) {
             typingUsers[event.userId] = event;
 
             // Set timer to remove typing indicator
-            _typingTimers[event.userId]?.cancel();
-            _typingTimers[event.userId] = Timer(typingTimeout, () {
+            _typingTimers[timerKey]?.cancel();
+            _typingTimers[timerKey] = Timer(typingTimeout, () {
               typingUsers.remove(event.userId);
+              _typingTimers.remove(timerKey);
               onTypingChange(typingUsers.values.toList());
             });
           } else {
             typingUsers.remove(event.userId);
-            _typingTimers[event.userId]?.cancel();
+            _typingTimers[timerKey]?.cancel();
+            _typingTimers.remove(timerKey);
           }
 
           onTypingChange(typingUsers.values.toList());

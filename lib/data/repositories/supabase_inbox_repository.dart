@@ -411,8 +411,21 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
     final highlightedMessages =
         messages.where((m) => m['is_highlighted'] == true).length;
 
-    // TODO: Implement unread tracking for artist inbox
-    const unreadMessages = 0;
+    // Count unread fan messages via server-side RPC
+    int unreadMessages = 0;
+    try {
+      final unreadResult = await _supabase.rpc(
+        'count_unread_inbox_messages',
+        params: {
+          'p_channel_id': channelId,
+          'p_artist_user_id': _currentUserId,
+        },
+      );
+      unreadMessages = (unreadResult as int?) ?? 0;
+    } catch (_) {
+      // Graceful fallback - don't block stats loading if RPC not yet deployed
+      unreadMessages = 0;
+    }
 
     return InboxStats(
       totalMessages: totalMessages,

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
-import '../../providers/wallet_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
@@ -14,6 +14,12 @@ import 'widgets/voice_message_widget.dart';
 import 'widgets/message_actions_sheet.dart';
 import 'widgets/message_edit_dialog.dart';
 import 'widgets/report_dialog.dart';
+import 'widgets/daily_question_cards_panel.dart';
+import 'widgets/chat_search_bar.dart';
+import 'widgets/highlighted_text.dart';
+import 'widgets/media_gallery_sheet.dart';
+import 'widgets/full_screen_image_viewer.dart';
+import '../private_card/widgets/private_card_bubble.dart';
 
 /// Chat thread screen showing 1:1 conversation with an artist
 /// Uses Riverpod for state management with Supabase backend
@@ -34,6 +40,12 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   late final ScrollController _scrollController;
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
+
+  // Search state
+  bool _isSearchActive = false;
+  String _searchQuery = '';
+  List<int> _searchMatchIndices = [];
+  int _currentSearchMatchIndex = -1;
 
   @override
   void initState() {
@@ -85,7 +97,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final chatState = ref.watch(chatProvider(widget.channelId));
-    final walletState = ref.watch(walletProvider);
+    final isCreator = ref.watch(isCreatorProvider);
 
     // Start fade animation when data is loaded
     if (!chatState.isLoading && _fadeController.value == 0) {
@@ -141,8 +153,23 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
         opacity: _fadeAnimation,
         child: Column(
           children: [
-            // Header
-            _buildHeader(context, chatState, walletState, isDark),
+            // Header or Search Bar
+            _isSearchActive
+                ? ChatSearchBar(
+                    matchCount: _searchMatchIndices.length,
+                    currentMatch: _currentSearchMatchIndex,
+                    onQueryChanged: _onSearchQueryChanged,
+                    onNavigate: _onSearchNavigate,
+                    onClose: _onSearchClose,
+                  )
+                : _buildHeader(context, chatState, isDark),
+
+            // Daily question cards panel (fan only)
+            if (!isCreator)
+              DailyQuestionCardsPanel(
+                channelId: widget.channelId,
+                compact: true,
+              ),
 
             // Messages list
             Expanded(
@@ -163,7 +190,6 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   Widget _buildHeader(
     BuildContext context,
     ChatState chatState,
-    WalletState walletState,
     bool isDark,
   ) {
     final channel = chatState.channel;
@@ -279,37 +305,33 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
             ),
           ),
 
-          // DT Balance
-          GestureDetector(
-            onTap: () => context.push('/wallet'),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[800] : Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.diamond,
-                    size: 14,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    walletState.wallet?.formattedBalance ?? '0',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.grey[300] : Colors.grey[700],
-                    ),
-                  ),
-                ],
-              ),
+          // Search button
+          IconButton(
+            onPressed: () => setState(() { _isSearchActive = true; }),
+            icon: Icon(
+              Icons.search,
+              size: 22,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+            padding: EdgeInsets.zero,
+            tooltip: '메시지 검색',
+          ),
+
+          // Media gallery / hamburger menu button
+          IconButton(
+            onPressed: () => MediaGallerySheet.show(
+              context: context,
+              channelId: widget.channelId,
+            ),
+            icon: Icon(
+              Icons.menu,
+              size: 22,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+            padding: EdgeInsets.zero,
+            tooltip: '미디어 모아보기',
           ),
         ],
       ),
@@ -382,22 +404,32 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
         }
         final isOwnMessage = message.senderId == currentUserId;
 
+        // Private card messages get special bubble
+        final isPrivateCard = message.deliveryScope == DeliveryScope.privateCard;
+
         return Column(
           children: [
             if (dateSeparator != null) dateSeparator,
-            MessageBubbleV2(
-              message: message,
-              isArtist: message.isFromArtist,
-              artistAvatarUrl: chatState.channel?.avatarUrl,
-              artistName: chatState.channel?.name ?? '',
-              showAvatar: _shouldShowAvatar(message, previousMessage),
-              isOwnMessage: isOwnMessage,
-              onLongPress: () => _showMessageActions(
-                context,
-                message,
-                isOwnMessage,
+            if (isPrivateCard)
+              PrivateCardBubble(
+                message: message,
+              )
+            else
+              MessageBubbleV2(
+                message: message,
+                isArtist: message.isFromArtist,
+                artistAvatarUrl: chatState.channel?.avatarUrl,
+                artistName: chatState.channel?.name ?? '',
+                showAvatar: _shouldShowAvatar(message, previousMessage),
+                isOwnMessage: isOwnMessage,
+                searchQuery: _searchQuery.isNotEmpty ? _searchQuery : null,
+                allMessages: messages,
+                onLongPress: () => _showMessageActions(
+                  context,
+                  message,
+                  isOwnMessage,
+                ),
               ),
-            ),
           ],
         );
       },
@@ -486,7 +518,62 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     }
   }
 
-  /// Show message actions sheet (edit, delete, report, block)
+  // ── Search Methods ──────────────────────────────────────
+
+  void _onSearchQueryChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+      _searchMatchIndices = [];
+      _currentSearchMatchIndex = -1;
+      if (query.isNotEmpty) {
+        final messages = ref.read(chatProvider(widget.channelId)).messages;
+        for (int i = 0; i < messages.length; i++) {
+          if (messages[i].content?.toLowerCase().contains(query.toLowerCase()) ?? false) {
+            _searchMatchIndices.add(i);
+          }
+        }
+        if (_searchMatchIndices.isNotEmpty) {
+          _currentSearchMatchIndex = 0;
+        }
+      }
+    });
+    if (_searchMatchIndices.isNotEmpty) {
+      _scrollToCurrentMatch();
+    }
+  }
+
+  void _onSearchNavigate(int direction) {
+    if (_searchMatchIndices.isEmpty) return;
+    setState(() {
+      _currentSearchMatchIndex = (_currentSearchMatchIndex + direction)
+          .clamp(0, _searchMatchIndices.length - 1);
+    });
+    _scrollToCurrentMatch();
+  }
+
+  void _scrollToCurrentMatch() {
+    if (_currentSearchMatchIndex < 0 || _searchMatchIndices.isEmpty) return;
+    final msgIndex = _searchMatchIndices[_currentSearchMatchIndex];
+    // ListView is reverse:true, so index 0 = newest at bottom
+    // Estimate offset based on message position
+    final estimatedOffset = msgIndex * 80.0;
+    _scrollController.animateTo(
+      estimatedOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _onSearchClose() {
+    setState(() {
+      _isSearchActive = false;
+      _searchQuery = '';
+      _searchMatchIndices = [];
+      _currentSearchMatchIndex = -1;
+    });
+  }
+
+  /// Show message actions sheet (reply, edit, delete, report, block)
   void _showMessageActions(
     BuildContext context,
     BroadcastMessage message,
@@ -499,11 +586,17 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       context: context,
       message: message,
       isOwnMessage: isOwnMessage,
+      onReply: () => _handleReplyToMessage(message),
       onEdit: isOwnMessage ? () => _handleEditMessage(context, message) : null,
       onDelete: isOwnMessage ? () => _handleDeleteMessage(message) : null,
       onReport: !isOwnMessage ? _handleReportMessage : null,
       onBlock: !isOwnMessage ? () => _handleBlockUser(message.senderId) : null,
     );
+  }
+
+  /// Handle reply to message
+  void _handleReplyToMessage(BroadcastMessage message) {
+    ref.read(chatProvider(widget.channelId).notifier).setReplyTo(message);
   }
 
   /// Handle edit message
@@ -558,6 +651,8 @@ class MessageBubbleV2 extends StatelessWidget {
   final bool showAvatar;
   final bool isOwnMessage;
   final VoidCallback? onLongPress;
+  final String? searchQuery;
+  final List<BroadcastMessage> allMessages;
 
   const MessageBubbleV2({
     super.key,
@@ -568,7 +663,19 @@ class MessageBubbleV2 extends StatelessWidget {
     this.showAvatar = true,
     this.isOwnMessage = false,
     this.onLongPress,
+    this.searchQuery,
+    this.allMessages = const [],
   });
+
+  /// Find the replied-to message from allMessages
+  BroadcastMessage? get _repliedToMessage {
+    if (message.replyToMessageId == null) return null;
+    try {
+      return allMessages.firstWhere((m) => m.id == message.replyToMessageId);
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -708,7 +815,18 @@ class MessageBubbleV2 extends StatelessWidget {
                     color: isDark ? const Color(0xFF2D2D2D) : Colors.grey[100],
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: _buildContent(context, isDark),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_repliedToMessage != null)
+                        _ReplyQuoteBubble(
+                          repliedTo: _repliedToMessage!,
+                          isDark: isDark,
+                          isOwnBubble: false,
+                        ),
+                      _buildContent(context, isDark),
+                    ],
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4, left: 4),
@@ -785,12 +903,24 @@ class MessageBubbleV2 extends StatelessWidget {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(
-                    message.content ?? '',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_repliedToMessage != null)
+                        _ReplyQuoteBubble(
+                          repliedTo: _repliedToMessage!,
+                          isDark: isDark,
+                          isOwnBubble: true,
+                        ),
+                      HighlightedText(
+                        text: message.content ?? '',
+                        query: searchQuery,
+                        baseStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Padding(
@@ -886,9 +1016,10 @@ class MessageBubbleV2 extends StatelessWidget {
           ),
           if (message.content != null && message.content!.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(
-              message.content!,
-              style: TextStyle(
+            HighlightedText(
+              text: message.content!,
+              query: searchQuery,
+              baseStyle: TextStyle(
                 color: isDark ? Colors.grey[200] : Colors.grey[800],
               ),
             ),
@@ -901,12 +1032,20 @@ class MessageBubbleV2 extends StatelessWidget {
   Widget _buildContent(BuildContext context, bool isDark) {
     switch (message.messageType) {
       case BroadcastMessageType.image:
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: CachedNetworkImage(
+        return GestureDetector(
+          onTap: () => FullScreenImageViewer.show(
+            context,
             imageUrl: message.mediaUrl!,
-            width: 200,
-            fit: BoxFit.cover,
+            senderName: message.isFromArtist ? artistName : message.senderName,
+            date: message.createdAt,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: CachedNetworkImage(
+              imageUrl: message.mediaUrl!,
+              width: 200,
+              fit: BoxFit.cover,
+            ),
           ),
         );
       case BroadcastMessageType.video:
@@ -981,9 +1120,10 @@ class MessageBubbleV2 extends StatelessWidget {
           isFromArtist: message.isFromArtist,
         );
       default:
-        return Text(
-          message.content ?? '',
-          style: TextStyle(
+        return HighlightedText(
+          text: message.content ?? '',
+          query: searchQuery,
+          baseStyle: TextStyle(
             color: isDark ? Colors.white : Colors.black87,
             fontSize: 14,
           ),
@@ -992,20 +1132,12 @@ class MessageBubbleV2 extends StatelessWidget {
   }
 
   void _playVideo(BuildContext context, String videoUrl) {
-    // TODO: 전체화면 비디오 플레이어로 이동
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('동영상 재생'),
-        content: const Text('동영상 플레이어 구현 예정'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('닫기'),
-          ),
-        ],
-      ),
-    );
+    // TODO: 전체화면 비디오 플레이어 구현 (video_player 패키지 필요)
+    // 현재는 외부 브라우저에서 재생
+    final uri = Uri.tryParse(videoUrl);
+    if (uri != null) {
+      launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   String _formatDuration(int seconds) {
@@ -1019,6 +1151,87 @@ class MessageBubbleV2 extends StatelessWidget {
     final period = time.hour >= 12 ? '오후' : '오전';
     final minute = time.minute.toString().padLeft(2, '0');
     return '$period $hour:$minute';
+  }
+}
+
+/// Reply quote bubble shown inside a message when replying to another message
+class _ReplyQuoteBubble extends StatelessWidget {
+  final BroadcastMessage repliedTo;
+  final bool isDark;
+  final bool isOwnBubble;
+
+  const _ReplyQuoteBubble({
+    required this.repliedTo,
+    required this.isDark,
+    required this.isOwnBubble,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final senderName = repliedTo.isFromArtist
+        ? (repliedTo.senderName ?? '아티스트')
+        : (repliedTo.senderName ?? '나');
+
+    final previewText = repliedTo.deletedAt != null
+        ? '삭제된 메시지'
+        : repliedTo.content ?? (repliedTo.messageType == BroadcastMessageType.image
+            ? '📷 사진'
+            : repliedTo.messageType == BroadcastMessageType.video
+                ? '🎬 동영상'
+                : repliedTo.messageType == BroadcastMessageType.voice
+                    ? '🎤 음성 메시지'
+                    : '메시지');
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+      decoration: BoxDecoration(
+        color: isOwnBubble
+            ? Colors.white.withValues(alpha: 0.15)
+            : (isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.04)),
+        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          left: BorderSide(
+            color: isOwnBubble
+                ? Colors.white.withValues(alpha: 0.5)
+                : AppColors.primary.withValues(alpha: 0.6),
+            width: 2,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            senderName,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: isOwnBubble
+                  ? Colors.white.withValues(alpha: 0.8)
+                  : AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            previewText.length > 40
+                ? '${previewText.substring(0, 40)}...'
+                : previewText,
+            style: TextStyle(
+              fontSize: 12,
+              color: isOwnBubble
+                  ? Colors.white.withValues(alpha: 0.6)
+                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
   }
 }
 

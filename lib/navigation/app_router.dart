@@ -29,6 +29,8 @@ import '../features/creator/creator_profile_screen.dart';
 import '../features/creator/creator_chat_tab_screen.dart';
 import '../features/creator/creator_my_channel_screen.dart';
 import '../features/creator/creator_profile_edit_screen.dart';
+import '../features/creator/creator_content_screen.dart';
+import '../features/private_card/private_card_compose_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/widgets/creator_bottom_nav_bar.dart';
@@ -66,6 +68,8 @@ class AppRoutes {
   static const String createCampaign = '/creator/funding/create';
   static const String editCampaign = '/creator/funding/edit/:campaignId';
   static const String creatorContent = '/creator/content';
+  static const String creatorPrivateCard = '/creator/private-card';
+  static const String creatorPrivateCardCompose = '/creator/private-card/compose';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -141,7 +145,7 @@ final appRouter = GoRouter(
             child: CreatorDashboardScreen(),
           ),
         ),
-        // 채팅 - 내 채널 + 구독 아티스트 리스트
+        // 채팅 - 내 채널 + 프라이빗 카드 + 구독 아티스트 (3서브탭)
         GoRoute(
           path: '/creator/chat',
           pageBuilder: (context, state) => const NoTransitionPage(
@@ -266,6 +270,13 @@ final appRouter = GoRouter(
       builder: (context, state) => const RegisterScreen(),
     ),
 
+    // Creator Private Card Compose (full screen)
+    GoRoute(
+      path: '/creator/private-card/compose',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PrivateCardComposeScreen(),
+    ),
+
     // Creator CRM (full screen)
     GoRoute(
       path: '/creator/crm',
@@ -280,11 +291,25 @@ final appRouter = GoRouter(
       builder: (context, state) => const CreatorMyChannelScreen(),
     ),
 
-    // Creator Profile Edit
+    // Creator Profile Edit (supports ?tab=theme for direct theme tab access)
     GoRoute(
       path: '/creator/profile/edit',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CreatorProfileEditScreen(),
+      builder: (context, state) {
+        final tabParam = state.uri.queryParameters['tab'];
+        int initialTabIndex = 0;
+        if (tabParam == 'theme') {
+          initialTabIndex = 2;
+        }
+        return CreatorProfileEditScreen(initialTabIndex: initialTabIndex);
+      },
+    ),
+
+    // Creator Content Management (WYSIWYG)
+    GoRoute(
+      path: '/creator/content',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CreatorContentScreen(),
     ),
 
     // Creator Funding Detail Routes (full screen)
@@ -382,7 +407,7 @@ class CreatorShell extends StatelessWidget {
         context.go('/creator/dashboard');  // 대시보드 - CRM 통합
         break;
       case 1:
-        context.go('/creator/chat');  // 채팅 - 내 채널 + 구독
+        context.go('/creator/chat');  // 채팅 - 내 채널 + 프라이빗 카드 + 구독
         break;
       case 2:
         context.go('/creator/funding');  // 펀딩 - 내 캠페인 + 탐색

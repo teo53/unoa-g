@@ -16,6 +16,9 @@ enum DeliveryScope {
 
   /// Fan message shared publicly by artist (visible to all subscribers)
   publicShare,
+
+  /// Private card from artist to selected fans (letter-style special message)
+  privateCard,
 }
 
 enum BroadcastMessageType {
@@ -361,6 +364,8 @@ class BroadcastMessage {
         return DeliveryScope.donationReply;
       case 'public_share':
         return DeliveryScope.publicShare;
+      case 'private_card':
+        return DeliveryScope.privateCard;
       default:
         return DeliveryScope.broadcast;
     }
@@ -378,6 +383,8 @@ class BroadcastMessage {
         return 'donation_reply';
       case DeliveryScope.publicShare:
         return 'public_share';
+      case DeliveryScope.privateCard:
+        return 'private_card';
     }
   }
 

@@ -12,6 +12,9 @@ class MessageActionsSheet extends StatelessWidget {
   /// Whether this message belongs to the current user
   final bool isOwnMessage;
 
+  /// Callback when reply is requested
+  final VoidCallback? onReply;
+
   /// Callback when edit is requested
   final VoidCallback? onEdit;
 
@@ -38,6 +41,7 @@ class MessageActionsSheet extends StatelessWidget {
     super.key,
     required this.message,
     required this.isOwnMessage,
+    this.onReply,
     this.onEdit,
     this.onDelete,
     this.onReport,
@@ -52,6 +56,7 @@ class MessageActionsSheet extends StatelessWidget {
     required BuildContext context,
     required BroadcastMessage message,
     required bool isOwnMessage,
+    VoidCallback? onReply,
     VoidCallback? onEdit,
     VoidCallback? onDelete,
     Future<void> Function(ReportReason reason, String? description)? onReport,
@@ -66,6 +71,7 @@ class MessageActionsSheet extends StatelessWidget {
       builder: (context) => MessageActionsSheet(
         message: message,
         isOwnMessage: isOwnMessage,
+        onReply: onReply,
         onEdit: onEdit,
         onDelete: onDelete,
         onReport: onReport,
@@ -315,6 +321,17 @@ class MessageActionsSheet extends StatelessWidget {
           const SizedBox(height: 8),
 
           // Action items
+          // Reply action (shown for all messages)
+          if (onReply != null)
+            _ActionTile(
+              icon: Icons.reply_rounded,
+              label: '답장',
+              onTap: () {
+                Navigator.pop(context);
+                onReply!.call();
+              },
+            ),
+
           if (isOwnMessage) ...[
             // Own message actions
             if (_canEdit)

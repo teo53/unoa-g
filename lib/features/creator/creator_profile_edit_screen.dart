@@ -1,13 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../data/models/creator_content.dart';
+import 'widgets/content_edit_dialogs.dart';
 
 /// 영향받는 화면 종류
 enum AffectedView {
@@ -27,7 +25,13 @@ enum AffectedView {
 /// - 콘텐츠: 드롭, 이벤트, 직캠 관리
 /// - 테마 & 소셜: 테마 색상, SNS 링크
 class CreatorProfileEditScreen extends ConsumerStatefulWidget {
-  const CreatorProfileEditScreen({super.key});
+  /// 초기 탭 인덱스 (0: 기본 정보, 1: 콘텐츠, 2: 테마 & 소셜)
+  final int initialTabIndex;
+
+  const CreatorProfileEditScreen({
+    super.key,
+    this.initialTabIndex = 0,
+  });
 
   @override
   ConsumerState<CreatorProfileEditScreen> createState() =>
@@ -80,7 +84,11 @@ class _CreatorProfileEditScreenState
     final profile = ref.read(currentProfileProvider);
     _nameController = TextEditingController(text: profile?.displayName ?? '');
     _bioController = TextEditingController(text: profile?.bio ?? '');
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTabIndex.clamp(0, 2),
+    );
 
     // 프로필에서 테마 색상 및 소셜 링크 로드
     if (profile != null) {
@@ -155,6 +163,7 @@ class _CreatorProfileEditScreenState
         displayName: _nameController.text.isNotEmpty ? _nameController.text : null,
         bio: _bioController.text.isNotEmpty ? _bioController.text : null,
         themeColorIndex: _selectedThemeColor,
+        // 빈 문자열은 null로 변환하여 필드를 비움 (sentinel 패턴)
         instagramLink: _instagramLink.isNotEmpty ? _instagramLink : null,
         youtubeLink: _youtubeLink.isNotEmpty ? _youtubeLink : null,
         tiktokLink: _tiktokLink.isNotEmpty ? _tiktokLink : null,
@@ -523,7 +532,10 @@ class _CreatorProfileEditScreenState
             icon: Icons.shopping_bag_outlined,
             isDark: isDark,
             itemCount: _drops.length,
-            onAdd: () => _showDropEditDialog(isDark),
+            onAdd: () => showDropEditDialog(context, isDark, onSave: (newDrop) {
+              setState(() => _drops.add(newDrop));
+              _onFieldChanged();
+            }),
             child: _drops.isEmpty
                 ? _buildEmptyState('드롭(상품)을 추가해보세요', isDark)
                 : Column(
@@ -538,7 +550,10 @@ class _CreatorProfileEditScreenState
             icon: Icons.event_outlined,
             isDark: isDark,
             itemCount: _events.length,
-            onAdd: () => _showEventEditDialog(isDark),
+            onAdd: () => showEventEditDialog(context, isDark, onSave: (newEvent) {
+              setState(() => _events.add(newEvent));
+              _onFieldChanged();
+            }),
             child: _events.isEmpty
                 ? _buildEmptyState('이벤트를 추가해보세요', isDark)
                 : Column(
@@ -553,7 +568,10 @@ class _CreatorProfileEditScreenState
             icon: Icons.videocam_outlined,
             isDark: isDark,
             itemCount: _fancams.length,
-            onAdd: () => _showFancamEditDialog(isDark),
+            onAdd: () => showFancamEditDialog(context, isDark, onSave: (newFancam) {
+              setState(() => _fancams.add(newFancam));
+              _onFieldChanged();
+            }),
             child: _fancams.isEmpty
                 ? _buildEmptyState('YouTube 직캠을 추가해보세요', isDark)
                 : Column(
@@ -725,11 +743,20 @@ class _CreatorProfileEditScreenState
             ),
           ),
           IconButton(
-            onPressed: () => _showDropEditDialog(isDark, drop: drop),
+            onPressed: () => showDropEditDialog(context, isDark, drop: drop, onSave: (updated) {
+              setState(() {
+                final index = _drops.indexWhere((d) => d.id == updated.id);
+                if (index >= 0) _drops[index] = updated;
+              });
+              _onFieldChanged();
+            }),
             icon: Icon(Icons.edit_outlined, size: 20, color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
           ),
           IconButton(
-            onPressed: () => _deleteDropConfirm(drop),
+            onPressed: () => showDeleteConfirmDialog(context, itemType: '드롭', itemName: drop.name, onConfirm: () {
+              setState(() => _drops.removeWhere((d) => d.id == drop.id));
+              _onFieldChanged();
+            }),
             icon: Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
           ),
         ],
@@ -814,11 +841,20 @@ class _CreatorProfileEditScreenState
             ),
           ),
           IconButton(
-            onPressed: () => _showEventEditDialog(isDark, event: event),
+            onPressed: () => showEventEditDialog(context, isDark, event: event, onSave: (updated) {
+              setState(() {
+                final index = _events.indexWhere((e) => e.id == updated.id);
+                if (index >= 0) _events[index] = updated;
+              });
+              _onFieldChanged();
+            }),
             icon: Icon(Icons.edit_outlined, size: 20, color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
           ),
           IconButton(
-            onPressed: () => _deleteEventConfirm(event),
+            onPressed: () => showDeleteConfirmDialog(context, itemType: '이벤트', itemName: event.title, onConfirm: () {
+              setState(() => _events.removeWhere((e) => e.id == event.id));
+              _onFieldChanged();
+            }),
             icon: Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
           ),
         ],
@@ -932,7 +968,10 @@ class _CreatorProfileEditScreenState
             ),
           ),
           IconButton(
-            onPressed: () => _deleteFancamConfirm(fancam),
+            onPressed: () => showDeleteConfirmDialog(context, itemType: '직캠', itemName: fancam.title, onConfirm: () {
+              setState(() => _fancams.removeWhere((f) => f.id == fancam.id));
+              _onFieldChanged();
+            }),
             icon: Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
           ),
         ],
@@ -1137,7 +1176,8 @@ class _CreatorProfileEditScreenState
             ],
           ),
           const SizedBox(height: 12),
-          TextField(
+          TextFormField(
+            initialValue: value,
             onChanged: onChanged,
             style: TextStyle(
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
@@ -1299,780 +1339,6 @@ class _CreatorProfileEditScreenState
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showDropEditDialog(bool isDark, {CreatorDrop? drop}) {
-    final isEdit = drop != null;
-    final nameController = TextEditingController(text: drop?.name ?? '');
-    final priceController = TextEditingController(text: drop?.priceKrw.toString() ?? '');
-    final descController = TextEditingController(text: drop?.description ?? '');
-    final urlController = TextEditingController(text: drop?.externalUrl ?? '');
-    bool isNew = drop?.isNew ?? true;
-    bool isSoldOut = drop?.isSoldOut ?? false;
-    XFile? selectedImage;
-    String? existingImageUrl = drop?.imageUrl;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEdit ? '드롭 수정' : '새 드롭 추가',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // 이미지 선택 영역
-                GestureDetector(
-                  onTap: () async {
-                    final picker = ImagePicker();
-                    final image = await picker.pickImage(source: ImageSource.gallery);
-                    if (image != null) {
-                      setModalState(() {
-                        selectedImage = image;
-                        existingImageUrl = null;
-                      });
-                    }
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.grey[800] : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                        width: 1,
-                      ),
-                    ),
-                    child: selectedImage != null
-                      ? Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(11),
-                              child: Image.network(
-                                selectedImage!.path,
-                                width: double.infinity,
-                                height: 120,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Center(
-                                  child: Icon(Icons.image, size: 40, color: Colors.grey),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.black54,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Icon(Icons.edit, size: 16, color: Colors.white),
-                              ),
-                            ),
-                          ],
-                        )
-                      : existingImageUrl != null
-                        ? Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(11),
-                                child: CachedNetworkImage(
-                                  imageUrl: existingImageUrl!,
-                                  width: double.infinity,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Icon(Icons.edit, size: 16, color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_photo_alternate_outlined,
-                                size: 40,
-                                color: isDark ? Colors.grey[600] : Colors.grey[400],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '상품 이미지 추가',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: '상품명 *',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: '가격 (원) *',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: descController,
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    labelText: '상품 설명',
-                    hintText: '선택사항',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: urlController,
-                  decoration: InputDecoration(
-                    labelText: '구매 링크',
-                    hintText: 'https://...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    FilterChip(
-                      label: const Text('NEW'),
-                      selected: isNew,
-                      onSelected: (v) => setModalState(() => isNew = v),
-                      selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                    ),
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      label: const Text('SOLD OUT'),
-                      selected: isSoldOut,
-                      onSelected: (v) => setModalState(() => isSoldOut = v),
-                      selectedColor: Colors.grey.withValues(alpha: 0.2),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (nameController.text.isEmpty) return;
-                      final newDrop = CreatorDrop(
-                        id: drop?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-                        name: nameController.text,
-                        description: descController.text.isNotEmpty ? descController.text : null,
-                        imageUrl: selectedImage?.path ?? existingImageUrl,
-                        priceKrw: int.tryParse(priceController.text) ?? 0,
-                        isNew: isNew,
-                        isSoldOut: isSoldOut,
-                        externalUrl: urlController.text.isNotEmpty ? urlController.text : null,
-                      );
-                      setState(() {
-                        if (isEdit) {
-                          final index = _drops.indexWhere((d) => d.id == drop.id);
-                          _drops[index] = newDrop;
-                        } else {
-                          _drops.add(newDrop);
-                        }
-                      });
-                      _onFieldChanged();
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(
-                      isEdit ? '수정' : '추가',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showEventEditDialog(bool isDark, {CreatorEvent? event}) {
-    final isEdit = event != null;
-    final titleController = TextEditingController(text: event?.title ?? '');
-    final locationController = TextEditingController(text: event?.location ?? '');
-    final descController = TextEditingController(text: event?.description ?? '');
-    final ticketUrlController = TextEditingController(text: event?.ticketUrl ?? '');
-    DateTime selectedDate = event?.date ?? DateTime.now().add(const Duration(days: 30));
-    bool isOffline = event?.isOffline ?? true;
-    XFile? selectedImage;
-    String? existingImageUrl = event?.imageUrl;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEdit ? '이벤트 수정' : '새 이벤트 추가',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // 이미지 선택 영역
-                GestureDetector(
-                  onTap: () async {
-                    final picker = ImagePicker();
-                    final image = await picker.pickImage(source: ImageSource.gallery);
-                    if (image != null) {
-                      setModalState(() {
-                        selectedImage = image;
-                        existingImageUrl = null;
-                      });
-                    }
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.grey[800] : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                        width: 1,
-                      ),
-                    ),
-                    child: selectedImage != null
-                      ? Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(11),
-                              child: Image.network(
-                                selectedImage!.path,
-                                width: double.infinity,
-                                height: 120,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Center(
-                                  child: Icon(Icons.image, size: 40, color: Colors.grey),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.black54,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Icon(Icons.edit, size: 16, color: Colors.white),
-                              ),
-                            ),
-                          ],
-                        )
-                      : existingImageUrl != null
-                        ? Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(11),
-                                child: CachedNetworkImage(
-                                  imageUrl: existingImageUrl!,
-                                  width: double.infinity,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Icon(Icons.edit, size: 16, color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_photo_alternate_outlined,
-                                size: 40,
-                                color: isDark ? Colors.grey[600] : Colors.grey[400],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '이벤트 이미지 추가',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    labelText: '이벤트 제목 *',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: locationController,
-                  decoration: InputDecoration(
-                    labelText: '장소 *',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: isDark ? Colors.grey[700]! : Colors.grey[400]!,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      '날짜: ${selectedDate.year}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.day.toString().padLeft(2, '0')}',
-                      style: TextStyle(
-                        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-                      ),
-                    ),
-                    trailing: Icon(
-                      Icons.calendar_today,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setModalState(() => selectedDate = picked);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: descController,
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    labelText: '이벤트 설명',
-                    hintText: '선택사항',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: ticketUrlController,
-                  decoration: InputDecoration(
-                    labelText: '티켓/예매 링크',
-                    hintText: 'https://...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    FilterChip(
-                      label: const Text('OFFLINE'),
-                      selected: isOffline,
-                      onSelected: (v) => setModalState(() => isOffline = true),
-                      selectedColor: Colors.purple.withValues(alpha: 0.2),
-                    ),
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      label: const Text('ONLINE'),
-                      selected: !isOffline,
-                      onSelected: (v) => setModalState(() => isOffline = false),
-                      selectedColor: Colors.green.withValues(alpha: 0.2),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (titleController.text.isEmpty) return;
-                      final newEvent = CreatorEvent(
-                        id: event?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-                        title: titleController.text,
-                        location: locationController.text,
-                        date: selectedDate,
-                        isOffline: isOffline,
-                        description: descController.text.isNotEmpty ? descController.text : null,
-                        ticketUrl: ticketUrlController.text.isNotEmpty ? ticketUrlController.text : null,
-                        imageUrl: selectedImage?.path ?? existingImageUrl,
-                      );
-                      setState(() {
-                        if (isEdit) {
-                          final index = _events.indexWhere((e) => e.id == event.id);
-                          _events[index] = newEvent;
-                        } else {
-                          _events.add(newEvent);
-                        }
-                      });
-                      _onFieldChanged();
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(
-                      isEdit ? '수정' : '추가',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showFancamEditDialog(bool isDark, {CreatorFancam? fancam}) {
-    final isEdit = fancam != null;
-    final urlController = TextEditingController(
-      text: fancam != null ? 'https://youtube.com/watch?v=${fancam.videoId}' : '',
-    );
-    String fetchedTitle = fancam?.title ?? '';
-    bool isLoading = false;
-    String? errorMessage;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isEdit ? '직캠 수정' : '새 직캠 추가',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // YouTube URL 입력 + 불러오기 버튼
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: urlController,
-                      decoration: InputDecoration(
-                        labelText: 'YouTube URL',
-                        hintText: 'https://youtube.com/watch?v=...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        errorText: errorMessage,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : () async {
-                        final videoId = CreatorFancam.extractVideoId(urlController.text);
-                        if (videoId == null) {
-                          setModalState(() => errorMessage = '올바른 URL을 입력하세요');
-                          return;
-                        }
-
-                        setModalState(() {
-                          isLoading = true;
-                          errorMessage = null;
-                        });
-
-                        try {
-                          final response = await http.get(Uri.parse(
-                            'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=$videoId&format=json'
-                          ));
-
-                          if (response.statusCode == 200) {
-                            final data = jsonDecode(response.body);
-                            setModalState(() {
-                              fetchedTitle = data['title'] ?? '';
-                              isLoading = false;
-                            });
-                          } else {
-                            setModalState(() {
-                              errorMessage = '영상을 찾을 수 없습니다';
-                              isLoading = false;
-                            });
-                          }
-                        } catch (e) {
-                          setModalState(() {
-                            errorMessage = '제목을 불러올 수 없습니다';
-                            isLoading = false;
-                          });
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                          )
-                        : const Text('불러오기', style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // 제목 (읽기전용)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.grey[800] : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '제목 (자동)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      fetchedTitle.isEmpty ? 'URL을 입력하고 불러오기를 눌러주세요' : fetchedTitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: fetchedTitle.isEmpty ? FontWeight.w400 : FontWeight.w500,
-                        color: fetchedTitle.isEmpty
-                          ? (isDark ? AppColors.textMutedDark : AppColors.textMuted)
-                          : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: fetchedTitle.isEmpty ? null : () {
-                    final videoId = CreatorFancam.extractVideoId(urlController.text);
-                    if (videoId == null) return;
-
-                    final newFancam = CreatorFancam(
-                      id: fancam?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-                      videoId: videoId,
-                      title: fetchedTitle,
-                      isPinned: fancam?.isPinned ?? false,
-                    );
-                    setState(() {
-                      if (isEdit) {
-                        final index = _fancams.indexWhere((f) => f.id == fancam.id);
-                        _fancams[index] = newFancam;
-                      } else {
-                        _fancams.add(newFancam);
-                      }
-                    });
-                    _onFieldChanged();
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: fetchedTitle.isEmpty
-                      ? (isDark ? Colors.grey[700] : Colors.grey[300])
-                      : AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: Text(
-                    isEdit ? '수정' : '추가',
-                    style: TextStyle(
-                      color: fetchedTitle.isEmpty
-                        ? (isDark ? Colors.grey[500] : Colors.grey[600])
-                        : Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _deleteDropConfirm(CreatorDrop drop) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('드롭 삭제'),
-        content: Text('"${drop.name}"을(를) 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() => _drops.removeWhere((d) => d.id == drop.id));
-              _onFieldChanged();
-              Navigator.pop(context);
-            },
-            child: Text('삭제', style: TextStyle(color: AppColors.danger)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _deleteEventConfirm(CreatorEvent event) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('이벤트 삭제'),
-        content: Text('"${event.title}"을(를) 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() => _events.removeWhere((e) => e.id == event.id));
-              _onFieldChanged();
-              Navigator.pop(context);
-            },
-            child: Text('삭제', style: TextStyle(color: AppColors.danger)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _deleteFancamConfirm(CreatorFancam fancam) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('직캠 삭제'),
-        content: Text('"${fancam.title}"을(를) 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() => _fancams.removeWhere((f) => f.id == fancam.id));
-              _onFieldChanged();
-              Navigator.pop(context);
-            },
-            child: Text('삭제', style: TextStyle(color: AppColors.danger)),
-          ),
-        ],
       ),
     );
   }

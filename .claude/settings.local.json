@@ -34,7 +34,12 @@
       "Bash(ls -la \"C:\\\\Users\\\\mapdr\\\\Downloads\\\\unoa-g-main\\\\lib\\\\core\\\\services\"\" 2>nul || echo \"Directory not found \")",
       "WebFetch(domain:pub.dev)",
       "Bash(tree:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(gh pr create:*)",
+      "Bash(netstat:*)",
+      "WebFetch(domain:en.namu.wiki)",
+      "WebFetch(domain:designcompass.org)",
+      "WebFetch(domain:www.nngroup.com)"
     ]
   }
 }

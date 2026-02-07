@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/demo_config.dart';
 import '../../providers/auth_provider.dart';
+import 'package:flutter/services.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../data/repositories/mock_chat_repository.dart';
+import 'widgets/todays_voted_question_section.dart';
+import 'widgets/ai_reply_suggestion_sheet.dart';
 
 /// Creator Dashboard Screen - CRM 통합 대시보드
 /// - 수익 요약 및 통계
@@ -100,6 +103,33 @@ class _CreatorDashboardScreenState
                   _buildSectionTitle('오늘의 현황', isDark),
                   const SizedBox(height: 12),
                   _buildStatsGrid(isDark),
+                  const SizedBox(height: 24),
+
+                  // Today's Question Section
+                  TodaysVotedQuestionSection(
+                    channelId: 'channel_1',
+                    onAnswerCard: (card, setId) {
+                      AiReplySuggestionSheet.show(
+                        context: context,
+                        channelId: 'channel_1',
+                        messageId: setId,
+                        fanMessagePreview: card.cardText,
+                        onInsert: (text) {
+                          Clipboard.setData(ClipboardData(text: text));
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('답변이 클립보드에 복사되었습니다'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            context.go('/creator/chat');
+                          }
+                        },
+                      );
+                    },
+                  ),
                   const SizedBox(height: 24),
 
                   // Recent Activity
@@ -339,9 +369,12 @@ class _CreatorDashboardScreenState
   }
 
   Widget _buildQuickActions(BuildContext context, bool isDark) {
-    return Row(
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
       children: [
-        Expanded(
+        SizedBox(
+          width: (MediaQuery.of(context).size.width - 70) / 4,
           child: _QuickActionCard(
             icon: Icons.chat_bubble_rounded,
             label: '채팅',
@@ -350,8 +383,18 @@ class _CreatorDashboardScreenState
             onTap: () => context.go('/creator/chat'),
           ),
         ),
-        const SizedBox(width: 10),
-        Expanded(
+        SizedBox(
+          width: (MediaQuery.of(context).size.width - 70) / 4,
+          child: _QuickActionCard(
+            icon: Icons.mail_rounded,
+            label: '프라이빗 카드',
+            color: const Color(0xFF8B5CF6),
+            isDark: isDark,
+            onTap: () => context.push('/creator/private-card/compose'),
+          ),
+        ),
+        SizedBox(
+          width: (MediaQuery.of(context).size.width - 70) / 4,
           child: _QuickActionCard(
             icon: Icons.analytics_rounded,
             label: 'CRM 상세',
@@ -360,8 +403,8 @@ class _CreatorDashboardScreenState
             onTap: () => context.push('/creator/crm'),
           ),
         ),
-        const SizedBox(width: 10),
-        Expanded(
+        SizedBox(
+          width: (MediaQuery.of(context).size.width - 70) / 4,
           child: _QuickActionCard(
             icon: Icons.account_balance_wallet_rounded,
             label: '출금',

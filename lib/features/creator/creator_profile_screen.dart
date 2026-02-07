@@ -74,6 +74,14 @@ class CreatorProfileScreen extends ConsumerWidget {
                   title: '크리에이터 관리',
                   items: [
                     _MenuItem(
+                      icon: Icons.dashboard_customize_rounded,
+                      iconColor: Colors.indigo,
+                      iconBgColor: Colors.indigo.withValues(alpha: 0.1),
+                      title: '콘텐츠 관리',
+                      subtitle: '팬에게 보여질 프로필 꾸미기',
+                      onTap: () => context.push('/creator/content'),
+                    ),
+                    _MenuItem(
                       icon: Icons.analytics_rounded,
                       iconColor: Colors.teal,
                       iconBgColor: Colors.teal.withValues(alpha: 0.1),

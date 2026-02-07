@@ -1,0 +1,192 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/models/creator_content.dart';
+
+/// 크리에이터 콘텐츠 상태 (드롭, 이벤트, 직캠, 소셜링크)
+class CreatorContentState {
+  final List<CreatorDrop> drops;
+  final List<CreatorEvent> events;
+  final List<CreatorFancam> fancams;
+  final SocialLinks socialLinks;
+  final bool isLoading;
+  final bool hasChanges;
+
+  const CreatorContentState({
+    this.drops = const [],
+    this.events = const [],
+    this.fancams = const [],
+    this.socialLinks = const SocialLinks(),
+    this.isLoading = false,
+    this.hasChanges = false,
+  });
+
+  CreatorContentState copyWith({
+    List<CreatorDrop>? drops,
+    List<CreatorEvent>? events,
+    List<CreatorFancam>? fancams,
+    SocialLinks? socialLinks,
+    bool? isLoading,
+    bool? hasChanges,
+  }) {
+    return CreatorContentState(
+      drops: drops ?? this.drops,
+      events: events ?? this.events,
+      fancams: fancams ?? this.fancams,
+      socialLinks: socialLinks ?? this.socialLinks,
+      isLoading: isLoading ?? this.isLoading,
+      hasChanges: hasChanges ?? this.hasChanges,
+    );
+  }
+}
+
+/// 크리에이터 콘텐츠 관리 Notifier
+class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
+  CreatorContentNotifier() : super(const CreatorContentState()) {
+    loadContent();
+  }
+
+  /// 콘텐츠 로드 (현재 목 데이터, 추후 Supabase 연동)
+  void loadContent() {
+    state = state.copyWith(isLoading: true);
+
+    // Mock 데이터
+    final drops = [
+      const CreatorDrop(
+        id: '1',
+        name: '시즌 포토카드 세트',
+        priceKrw: 15000,
+        isNew: true,
+      ),
+      const CreatorDrop(
+        id: '2',
+        name: '한정판 굿즈 박스',
+        priceKrw: 45000,
+        isSoldOut: true,
+      ),
+    ];
+
+    final events = [
+      CreatorEvent(
+        id: '1',
+        title: '팬미팅 2024',
+        location: '서울 올림픽공원',
+        date: DateTime(2024, 6, 15),
+        isOffline: true,
+      ),
+    ];
+
+    final fancams = [
+      const CreatorFancam(
+        id: '1',
+        videoId: 'dQw4w9WgXcQ',
+        title: '직캠 - 신곡 무대',
+        viewCount: 125000,
+        isPinned: true,
+      ),
+    ];
+
+    const socialLinks = SocialLinks(
+      instagram: 'https://instagram.com/starlight_official',
+      youtube: 'https://youtube.com/@starlight_music',
+      tiktok: 'https://tiktok.com/@starlight_dance',
+      twitter: 'https://twitter.com/starlight_twt',
+    );
+
+    state = CreatorContentState(
+      drops: drops,
+      events: events,
+      fancams: fancams,
+      socialLinks: socialLinks,
+      isLoading: false,
+      hasChanges: false,
+    );
+  }
+
+  // ===== Drops CRUD =====
+
+  void addDrop(CreatorDrop drop) {
+    state = state.copyWith(
+      drops: [...state.drops, drop],
+      hasChanges: true,
+    );
+  }
+
+  void updateDrop(CreatorDrop drop) {
+    final updated = state.drops.map((d) => d.id == drop.id ? drop : d).toList();
+    state = state.copyWith(drops: updated, hasChanges: true);
+  }
+
+  void deleteDrop(String id) {
+    state = state.copyWith(
+      drops: state.drops.where((d) => d.id != id).toList(),
+      hasChanges: true,
+    );
+  }
+
+  // ===== Events CRUD =====
+
+  void addEvent(CreatorEvent event) {
+    state = state.copyWith(
+      events: [...state.events, event],
+      hasChanges: true,
+    );
+  }
+
+  void updateEvent(CreatorEvent event) {
+    final updated = state.events.map((e) => e.id == event.id ? event : e).toList();
+    state = state.copyWith(events: updated, hasChanges: true);
+  }
+
+  void deleteEvent(String id) {
+    state = state.copyWith(
+      events: state.events.where((e) => e.id != id).toList(),
+      hasChanges: true,
+    );
+  }
+
+  // ===== Fancams CRUD =====
+
+  void addFancam(CreatorFancam fancam) {
+    state = state.copyWith(
+      fancams: [...state.fancams, fancam],
+      hasChanges: true,
+    );
+  }
+
+  void updateFancam(CreatorFancam fancam) {
+    final updated = state.fancams.map((f) => f.id == fancam.id ? fancam : f).toList();
+    state = state.copyWith(fancams: updated, hasChanges: true);
+  }
+
+  void deleteFancam(String id) {
+    state = state.copyWith(
+      fancams: state.fancams.where((f) => f.id != id).toList(),
+      hasChanges: true,
+    );
+  }
+
+  void toggleFancamPin(String id) {
+    final updated = state.fancams.map((f) {
+      if (f.id == id) return f.copyWith(isPinned: !f.isPinned);
+      return f;
+    }).toList();
+    state = state.copyWith(fancams: updated, hasChanges: true);
+  }
+
+  // ===== Social Links =====
+
+  void updateSocialLinks(SocialLinks links) {
+    state = state.copyWith(socialLinks: links, hasChanges: true);
+  }
+
+  /// 변경사항 저장 (현재는 로컬만, 추후 Supabase)
+  Future<void> saveAll() async {
+    // TODO: Supabase에 저장
+    state = state.copyWith(hasChanges: false);
+  }
+}
+
+/// Provider
+final creatorContentProvider =
+    StateNotifierProvider<CreatorContentNotifier, CreatorContentState>((ref) {
+  return CreatorContentNotifier();
+});

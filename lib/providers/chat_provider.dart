@@ -7,6 +7,7 @@ import '../data/models/reply_quota.dart';
 import '../data/models/channel.dart';
 import 'auth_provider.dart';
 import 'chat_list_provider.dart';
+import '../core/config/demo_config.dart';
 
 /// Chat state for a specific channel
 class ChatState {
@@ -20,6 +21,7 @@ class ChatState {
   final bool hasMoreMessages;
   final Map<String, bool> onlineUsers; // userId -> isOnline
   final Set<String> typingUsers;
+  final BroadcastMessage? replyingToMessage; // 답장 대상 메시지
 
   const ChatState({
     required this.channelId,
@@ -32,6 +34,7 @@ class ChatState {
     this.hasMoreMessages = true,
     this.onlineUsers = const {},
     this.typingUsers = const {},
+    this.replyingToMessage,
   });
 
   ChatState copyWith({
@@ -44,6 +47,8 @@ class ChatState {
     bool? hasMoreMessages,
     Map<String, bool>? onlineUsers,
     Set<String>? typingUsers,
+    BroadcastMessage? replyingToMessage,
+    bool clearReplyingTo = false,
   }) {
     return ChatState(
       channelId: channelId,
@@ -56,6 +61,7 @@ class ChatState {
       hasMoreMessages: hasMoreMessages ?? this.hasMoreMessages,
       onlineUsers: onlineUsers ?? this.onlineUsers,
       typingUsers: typingUsers ?? this.typingUsers,
+      replyingToMessage: clearReplyingTo ? null : (replyingToMessage ?? this.replyingToMessage),
     );
   }
 
@@ -303,6 +309,115 @@ class ChatNotifier extends StateNotifier<ChatState> {
       isRead: thread.unreadCount == 0,
     ));
 
+    // ── Demo media messages (for media gallery) ──
+
+    // Image message 1 - Artist selfie
+    messages.add(BroadcastMessage(
+      id: 'demo_media_img1_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: '오늘 셀카 💕',
+      messageType: BroadcastMessageType.image,
+      mediaUrl: DemoConfig.avatarUrl('selfie1', size: 600),
+      createdAt: now.subtract(const Duration(days: 5, hours: 3)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
+    // Image message 2 - Behind the scenes
+    messages.add(BroadcastMessage(
+      id: 'demo_media_img2_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: '오늘 촬영 현장! 📸',
+      messageType: BroadcastMessageType.image,
+      mediaUrl: DemoConfig.avatarUrl('behind_scenes', size: 600),
+      createdAt: now.subtract(const Duration(days: 2, hours: 6)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
+    // Image message 3 - Food photo
+    messages.add(BroadcastMessage(
+      id: 'demo_media_img3_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: '맛있는 점심 먹었어요 🍜',
+      messageType: BroadcastMessageType.image,
+      mediaUrl: DemoConfig.avatarUrl('food_photo', size: 600),
+      createdAt: now.subtract(const Duration(days: 1, hours: 2)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
+    // Video message - Dance practice
+    messages.add(BroadcastMessage(
+      id: 'demo_media_vid1_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: '안무 연습 영상이에요! 🎶',
+      messageType: BroadcastMessageType.video,
+      mediaUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+      mediaMetadata: {
+        'thumbnail_url': DemoConfig.avatarUrl('dance_practice', size: 400),
+        'duration': 125,
+      },
+      createdAt: now.subtract(const Duration(days: 4, hours: 1)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
+    // Voice message
+    messages.add(BroadcastMessage(
+      id: 'demo_media_voice1_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.broadcast,
+      content: null,
+      messageType: BroadcastMessageType.voice,
+      mediaUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      mediaMetadata: {
+        'duration': 15,
+      },
+      createdAt: now.subtract(const Duration(days: 1, hours: 8)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
+    // ── Private card message (letter-style special message) ──
+    messages.add(BroadcastMessage(
+      id: 'demo_private_card_${thread.channelId}',
+      channelId: thread.channelId,
+      senderId: thread.artistId,
+      senderType: 'artist',
+      deliveryScope: DeliveryScope.privateCard,
+      content: '$fanName님, 항상 응원해주셔서 정말 감사해요! 덕분에 매일 힘을 얻고 있답니다. 앞으로도 함께해주실 거죠? 사랑해요 💕',
+      templateContent: '항상 응원해주셔서 정말 감사해요! 덕분에 매일 힘을 얻고 있답니다. 앞으로도 함께해주실 거죠? 사랑해요 💕',
+      messageType: BroadcastMessageType.text,
+      mediaUrl: DemoConfig.cardTemplateUrl('card-hearts'),
+      mediaMetadata: {
+        'card_image_url': DemoConfig.cardTemplateUrl('card-hearts'),
+      },
+      createdAt: now.subtract(const Duration(hours: 6)),
+      senderName: thread.artistName,
+      senderAvatarUrl: thread.avatarUrl,
+      isRead: true,
+    ));
+
     // Sort by time
     messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
@@ -483,15 +598,27 @@ class ChatNotifier extends StateNotifier<ChatState> {
         .toList();
   }
 
+  /// Set the message being replied to
+  void setReplyTo(BroadcastMessage message) {
+    state = state.copyWith(replyingToMessage: message);
+  }
+
+  /// Clear the reply-to state
+  void clearReplyTo() {
+    state = state.copyWith(clearReplyingTo: true);
+  }
+
   /// Send a text reply
   Future<bool> sendReply(String content) async {
     if (!state.canReply) return false;
     if (content.length > state.characterLimit) return false;
 
+    final replyToId = state.replyingToMessage?.id;
+
     // Handle demo mode
     final authState = _ref.read(authProvider);
     if (authState is AuthDemoMode) {
-      return _sendDemoReply(content);
+      return _sendDemoReply(content, replyToMessageId: replyToId);
     }
 
     try {
@@ -499,14 +626,23 @@ class ChatNotifier extends StateNotifier<ChatState> {
       final userId = _ref.read(currentUserProvider)?.id;
       if (userId == null) return false;
 
-      await client.from('messages').insert({
+      final insertData = <String, dynamic>{
         'channel_id': channelId,
         'sender_id': userId,
         'sender_type': 'fan',
         'delivery_scope': 'direct_reply',
         'content': content,
         'message_type': 'text',
-      });
+      };
+
+      if (replyToId != null) {
+        insertData['reply_to_message_id'] = replyToId;
+      }
+
+      await client.from('messages').insert(insertData);
+
+      // Clear reply state after successful send
+      clearReplyTo();
 
       return true;
     } catch (e, stackTrace) {
@@ -519,7 +655,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   /// Send a demo reply (for demo mode)
-  bool _sendDemoReply(String content) {
+  bool _sendDemoReply(String content, {String? replyToMessageId}) {
     final newMessage = BroadcastMessage(
       id: 'demo_msg_${DateTime.now().millisecondsSinceEpoch}',
       channelId: channelId,
@@ -527,6 +663,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       senderType: 'fan',
       deliveryScope: DeliveryScope.directReply,
       content: content,
+      replyToMessageId: replyToMessageId,
       createdAt: DateTime.now(),
       senderName: '데모 사용자',
       senderTier: state.subscription?.tier ?? 'STANDARD',
@@ -540,6 +677,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(
       messages: [...state.messages, newMessage],
       quota: newQuota,
+      clearReplyingTo: true,
     );
 
     // Simulate artist reply after a delay

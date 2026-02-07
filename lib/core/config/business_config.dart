@@ -213,6 +213,24 @@ class BusinessConfig {
   static const int messageCooldownSeconds = 5;
 
   // ============================================================
+  // Private Card System
+  // ============================================================
+
+  /// Maximum characters for private card message
+  static const int privateCardMaxChars = 500;
+
+  /// Maximum media size for private card (MB)
+  static const int privateCardMaxMediaSizeMb = 50;
+
+  /// Allowed media types for private card attachments
+  static const List<String> privateCardMediaTypes = [
+    'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'm4a', 'mp3',
+  ];
+
+  /// Maximum media attachments per private card
+  static const int privateCardMaxMediaCount = 5;
+
+  // ============================================================
   // Cache Durations
   // ============================================================
 

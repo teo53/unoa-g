@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_list_provider.dart';
+import '../private_card/widgets/private_card_list_view.dart';
 
 /// 크리에이터 채팅 탭 화면
 ///
@@ -16,7 +17,10 @@ import '../../providers/chat_list_provider.dart';
 /// - 팬 메시지: 왼쪽 정렬 + 팬 이름/티어 표시
 /// - 크리에이터 메시지: 오른쪽 정렬 + "전체 전송됨" 표시
 ///
-/// **탭 2: 구독 아티스트**
+/// **탭 2: 프라이빗 카드**
+/// - 프라이빗 카드 발송 내역 + 즐겨찾기 팬 + 새 카드 작성
+///
+/// **탭 3: 구독**
 /// - 크리에이터가 팬으로서 구독한 다른 아티스트 채팅 리스트
 ///
 /// ⚠️ 브로드캐스트는 별도 기능이 아님 - 채팅 자체가 이 구조임
@@ -41,7 +45,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadMockMessages();
   }
 
@@ -592,7 +596,10 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               // 탭 1: 내 채널 (단체톡방)
               _buildMyChannelTab(isDark),
 
-              // 탭 2: 구독 아티스트
+              // 탭 2: 프라이빗 카드
+              const PrivateCardListView(),
+
+              // 탭 3: 구독
               _buildSubscribedArtistsTab(isDark),
             ],
           ),
@@ -681,7 +688,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               padding: const EdgeInsets.all(4),
               tabs: const [
                 Tab(text: '내 채널'),
-                Tab(text: '구독 아티스트'),
+                Tab(text: '카드'),
+                Tab(text: '구독'),
               ],
             ),
           ),
