@@ -28,7 +28,9 @@ import '../chat/widgets/daily_question_cards_panel.dart';
 ///
 /// ⚠️ 브로드캐스트는 별도 기능이 아님 - 채팅 자체가 이 구조임
 class CreatorChatTabScreen extends ConsumerStatefulWidget {
-  const CreatorChatTabScreen({super.key});
+  final String? prefillText;
+
+  const CreatorChatTabScreen({super.key, this.prefillText});
 
   @override
   ConsumerState<CreatorChatTabScreen> createState() =>
@@ -66,6 +68,10 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _loadMockMessages();
+    // AI 답글 시트에서 전달받은 텍스트가 있으면 입력창에 세팅
+    if (widget.prefillText != null && widget.prefillText!.isNotEmpty) {
+      _messageController.text = widget.prefillText!;
+    }
   }
 
   void _loadMockMessages() {

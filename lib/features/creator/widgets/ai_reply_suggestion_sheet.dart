@@ -57,10 +57,29 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
   String? _error;
   String? _selectedId;
 
+  // 직접 입력/편집용 컨트롤러
+  final TextEditingController _editController = TextEditingController();
+  bool _hasText = false;
+
   @override
   void initState() {
     super.initState();
+    _editController.addListener(_onEditTextChanged);
     _fetchSuggestions();
+  }
+
+  @override
+  void dispose() {
+    _editController.removeListener(_onEditTextChanged);
+    _editController.dispose();
+    super.dispose();
+  }
+
+  void _onEditTextChanged() {
+    final hasText = _editController.text.trim().isNotEmpty;
+    if (hasText != _hasText) {
+      setState(() => _hasText = hasText);
+    }
   }
 
   Future<void> _fetchSuggestions() async {
@@ -184,6 +203,23 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     );
   }
 
+  /// 초안 카드 탭 → 편집창에 텍스트 세팅
+  void _fillEditField(String text) {
+    _editController.text = text;
+    _editController.selection = TextSelection.fromPosition(
+      TextPosition(offset: text.length),
+    );
+  }
+
+  /// 초안 리롤 (다시 생성)
+  void _rerollSuggestions() {
+    setState(() {
+      _suggestions = null;
+      _selectedId = null;
+    });
+    _fetchSuggestions();
+  }
+
   void _insertAndClose(String text) {
     Navigator.pop(context);
     widget.onInsert(text);
@@ -192,127 +228,135 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
-      ),
-      margin: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.grey[700] : Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
+        ),
+        margin: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
 
-          // Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
+            // Header
+            _buildHeader(isDark),
+
+            // Fan message preview
+            if (widget.fanMessagePreview != null) ...[
+              const SizedBox(height: 12),
+              _buildFanMessagePreview(isDark),
+            ],
+
+            const SizedBox(height: 12),
+
+            // Content (suggestions or loading/error)
+            Flexible(
+              child: _buildContent(isDark),
+            ),
+
+            // 하단 입력창 (항상 표시)
+            _buildEditBar(isDark),
+
+            SizedBox(height: bottomPadding + 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Icon(
+            Icons.auto_awesome,
+            size: 24,
+            color: AppColors.primary500,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.auto_awesome,
-                  size: 24,
-                  color: AppColors.primary500,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '답글 초안 제안',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.textMainDark
-                              : AppColors.textMainLight,
-                        ),
-                      ),
-                      // IMPORTANT: AI generated label (MUST show)
-                      Text(
-                        'AI가 만들었습니다 • 수정 후 전송하세요',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark
-                              ? AppColors.textSubDark
-                              : AppColors.textSubLight,
-                        ),
-                      ),
-                    ],
+                Text(
+                  '답글 초안 제안',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                  iconSize: 22,
-                ),
-              ],
-            ),
-          ),
-
-          // Fan message preview
-          if (widget.fanMessagePreview != null) ...[
-            const SizedBox(height: 12),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.surfaceAltDark
-                    : AppColors.surfaceAlt,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.chat_bubble_outline,
-                    size: 16,
+                Text(
+                  '참고용 초안 \u2022 AI가 만들었습니다',
+                  style: TextStyle(
+                    fontSize: 12,
                     color: isDark
                         ? AppColors.textSubDark
                         : AppColors.textSubLight,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      widget.fanMessagePreview!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark
-                            ? AppColors.textSubDark
-                            : AppColors.textSubLight,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-
-          const SizedBox(height: 16),
-
-          // Content
-          Flexible(
-            child: _buildContent(isDark),
           ),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+            iconSize: 22,
+          ),
+        ],
+      ),
+    );
+  }
 
-          SizedBox(height: bottomPadding + 12),
+  Widget _buildFanMessagePreview(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 16,
+            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              widget.fanMessagePreview!,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
@@ -331,47 +375,182 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
       return _buildEmpty(isDark);
     }
 
-    return ListView.separated(
-      shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _suggestions!.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, index) {
-        final suggestion = _suggestions![index];
-        final isSelected = _selectedId == suggestion.id;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 섹션 라벨 + 리롤 버튼
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '참고용 AI 초안 (탭하여 편집창에 넣기)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: _isLoading ? null : _rerollSuggestions,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.refresh,
+                      size: 14,
+                      color: _isLoading
+                          ? (isDark ? Colors.grey[600] : Colors.grey[400])
+                          : AppColors.primary500,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      '다시 생성',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: _isLoading
+                            ? (isDark ? Colors.grey[600] : Colors.grey[400])
+                            : AppColors.primary500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        // 초안 목록
+        Flexible(
+          child: ListView.separated(
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: _suggestions!.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final suggestion = _suggestions![index];
+              final isSelected = _selectedId == suggestion.id;
 
-        return _SuggestionCard(
-          suggestion: suggestion,
-          isDark: isDark,
-          isSelected: isSelected,
-          onTap: () => setState(() => _selectedId = suggestion.id),
-          onInsert: () => _insertAndClose(suggestion.text),
-          onCopy: () => _copyToClipboard(suggestion.text),
-        );
-      },
+              return _SuggestionCard(
+                suggestion: suggestion,
+                isDark: isDark,
+                isSelected: isSelected,
+                onTap: () {
+                  setState(() => _selectedId = suggestion.id);
+                  _fillEditField(suggestion.text);
+                },
+                onCopy: () => _copyToClipboard(suggestion.text),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditBar(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _hasText
+              ? AppColors.primary500.withValues(alpha: 0.4)
+              : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _editController,
+              maxLines: 4,
+              minLines: 1,
+              style: TextStyle(
+                fontSize: 15,
+                color: isDark
+                    ? AppColors.textMainDark
+                    : AppColors.textMainLight,
+              ),
+              decoration: InputDecoration(
+                hintText: '직접 입력하거나 위 초안을 탭하세요...',
+                hintStyle: TextStyle(
+                  fontSize: 14,
+                  color: isDark
+                      ? AppColors.textSubDark
+                      : AppColors.textSubLight,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _hasText
+                ? () => _insertAndClose(_editController.text.trim())
+                : null,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _hasText
+                    ? AppColors.primary600
+                    : (isDark ? Colors.grey[700] : Colors.grey[300]),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(
+                Icons.send_rounded,
+                size: 18,
+                color: _hasText
+                    ? Colors.white
+                    : (isDark ? Colors.grey[500] : Colors.grey[500]),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildLoading(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 40,
-            height: 40,
+            width: 36,
+            height: 36,
             child: CircularProgressIndicator(
               strokeWidth: 3,
               color: AppColors.primary500,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
-            '초안을 생성하고 있어요...',
+            '참고용 초안을 생성하고 있어요...',
             style: TextStyle(
               fontSize: 14,
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '아래 입력창에 직접 입력할 수도 있어요',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark
+                  ? AppColors.textSubDark.withValues(alpha: 0.7)
+                  : AppColors.textSubLight.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -381,38 +560,48 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
 
   Widget _buildError(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.error_outline,
-            size: 40,
+            size: 36,
             color: AppColors.danger,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             '초안을 불러올 수 없습니다',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             _error!,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           TextButton.icon(
             onPressed: _fetchSuggestions,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, size: 16),
             label: const Text('다시 시도'),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '아래 입력창에 직접 입력할 수도 있어요',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark
+                  ? AppColors.textSubDark.withValues(alpha: 0.7)
+                  : AppColors.textSubLight.withValues(alpha: 0.7),
+            ),
           ),
         ],
       ),
@@ -421,22 +610,30 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
 
   Widget _buildEmpty(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.edit_note_outlined,
-            size: 40,
+            size: 36,
             color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             '제안할 초안이 없습니다',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '아래 입력창에 직접 입력해주세요',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
         ],
@@ -450,7 +647,6 @@ class _SuggestionCard extends StatelessWidget {
   final bool isDark;
   final bool isSelected;
   final VoidCallback onTap;
-  final VoidCallback onInsert;
   final VoidCallback onCopy;
 
   const _SuggestionCard({
@@ -458,7 +654,6 @@ class _SuggestionCard extends StatelessWidget {
     required this.isDark,
     required this.isSelected,
     required this.onTap,
-    required this.onInsert,
     required this.onCopy,
   });
 
@@ -468,23 +663,21 @@ class _SuggestionCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary500.withValues(alpha: 0.08)
               : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary500
-                : Colors.transparent,
-            width: 2,
+            color: isSelected ? AppColors.primary500 : Colors.transparent,
+            width: 1.5,
           ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Label
+            // Label + copy button
             Row(
               children: [
                 Container(
@@ -503,85 +696,47 @@ class _SuggestionCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                if (isSelected) ...[
-                  _ActionButton(
-                    icon: Icons.copy,
-                    label: '복사',
+                if (isSelected)
+                  GestureDetector(
                     onTap: onCopy,
-                    isDark: isDark,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.copy, size: 13, color: AppColors.primary600),
+                        const SizedBox(width: 3),
+                        Text(
+                          '복사',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  _ActionButton(
-                    icon: Icons.add,
-                    label: '입력창에 넣기',
-                    onTap: onInsert,
-                    primary: true,
-                  ),
-                ],
               ],
             ),
-
-            const SizedBox(height: 10),
-
+            const SizedBox(height: 8),
             // Text
             Text(
               suggestion.text,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 height: 1.5,
                 color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool isDark;
-  final bool primary;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.isDark = false,
-    this.primary = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final fgColor = primary ? Colors.white : AppColors.primary600;
-    final bgColor = primary
-        ? AppColors.primary600
-        : AppColors.primary500.withValues(alpha: 0.1);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: fgColor),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: fgColor,
+            if (isSelected) ...[
+              const SizedBox(height: 6),
+              Text(
+                '\u2191 탭하여 편집창에 넣었습니다',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.primary500,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

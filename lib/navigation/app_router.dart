@@ -148,9 +148,13 @@ final appRouter = GoRouter(
         // 채팅 - 내 채널 + 프라이빗 카드 + 구독 아티스트 (3서브탭)
         GoRoute(
           path: '/creator/chat',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: CreatorChatTabScreen(),
-          ),
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final prefillText = extra?['prefillText'] as String?;
+            return NoTransitionPage(
+              child: CreatorChatTabScreen(prefillText: prefillText),
+            );
+          },
         ),
         // 펀딩 - 내 캠페인 관리 + 탐색
         GoRoute(

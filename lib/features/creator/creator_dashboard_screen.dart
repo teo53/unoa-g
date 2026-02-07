@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/demo_config.dart';
 import '../../providers/auth_provider.dart';
-import 'package:flutter/services.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../data/repositories/mock_chat_repository.dart';
 import 'widgets/todays_voted_question_section.dart';
@@ -115,16 +114,8 @@ class _CreatorDashboardScreenState
                         messageId: setId,
                         fanMessagePreview: card.cardText,
                         onInsert: (text) {
-                          Clipboard.setData(ClipboardData(text: text));
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('답변이 클립보드에 복사되었습니다'),
-                                behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                            context.go('/creator/chat');
+                            context.go('/creator/chat', extra: {'prefillText': text});
                           }
                         },
                       );
