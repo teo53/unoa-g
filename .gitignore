@@ -42,6 +42,16 @@ app.*.map.json
 
 # Web related
 
+# Firebase CLI cache
+.firebase/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Temp/backup files
+*.bak
+nul
+
 # Exceptions to above rules
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
