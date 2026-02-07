@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
-import '../../providers/auth_provider.dart';
+import '../../core/config/demo_config.dart';
 import '../../providers/chat_list_provider.dart';
 import '../private_card/widgets/private_card_list_view.dart';
+import '../chat/widgets/chat_search_bar.dart';
+import '../chat/widgets/media_gallery_sheet.dart';
+import '../chat/widgets/daily_question_cards_panel.dart';
 
 /// 크리에이터 채팅 탭 화면
 ///
@@ -38,6 +41,22 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final Set<String> _heartedMessages = {};
+
+  // 배너 닫기 상태
+  bool _isBannerDismissed = false;
+
+  // 검색 상태
+  bool _isSearchActive = false;
+  String _searchQuery = '';
+  List<int> _searchMatchIndices = [];
+  int _currentSearchMatchIndex = -1;
+
+  // 미디어 메뉴 상태
+  bool _isMediaMenuOpen = false;
+
+  // 답장 상태
+  _GroupChatMessage? _replyingTo;
+  bool _isReplyDirect = true;
 
   // Mock messages - 실제로는 provider에서 가져옴
   final List<_GroupChatMessage> _messages = [];
@@ -79,7 +98,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         isFromCreator: true,
         timestamp: now.subtract(const Duration(hours: 1, minutes: 30)),
         readCount: 1087,
-        totalSubscribers: 1250,
+        totalSubscribers: DemoConfig.demoSubscriberCount,
       ),
       _GroupChatMessage(
         id: '4',
@@ -109,7 +128,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         isFromCreator: true,
         timestamp: now.subtract(const Duration(minutes: 30)),
         readCount: 892,
-        totalSubscribers: 1250,
+        totalSubscribers: DemoConfig.demoSubscriberCount,
       ),
     ]);
   }
@@ -125,6 +144,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   void _sendMessage() {
     if (_messageController.text.trim().isEmpty) return;
 
+    final isReply = _replyingTo != null;
+
     setState(() {
       _messages.add(_GroupChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -134,13 +155,37 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         fanTier: '',
         isFromCreator: true,
         timestamp: DateTime.now(),
-        readCount: 0, // 방금 전송됨 - 아직 아무도 안 읽음
-        totalSubscribers: 1250,
+        readCount: isReply && _isReplyDirect ? 1 : 0,
+        totalSubscribers: isReply && _isReplyDirect ? 1 : DemoConfig.demoSubscriberCount,
+        isDirectReplyMessage: isReply ? _isReplyDirect : false,
+        replyToFanId: _replyingTo?.fanId,
+        replyToFanName: _replyingTo?.fanName,
+        replyToContent: _replyingTo?.content,
       ));
       _messageController.clear();
+      _replyingTo = null;
+      _isMediaMenuOpen = false;
     });
 
     // Scroll to bottom
+    _scrollToBottom();
+
+    if (isReply) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _isReplyDirect
+                ? '${_replyingTo?.fanName ?? ''}님에게 1:1 답장을 보냈습니다'
+                : '전체 팬에게 답장을 보냈습니다',
+          ),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -162,422 +207,224 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     });
   }
 
-  /// 팬 메시지 Long Press 시 답장 옵션 바텀시트 표시
+  /// 팬 메시지 Long Press 시 답장 타입 선택 바텀시트
   void _showReplyOptionsSheet(
     BuildContext context,
     _GroupChatMessage originalMessage,
     bool isDark,
   ) {
-    bool isDirectReply = true; // 기본값: 1:1 답장
-    final replyController = TextEditingController();
-
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 헤더
-              Row(
+      builder: (context) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          20, 20, 20, MediaQuery.of(context).padding.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 헤더
+            Row(
+              children: [
+                Icon(Icons.reply_rounded, color: AppColors.primary, size: 24),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${originalMessage.fanName}님에게 답장',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(Icons.close, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // 원본 메시지 미리보기
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                ),
+              ),
+              child: Row(
                 children: [
-                  Icon(
-                    Icons.reply_rounded,
-                    color: AppColors.primary,
-                    size: 24,
+                  Container(
+                    width: 24, height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isDark ? Colors.grey[700] : Colors.grey[300],
+                    ),
+                    child: Center(
+                      child: Text(
+                        originalMessage.fanName.isNotEmpty ? originalMessage.fanName[0] : '?',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      '${originalMessage.fanName}님에게 답장',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: isDark
-                            ? AppColors.textMainDark
-                            : AppColors.textMainLight,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.close,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // 원본 메시지 미리보기
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.grey[800]!.withValues(alpha: 0.5)
-                      : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: isDark ? Colors.grey[700] : Colors.grey[300],
-                          ),
-                          child: Center(
-                            child: Text(
-                              originalMessage.fanName.isNotEmpty
-                                  ? originalMessage.fanName[0]
-                                  : '?',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                              ),
-                            ),
-                          ),
+                        Row(
+                          children: [
+                            Text(originalMessage.fanName,
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
+                                color: isDark ? AppColors.textSubDark : AppColors.textSubLight)),
+                            const SizedBox(width: 6),
+                            _TierBadge(tier: originalMessage.fanTier),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          originalMessage.fanName,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: isDark
-                                ? AppColors.textSubDark
-                                : AppColors.textSubLight,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getTierColorForSheet(originalMessage.fanTier)
-                                .withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            originalMessage.fanTier,
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              color: _getTierColorForSheet(originalMessage.fanTier),
-                            ),
-                          ),
-                        ),
+                        const SizedBox(height: 4),
+                        Text(originalMessage.content,
+                          style: TextStyle(fontSize: 13,
+                            color: isDark ? AppColors.textMainDark : AppColors.textMainLight),
+                          maxLines: 2, overflow: TextOverflow.ellipsis),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      originalMessage.content,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark
-                            ? AppColors.textMainDark
-                            : AppColors.textMainLight,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // 답장 타입 선택
-              Text(
-                '답장 방식',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  // 1:1 답장
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setModalState(() => isDirectReply = true),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isDirectReply
-                              ? AppColors.primary.withValues(alpha: 0.1)
-                              : (isDark ? Colors.grey[800] : Colors.grey[100]),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isDirectReply
-                                ? AppColors.primary
-                                : (isDark
-                                    ? Colors.grey[700]!
-                                    : Colors.grey[300]!),
-                            width: isDirectReply ? 2 : 1,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.person,
-                              color: isDirectReply
-                                  ? AppColors.primary
-                                  : (isDark
-                                      ? Colors.grey[500]
-                                      : Colors.grey[600]),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '1:1 답장',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: isDirectReply
-                                    ? AppColors.primary
-                                    : (isDark
-                                        ? AppColors.textMainDark
-                                        : AppColors.textMainLight),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '이 팬에게만 보임',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: isDark
-                                    ? AppColors.textMutedDark
-                                    : AppColors.textMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // 전체 답장
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setModalState(() => isDirectReply = false),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: !isDirectReply
-                              ? AppColors.primary.withValues(alpha: 0.1)
-                              : (isDark ? Colors.grey[800] : Colors.grey[100]),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: !isDirectReply
-                                ? AppColors.primary
-                                : (isDark
-                                    ? Colors.grey[700]!
-                                    : Colors.grey[300]!),
-                            width: !isDirectReply ? 2 : 1,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.groups,
-                              color: !isDirectReply
-                                  ? AppColors.primary
-                                  : (isDark
-                                      ? Colors.grey[500]
-                                      : Colors.grey[600]),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '전체 답장',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: !isDirectReply
-                                    ? AppColors.primary
-                                    : (isDark
-                                        ? AppColors.textMainDark
-                                        : AppColors.textMainLight),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '모든 팬에게 보임',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: isDark
-                                    ? AppColors.textMutedDark
-                                    : AppColors.textMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 16),
 
-              // 답장 입력 필드
-              TextField(
-                controller: replyController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: '답장을 입력하세요...',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[500] : Colors.grey[400],
-                  ),
-                  filled: true,
-                  fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.all(14),
-                ),
-                style: TextStyle(
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 보내기 버튼
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (replyController.text.trim().isEmpty) return;
-                    _sendReply(
-                      content: replyController.text.trim(),
-                      isDirectReply: isDirectReply,
-                      originalMessage: originalMessage,
-                    );
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            // 답장 타입 버튼
+            Row(
+              children: [
+                // 1:1 답장
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _replyingTo = originalMessage;
+                        _isReplyDirect = true;
+                      });
+                    },
+                    icon: const Icon(Icons.person, size: 18),
+                    label: const Text('1:1 답장'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        isDirectReply ? Icons.send : Icons.campaign,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        isDirectReply ? '1:1 답장 보내기' : '전체 답장 보내기',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
+                ),
+                const SizedBox(width: 12),
+                // 전체 답장
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _replyingTo = originalMessage;
+                        _isReplyDirect = false;
+                      });
+                    },
+                    icon: const Icon(Icons.groups, size: 18),
+                    label: const Text('전체 답장'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// 답장 전송
-  void _sendReply({
-    required String content,
-    required bool isDirectReply,
-    required _GroupChatMessage originalMessage,
-  }) {
-    setState(() {
-      _messages.add(_GroupChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        content: content,
-        fanId: 'creator',
-        fanName: '',
-        fanTier: '',
-        isFromCreator: true,
-        timestamp: DateTime.now(),
-        readCount: isDirectReply ? 1 : 0, // 1:1이면 1명만
-        totalSubscribers: isDirectReply ? 1 : 1250,
-        // 답장 관련 정보
-        isDirectReplyMessage: isDirectReply,
-        replyToFanId: originalMessage.fanId,
-        replyToFanName: originalMessage.fanName,
-        replyToContent: originalMessage.content,
-      ));
-    });
+  // =========================================================================
+  // 검색 메서드
+  // =========================================================================
 
-    // Scroll to bottom
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
+  void _onSearchQueryChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+      _searchMatchIndices = [];
+      _currentSearchMatchIndex = -1;
+      if (query.isNotEmpty) {
+        for (int i = 0; i < _messages.length; i++) {
+          if (_messages[i].content.toLowerCase().contains(query.toLowerCase())) {
+            _searchMatchIndices.add(i);
+          }
+        }
+        if (_searchMatchIndices.isNotEmpty) {
+          _currentSearchMatchIndex = 0;
+          _scrollToSearchMatch();
+        }
       }
     });
+  }
 
-    // 성공 스낵바
+  void _onSearchNavigate(int direction) {
+    if (_searchMatchIndices.isEmpty) return;
+    setState(() {
+      _currentSearchMatchIndex = (_currentSearchMatchIndex + direction)
+          .clamp(0, _searchMatchIndices.length - 1);
+    });
+    _scrollToSearchMatch();
+  }
+
+  void _scrollToSearchMatch() {
+    if (_currentSearchMatchIndex < 0 || _searchMatchIndices.isEmpty) return;
+    final msgIndex = _searchMatchIndices[_currentSearchMatchIndex];
+    // 대략적 위치 계산 (각 메시지 약 80px)
+    final estimatedOffset = msgIndex * 80.0;
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        estimatedOffset.clamp(0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  void _onSearchClose() {
+    setState(() {
+      _isSearchActive = false;
+      _searchQuery = '';
+      _searchMatchIndices = [];
+      _currentSearchMatchIndex = -1;
+    });
+  }
+
+  // =========================================================================
+  // 미디어 메뉴 핸들러
+  // =========================================================================
+
+  void _handleMediaAction(String actionName) {
+    setState(() { _isMediaMenuOpen = false; });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          isDirectReply
-              ? '${originalMessage.fanName}님에게 1:1 답장을 보냈습니다'
-              : '전체 팬에게 답장을 보냈습니다',
-        ),
+        content: Text('$actionName 기능은 백엔드 연동 후 활성화됩니다'),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  Color _getTierColorForSheet(String tier) {
-    switch (tier.toUpperCase()) {
-      case 'VIP':
-        return Colors.amber[700]!;
-      case 'STANDARD':
-        return AppColors.primary;
-      default:
-        return Colors.grey[500]!;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -622,27 +469,47 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         children: [
           // Title row
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 16, 12),
+            padding: const EdgeInsets.fromLTRB(24, 16, 8, 12),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '채팅',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color:
-                        isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
                   ),
                 ),
+                const Spacer(),
+                // 검색 버튼
+                IconButton(
+                  onPressed: () => setState(() { _isSearchActive = true; }),
+                  icon: Icon(
+                    Icons.search,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                  tooltip: '메시지 검색',
+                ),
+                // 미디어 모아보기 버튼
+                IconButton(
+                  onPressed: () => MediaGallerySheet.show(
+                    context: context,
+                    channelId: DemoConfig.demoChannelId,
+                  ),
+                  icon: Icon(
+                    Icons.perm_media_outlined,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                  tooltip: '미디어 모아보기',
+                ),
+                // 알림 버튼
                 IconButton(
                   onPressed: () => context.push('/notifications'),
                   icon: Stack(
                     children: [
                       Icon(
                         Icons.notifications_outlined,
-                        color:
-                            isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
                       ),
                       Positioned(
                         right: 0,
@@ -705,37 +572,62 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   Widget _buildMyChannelTab(bool isDark) {
     return Column(
       children: [
-        // 채널 정보 바
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            border: Border(
-              bottom: BorderSide(
-                color: AppColors.primary.withValues(alpha: 0.2),
-              ),
-            ),
+        // 검색 바 (활성화 시)
+        if (_isSearchActive)
+          ChatSearchBar(
+            matchCount: _searchMatchIndices.length,
+            currentMatch: _currentSearchMatchIndex,
+            onQueryChanged: _onSearchQueryChanged,
+            onNavigate: _onSearchNavigate,
+            onClose: _onSearchClose,
           ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.campaign_rounded,
-                size: 18,
-                color: AppColors.primary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '여기서 보내는 메시지는 모든 구독자(1,250명)에게 전송됩니다',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w500,
+
+        // 채널 정보 바 (닫기 가능)
+        if (!_isBannerDismissed && !_isSearchActive)
+          AnimatedCrossFade(
+            firstChild: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                border: Border(
+                  bottom: BorderSide(
+                    color: AppColors.primary.withValues(alpha: 0.2),
                   ),
                 ),
               ),
-            ],
+              child: Row(
+                children: [
+                  Icon(Icons.campaign_rounded, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '여기서 보내는 메시지는 모든 구독자(${DemoConfig.demoSubscriberCount}명)에게 전송됩니다',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _isBannerDismissed = true),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(Icons.close, size: 16, color: AppColors.primary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            secondChild: const SizedBox.shrink(),
+            crossFadeState: CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
           ),
+
+        // 질문카드 패널
+        DailyQuestionCardsPanel(
+          channelId: DemoConfig.demoChannelId,
+          compact: true,
         ),
 
         // 메시지 리스트 (단체톡방 형태)
@@ -816,9 +708,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     return Container(
       padding: EdgeInsets.fromLTRB(
         12,
+        8,
         12,
-        12,
-        MediaQuery.of(context).padding.bottom + 12,
+        MediaQuery.of(context).padding.bottom + 8,
       ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -828,71 +720,223 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
           ),
         ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Image picker
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('이미지 첨부 기능은 준비 중입니다')),
-              );
-            },
-            icon: Icon(
-              Icons.add_photo_alternate_outlined,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-          ),
-          const SizedBox(width: 8),
+          // 답장 미리보기 바
+          if (_replyingTo != null)
+            _buildReplyPreviewBar(isDark),
 
-          // Input field
+          // 미디어 메뉴 (확장 시)
+          if (_isMediaMenuOpen)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildMediaMenuButton(
+                    icon: Icons.photo_library_outlined,
+                    label: '사진',
+                    color: const Color(0xFF4CAF50),
+                    isDark: isDark,
+                    onTap: () => _handleMediaAction('사진 전송'),
+                  ),
+                  _buildMediaMenuButton(
+                    icon: Icons.videocam_outlined,
+                    label: '동영상',
+                    color: const Color(0xFF9C27B0),
+                    isDark: isDark,
+                    onTap: () => _handleMediaAction('동영상 전송'),
+                  ),
+                  _buildMediaMenuButton(
+                    icon: Icons.mic_outlined,
+                    label: '음성',
+                    color: const Color(0xFFFF9800),
+                    isDark: isDark,
+                    onTap: () => _handleMediaAction('음성 메시지'),
+                  ),
+                  _buildMediaMenuButton(
+                    icon: Icons.camera_alt_outlined,
+                    label: '카메라',
+                    color: const Color(0xFF2196F3),
+                    isDark: isDark,
+                    onTap: () => _handleMediaAction('카메라 촬영'),
+                  ),
+                ],
+              ),
+            ),
+
+          // 입력 Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // + 버튼 (미디어 메뉴 토글)
+              IconButton(
+                onPressed: () => setState(() { _isMediaMenuOpen = !_isMediaMenuOpen; }),
+                icon: AnimatedRotation(
+                  turns: _isMediaMenuOpen ? 0.125 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.add,
+                    color: _isMediaMenuOpen
+                        ? AppColors.primary
+                        : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                    size: 26,
+                  ),
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              ),
+              const SizedBox(width: 4),
+
+              // Input field
+              Expanded(
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 100),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey[800] : Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: TextField(
+                    controller: _messageController,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                      hintText: _replyingTo != null
+                          ? '${_isReplyDirect ? '1:1' : '전체'} 답장 입력...'
+                          : '모든 팬에게 메시지 보내기...',
+                      hintStyle: TextStyle(
+                        color: isDark ? Colors.grey[500] : Colors.grey[400],
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                    ),
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+
+              // Send button
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _replyingTo != null && _isReplyDirect
+                      ? Colors.purple
+                      : AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  onPressed: _sendMessage,
+                  icon: Icon(
+                    _replyingTo != null
+                        ? (_isReplyDirect ? Icons.send_rounded : Icons.campaign)
+                        : Icons.send_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReplyPreviewBar(bool isDark) {
+    final replyColor = _isReplyDirect ? Colors.purple : AppColors.primary;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: replyColor.withValues(alpha: isDark ? 0.08 : 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border(
+          left: BorderSide(color: replyColor, width: 3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.reply_rounded, size: 16, color: replyColor),
+          const SizedBox(width: 8),
           Expanded(
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 100),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[800] : Colors.grey[100],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: TextField(
-                controller: _messageController,
-                maxLines: null,
-                decoration: InputDecoration(
-                  hintText: '모든 팬에게 메시지 보내기...',
-                  hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[500] : Colors.grey[400],
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${_isReplyDirect ? '1:1' : '전체'} → ${_replyingTo!.fanName}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: replyColor,
                   ),
                 ),
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
+                const SizedBox(height: 2),
+                Text(
+                  _replyingTo!.content.length > 50
+                      ? '${_replyingTo!.content.substring(0, 50)}...'
+                      : _replyingTo!.content,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() { _replyingTo = null; }),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(
+                Icons.close_rounded,
+                size: 18,
+                color: isDark ? Colors.grey[500] : Colors.grey[400],
               ),
             ),
           ),
-          const SizedBox(width: 8),
+        ],
+      ),
+    );
+  }
 
-          // Send button
+  Widget _buildMediaMenuButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: IconButton(
-              onPressed: _sendMessage,
-              icon: const Icon(
-                Icons.send_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-              padding: EdgeInsets.zero,
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
         ],

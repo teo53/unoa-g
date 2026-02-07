@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
 
 /// Bottom sheet for AI reply suggestions
@@ -66,33 +70,107 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     });
 
     try {
-      final response = await Supabase.instance.client.functions.invoke(
-        'ai-reply-suggest',
-        body: {
-          'channel_id': widget.channelId,
-          'message_id': widget.messageId,
-        },
-      );
-
-      if (response.status != 200) {
-        throw Exception(response.data?['error'] ?? 'Failed to get suggestions');
+      if (AppConfig.openaiApiKey.isNotEmpty) {
+        await _fetchFromGPT();
+      } else {
+        await _fetchFromSupabase();
       }
-
-      final data = response.data as Map<String, dynamic>;
-      final suggestionsJson = data['suggestions'] as List<dynamic>;
-
-      setState(() {
-        _suggestions = suggestionsJson
-            .map((s) => ReplySuggestion.fromJson(s as Map<String, dynamic>))
-            .toList();
-        _isLoading = false;
-      });
     } catch (e) {
       setState(() {
         _error = e.toString();
         _isLoading = false;
       });
     }
+  }
+
+  /// GPT API 직접 호출 (데모/개발 환경)
+  Future<void> _fetchFromGPT() async {
+    final prompt = _buildPrompt(widget.fanMessagePreview ?? '');
+
+    final response = await http.post(
+      Uri.parse('https://api.openai.com/v1/chat/completions'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${AppConfig.openaiApiKey}',
+      },
+      body: jsonEncode({
+        'model': 'gpt-4o-mini',
+        'messages': [
+          {'role': 'user', 'content': prompt},
+        ],
+        'max_tokens': 1024,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('GPT API 오류 (${response.statusCode})');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final text = data['choices'][0]['message']['content'] as String;
+
+    final suggestions = _parseGPTResponse(text);
+    setState(() {
+      _suggestions = suggestions;
+      _isLoading = false;
+    });
+  }
+
+  String _buildPrompt(String fanMessage) {
+    return '당신은 K-pop/엔터테인먼트 크리에이터의 팬 메시지 답글 초안을 작성하는 도우미입니다.\n\n'
+        '[팬 메시지]\n"$fanMessage"\n\n'
+        '[안전 규칙]\n'
+        '- 친근하되 기만적이지 않게 작성\n'
+        '- "AI"라는 단어 사용 금지\n'
+        '- 각 답변 200자 이내\n\n'
+        '정확히 3개의 서로 다른 스타일의 답글 초안을 JSON 배열 형식으로 반환하세요.\n'
+        '스타일: 짧게, 따뜻하게, 재미있게\n\n'
+        '예시 형식:\n'
+        '["첫 번째 답글", "두 번째 답글", "세 번째 답글"]\n\n'
+        '답글만 출력하고 다른 설명은 포함하지 마세요.';
+  }
+
+  List<ReplySuggestion> _parseGPTResponse(String text) {
+    const labels = ['짧게', '따뜻하게', '재미있게'];
+
+    final match = RegExp(r'\[[\s\S]*\]').firstMatch(text);
+    if (match != null) {
+      final parsed = jsonDecode(match.group(0)!) as List<dynamic>;
+      return parsed.take(3).toList().asMap().entries.map((e) {
+        return ReplySuggestion(
+          id: 'opt${e.key + 1}',
+          label: e.key < labels.length ? labels[e.key] : '옵션 ${e.key + 1}',
+          text: (e.value as String).trim(),
+        );
+      }).toList();
+    }
+
+    throw Exception('GPT 응답을 파싱할 수 없습니다');
+  }
+
+  /// Supabase Edge Function 호출 (프로덕션)
+  Future<void> _fetchFromSupabase() async {
+    final response = await Supabase.instance.client.functions.invoke(
+      'ai-reply-suggest',
+      body: {
+        'channel_id': widget.channelId,
+        'message_id': widget.messageId,
+      },
+    );
+
+    if (response.status != 200) {
+      throw Exception(response.data?['error'] ?? 'Failed to get suggestions');
+    }
+
+    final data = response.data as Map<String, dynamic>;
+    final suggestionsJson = data['suggestions'] as List<dynamic>;
+
+    setState(() {
+      _suggestions = suggestionsJson
+          .map((s) => ReplySuggestion.fromJson(s as Map<String, dynamic>))
+          .toList();
+      _isLoading = false;
+    });
   }
 
   void _copyToClipboard(String text) {

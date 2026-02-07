@@ -89,6 +89,13 @@ class AppConfig {
   // API Configuration
   // ============================================================
 
+  /// OpenAI API Key (데모/개발 환경에서 AI 답글 제안 직접 호출용)
+  /// 빌드 시 --dart-define=OPENAI_API_KEY=sk-... 으로 주입
+  static const String openaiApiKey = String.fromEnvironment(
+    'OPENAI_API_KEY',
+    defaultValue: '',
+  );
+
   /// API request timeout in seconds
   static const int apiTimeoutSeconds = int.fromEnvironment(
     'API_TIMEOUT',

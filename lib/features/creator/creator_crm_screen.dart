@@ -32,30 +32,33 @@ class _CreatorCRMScreenState extends ConsumerState<CreatorCRMScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      children: [
-        // Header
-        _buildHeader(context, isDark),
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      body: Column(
+        children: [
+          // Header
+          _buildHeader(context, isDark),
 
-        // Tab bar
-        _buildTabBar(isDark),
+          // Tab bar
+          _buildTabBar(isDark),
 
-        // Tab content
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _RevenueTab(
-                selectedPeriod: _selectedPeriod,
-                onPeriodChanged: (p) => setState(() => _selectedPeriod = p),
-              ),
-              const _FanCRMTab(),
-              const _ContentPerformanceTab(),
-              const _WithdrawalTab(),
-            ],
+          // Tab content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _RevenueTab(
+                  selectedPeriod: _selectedPeriod,
+                  onPeriodChanged: (p) => setState(() => _selectedPeriod = p),
+                ),
+                const _FanCRMTab(),
+                const _ContentPerformanceTab(),
+                const _WithdrawalTab(),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
