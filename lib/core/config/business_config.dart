@@ -242,4 +242,27 @@ class BusinessConfig {
 
   /// Artist list cache duration (minutes)
   static const int artistListCacheMinutes = 10;
+
+  // ============================================================
+  // Poll/VS System
+  // ============================================================
+
+  /// Maximum polls a creator can send per KST day
+  static const int maxPollsPerDay = 5;
+
+  /// Default poll duration (hours)
+  static const int defaultPollDurationHours = 24;
+
+  /// Maximum poll options
+  static const int maxPollOptions = 4;
+
+  // ============================================================
+  // Celebrations System
+  // ============================================================
+
+  /// Subscription milestone days that trigger celebration events
+  static const List<int> milestoneDays = [50, 100, 365];
+
+  /// Days before a celebration event expires
+  static const int celebrationExpiryDays = 7;
 }

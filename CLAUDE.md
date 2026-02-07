@@ -739,3 +739,45 @@ firebase deploy --only hosting
 11. **Responsive**: Use ResponsiveLayout for screens that need tablet/desktop support.
 12. **Config 사용 필수**: 하드코딩 대신 반드시 `DemoConfig`, `BusinessConfig`, `AppConfig` 사용.
 13. **데모 모드 지원**: 새 Provider 작성 시 `AuthDemoMode` 상태 처리 필수.
+
+---
+
+## ⛔ API 키 보안 규칙 (CRITICAL - 절대 위반 금지)
+
+### 원칙: API 키는 절대로 클라이언트에 노출되면 안 됨
+
+**절대 하지 말 것 (NEVER DO):**
+- API 키(Anthropic, OpenAI, Supabase service_role 등)를 Dart 소스코드에 하드코딩
+- API 키를 `defaultValue`에 넣기
+- API 키를 Firebase Hosting에 JSON 파일로 배포
+- API 키를 JavaScript/HTML 파일에 포함
+- API 키를 git 커밋에 포함 (소스코드, config 파일, .env 등)
+- 클라이언트에서 직접 AI API(Anthropic, OpenAI 등)를 호출하는 코드 작성 (프로덕션)
+- API 키를 로그에 출력
+
+**올바른 방법 (ALWAYS DO):**
+- API 키는 **서버 환경변수**에만 저장 (Supabase Edge Function 환경변수, Cloud Function 등)
+- 클라이언트 → 서버(Edge Function) → AI API 구조로 호출
+- 데모 모드에서는 **로컬 예시 답변**을 사용하여 API 호출 없이 기능 체험 제공
+- `.env` 파일은 반드시 `.gitignore`에 포함
+- 빌드 시 `--dart-define`으로 주입하는 키도 CI/CD 시크릿으로 관리
+
+### AI 답글 시스템 아키텍처
+
+```
+[프로덕션 환경]
+클라이언트 → Supabase Edge Function → Claude API
+              (ANTHROPIC_API_KEY는 서버 환경변수)
+
+[데모/개발 환경]
+클라이언트 → 로컬 예시 답변 반환 (API 호출 없음)
+```
+
+### 키 유형별 관리 방법
+
+| 키 유형 | 저장 위치 | 절대 금지 |
+|---------|----------|----------|
+| `ANTHROPIC_API_KEY` | Supabase Edge Function 환경변수 | 클라이언트 코드에 포함 |
+| `SUPABASE_SERVICE_ROLE_KEY` | Edge Function 서버 | 클라이언트에 전달 |
+| `SUPABASE_ANON_KEY` | 빌드타임 주입 (공개 가능) | - |
+| `SENTRY_DSN` | 빌드타임 주입 (공개 가능) | - |

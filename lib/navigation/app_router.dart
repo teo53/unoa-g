@@ -31,6 +31,7 @@ import '../features/creator/creator_my_channel_screen.dart';
 
 import '../features/creator/creator_content_screen.dart';
 import '../features/private_card/private_card_compose_screen.dart';
+import '../features/settings/birthday_settings_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/widgets/creator_bottom_nav_bar.dart';
@@ -70,6 +71,7 @@ class AppRoutes {
   static const String creatorContent = '/creator/content';
   static const String creatorPrivateCard = '/creator/private-card';
   static const String creatorPrivateCardCompose = '/creator/private-card/compose';
+  static const String birthdaySettings = '/settings/birthday';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -226,6 +228,19 @@ final appRouter = GoRouter(
       path: '/settings/account',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AccountScreen(),
+    ),
+    GoRoute(
+      path: '/settings/birthday',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return BirthdaySettingsScreen(
+          channelId: extra?['channelId'] as String? ?? '',
+          initialMonth: extra?['initialMonth'] as int?,
+          initialDay: extra?['initialDay'] as int?,
+          initialVisible: extra?['initialVisible'] as bool? ?? false,
+        );
+      },
     ),
     GoRoute(
       path: '/notifications',

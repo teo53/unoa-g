@@ -8,6 +8,7 @@ import '../../data/repositories/chat_repository.dart';
 import '../../data/repositories/mock_chat_repository.dart';
 import 'widgets/todays_voted_question_section.dart';
 import 'widgets/ai_reply_suggestion_sheet.dart';
+import 'widgets/celebration_queue_section.dart';
 
 /// Creator Dashboard Screen - CRM 통합 대시보드
 /// - 수익 요약 및 통계
@@ -102,6 +103,13 @@ class _CreatorDashboardScreenState
                   _buildSectionTitle('오늘의 현황', isDark),
                   const SizedBox(height: 12),
                   _buildStatsGrid(isDark),
+                  const SizedBox(height: 24),
+
+                  // Celebration Queue
+                  CelebrationQueueSection(
+                    channelId: 'channel_1',
+                    artistName: profile?.displayName,
+                  ),
                   const SizedBox(height: 24),
 
                   // Today's Question Section

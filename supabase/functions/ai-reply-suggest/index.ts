@@ -19,7 +19,9 @@ const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
 
 interface RequestBody {
   channel_id: string
-  message_id: string
+  message_id?: string
+  fan_message?: string
+  correlation_id?: string
   style?: 'neutral' | 'warm' | 'playful'
   max_chars?: number
 }
@@ -66,11 +68,18 @@ serve(async (req) => {
 
     // Parse request body
     const body: RequestBody = await req.json()
-    const { channel_id, message_id, style = 'neutral', max_chars = 200 } = body
+    const { channel_id, message_id, fan_message, correlation_id, style = 'neutral', max_chars = 200 } = body
 
-    if (!channel_id || !message_id) {
+    if (!channel_id) {
       return new Response(
-        JSON.stringify({ error: 'channel_id and message_id are required' }),
+        JSON.stringify({ error: 'channel_id is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!message_id && !fan_message) {
+      return new Response(
+        JSON.stringify({ error: 'message_id or fan_message is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -103,17 +112,89 @@ serve(async (req) => {
     )
 
     // Get fan message content (NO PII - only message content)
-    const { data: fanMessage, error: msgError } = await adminClient
-      .from('messages')
-      .select('content')
-      .eq('id', message_id)
+    // Supports two modes:
+    // 1. message_id provided: fetch from DB with channel_id ownership check
+    // 2. fan_message provided: use directly (for question cards / non-DB messages)
+    let fanMessageContent = fan_message || ''
+
+    if (message_id) {
+      const { data: msgData, error: msgError } = await adminClient
+        .from('messages')
+        .select('content, channel_id')
+        .eq('id', message_id)
+        .single()
+
+      if (!msgError && msgData) {
+        // Security: verify message belongs to this channel
+        if (msgData.channel_id !== channel_id) {
+          return new Response(
+            JSON.stringify({ error: 'Message does not belong to this channel' }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+        fanMessageContent = msgData.content || fanMessageContent
+      }
+      // If message lookup fails but fan_message exists, fall through to use it
+    }
+
+    if (!fanMessageContent) {
+      return new Response(
+        JSON.stringify({ error: 'No fan message content available' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // --- Observability: Compute idempotency key for caching ---
+    const idempotencyInput = `${channel_id}:${message_id || ''}:${fanMessageContent}`
+    const idempotencyKey = `idem_${hashString(idempotencyInput)}`
+    const jobCorrelationId = correlation_id || `corr_${crypto.randomUUID().substring(0, 8)}`
+
+    // Check ai_draft_jobs cache (DB-level idempotency)
+    const { data: cachedJob } = await adminClient
+      .from('ai_draft_jobs')
+      .select('cached_suggestions, status')
+      .eq('idempotency_key', idempotencyKey)
+      .eq('status', 'success')
+      .gt('expires_at', new Date().toISOString())
       .single()
 
-    if (msgError || !fanMessage) {
+    if (cachedJob?.cached_suggestions) {
+      const latencyMs = Date.now() - startTime
       return new Response(
-        JSON.stringify({ error: 'Message not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          suggestions: cachedJob.cached_suggestions,
+          meta: {
+            provider: 'cache',
+            model: 'cached',
+            latency_ms: latencyMs,
+            cache_hit: true,
+            ai_generated_label: 'AI가 만들었습니다',
+          },
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
+    }
+
+    // Insert job record (observability + idempotency lock)
+    let jobId: string | null = null
+    try {
+      const { data: jobData } = await adminClient
+        .from('ai_draft_jobs')
+        .insert({
+          correlation_id: jobCorrelationId,
+          channel_id,
+          message_id: message_id || null,
+          creator_id: user.id,
+          idempotency_key: idempotencyKey,
+          status: 'generating',
+          expires_at: new Date(Date.now() + 3600000).toISOString(), // 1 hour
+        })
+        .select('id')
+        .single()
+      jobId = jobData?.id || null
+    } catch (_) {
+      // ON CONFLICT: another request with same idempotency_key in progress
+      // Continue without job tracking
     }
 
     // Get creator profile (public info only)
@@ -135,7 +216,7 @@ serve(async (req) => {
 
     // Build prompt for AI
     const prompt = buildPrompt(
-      fanMessage.content || '',
+      fanMessageContent,
       creatorProfile,
       recentMessages || [],
       style,
@@ -144,6 +225,15 @@ serve(async (req) => {
 
     // Call Claude API
     if (!ANTHROPIC_API_KEY) {
+      // Update job status on error
+      if (jobId) {
+        await adminClient.from('ai_draft_jobs').update({
+          status: 'hard_fail',
+          error_code: 'no_api_key',
+          completed_at: new Date().toISOString(),
+          latency_ms: Date.now() - startTime,
+        }).eq('id', jobId)
+      }
       return new Response(
         JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -162,6 +252,18 @@ serve(async (req) => {
       text: text.trim(),
     }))
 
+    // Update job record with success
+    if (jobId) {
+      await adminClient.from('ai_draft_jobs').update({
+        status: 'success',
+        cached_suggestions: formattedSuggestions,
+        provider: 'anthropic',
+        model: modelUsed,
+        latency_ms: latencyMs,
+        completed_at: new Date().toISOString(),
+      }).eq('id', jobId)
+    }
+
     return new Response(
       JSON.stringify({
         suggestions: formattedSuggestions,
@@ -169,6 +271,7 @@ serve(async (req) => {
           provider: 'anthropic',
           model: modelUsed,
           latency_ms: latencyMs,
+          cache_hit: false,
           // IMPORTANT: This label MUST be shown to creator
           ai_generated_label: 'AI가 만들었습니다',
         },
@@ -342,4 +445,15 @@ function parseJsonArray(text: string): string[] {
   // Fallback: split by newlines if JSON parsing fails
   const lines = text.split('\n').filter(line => line.trim().length > 0)
   return lines.slice(0, 3).map(line => line.replace(/^["'\d\.\)]+\s*/, '').trim())
+}
+
+/// Simple string hash for idempotency keys (not cryptographic).
+function hashString(str: string): string {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36)
 }

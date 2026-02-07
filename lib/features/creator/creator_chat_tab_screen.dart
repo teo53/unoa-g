@@ -3,12 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/config/app_config.dart';
 import '../../core/config/demo_config.dart';
 import '../../providers/chat_list_provider.dart';
 import '../private_card/widgets/private_card_list_view.dart';
 import '../chat/widgets/chat_search_bar.dart';
 import '../chat/widgets/media_gallery_sheet.dart';
 import '../chat/widgets/daily_question_cards_panel.dart';
+import 'widgets/poll_suggestion_sheet.dart';
+import '../../data/models/poll_draft.dart';
+import '../../data/models/poll_message.dart';
+import '../chat/widgets/poll_message_card.dart';
 
 /// 크리에이터 채팅 탭 화면
 ///
@@ -768,6 +774,71 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     isDark: isDark,
                     onTap: () => _handleMediaAction('카메라 촬영'),
                   ),
+                  _buildMediaMenuButton(
+                    icon: Icons.poll_outlined,
+                    label: '투표',
+                    color: const Color(0xFFE91E63),
+                    isDark: isDark,
+                    onTap: () {
+                      setState(() => _isMediaMenuOpen = false);
+                      PollSuggestionSheet.show(
+                        context: context,
+                        channelId: 'channel_1',
+                        onSend: (draft, comment) async {
+                          if (AppConfig.enableDemoMode) {
+                            // Demo mode: add poll message to local list
+                            setState(() {
+                              _messages.add(_GroupChatMessage(
+                                id: 'poll_${DateTime.now().millisecondsSinceEpoch}',
+                                content: draft.question,
+                                fanId: 'creator',
+                                fanName: '',
+                                fanTier: '',
+                                isFromCreator: true,
+                                timestamp: DateTime.now(),
+                                readCount: 0,
+                                totalSubscribers: DemoConfig.demoSubscriberCount,
+                                messageType: 'poll',
+                                pollData: draft,
+                              ));
+                            });
+                            _scrollToBottom();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('투표가 전송되었습니다: ${draft.question}')),
+                              );
+                            }
+                            return;
+                          }
+
+                          // Production: call Supabase RPC
+                          try {
+                            await Supabase.instance.client.rpc(
+                              'create_poll_message',
+                              params: {
+                                'p_channel_id': 'channel_1',
+                                'p_question': draft.question,
+                                'p_options': draft.options.map((o) => o.toJson()).toList(),
+                                'p_comment': comment,
+                                'p_draft_id': draft.id.startsWith('draft_') ? null : draft.id,
+                              },
+                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('투표가 전송되었습니다')),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('투표 전송 실패: $e')),
+                              );
+                            }
+                          }
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -1091,6 +1162,11 @@ class _GroupChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Poll 메시지 (전체 너비, 카드 스타일)
+    if (message.messageType == 'poll' && message.pollData != null) {
+      return _buildPollBubble();
+    }
+
     // 크리에이터 메시지 (오른쪽, 핑크 버블)
     if (message.isFromCreator) {
       return _buildCreatorBubble();
@@ -1098,6 +1174,27 @@ class _GroupChatBubble extends StatelessWidget {
 
     // 팬 메시지 (왼쪽, 팬 이름/티어 표시)
     return _buildFanBubble();
+  }
+
+  Widget _buildPollBubble() {
+    final draft = message.pollData!;
+    final pollMessage = PollMessage(
+      id: message.id,
+      messageId: message.id,
+      question: draft.question,
+      options: draft.options,
+      createdAt: message.timestamp,
+      endsAt: message.timestamp.add(const Duration(hours: 24)),
+      showResultsBeforeEnd: true,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: PollMessageCard(
+        poll: pollMessage,
+        isDark: isDark,
+        isCreator: true,
+      ),
+    );
   }
 
   Widget _buildFanBubble() {
@@ -1730,6 +1827,10 @@ class _GroupChatMessage {
   final String? replyToFanId; // 답장 대상 팬 ID
   final String? replyToFanName; // 답장 대상 팬 이름
   final String? replyToContent; // 원본 메시지 내용
+  // 메시지 타입 (text, poll, image 등)
+  final String messageType;
+  // Poll 데이터 (messageType == 'poll'일 때)
+  final PollDraft? pollData;
 
   _GroupChatMessage({
     required this.id,
@@ -1746,5 +1847,7 @@ class _GroupChatMessage {
     this.replyToFanId,
     this.replyToFanName,
     this.replyToContent,
+    this.messageType = 'text',
+    this.pollData,
   });
 }

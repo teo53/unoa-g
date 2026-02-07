@@ -1,18 +1,22 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../data/services/creator_pattern_service.dart';
+import '../../../data/mock/reply_templates.dart';
+import '../../../data/models/ai_draft_state.dart';
+import '../../../data/services/ai_draft_service.dart';
 
 /// Bottom sheet for AI reply suggestions
 ///
 /// IMPORTANT: This is for DRAFT suggestions only.
 /// AI NEVER sends messages automatically - creator must review and send.
+///
+/// State machine:
+/// ```
+/// idle → generating → success (AI suggestions)
+///                    → softFail (template fallback + retry)
+///                    → hardFail (manual editor + template library)
+/// ```
 class AiReplySuggestionSheet extends StatefulWidget {
   final String channelId;
   final String messageId;
@@ -53,10 +57,9 @@ class AiReplySuggestionSheet extends StatefulWidget {
 }
 
 class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
-  List<ReplySuggestion>? _suggestions;
-  bool _isLoading = false;
-  String? _error;
+  AiDraftState _state = const AiDraftIdle();
   String? _selectedId;
+  bool _showingTemplateLibrary = false;
 
   // 직접 입력/편집용 컨트롤러
   final TextEditingController _editController = TextEditingController();
@@ -85,171 +88,19 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
 
   Future<void> _fetchSuggestions() async {
     setState(() {
-      _isLoading = true;
-      _error = null;
+      _state = AiDraftGenerating(correlationId: '');
+      _showingTemplateLibrary = false;
     });
 
-    try {
-      if (AppConfig.anthropicApiKey.isNotEmpty) {
-        await _fetchFromClaude();
-      } else {
-        await _fetchFromSupabase();
-      }
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
-  /// 크리에이터의 과거 메시지에서 패턴 컨텍스트를 생성
-  String _buildPatternContext() {
-    // 데모 모드: 샘플 크리에이터 메시지로 패턴 분석
-    final sampleMessages = [
-      CreatorMessage(
-        id: 'sample_1',
-        content: '오늘 공연 와줘서 너무 고마워요~ 💕',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      CreatorMessage(
-        id: 'sample_2',
-        content: '여러분 덕분에 힘이 나요! 항상 응원해줘서 감사합니다 🙏',
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      ),
-      CreatorMessage(
-        id: 'sample_3',
-        content: '다음 주 컴백 준비 열심히 하고 있어요 기대해주세요!! ✨',
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      ),
-      CreatorMessage(
-        id: 'sample_4',
-        content: 'ㅋㅋㅋ 귀여워요~ 고마워!',
-        createdAt: DateTime.now().subtract(const Duration(days: 4)),
-      ),
-      CreatorMessage(
-        id: 'sample_5',
-        content: '오늘 날씨가 너무 좋아서 산책했어요 🌸 여러분도 좋은 하루 보내세요~',
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-      ),
-    ];
-
-    final patternService = CreatorPatternService.instance;
-    final analysis = patternService.analyzePatterns(
-      creatorId: widget.channelId,
-      messages: sampleMessages,
+    final result = await AiDraftService.instance.fetchSuggestions(
+      channelId: widget.channelId,
+      messageId: widget.messageId,
+      fanMessage: widget.fanMessagePreview ?? '',
     );
 
-    return patternService.buildPatternContext(analysis);
-  }
-
-  /// Claude API 직접 호출 (데모/개발 환경)
-  Future<void> _fetchFromClaude() async {
-    final patternContext = _buildPatternContext();
-    final prompt = _buildPrompt(widget.fanMessagePreview ?? '', patternContext: patternContext);
-
-    final response = await http.post(
-      Uri.parse('https://api.anthropic.com/v1/messages'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': AppConfig.anthropicApiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: jsonEncode({
-        'model': AppConfig.claudeModel,
-        'max_tokens': 1024,
-        'messages': [
-          {'role': 'user', 'content': prompt},
-        ],
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Claude API 오류 (${response.statusCode})');
+    if (mounted) {
+      setState(() => _state = result);
     }
-
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final contentList = data['content'] as List<dynamic>;
-    final text = contentList.first['text'] as String;
-
-    final suggestions = _parseAIResponse(text);
-    setState(() {
-      _suggestions = suggestions;
-      _isLoading = false;
-    });
-  }
-
-  String _buildPrompt(String fanMessage, {String patternContext = ''}) {
-    final buffer = StringBuffer();
-    buffer.writeln('당신은 K-pop/엔터테인먼트 크리에이터의 팬 메시지 답글 초안을 작성하는 도우미입니다.');
-    buffer.writeln();
-
-    // 패턴 컨텍스트가 있으면 추가
-    if (patternContext.isNotEmpty) {
-      buffer.writeln(patternContext);
-      buffer.writeln();
-    }
-
-    buffer.writeln('[팬 메시지]');
-    buffer.writeln('"$fanMessage"');
-    buffer.writeln();
-    buffer.writeln('[안전 규칙]');
-    buffer.writeln('- 친근하되 기만적이지 않게 작성');
-    buffer.writeln('- "AI"라는 단어 사용 금지');
-    buffer.writeln('- 각 답변 200자 이내');
-    buffer.writeln();
-    buffer.writeln('정확히 3개의 서로 다른 스타일의 답글 초안을 JSON 배열 형식으로 반환하세요.');
-    buffer.writeln('스타일: 짧게, 따뜻하게, 재미있게');
-    buffer.writeln();
-    buffer.writeln('예시 형식:');
-    buffer.writeln('["첫 번째 답글", "두 번째 답글", "세 번째 답글"]');
-    buffer.writeln();
-    buffer.writeln('답글만 출력하고 다른 설명은 포함하지 마세요.');
-
-    return buffer.toString();
-  }
-
-  List<ReplySuggestion> _parseAIResponse(String text) {
-    const labels = ['짧게', '따뜻하게', '재미있게'];
-
-    final match = RegExp(r'\[[\s\S]*\]').firstMatch(text);
-    if (match != null) {
-      final parsed = jsonDecode(match.group(0)!) as List<dynamic>;
-      return parsed.take(3).toList().asMap().entries.map((e) {
-        return ReplySuggestion(
-          id: 'opt${e.key + 1}',
-          label: e.key < labels.length ? labels[e.key] : '옵션 ${e.key + 1}',
-          text: (e.value as String).trim(),
-        );
-      }).toList();
-    }
-
-    throw Exception('AI 응답을 파싱할 수 없습니다');
-  }
-
-  /// Supabase Edge Function 호출 (프로덕션)
-  Future<void> _fetchFromSupabase() async {
-    final response = await Supabase.instance.client.functions.invoke(
-      'ai-reply-suggest',
-      body: {
-        'channel_id': widget.channelId,
-        'message_id': widget.messageId,
-      },
-    );
-
-    if (response.status != 200) {
-      throw Exception(response.data?['error'] ?? 'Failed to get suggestions');
-    }
-
-    final data = response.data as Map<String, dynamic>;
-    final suggestionsJson = data['suggestions'] as List<dynamic>;
-
-    setState(() {
-      _suggestions = suggestionsJson
-          .map((s) => ReplySuggestion.fromJson(s as Map<String, dynamic>))
-          .toList();
-      _isLoading = false;
-    });
   }
 
   void _copyToClipboard(String text) {
@@ -263,7 +114,6 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     );
   }
 
-  /// 초안 카드 탭 → 편집창에 텍스트 세팅
   void _fillEditField(String text) {
     _editController.text = text;
     _editController.selection = TextSelection.fromPosition(
@@ -271,19 +121,29 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     );
   }
 
-  /// 초안 리롤 (다시 생성)
   void _rerollSuggestions() {
-    setState(() {
-      _suggestions = null;
-      _selectedId = null;
-    });
+    setState(() => _selectedId = null);
     _fetchSuggestions();
+  }
+
+  void _showTemplateLibrary() {
+    setState(() => _showingTemplateLibrary = true);
   }
 
   void _insertAndClose(String text) {
     Navigator.pop(context);
     widget.onInsert(text);
   }
+
+  // Extract suggestions list from current state
+  List<ReplySuggestion> get _currentSuggestions {
+    final state = _state;
+    if (state is AiDraftSuccess) return state.suggestions;
+    if (state is AiDraftSoftFail) return state.templateSuggestions;
+    return [];
+  }
+
+  bool get _isGenerating => _state is AiDraftGenerating;
 
   @override
   Widget build(BuildContext context) {
@@ -327,9 +187,11 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
 
             const SizedBox(height: 12),
 
-            // Content (suggestions or loading/error)
+            // Content (suggestions / loading / error states)
             Flexible(
-              child: _buildContent(isDark),
+              child: _showingTemplateLibrary
+                  ? _buildTemplateLibrary(isDark)
+                  : _buildContent(isDark),
             ),
 
             // 하단 입력창 (항상 표시)
@@ -423,18 +285,37 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
   }
 
   Widget _buildContent(bool isDark) {
-    if (_isLoading) {
+    final state = _state;
+
+    if (state is AiDraftGenerating) {
       return _buildLoading(isDark);
     }
 
-    if (_error != null) {
-      return _buildError(isDark);
+    if (state is AiDraftHardFail) {
+      return _buildHardFail(isDark, state);
     }
 
-    if (_suggestions == null || _suggestions!.isEmpty) {
-      return _buildEmpty(isDark);
+    if (state is AiDraftSoftFail) {
+      return _buildSoftFail(isDark, state);
     }
 
+    if (state is AiDraftSuccess) {
+      if (state.suggestions.isEmpty) {
+        return _buildEmpty(isDark);
+      }
+      return _buildSuggestionList(isDark, state.suggestions, isAi: true);
+    }
+
+    // AiDraftIdle
+    return _buildEmpty(isDark);
+  }
+
+  /// Displays AI-generated or template suggestions in a list.
+  Widget _buildSuggestionList(
+    bool isDark,
+    List<ReplySuggestion> suggestions, {
+    required bool isAi,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -446,7 +327,9 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
             children: [
               Expanded(
                 child: Text(
-                  '참고용 AI 초안 (탭하여 편집창에 넣기)',
+                  isAi
+                      ? '참고용 AI 초안 (탭하여 편집창에 넣기)'
+                      : '추천 템플릿 (탭하여 편집창에 넣기)',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -455,14 +338,14 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                 ),
               ),
               GestureDetector(
-                onTap: _isLoading ? null : _rerollSuggestions,
+                onTap: _isGenerating ? null : _rerollSuggestions,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.refresh,
                       size: 14,
-                      color: _isLoading
+                      color: _isGenerating
                           ? (isDark ? Colors.grey[600] : Colors.grey[400])
                           : AppColors.primary500,
                     ),
@@ -472,7 +355,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: _isLoading
+                        color: _isGenerating
                             ? (isDark ? Colors.grey[600] : Colors.grey[400])
                             : AppColors.primary500,
                       ),
@@ -489,10 +372,10 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
           child: ListView.separated(
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _suggestions!.length,
+            itemCount: suggestions.length,
             separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
-              final suggestion = _suggestions![index];
+              final suggestion = suggestions[index];
               final isSelected = _selectedId == suggestion.id;
 
               return _SuggestionCard(
@@ -506,6 +389,79 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                 onCopy: () => _copyToClipboard(suggestion.text),
               );
             },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Template library — shows all categories with selectable templates.
+  Widget _buildTemplateLibrary(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => setState(() => _showingTemplateLibrary = false),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  size: 16,
+                  color: AppColors.primary500,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '템플릿 라이브러리',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Flexible(
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: ReplyTemplates.categories.map((category) {
+              final templates = ReplyTemplates.getByCategoryAsSuggestions(category);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 6),
+                    child: Text(
+                      category,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      ),
+                    ),
+                  ),
+                  ...templates.map((t) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: _SuggestionCard(
+                      suggestion: t,
+                      isDark: isDark,
+                      isSelected: _selectedId == t.id,
+                      onTap: () {
+                        setState(() => _selectedId = t.id);
+                        _fillEditField(t.text);
+                      },
+                      onCopy: () => _copyToClipboard(t.text),
+                    ),
+                  )),
+                ],
+              );
+            }).toList(),
           ),
         ),
       ],
@@ -618,44 +574,124 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     );
   }
 
-  Widget _buildError(bool isDark) {
+  /// Soft fail: AI failed but templates are available.
+  /// Recovery: "다시 시도" + "템플릿에서 선택" (2 actions).
+  Widget _buildSoftFail(bool isDark, AiDraftSoftFail state) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Error banner
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.warning.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, size: 18, color: AppColors.warning),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '${state.error.userMessage} — 대신 추천 템플릿을 보여드릴게요',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Recovery actions
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              _ActionChip(
+                icon: Icons.refresh,
+                label: '다시 시도',
+                onTap: _rerollSuggestions,
+                isDark: isDark,
+              ),
+              const SizedBox(width: 8),
+              _ActionChip(
+                icon: Icons.library_books_outlined,
+                label: '템플릿 보기',
+                onTap: _showTemplateLibrary,
+                isDark: isDark,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Show template suggestions
+        Flexible(
+          child: _buildSuggestionList(isDark, state.templateSuggestions, isAi: false),
+        ),
+      ],
+    );
+  }
+
+  /// Hard fail: nothing worked.
+  /// Recovery: "직접 작성하기" (edit bar always visible) + "템플릿 보기" + "짧은 프롬프트로 시도" (3 actions).
+  Widget _buildHardFail(bool isDark, AiDraftHardFail state) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.error_outline,
-            size: 36,
-            color: AppColors.danger,
+            Icons.cloud_off_outlined,
+            size: 40,
+            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
-            '초안을 불러올 수 없습니다',
+            state.error.userMessage,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            _error!,
-            style: TextStyle(
-              fontSize: 12,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
-          TextButton.icon(
-            onPressed: _fetchSuggestions,
-            icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('다시 시도'),
+          const SizedBox(height: 16),
+          // 3 recovery actions
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: [
+              _ActionChip(
+                icon: Icons.refresh,
+                label: '다시 시도',
+                onTap: _rerollSuggestions,
+                isDark: isDark,
+              ),
+              _ActionChip(
+                icon: Icons.library_books_outlined,
+                label: '템플릿 보기',
+                onTap: _showTemplateLibrary,
+                isDark: isDark,
+              ),
+              _ActionChip(
+                icon: Icons.edit_outlined,
+                label: '직접 작성하기',
+                onTap: () {
+                  // Focus the edit bar
+                  FocusScope.of(context).requestFocus(FocusNode());
+                },
+                isDark: isDark,
+                isPrimary: true,
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
-            '아래 입력창에 직접 입력할 수도 있어요',
+            '아래 입력창에 직접 입력할 수 있어요',
             style: TextStyle(
               fontSize: 12,
               color: isDark
@@ -688,6 +724,18 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _ActionChip(
+                icon: Icons.library_books_outlined,
+                label: '템플릿 보기',
+                onTap: _showTemplateLibrary,
+                isDark: isDark,
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
           Text(
             '아래 입력창에 직접 입력해주세요',
@@ -697,6 +745,67 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Small action chip button for recovery actions.
+class _ActionChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isDark;
+  final bool isPrimary;
+
+  const _ActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    required this.isDark,
+    this.isPrimary = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isPrimary
+              ? AppColors.primary500.withValues(alpha: 0.1)
+              : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isPrimary
+                ? AppColors.primary500.withValues(alpha: 0.3)
+                : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isPrimary
+                  ? AppColors.primary500
+                  : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isPrimary
+                    ? AppColors.primary500
+                    : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -800,27 +909,6 @@ class _SuggestionCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Reply suggestion model
-class ReplySuggestion {
-  final String id;
-  final String label;
-  final String text;
-
-  const ReplySuggestion({
-    required this.id,
-    required this.label,
-    required this.text,
-  });
-
-  factory ReplySuggestion.fromJson(Map<String, dynamic> json) {
-    return ReplySuggestion(
-      id: json['id'] as String,
-      label: json['label'] as String,
-      text: json['text'] as String,
     );
   }
 }

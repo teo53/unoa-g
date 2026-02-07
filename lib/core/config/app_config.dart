@@ -89,7 +89,8 @@ class AppConfig {
   // API Configuration
   // ============================================================
 
-  /// Anthropic Claude API Key (AI 답글 제안 직접 호출용)
+  /// Anthropic Claude API Key (프로덕션 전용, 빌드 시 주입)
+  /// 데모 모드에서는 사용하지 않음 (예시 답변 모드로 동작)
   /// 빌드 시 --dart-define=ANTHROPIC_API_KEY=sk-ant-... 으로 주입
   static const String anthropicApiKey = String.fromEnvironment(
     'ANTHROPIC_API_KEY',
