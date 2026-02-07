@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/chat_list_provider.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import 'widgets/message_bubble.dart';
@@ -98,6 +99,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final chatState = ref.watch(chatProvider(widget.channelId));
     final isCreator = ref.watch(isCreatorProvider);
+    final accentColor = ref.watch(
+        artistThemeColorByChannelProvider(widget.channelId));
 
     // Start fade animation when data is loaded
     if (!chatState.isLoading && _fadeController.value == 0) {
@@ -169,17 +172,19 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
               DailyQuestionCardsPanel(
                 channelId: widget.channelId,
                 compact: true,
+                accentColor: accentColor,
               ),
 
             // Messages list
             Expanded(
-              child: _buildMessagesList(context, chatState, isDark),
+              child: _buildMessagesList(context, chatState, isDark, accentColor: accentColor),
             ),
 
             // Input bar
             ChatInputBarV2(
               channelId: widget.channelId,
               onMessageSent: _scrollToBottom,
+              accentColor: accentColor,
             ),
           ],
         ),
@@ -341,8 +346,9 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   Widget _buildMessagesList(
     BuildContext context,
     ChatState chatState,
-    bool isDark,
-  ) {
+    bool isDark, {
+    Color accentColor = AppColors.primary,
+  }) {
     final messages = chatState.messages;
 
     if (messages.isEmpty) {
@@ -424,6 +430,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
                 isOwnMessage: isOwnMessage,
                 searchQuery: _searchQuery.isNotEmpty ? _searchQuery : null,
                 allMessages: messages,
+                accentColor: accentColor,
                 onLongPress: () => _showMessageActions(
                   context,
                   message,
@@ -653,6 +660,7 @@ class MessageBubbleV2 extends StatelessWidget {
   final VoidCallback? onLongPress;
   final String? searchQuery;
   final List<BroadcastMessage> allMessages;
+  final Color accentColor;
 
   const MessageBubbleV2({
     super.key,
@@ -665,6 +673,7 @@ class MessageBubbleV2 extends StatelessWidget {
     this.onLongPress,
     this.searchQuery,
     this.allMessages = const [],
+    this.accentColor = AppColors.primary,
   });
 
   /// Find the replied-to message from allMessages
@@ -823,6 +832,7 @@ class MessageBubbleV2 extends StatelessWidget {
                           repliedTo: _repliedToMessage!,
                           isDark: isDark,
                           isOwnBubble: false,
+                          accentColor: accentColor,
                         ),
                       _buildContent(context, isDark),
                     ],
@@ -870,7 +880,7 @@ class MessageBubbleV2 extends StatelessWidget {
                         Icon(
                           Icons.push_pin,
                           size: 10,
-                          color: AppColors.primary,
+                          color: accentColor,
                         ),
                       ],
                     ],
@@ -900,7 +910,7 @@ class MessageBubbleV2 extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: accentColor,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -911,6 +921,7 @@ class MessageBubbleV2 extends StatelessWidget {
                           repliedTo: _repliedToMessage!,
                           isDark: isDark,
                           isOwnBubble: true,
+                          accentColor: accentColor,
                         ),
                       HighlightedText(
                         text: message.content ?? '',
@@ -1159,11 +1170,13 @@ class _ReplyQuoteBubble extends StatelessWidget {
   final BroadcastMessage repliedTo;
   final bool isDark;
   final bool isOwnBubble;
+  final Color accentColor;
 
   const _ReplyQuoteBubble({
     required this.repliedTo,
     required this.isDark,
     required this.isOwnBubble,
+    required this.accentColor,
   });
 
   @override
@@ -1196,7 +1209,7 @@ class _ReplyQuoteBubble extends StatelessWidget {
           left: BorderSide(
             color: isOwnBubble
                 ? Colors.white.withValues(alpha: 0.5)
-                : AppColors.primary.withValues(alpha: 0.6),
+                : accentColor.withValues(alpha: 0.6),
             width: 2,
           ),
         ),
@@ -1212,7 +1225,7 @@ class _ReplyQuoteBubble extends StatelessWidget {
               fontWeight: FontWeight.w700,
               color: isOwnBubble
                   ? Colors.white.withValues(alpha: 0.8)
-                  : AppColors.primary,
+                  : accentColor,
             ),
           ),
           const SizedBox(height: 2),

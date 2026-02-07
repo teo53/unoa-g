@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/demo_config.dart';
 import '../../data/models/creator_content.dart';
@@ -28,6 +29,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     final contentState = ref.watch(creatorContentProvider);
     final profile = ref.watch(currentProfileProvider);
     final creatorName = profile?.displayName ?? DemoConfig.demoCreatorName;
+    final themeColor = ArtistThemeColors.fromIndex(profile?.themeColorIndex ?? 0);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -46,23 +48,18 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   _EditableSection(
                     label: '커버',
                     onEdit: () {
-                      // 커버 이미지 변경 (추후 구현)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('커버 이미지 변경은 곧 지원됩니다')),
-                      );
+                      _showProfileEditDialog(isDark, creatorName, profile?.bio, themeColor);
                     },
-                    child: _buildCoverSection(isDark, creatorName),
+                    child: _buildCoverSection(isDark, creatorName, themeColor, profile),
                   ),
 
                   // 2. 하이라이트
                   _EditableSection(
                     label: '하이라이트',
                     onEdit: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('하이라이트 편집은 곧 지원됩니다')),
-                      );
+                      _showHighlightEditDialog(isDark, themeColor);
                     },
-                    child: _buildHighlightsSection(isDark),
+                    child: _buildHighlightsSection(isDark, themeColor, contentState.highlights),
                   ),
 
                   // 3. 소셜 링크
@@ -80,19 +77,19 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildSocialLinksSection(isDark, contentState.socialLinks),
+                    child: _buildSocialLinksSection(isDark, contentState.socialLinks, themeColor),
                   ),
 
                   // 4. 액션 버튼 (잠금)
                   _LockedSection(
                     tooltipMessage: '팬 전용 기능',
-                    child: _buildActionButtons(isDark),
+                    child: _buildActionButtons(isDark, themeColor),
                   ),
 
                   // 5. 서포터 랭킹 (잠금)
                   _LockedSection(
                     tooltipMessage: '팬별 개인 데이터',
-                    child: _buildSupporterRanking(isDark),
+                    child: _buildSupporterRanking(isDark, themeColor),
                   ),
 
                   // 6. 직캠
@@ -113,7 +110,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildFancamsSection(isDark, contentState.fancams),
+                    child: _buildFancamsSection(isDark, contentState.fancams, themeColor),
                   ),
 
                   // 7. 드롭
@@ -134,7 +131,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildDropsSection(isDark, contentState.drops),
+                    child: _buildDropsSection(isDark, contentState.drops, themeColor),
                   ),
 
                   // 8. 이벤트
@@ -155,13 +152,13 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildEventsSection(isDark, contentState.events),
+                    child: _buildEventsSection(isDark, contentState.events, themeColor),
                   ),
 
                   // 9. 탭바 + 피드 (잠금)
                   _LockedSection(
                     tooltipMessage: '피드는 채팅에서 관리됩니다',
-                    child: _buildFeedPreview(isDark),
+                    child: _buildFeedPreview(isDark, themeColor),
                   ),
 
                   const SizedBox(height: 100),
@@ -278,7 +275,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
 
   // ===== 섹션 빌더 (팬 프로필 레이아웃 복제) =====
 
-  Widget _buildCoverSection(bool isDark, String creatorName) {
+  Widget _buildCoverSection(bool isDark, String creatorName, Color themeColor, UserProfile? profile) {
     return Container(
       height: 280,
       width: double.infinity,
@@ -287,8 +284,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.primary600,
-            AppColors.primary500,
+            themeColor,
+            themeColor.withValues(alpha: 0.8),
           ],
         ),
       ),
@@ -313,14 +310,75 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               ),
             ),
           ),
+          // 테마 색상 버튼
+          Positioned(
+            top: 8,
+            left: 8,
+            child: GestureDetector(
+              onTap: () => _showThemeColorDialog(isDark, profile?.themeColorIndex ?? 0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black38,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: themeColor,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Text('테마', style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+            ),
+          ),
           // 프로필 아바타
           Center(
             child: Padding(
               padding: const EdgeInsets.only(top: 40),
-              child: CircleAvatar(
-                radius: 48,
-                backgroundColor: Colors.white24,
-                child: Icon(Icons.person, size: 48, color: Colors.white60),
+              child: GestureDetector(
+                onTap: _pickAvatar,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 48,
+                      backgroundColor: Colors.white24,
+                      child: profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty
+                          ? ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: profile.avatarUrl!,
+                                width: 96,
+                                height: 96,
+                                fit: BoxFit.cover,
+                                placeholder: (_, __) => const Icon(Icons.person, size: 48, color: Colors.white60),
+                                errorWidget: (_, __, ___) => const Icon(Icons.person, size: 48, color: Colors.white60),
+                              ),
+                            )
+                          : const Icon(Icons.person, size: 48, color: Colors.white60),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.camera_alt, size: 16, color: themeColor),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -332,36 +390,60 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        creatorName,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
+                GestureDetector(
+                  onTap: () => _showProfileEditDialog(isDark, creatorName, profile?.bio, themeColor),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              creatorName,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(Icons.verified, size: 22, color: AppColors.verified),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.edit, size: 14, color: Colors.white70),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Icon(Icons.verified, size: 22, color: AppColors.verified),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Underground Idol Group',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withValues(alpha: 0.8),
+                      if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          profile.bio!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white.withValues(alpha: 0.85),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '소개를 입력하세요',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white.withValues(alpha: 0.6),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    _buildBadge('주간랭킹: 1위 +2', Icons.trending_up, isDark),
+                    _buildBadge('주간랭킹: 1위 +2', Icons.trending_up, isDark, themeColor),
                     const SizedBox(width: 8),
-                    _buildBadge('팬 52만', Icons.people, isDark),
+                    _buildBadge('팬 52만', Icons.people, isDark, themeColor),
                   ],
                 ),
               ],
@@ -372,11 +454,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildBadge(String text, IconData icon, bool isDark) {
+  Widget _buildBadge(String text, IconData icon, bool isDark, Color themeColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primary600,
+        color: themeColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -397,13 +479,10 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildHighlightsSection(bool isDark) {
-    final highlights = [
-      _HighlightData("Today's OOTD", Icons.checkroom, true),
-      _HighlightData('Rehearsal', Icons.music_note, false),
-      _HighlightData('Q&A', Icons.camera_alt, false),
-      _HighlightData('V-log', Icons.videocam, false),
-    ];
+  Widget _buildHighlightsSection(bool isDark, Color themeColor, List<CreatorHighlight> highlights) {
+    if (highlights.isEmpty) {
+      return _emptyPlaceholder('하이라이트를 추가하세요', Icons.auto_awesome_outlined, isDark);
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -425,7 +504,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: h.hasRing
-                          ? AppColors.primary500
+                          ? themeColor
                           : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
                       width: h.hasRing ? 2 : 1,
                     ),
@@ -450,7 +529,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildSocialLinksSection(bool isDark, SocialLinks links) {
+  Widget _buildSocialLinksSection(bool isDark, SocialLinks links, Color themeColor) {
     if (!links.hasAnyLink) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -470,18 +549,18 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
       child: Row(
         children: [
           if (links.instagram != null && links.instagram!.isNotEmpty)
-            _socialIcon('IG', AppColors.primary500, isDark),
+            _socialIcon('IG', themeColor, isDark),
           if (links.youtube != null && links.youtube!.isNotEmpty) ...[
             const SizedBox(width: 12),
-            _socialIconWidget(Icons.play_circle_outline, AppColors.primary500, isDark),
+            _socialIconWidget(Icons.play_circle_outline, themeColor, isDark),
           ],
           if (links.tiktok != null && links.tiktok!.isNotEmpty) ...[
             const SizedBox(width: 12),
-            _socialIcon('TT', AppColors.primary500, isDark),
+            _socialIcon('TT', themeColor, isDark),
           ],
           if (links.twitter != null && links.twitter!.isNotEmpty) ...[
             const SizedBox(width: 12),
-            _socialIcon('X', AppColors.primary500, isDark),
+            _socialIcon('X', themeColor, isDark),
           ],
         ],
       ),
@@ -525,21 +604,21 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildActionButtons(bool isDark) {
+  Widget _buildActionButtons(bool isDark, Color themeColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _actionButton(Icons.chat_bubble_outline, 'DM', false, isDark),
-          _actionButton(Icons.card_giftcard, '드롭', false, isDark),
-          _actionButton(Icons.groups, '이벤트', true, isDark),
+          _actionButton(Icons.chat_bubble_outline, 'DM', false, isDark, themeColor),
+          _actionButton(Icons.card_giftcard, '드롭', false, isDark, themeColor),
+          _actionButton(Icons.groups, '이벤트', true, isDark, themeColor),
         ],
       ),
     );
   }
 
-  Widget _actionButton(IconData icon, String label, bool isPrimary, bool isDark) {
+  Widget _actionButton(IconData icon, String label, bool isPrimary, bool isDark, Color themeColor) {
     return Column(
       children: [
         Container(
@@ -548,7 +627,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             color: isPrimary
-                ? AppColors.primary600
+                ? themeColor
                 : (isDark ? AppColors.surfaceDark : Colors.grey[100]),
             border: isPrimary
                 ? null
@@ -576,7 +655,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildSupporterRanking(bool isDark) {
+  Widget _buildSupporterRanking(bool isDark, Color themeColor) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -594,10 +673,10 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
             height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: themeColor.withValues(alpha: 0.1),
             ),
             child: Icon(Icons.emoji_events_outlined,
-                color: AppColors.primary500, size: 20),
+                color: themeColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -613,7 +692,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   ),
                 ),
                 Text(
-                  'Gold Member • 상위 5%',
+                  'Gold Member \u2022 상위 5%',
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -627,11 +706,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildFancamsSection(bool isDark, List<CreatorFancam> fancams) {
+  Widget _buildFancamsSection(bool isDark, List<CreatorFancam> fancams, Color themeColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('아티스트 직캠', '${fancams.length}개', isDark),
+        _sectionHeader('아티스트 직캠', '${fancams.length}개', isDark, themeColor),
         if (fancams.isEmpty)
           _emptyPlaceholder('직캠을 추가하세요', Icons.videocam_outlined, isDark)
         else
@@ -642,7 +721,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: fancams.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (_, i) => _buildFancamCard(fancams[i], isDark),
+              itemBuilder: (_, i) => _buildFancamCard(fancams[i], isDark, themeColor),
             ),
           ),
         const SizedBox(height: 16),
@@ -650,7 +729,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildFancamCard(CreatorFancam fancam, bool isDark) {
+  Widget _buildFancamCard(CreatorFancam fancam, bool isDark, Color themeColor) {
     return GestureDetector(
       onTap: () {
         showFancamEditDialog(
@@ -705,7 +784,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.primary600,
+                        color: themeColor,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Row(
@@ -760,11 +839,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildDropsSection(bool isDark, List<CreatorDrop> drops) {
+  Widget _buildDropsSection(bool isDark, List<CreatorDrop> drops, Color themeColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('최신 드롭 (Drops)', '${drops.length}개', isDark),
+        _sectionHeader('최신 드롭 (Drops)', '${drops.length}개', isDark, themeColor),
         if (drops.isEmpty)
           _emptyPlaceholder('드롭을 추가하세요', Icons.card_giftcard_outlined, isDark)
         else
@@ -775,7 +854,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: drops.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (_, i) => _buildDropCard(drops[i], isDark),
+              itemBuilder: (_, i) => _buildDropCard(drops[i], isDark, themeColor),
             ),
           ),
         const SizedBox(height: 16),
@@ -783,7 +862,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildDropCard(CreatorDrop drop, bool isDark) {
+  Widget _buildDropCard(CreatorDrop drop, bool isDark, Color themeColor) {
     return GestureDetector(
       onTap: () {
         showDropEditDialog(
@@ -849,7 +928,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.primary600,
+                        color: themeColor,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text('NEW',
@@ -886,7 +965,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   fontWeight: FontWeight.w600,
                   color: drop.isSoldOut
                       ? Colors.grey
-                      : AppColors.primary500,
+                      : themeColor,
                 ),
               ),
             ),
@@ -896,21 +975,21 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildEventsSection(bool isDark, List<CreatorEvent> events) {
+  Widget _buildEventsSection(bool isDark, List<CreatorEvent> events, Color themeColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('다가오는 이벤트', '${events.length}개', isDark),
+        _sectionHeader('다가오는 이벤트', '${events.length}개', isDark, themeColor),
         if (events.isEmpty)
           _emptyPlaceholder('이벤트를 추가하세요', Icons.event_outlined, isDark)
         else
-          ...events.map((event) => _buildEventCard(event, isDark)),
+          ...events.map((event) => _buildEventCard(event, isDark, themeColor)),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildEventCard(CreatorEvent event, bool isDark) {
+  Widget _buildEventCard(CreatorEvent event, bool isDark, Color themeColor) {
     return GestureDetector(
       onTap: () {
         showEventEditDialog(
@@ -938,12 +1017,12 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: themeColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 event.isOffline ? Icons.location_on : Icons.videocam,
-                color: AppColors.primary600,
+                color: themeColor,
                 size: 28,
               ),
             ),
@@ -960,7 +1039,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         decoration: BoxDecoration(
                           color: event.isOffline
                               ? Colors.grey[200]
-                              : AppColors.primary.withValues(alpha: 0.1),
+                              : themeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -970,7 +1049,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                             fontWeight: FontWeight.w600,
                             color: event.isOffline
                                 ? Colors.grey[600]
-                                : AppColors.primary600,
+                                : themeColor,
                           ),
                         ),
                       ),
@@ -1009,7 +1088,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildFeedPreview(bool isDark) {
+  Widget _buildFeedPreview(bool isDark, Color themeColor) {
     return Column(
       children: [
         // 탭바 미리보기
@@ -1023,9 +1102,9 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
           ),
           child: Row(
             children: [
-              _tabPreview('하이라이트', true, isDark),
-              _tabPreview('공지사항', false, isDark),
-              _tabPreview('오타 레터', false, isDark),
+              _tabPreview('하이라이트', true, isDark, themeColor),
+              _tabPreview('공지사항', false, isDark, themeColor),
+              _tabPreview('오타 레터', false, isDark, themeColor),
             ],
           ),
         ),
@@ -1037,7 +1116,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: AppColors.primary500,
+                backgroundColor: themeColor,
                 child: const Icon(Icons.person, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 12),
@@ -1071,14 +1150,14 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _tabPreview(String label, bool isActive, bool isDark) {
+  Widget _tabPreview(String label, bool isActive, bool isDark, Color themeColor) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: isActive ? AppColors.primary500 : Colors.transparent,
+              color: isActive ? themeColor : Colors.transparent,
               width: 3,
             ),
           ),
@@ -1090,7 +1169,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: isActive
-                  ? AppColors.primary500
+                  ? themeColor
                   : (isDark ? Colors.grey[500] : Colors.grey[500]),
             ),
           ),
@@ -1101,7 +1180,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
 
   // ===== 공통 헬퍼 =====
 
-  Widget _sectionHeader(String title, String count, bool isDark) {
+  Widget _sectionHeader(String title, String count, bool isDark, Color themeColor) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       child: Row(
@@ -1119,7 +1198,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
             count,
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.primary500,
+              color: themeColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1158,6 +1237,427 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
+  // ===== 프로필 편집 다이얼로그 =====
+
+  void _showProfileEditDialog(bool isDark, String currentName, String? currentBio, Color themeColor) {
+    final nameController = TextEditingController(text: currentName);
+    final bioController = TextEditingController(text: currentBio ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '프로필 편집',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: '이름',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: bioController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: '소개',
+                hintText: '팬에게 보여질 소개글',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (nameController.text.isNotEmpty) {
+                    ref.read(authProvider.notifier).updateDemoProfile(
+                      displayName: nameController.text,
+                      bio: bioController.text.isNotEmpty ? bioController.text : null,
+                    );
+                    Navigator.pop(context);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: themeColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  '저장',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===== 테마 색상 다이얼로그 =====
+
+  void _showThemeColorDialog(bool isDark, int currentIndex) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          int selected = currentIndex;
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '테마 색상',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '선택한 색상은 팬이 보는 프로필에 적용됩니다.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(ArtistThemeColors.count, (i) {
+                    final isSelected = i == selected;
+                    return GestureDetector(
+                      onTap: () {
+                        setModalState(() => selected = i);
+                        ref.read(authProvider.notifier).updateDemoProfile(themeColorIndex: i);
+                        Navigator.pop(context);
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: ArtistThemeColors.presets[i],
+                              border: isSelected
+                                  ? Border.all(color: isDark ? Colors.white : Colors.black, width: 3)
+                                  : null,
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check, color: Colors.white, size: 24)
+                                : null,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            ArtistThemeColors.names[i],
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                              color: isSelected
+                                  ? ArtistThemeColors.presets[i]
+                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ===== 하이라이트 편집 다이얼로그 =====
+
+  void _showHighlightEditDialog(bool isDark, Color themeColor) {
+    final highlights = ref.read(creatorContentProvider).highlights;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          final currentHighlights = ref.read(creatorContentProvider).highlights;
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 20, right: 20, top: 20,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '하이라이트 관리',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        _showAddHighlightDialog(isDark, themeColor);
+                      },
+                      icon: Icon(Icons.add, size: 18, color: themeColor),
+                      label: Text('추가', style: TextStyle(color: themeColor)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (currentHighlights.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        '하이라이트가 없습니다',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.grey[500] : Colors.grey[500],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  ...currentHighlights.map((h) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: h.hasRing ? themeColor : Colors.grey,
+                          width: h.hasRing ? 2 : 1,
+                        ),
+                      ),
+                      child: Icon(h.icon, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                    ),
+                    title: Text(
+                      h.label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : AppColors.text,
+                      ),
+                    ),
+                    subtitle: Text(
+                      h.hasRing ? '링 활성' : '링 비활성',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            h.hasRing ? Icons.circle : Icons.circle_outlined,
+                            color: h.hasRing ? themeColor : Colors.grey,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            ref.read(creatorContentProvider.notifier).toggleHighlightRing(h.id);
+                            setModalState(() {});
+                          },
+                          tooltip: '링 토글',
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                          onPressed: () {
+                            ref.read(creatorContentProvider.notifier).deleteHighlight(h.id);
+                            setModalState(() {});
+                          },
+                        ),
+                      ],
+                    ),
+                  )),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showAddHighlightDialog(bool isDark, Color themeColor) {
+    final labelController = TextEditingController();
+    final iconOptions = <MapEntry<String, IconData>>[
+      const MapEntry('패션', Icons.checkroom),
+      const MapEntry('음악', Icons.music_note),
+      const MapEntry('카메라', Icons.camera_alt),
+      const MapEntry('영상', Icons.videocam),
+      const MapEntry('별', Icons.star),
+      const MapEntry('하트', Icons.favorite),
+      const MapEntry('그리기', Icons.brush),
+      const MapEntry('마이크', Icons.mic),
+    ];
+    int selectedIconIndex = 0;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            left: 20, right: 20, top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '하이라이트 추가',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: labelController,
+                decoration: InputDecoration(
+                  labelText: '라벨',
+                  hintText: '예: Today\'s OOTD',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('아이콘 선택', style: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w600,
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+              )),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: List.generate(iconOptions.length, (i) {
+                  final isSelected = i == selectedIconIndex;
+                  return GestureDetector(
+                    onTap: () => setModalState(() => selectedIconIndex = i),
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isSelected ? themeColor.withValues(alpha: 0.15) : Colors.transparent,
+                        border: Border.all(
+                          color: isSelected ? themeColor : (isDark ? Colors.grey[600]! : Colors.grey[300]!),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Icon(
+                        iconOptions[i].value,
+                        size: 22,
+                        color: isSelected ? themeColor : (isDark ? Colors.grey[400] : Colors.grey[500]),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (labelController.text.isNotEmpty) {
+                      final id = DateTime.now().millisecondsSinceEpoch.toString();
+                      ref.read(creatorContentProvider.notifier).addHighlight(
+                        CreatorHighlight(
+                          id: id,
+                          label: labelController.text,
+                          icon: iconOptions[selectedIconIndex].value,
+                          hasRing: true,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeColor,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    '추가',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ===== 아바타 선택 =====
+
+  Future<void> _pickAvatar() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
+    if (image != null) {
+      // In demo mode, use the local path as avatar URL
+      ref.read(authProvider.notifier).updateDemoProfile(avatarUrl: image.path);
+    }
+  }
+
   // ===== 관리 시트 (목록에서 편집/삭제) =====
 
   void _showFancamManageSheet(bool isDark, List<CreatorFancam> fancams) {
@@ -1171,7 +1671,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
         title: '직캠 관리',
         items: fancams,
         itemTitle: (f) => f.title,
-        itemSubtitle: (f) => f.isPinned ? '📌 고정됨' : f.formattedViewCount,
+        itemSubtitle: (f) => f.isPinned ? '\u{1F4CC} 고정됨' : f.formattedViewCount,
         onEdit: (f) {
           Navigator.pop(context);
           showFancamEditDialog(context, isDark, fancam: f, onSave: (updated) {
@@ -1233,7 +1733,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
         title: '이벤트 관리',
         items: events,
         itemTitle: (e) => e.title,
-        itemSubtitle: (e) => '${e.formattedDate} · ${e.location}',
+        itemSubtitle: (e) => '${e.formattedDate} \u00B7 ${e.location}',
         onEdit: (e) {
           Navigator.pop(context);
           showEventEditDialog(context, isDark, event: e, onSave: (updated) {
@@ -1507,11 +2007,3 @@ class _ManageListSheet<T> extends StatelessWidget {
   }
 }
 
-/// 하이라이트 데이터 모델
-class _HighlightData {
-  final String label;
-  final IconData icon;
-  final bool hasRing;
-
-  _HighlightData(this.label, this.icon, this.hasRing);
-}

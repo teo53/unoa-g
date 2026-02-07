@@ -1,11 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/creator_content.dart';
 
-/// 크리에이터 콘텐츠 상태 (드롭, 이벤트, 직캠, 소셜링크)
+/// 크리에이터 콘텐츠 상태 (드롭, 이벤트, 직캠, 하이라이트, 소셜링크)
 class CreatorContentState {
   final List<CreatorDrop> drops;
   final List<CreatorEvent> events;
   final List<CreatorFancam> fancams;
+  final List<CreatorHighlight> highlights;
   final SocialLinks socialLinks;
   final bool isLoading;
   final bool hasChanges;
@@ -14,6 +16,7 @@ class CreatorContentState {
     this.drops = const [],
     this.events = const [],
     this.fancams = const [],
+    this.highlights = const [],
     this.socialLinks = const SocialLinks(),
     this.isLoading = false,
     this.hasChanges = false,
@@ -23,6 +26,7 @@ class CreatorContentState {
     List<CreatorDrop>? drops,
     List<CreatorEvent>? events,
     List<CreatorFancam>? fancams,
+    List<CreatorHighlight>? highlights,
     SocialLinks? socialLinks,
     bool? isLoading,
     bool? hasChanges,
@@ -31,6 +35,7 @@ class CreatorContentState {
       drops: drops ?? this.drops,
       events: events ?? this.events,
       fancams: fancams ?? this.fancams,
+      highlights: highlights ?? this.highlights,
       socialLinks: socialLinks ?? this.socialLinks,
       isLoading: isLoading ?? this.isLoading,
       hasChanges: hasChanges ?? this.hasChanges,
@@ -84,6 +89,30 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
       ),
     ];
 
+    const highlights = [
+      CreatorHighlight(
+        id: '1',
+        label: "Today's OOTD",
+        icon: Icons.checkroom,
+        hasRing: true,
+      ),
+      CreatorHighlight(
+        id: '2',
+        label: 'Rehearsal',
+        icon: Icons.music_note,
+      ),
+      CreatorHighlight(
+        id: '3',
+        label: 'Q&A',
+        icon: Icons.camera_alt,
+      ),
+      CreatorHighlight(
+        id: '4',
+        label: 'V-log',
+        icon: Icons.videocam,
+      ),
+    ];
+
     const socialLinks = SocialLinks(
       instagram: 'https://instagram.com/starlight_official',
       youtube: 'https://youtube.com/@starlight_music',
@@ -95,6 +124,7 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
       drops: drops,
       events: events,
       fancams: fancams,
+      highlights: highlights,
       socialLinks: socialLinks,
       isLoading: false,
       hasChanges: false,
@@ -170,6 +200,35 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
       return f;
     }).toList();
     state = state.copyWith(fancams: updated, hasChanges: true);
+  }
+
+  // ===== Highlights CRUD =====
+
+  void addHighlight(CreatorHighlight highlight) {
+    state = state.copyWith(
+      highlights: [...state.highlights, highlight],
+      hasChanges: true,
+    );
+  }
+
+  void updateHighlight(CreatorHighlight highlight) {
+    final updated = state.highlights.map((h) => h.id == highlight.id ? highlight : h).toList();
+    state = state.copyWith(highlights: updated, hasChanges: true);
+  }
+
+  void deleteHighlight(String id) {
+    state = state.copyWith(
+      highlights: state.highlights.where((h) => h.id != id).toList(),
+      hasChanges: true,
+    );
+  }
+
+  void toggleHighlightRing(String id) {
+    final updated = state.highlights.map((h) {
+      if (h.id == id) return h.copyWith(hasRing: !h.hasRing);
+      return h;
+    }).toList();
+    state = state.copyWith(highlights: updated, hasChanges: true);
   }
 
   // ===== Social Links =====

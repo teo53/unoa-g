@@ -59,7 +59,7 @@ class CreatorProfileScreen extends ConsumerWidget {
                 _TappableProfileArea(
                   profile: profile,
                   isDark: isDark,
-                  onTap: () => context.push('/creator/profile/edit'),
+                  onTap: () => context.push('/creator/content'),
                 ),
 
                 const SizedBox(height: 24),

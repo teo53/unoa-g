@@ -28,7 +28,7 @@ import '../features/creator/creator_dashboard_screen.dart';
 import '../features/creator/creator_profile_screen.dart';
 import '../features/creator/creator_chat_tab_screen.dart';
 import '../features/creator/creator_my_channel_screen.dart';
-import '../features/creator/creator_profile_edit_screen.dart';
+
 import '../features/creator/creator_content_screen.dart';
 import '../features/private_card/private_card_compose_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
@@ -291,18 +291,11 @@ final appRouter = GoRouter(
       builder: (context, state) => const CreatorMyChannelScreen(),
     ),
 
-    // Creator Profile Edit (supports ?tab=theme for direct theme tab access)
+    // Creator Profile Edit → redirects to Content Management
     GoRoute(
       path: '/creator/profile/edit',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final tabParam = state.uri.queryParameters['tab'];
-        int initialTabIndex = 0;
-        if (tabParam == 'theme') {
-          initialTabIndex = 2;
-        }
-        return CreatorProfileEditScreen(initialTabIndex: initialTabIndex);
-      },
+      redirect: (context, state) => '/creator/content',
     ),
 
     // Creator Content Management (WYSIWYG)

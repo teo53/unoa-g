@@ -238,6 +238,53 @@ class AppColors {
   static const Color badgeVipText = Color(0xFF8B5CF6);
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ARTIST THEME COLORS (크리에이터별 테마 색상)
+// ═══════════════════════════════════════════════════════════════
+
+/// 아티스트가 선택할 수 있는 프리셋 테마 색상 시스템.
+/// themeColorIndex(0-5)를 Color로 변환하는 유틸리티.
+class ArtistThemeColors {
+  ArtistThemeColors._();
+
+  /// 프리셋 색상 목록 (index 0-5)
+  static const List<Color> presets = [
+    AppColors.primary,     // 0: 기본 (레드)
+    Color(0xFFE91E63),     // 1: 핑크
+    Color(0xFF2196F3),     // 2: 블루
+    Color(0xFF9C27B0),     // 3: 퍼플
+    Color(0xFF009688),     // 4: 틸
+    Color(0xFFFF9800),     // 5: 오렌지
+  ];
+
+  /// 프리셋 색상 이름 (한국어)
+  static const List<String> names = [
+    '기본',
+    '핑크',
+    '블루',
+    '퍼플',
+    '틸',
+    '오렌지',
+  ];
+
+  /// themeColorIndex → Color 변환 (범위 벗어나면 기본색)
+  static Color fromIndex(int index) {
+    return presets[index.clamp(0, presets.length - 1)];
+  }
+
+  /// CTA용 약간 어두운 색상 (WCAG 대비 강화)
+  static Color fromIndexDark(int index) {
+    final base = fromIndex(index);
+    final hsl = HSLColor.fromColor(base);
+    return hsl
+        .withLightness((hsl.lightness - 0.08).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  /// 프리셋 개수
+  static int get count => presets.length;
+}
+
 /// Theme Extension for dynamic color access
 class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color surface;

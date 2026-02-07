@@ -14,11 +14,13 @@ import '../../../services/voice_service.dart';
 class ChatInputBarV2 extends ConsumerStatefulWidget {
   final String channelId;
   final VoidCallback? onMessageSent;
+  final Color? accentColor;
 
   const ChatInputBarV2({
     super.key,
     required this.channelId,
     this.onMessageSent,
+    this.accentColor,
   });
 
   @override
@@ -361,7 +363,7 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: widget.accentColor ?? AppColors.primary,
             shape: BoxShape.circle,
           ),
           child: IconButton(
@@ -404,6 +406,7 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = widget.accentColor ?? AppColors.primary;
     final chatState = ref.watch(chatProvider(widget.channelId));
     final canReply = chatState.canReply;
     final characterLimit = chatState.characterLimit;
@@ -441,6 +444,7 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
             _ReplyPreviewBar(
               message: chatState.replyingToMessage!,
               isDark: isDark,
+              accentColor: accent,
               onCancel: () {
                 ref.read(chatProvider(widget.channelId).notifier).clearReplyTo();
               },
@@ -459,7 +463,7 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
                       Icon(
                         Icons.token,
                         size: 14,
-                        color: AppColors.primary,
+                        color: accent,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -479,14 +483,14 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
+                            color: accent.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             '+1 대기',
                             style: TextStyle(
                               fontSize: 10,
-                              color: AppColors.primary,
+                              color: accent,
                             ),
                           ),
                         ),
@@ -564,7 +568,7 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
                   child: Icon(
                     Icons.add,
                     color: _isMediaMenuOpen
-                        ? AppColors.primary
+                        ? accent
                         : (isDark ? Colors.grey[400] : Colors.grey[600]),
                     size: 26,
                   ),
@@ -627,7 +631,7 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
                             : null,
                         style: IconButton.styleFrom(
                           backgroundColor: _isComposing
-                              ? AppColors.primary
+                              ? accent
                               : isDark
                                   ? Colors.grey[700]
                                   : Colors.grey[300],
@@ -1061,11 +1065,13 @@ class _MediaMenuButton extends StatelessWidget {
 class _ReplyPreviewBar extends StatelessWidget {
   final BroadcastMessage message;
   final bool isDark;
+  final Color accentColor;
   final VoidCallback onCancel;
 
   const _ReplyPreviewBar({
     required this.message,
     required this.isDark,
+    required this.accentColor,
     required this.onCancel,
   });
 
@@ -1087,12 +1093,12 @@ class _ReplyPreviewBar extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: isDark
-            ? AppColors.primary.withValues(alpha: 0.08)
-            : AppColors.primary.withValues(alpha: 0.05),
+            ? accentColor.withValues(alpha: 0.08)
+            : accentColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border(
           left: BorderSide(
-            color: AppColors.primary,
+            color: accentColor,
             width: 3,
           ),
         ),
@@ -1102,7 +1108,7 @@ class _ReplyPreviewBar extends StatelessWidget {
           Icon(
             Icons.reply_rounded,
             size: 16,
-            color: AppColors.primary,
+            color: accentColor,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1115,7 +1121,7 @@ class _ReplyPreviewBar extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: accentColor,
                   ),
                 ),
                 const SizedBox(height: 2),

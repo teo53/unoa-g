@@ -203,6 +203,39 @@ class CreatorFancam {
   }
 }
 
+/// 하이라이트 모델
+class CreatorHighlight {
+  final String id;
+  final String label;
+  final IconData icon;
+  final bool hasRing;
+  final int displayOrder;
+
+  const CreatorHighlight({
+    required this.id,
+    required this.label,
+    this.icon = Icons.star,
+    this.hasRing = false,
+    this.displayOrder = 0,
+  });
+
+  CreatorHighlight copyWith({
+    String? id,
+    String? label,
+    IconData? icon,
+    bool? hasRing,
+    int? displayOrder,
+  }) {
+    return CreatorHighlight(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      icon: icon ?? this.icon,
+      hasRing: hasRing ?? this.hasRing,
+      displayOrder: displayOrder ?? this.displayOrder,
+    );
+  }
+}
+
 /// 소셜 미디어 링크 모델
 class SocialLinks {
   final String? instagram;

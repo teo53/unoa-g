@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/supabase/supabase_client.dart';
+import '../core/theme/app_colors.dart';
 import '../data/models/channel.dart';
 import '../data/models/message.dart';
 import 'auth_provider.dart';
@@ -52,6 +54,9 @@ class ChatThreadData {
   final String tier;
   final int daysSubscribed;
 
+  /// 아티스트 테마 색상 인덱스 (0-5)
+  final int themeColorIndex;
+
   const ChatThreadData({
     required this.channelId,
     required this.artistId,
@@ -67,6 +72,7 @@ class ChatThreadData {
     this.isStar = false,
     this.tier = 'STANDARD',
     this.daysSubscribed = 0,
+    this.themeColorIndex = 0,
   });
 
   String get displayName =>
@@ -131,6 +137,7 @@ class ChatThreadData {
       isStar: json['is_star'] as bool? ?? false,
       tier: json['tier'] as String? ?? 'STANDARD',
       daysSubscribed: json['days_subscribed'] as int? ?? 0,
+      themeColorIndex: json['theme_color_index'] as int? ?? 0,
     );
   }
 }
@@ -350,6 +357,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
         isPinned: true,
         tier: 'VIP',
         daysSubscribed: 45,
+        themeColorIndex: 1, // 핑크
       ),
       ChatThreadData(
         channelId: 'demo_channel_2',
@@ -365,6 +373,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
         isStar: true,
         tier: 'STANDARD',
         daysSubscribed: 30,
+        themeColorIndex: 2, // 블루
       ),
       ChatThreadData(
         channelId: 'demo_channel_3',
@@ -377,6 +386,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
         isOnline: false,
         tier: 'STANDARD',
         daysSubscribed: 15,
+        themeColorIndex: 4, // 틸
       ),
     ];
 
@@ -409,4 +419,20 @@ final chatThreadsProvider = Provider<List<ChatThreadData>>((ref) {
 /// Convenience provider for loading state
 final chatListLoadingProvider = Provider<bool>((ref) {
   return ref.watch(chatListProvider).isLoading;
+});
+
+/// artistId → 테마 Color 변환 provider
+final artistThemeColorByIdProvider =
+    Provider.family<Color, String>((ref, artistId) {
+  final threads = ref.watch(chatThreadsProvider);
+  final thread = threads.where((t) => t.artistId == artistId).firstOrNull;
+  return ArtistThemeColors.fromIndex(thread?.themeColorIndex ?? 0);
+});
+
+/// channelId → 테마 Color 변환 provider
+final artistThemeColorByChannelProvider =
+    Provider.family<Color, String>((ref, channelId) {
+  final threads = ref.watch(chatThreadsProvider);
+  final thread = threads.where((t) => t.channelId == channelId).firstOrNull;
+  return ArtistThemeColors.fromIndex(thread?.themeColorIndex ?? 0);
 });

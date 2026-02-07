@@ -12,12 +12,14 @@ class DailyQuestionCardsPanel extends ConsumerStatefulWidget {
   final String channelId;
   final Function(QuestionCard card)? onCardSelected;
   final bool compact;
+  final Color? accentColor;
 
   const DailyQuestionCardsPanel({
     super.key,
     required this.channelId,
     this.onCardSelected,
     this.compact = false,
+    this.accentColor,
   });
 
   @override
@@ -120,7 +122,7 @@ class _DailyQuestionCardsPanelState
                 Icon(
                   set.hasVoted ? Icons.how_to_vote_outlined : Icons.quiz_outlined,
                   size: 18,
-                  color: set.hasVoted ? AppColors.star : AppColors.primary500,
+                  color: set.hasVoted ? AppColors.star : (widget.accentColor ?? AppColors.primary500),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -197,6 +199,7 @@ class _DailyQuestionCardsPanelState
         set: set,
         isDark: isDark,
         compact: widget.compact,
+        accentColor: widget.accentColor,
       );
     }
 
@@ -205,6 +208,7 @@ class _DailyQuestionCardsPanelState
       isDark: isDark,
       compact: widget.compact,
       votingCardId: votingCardId,
+      accentColor: widget.accentColor,
       onVote: (cardId) async {
         final success = await ref
             .read(dailyQuestionSetProvider(widget.channelId).notifier)
@@ -231,6 +235,7 @@ class _VotingCardsView extends StatelessWidget {
   final bool isDark;
   final bool compact;
   final String? votingCardId;
+  final Color? accentColor;
   final Function(String cardId) onVote;
   final Function(QuestionCard card)? onCardSelected;
 
@@ -239,6 +244,7 @@ class _VotingCardsView extends StatelessWidget {
     required this.isDark,
     required this.compact,
     this.votingCardId,
+    this.accentColor,
     required this.onVote,
     this.onCardSelected,
   });
@@ -275,6 +281,7 @@ class _VotingCardsView extends StatelessWidget {
                   isDark: isDark,
                   compact: compact,
                   isVoting: isVoting,
+                  accentColor: accentColor,
                   onTap: () => _showVoteConfirmation(context, card),
                 );
               },
@@ -292,6 +299,7 @@ class _VotingCardsView extends StatelessWidget {
       builder: (context) => _VoteConfirmationSheet(
         card: card,
         isDark: Theme.of(context).brightness == Brightness.dark,
+        accentColor: accentColor,
         onConfirm: () {
           Navigator.pop(context);
           onVote(card.id);
@@ -311,6 +319,7 @@ class _QuestionCardTile extends StatelessWidget {
   final double? votePercentage;
   final bool isWinner;
   final bool isVoted;
+  final Color? accentColor;
   final VoidCallback? onTap;
 
   const _QuestionCardTile({
@@ -322,6 +331,7 @@ class _QuestionCardTile extends StatelessWidget {
     this.votePercentage,
     this.isWinner = false,
     this.isVoted = false,
+    this.accentColor,
     this.onTap,
   });
 
@@ -330,7 +340,7 @@ class _QuestionCardTile extends StatelessWidget {
     final width = compact ? 160.0 : 200.0;
     final bgColor = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
     final borderColor = isVoted
-        ? AppColors.primary500
+        ? (accentColor ?? AppColors.primary500)
         : isWinner
             ? AppColors.star
             : (isDark ? AppColors.borderDark : AppColors.border);
@@ -343,7 +353,7 @@ class _QuestionCardTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isVoted
-              ? AppColors.primary500.withValues(alpha: 0.1)
+              ? (accentColor ?? AppColors.primary500).withValues(alpha: 0.1)
               : isWinner
                   ? AppColors.star.withValues(alpha: 0.1)
                   : bgColor,
@@ -361,7 +371,7 @@ class _QuestionCardTile extends StatelessWidget {
                 // Level badge
                 Row(
                   children: [
-                    _LevelBadge(level: card.level),
+                    _LevelBadge(level: card.level, accentColor: accentColor),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -403,6 +413,7 @@ class _QuestionCardTile extends StatelessWidget {
                     percentage: votePercentage!,
                     isWinner: isWinner,
                     isVoted: isVoted,
+                    accentColor: accentColor,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -411,7 +422,7 @@ class _QuestionCardTile extends StatelessWidget {
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: isVoted
-                          ? AppColors.primary500
+                          ? (accentColor ?? AppColors.primary500)
                           : isWinner
                               ? AppColors.star
                               : (isDark
@@ -452,7 +463,7 @@ class _QuestionCardTile extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary500,
+                    color: (accentColor ?? AppColors.primary500),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -472,15 +483,16 @@ class _QuestionCardTile extends StatelessWidget {
 /// Level badge
 class _LevelBadge extends StatelessWidget {
   final int level;
+  final Color? accentColor;
 
-  const _LevelBadge({required this.level});
+  const _LevelBadge({required this.level, this.accentColor});
 
   @override
   Widget build(BuildContext context) {
     final color = switch (level) {
       1 => AppColors.success,
       2 => AppColors.warning,
-      3 => AppColors.primary500,
+      3 => (accentColor ?? AppColors.primary500),
       _ => AppColors.textMuted,
     };
 
@@ -506,11 +518,13 @@ class _LevelBadge extends StatelessWidget {
 class _VoteConfirmationSheet extends StatelessWidget {
   final QuestionCard card;
   final bool isDark;
+  final Color? accentColor;
   final VoidCallback onConfirm;
 
   const _VoteConfirmationSheet({
     required this.card,
     required this.isDark,
+    this.accentColor,
     required this.onConfirm,
   });
 
@@ -544,7 +558,7 @@ class _VoteConfirmationSheet extends StatelessWidget {
                 Icon(
                   Icons.quiz_outlined,
                   size: 40,
-                  color: AppColors.primary500,
+                  color: (accentColor ?? AppColors.primary500),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -574,7 +588,7 @@ class _VoteConfirmationSheet extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _LevelBadge(level: card.level),
+                          _LevelBadge(level: card.level, accentColor: accentColor),
                           const SizedBox(width: 8),
                           Text(
                             card.subdeckDisplayName,
@@ -667,11 +681,13 @@ class _VotedResultView extends StatelessWidget {
   final DailyQuestionSet set;
   final bool isDark;
   final bool compact;
+  final Color? accentColor;
 
   const _VotedResultView({
     required this.set,
     required this.isDark,
     this.compact = false,
+    this.accentColor,
   });
 
   @override
@@ -702,6 +718,7 @@ class _VotedResultView extends StatelessWidget {
                   showResult: true,
                   votePercentage: set.getVotePercentage(card.id),
                   isWinner: isWinner,
+                  accentColor: accentColor,
                   isVoted: isVoted,
                 );
               },
@@ -718,17 +735,19 @@ class _VoteProgressBar extends StatelessWidget {
   final double percentage;
   final bool isWinner;
   final bool isVoted;
+  final Color? accentColor;
 
   const _VoteProgressBar({
     required this.percentage,
     this.isWinner = false,
     this.isVoted = false,
+    this.accentColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final color = isVoted
-        ? AppColors.primary500
+        ? (accentColor ?? AppColors.primary500)
         : isWinner
             ? AppColors.star
             : AppColors.textMuted;

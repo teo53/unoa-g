@@ -198,6 +198,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       name: demoThread.artistName,
       description: '데모 모드 채팅방입니다.',
       avatarUrl: demoThread.avatarUrl,
+      themeColorIndex: demoThread.themeColorIndex,
       createdAt: DateTime.now().subtract(const Duration(days: 30)),
       updatedAt: DateTime.now(),
     );

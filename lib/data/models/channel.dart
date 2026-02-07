@@ -11,6 +11,9 @@ class Channel {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// 아티스트 테마 색상 인덱스 (0-5, ArtistThemeColors.presets 참조)
+  final int themeColorIndex;
+
   // Optional joined data
   final int? subscriberCount;
   final int? unreadCount;
@@ -26,6 +29,7 @@ class Channel {
     this.isActive = true,
     required this.createdAt,
     required this.updatedAt,
+    this.themeColorIndex = 0,
     this.subscriberCount,
     this.unreadCount,
     this.lastMessagePreview,
@@ -42,6 +46,7 @@ class Channel {
       isActive: json['is_active'] as bool? ?? true,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      themeColorIndex: json['theme_color_index'] as int? ?? 0,
       subscriberCount: json['subscriber_count'] as int?,
       unreadCount: json['unread_count'] as int?,
       lastMessagePreview: json['last_message_preview'] as String?,
@@ -61,6 +66,7 @@ class Channel {
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'theme_color_index': themeColorIndex,
     };
   }
 
@@ -73,6 +79,7 @@ class Channel {
     bool? isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? themeColorIndex,
     int? subscriberCount,
     int? unreadCount,
     String? lastMessagePreview,
@@ -87,6 +94,7 @@ class Channel {
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      themeColorIndex: themeColorIndex ?? this.themeColorIndex,
       subscriberCount: subscriberCount ?? this.subscriberCount,
       unreadCount: unreadCount ?? this.unreadCount,
       lastMessagePreview: lastMessagePreview ?? this.lastMessagePreview,
