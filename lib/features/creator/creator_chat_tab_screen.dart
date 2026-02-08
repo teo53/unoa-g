@@ -37,6 +37,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   final ScrollController _scrollController = ScrollController();
   final Set<String> _heartedMessages = {};
   bool _showAttachPanel = false;
+  bool _isQuestionMinimized = false;
+  bool _showBroadcastBanner = true;
 
   // Mock messages - 실제로는 provider에서 가져옴
   final List<_GroupChatMessage> _messages = [];
@@ -249,6 +251,17 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 },
               ),
 
+              // Reply (quote reply to own broadcast)
+              _buildActionTile(
+                icon: Icons.reply_rounded,
+                label: '답장',
+                isDark: isDark,
+                onTap: () {
+                  Navigator.pop(context);
+                  _startQuoteReply(message);
+                },
+              ),
+
               // Edit (within 24 hours)
               if (canEdit)
                 _buildActionTile(
@@ -260,6 +273,23 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     _showCreatorEditDialog(context, message, isDark);
                   },
                 ),
+
+              // Forward
+              _buildActionTile(
+                icon: Icons.forward_rounded,
+                label: '전달',
+                isDark: isDark,
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('전달 기능 준비 중입니다'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                },
+              ),
 
               // Pin as announcement
               _buildActionTile(
@@ -470,6 +500,32 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
             child: const Text('삭제'),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 인용 답장 시작 (카톡 스타일)
+  void _startQuoteReply(_GroupChatMessage message) {
+    // 입력창에 포커스를 주고 인용 표시
+    _messageController.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.reply_rounded, color: Colors.white, size: 16),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '답장: ${message.content.length > 30 ? '${message.content.substring(0, 30)}...' : message.content}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -1117,40 +1173,51 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   /// - 모든 팬의 메시지가 통합 타임라인으로 표시
   /// - 크리에이터가 메시지 입력 → 모든 팬에게 전송
   Widget _buildMyChannelTab(bool isDark) {
-    return Column(
+    return Stack(
       children: [
-        // 채널 정보 바
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            border: Border(
-              bottom: BorderSide(
-                color: AppColors.primary.withValues(alpha: 0.2),
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.campaign_rounded,
-                size: 18,
-                color: AppColors.primary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '여기서 보내는 메시지는 모든 구독자(1,250명)에게 전송됩니다',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
+        Column(
+      children: [
+        // 채널 정보 바 (닫기 가능)
+        if (_showBroadcastBanner)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              border: Border(
+                bottom: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.2),
                 ),
               ),
-            ],
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.campaign_rounded, size: 18, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '여기서 보내는 메시지는 모든 구독자(1,234명)에게 전송됩니다',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                      height: 1.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () => setState(() => _showBroadcastBanner = false),
+                  child: Icon(Icons.close, size: 16, color: AppColors.primary.withValues(alpha: 0.6)),
+                ),
+              ],
+            ),
           ),
-        ),
+
+        // 오늘의 질문 (확장 상태)
+        if (!_isQuestionMinimized)
+          _buildTodaysQuestionSection(isDark),
 
         // 메시지 리스트 (단체톡방 형태)
         Expanded(
@@ -1196,6 +1263,182 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         // 메시지 입력 바
         _buildInputBar(isDark),
       ],
+        ),
+
+        // 오늘의 질문 플로팅 미니 배너 (최소화 상태)
+        if (_isQuestionMinimized)
+          Positioned(
+            top: _showBroadcastBanner ? 52 : 8,
+            right: 12,
+            child: GestureDetector(
+              onTap: () => setState(() => _isQuestionMinimized = false),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Text('❓', style: TextStyle(fontSize: 20)),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTodaysQuestionSection(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더: 아이콘 + 오늘의 질문 + 참여수 + 최소화 버튼
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text('💬', style: TextStyle(fontSize: 16)),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '오늘의 질문',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '135명 참여',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => setState(() => _isQuestionMinimized = true),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey[800] : Colors.grey[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: isDark ? Colors.grey[400] : Colors.grey[500],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '마음에 드는 질문에 투표해 주세요',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+            ),
+          ),
+          const SizedBox(height: 10),
+          // 질문 카드 목록
+          SizedBox(
+            height: 100,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildQuestionCard('오늘 기분을 날씨로 표현하면?', 'Lv.1', '아이스브레이커', isDark),
+                const SizedBox(width: 10),
+                _buildQuestionCard('지금 마시고 싶은 음료 하나만!', 'Lv.1', '아이스브레이커', isDark),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuestionCard(String question, String level, String category, bool isDark) {
+    return Container(
+      width: 200,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF66BB6A),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  level,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                category,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Text(
+              question,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                height: 1.3,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -394,37 +394,73 @@ class _CreatorDashboardScreenState
   }
 
   Widget _buildQuickActions(BuildContext context, bool isDark) {
-    return Row(
+    final actions = [
+      _QuickActionData(
+        icon: Icons.chat_bubble_rounded,
+        label: '채팅',
+        color: AppColors.primary,
+        onTap: () => context.go('/creator/chat'),
+      ),
+      _QuickActionData(
+        icon: Icons.mail_rounded,
+        label: '프라이빗 카드',
+        color: const Color(0xFF7C4DFF),
+        onTap: () => context.push('/creator/chat'),
+      ),
+      _QuickActionData(
+        icon: Icons.bar_chart_rounded,
+        label: 'CRM 상세',
+        color: const Color(0xFF448AFF),
+        onTap: () => context.push('/creator/crm'),
+      ),
+      _QuickActionData(
+        icon: Icons.account_balance_wallet_rounded,
+        label: '출금',
+        color: const Color(0xFF66BB6A),
+        onTap: () => context.push('/creator/crm'),
+      ),
+      _QuickActionData(
+        icon: Icons.poll_rounded,
+        label: '투표 만들기',
+        color: const Color(0xFFEC407A),
+        onTap: () => context.push('/creator/chat'),
+      ),
+      _QuickActionData(
+        icon: Icons.people_alt_rounded,
+        label: '팬 관리',
+        color: const Color(0xFF26A69A),
+        onTap: () => context.push('/creator/crm'),
+      ),
+    ];
+
+    return Column(
       children: [
-        Expanded(
-          child: _QuickActionCard(
-            icon: Icons.chat_bubble_rounded,
-            label: '채팅',
-            color: AppColors.primary,
-            isDark: isDark,
-            onTap: () => context.go('/creator/chat'),
+        for (int row = 0; row < 3; row++) ...[
+          if (row > 0) const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionCard(
+                  icon: actions[row * 2].icon,
+                  label: actions[row * 2].label,
+                  color: actions[row * 2].color,
+                  isDark: isDark,
+                  onTap: actions[row * 2].onTap,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: actions[row * 2 + 1].icon,
+                  label: actions[row * 2 + 1].label,
+                  color: actions[row * 2 + 1].color,
+                  isDark: isDark,
+                  onTap: actions[row * 2 + 1].onTap,
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _QuickActionCard(
-            icon: Icons.analytics_rounded,
-            label: 'CRM 상세',
-            color: Colors.blue,
-            isDark: isDark,
-            onTap: () => context.push('/creator/crm'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _QuickActionCard(
-            icon: Icons.account_balance_wallet_rounded,
-            label: '출금',
-            color: Colors.green,
-            isDark: isDark,
-            onTap: () => context.push('/creator/crm'),
-          ),
-        ),
+        ],
       ],
     );
   }
@@ -1041,6 +1077,20 @@ class _SkeletonStatCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _QuickActionData {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionData({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 }
 
 class _ChartData {
