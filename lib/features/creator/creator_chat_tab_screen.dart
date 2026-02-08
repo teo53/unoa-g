@@ -274,23 +274,6 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   },
                 ),
 
-              // Forward
-              _buildActionTile(
-                icon: Icons.forward_rounded,
-                label: '전달',
-                isDark: isDark,
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('전달 기능 준비 중입니다'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  );
-                },
-              ),
-
               // Pin as announcement
               _buildActionTile(
                 icon: Icons.push_pin_outlined,
