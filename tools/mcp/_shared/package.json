@@ -1,0 +1,19 @@
+{
+  "name": "@unoa-mcp/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/types.js",
+  "exports": {
+    "./types": "./dist/types.js",
+    "./exec": "./dist/exec.js",
+    "./paths": "./dist/paths.js",
+    "./mask": "./dist/mask.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

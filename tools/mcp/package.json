@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "workspaces": [
+    "_shared",
+    "repo_doctor",
+    "review_gate",
+    "supabase_guard",
+    "security_guard"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "clean": "node -e \"const{rmSync}=require('fs');['_shared','repo_doctor','review_gate','supabase_guard','security_guard'].forEach(d=>{try{rmSync(d+'/dist',{recursive:true})}catch{}})\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

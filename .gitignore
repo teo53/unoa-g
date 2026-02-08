@@ -49,6 +49,20 @@ app.*.map.json
 .claude/settings.local.json
 .mcp.json
 
+# MCP server build artifacts
+tools/mcp/**/dist/
+tools/mcp/**/node_modules/
+tools/mcp/**/*.d.ts
+tools/mcp/**/*.js
+tools/mcp/**/*.js.map
+tools/mcp/**/*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+**/secrets/
+
 # Temp/backup files
 *.bak
 nul
