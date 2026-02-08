@@ -31,6 +31,7 @@ import '../features/creator/creator_profile_screen.dart';
 import '../features/creator/creator_chat_tab_screen.dart';
 import '../features/creator/creator_my_channel_screen.dart';
 
+import '../data/models/poll_draft.dart';
 import '../features/creator/creator_content_screen.dart';
 import '../features/private_card/private_card_compose_screen.dart';
 import '../features/settings/birthday_settings_screen.dart';
@@ -196,8 +197,14 @@ final appRouter = GoRouter(
           pageBuilder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
             final prefillText = extra?['prefillText'] as String?;
+            final pollDraft = extra?['pollDraft'] as PollDraft?;
+            final pollComment = extra?['pollComment'] as String?;
             return NoTransitionPage(
-              child: CreatorChatTabScreen(prefillText: prefillText),
+              child: CreatorChatTabScreen(
+                prefillText: prefillText,
+                pollDraft: pollDraft,
+                pollComment: pollComment,
+              ),
             );
           },
         ),

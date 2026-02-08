@@ -29,11 +29,13 @@ class DailyQuestionCardsPanel extends ConsumerStatefulWidget {
 
 class _DailyQuestionCardsPanelState
     extends ConsumerState<DailyQuestionCardsPanel> {
-  bool _isExpanded = true;
+  late bool _isExpanded;
 
   @override
   void initState() {
     super.initState();
+    // compact 모드일 때는 기본 접힌 상태
+    _isExpanded = !widget.compact;
     // Load question set on init
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(dailyQuestionSetProvider(widget.channelId).notifier).load();
@@ -115,8 +117,13 @@ class _DailyQuestionCardsPanelState
         GestureDetector(
           onTap: () => setState(() => _isExpanded = !_isExpanded),
           behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? (widget.accentColor ?? AppColors.primary500).withValues(alpha: 0.06)
+                  : (widget.accentColor ?? AppColors.primary500).withValues(alpha: 0.04),
+            ),
             child: Row(
               children: [
                 Icon(
@@ -159,6 +166,13 @@ class _DailyQuestionCardsPanelState
                       ),
                     ),
                   ),
+                Text(
+                  _isExpanded ? '접기' : '펼치기',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
                 AnimatedRotation(
                   turns: _isExpanded ? 0.0 : -0.25,
                   duration: const Duration(milliseconds: 200),
@@ -267,7 +281,7 @@ class _VotingCardsView extends StatelessWidget {
 
           // Cards
           SizedBox(
-            height: compact ? 100 : 130,
+            height: compact ? 110 : 130,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: set.cards.length,

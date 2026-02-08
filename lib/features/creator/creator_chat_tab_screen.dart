@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -35,8 +36,15 @@ import '../chat/widgets/poll_message_card.dart';
 /// ⚠️ 브로드캐스트는 별도 기능이 아님 - 채팅 자체가 이 구조임
 class CreatorChatTabScreen extends ConsumerStatefulWidget {
   final String? prefillText;
+  final PollDraft? pollDraft;
+  final String? pollComment;
 
-  const CreatorChatTabScreen({super.key, this.prefillText});
+  const CreatorChatTabScreen({
+    super.key,
+    this.prefillText,
+    this.pollDraft,
+    this.pollComment,
+  });
 
   @override
   ConsumerState<CreatorChatTabScreen> createState() =>
@@ -77,6 +85,12 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     // AI 답글 시트에서 전달받은 텍스트가 있으면 입력창에 세팅
     if (widget.prefillText != null && widget.prefillText!.isNotEmpty) {
       _messageController.text = widget.prefillText!;
+    }
+    // 대시보드에서 전달받은 투표가 있으면 채팅에 추가
+    if (widget.pollDraft != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _addPollFromExternal(widget.pollDraft!, widget.pollComment);
+      });
     }
   }
 
@@ -226,6 +240,30 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     });
   }
 
+  void _addPollFromExternal(PollDraft draft, String? comment) {
+    setState(() {
+      _messages.add(_GroupChatMessage(
+        id: 'poll_${DateTime.now().millisecondsSinceEpoch}',
+        content: draft.question,
+        fanId: 'creator',
+        fanName: '',
+        fanTier: '',
+        isFromCreator: true,
+        timestamp: DateTime.now(),
+        readCount: 0,
+        totalSubscribers: DemoConfig.demoSubscriberCount,
+        messageType: 'poll',
+        pollData: draft,
+      ));
+    });
+    _scrollToBottom();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('투표가 전송되었습니다: ${draft.question}')),
+      );
+    }
+  }
+
   void _toggleHeart(String messageId) {
     setState(() {
       if (_heartedMessages.contains(messageId)) {
@@ -234,6 +272,289 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         _heartedMessages.add(messageId);
       }
     });
+  }
+
+  /// 크리에이터 자신의 메시지 Long Press 시 편집/삭제/복사 바텀시트
+  void _showCreatorMessageActionsSheet(
+    BuildContext context,
+    _GroupChatMessage message,
+    bool isDark,
+  ) {
+    final hoursSinceCreation =
+        DateTime.now().difference(message.timestamp).inHours;
+    final canEdit = hoursSinceCreation < 24 && message.messageType == 'text';
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // 메시지 미리보기
+            if (message.content.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[800] : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  message.content.length > 100
+                      ? '${message.content.substring(0, 100)}...'
+                      : message.content,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.textSubDark
+                        : AppColors.textSubLight,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+
+            const SizedBox(height: 8),
+
+            // 편집
+            if (canEdit)
+              _buildActionTile(
+                icon: Icons.edit_outlined,
+                label: '편집',
+                sublabel: '24시간 이내',
+                isDark: isDark,
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditDialog(context, message, isDark);
+                },
+              ),
+
+            // 삭제
+            _buildActionTile(
+              icon: Icons.delete_outline,
+              label: '삭제',
+              isDark: isDark,
+              isDanger: true,
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation(context, message);
+              },
+            ),
+
+            // 복사
+            _buildActionTile(
+              icon: Icons.copy_outlined,
+              label: '복사',
+              isDark: isDark,
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: message.content));
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('메시지가 복사되었습니다'),
+                    duration: Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            ),
+
+            // 취소
+            const Divider(height: 1),
+            _buildActionTile(
+              icon: Icons.close,
+              label: '취소',
+              isDark: isDark,
+              isCancel: true,
+              onTap: () => Navigator.pop(context),
+            ),
+
+            SizedBox(height: MediaQuery.of(context).padding.bottom),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionTile({
+    required IconData icon,
+    required String label,
+    String? sublabel,
+    required bool isDark,
+    bool isDanger = false,
+    bool isCancel = false,
+    required VoidCallback onTap,
+  }) {
+    final color = isDanger
+        ? AppColors.danger
+        : isCancel
+            ? (isDark ? AppColors.textSubDark : AppColors.textSubLight)
+            : (isDark ? AppColors.textMainDark : AppColors.textMainLight);
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: color,
+                    ),
+                  ),
+                  if (sublabel != null)
+                    Text(
+                      sublabel,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditDialog(
+    BuildContext context,
+    _GroupChatMessage message,
+    bool isDark,
+  ) {
+    final controller = TextEditingController(text: message.content);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('메시지 편집'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              maxLines: 5,
+              minLines: 2,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: '메시지를 수정하세요',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '편집된 메시지는 "편집됨"으로 표시됩니다',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark
+                    ? AppColors.textSubDark
+                    : AppColors.textSubLight,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              final newContent = controller.text.trim();
+              if (newContent.isNotEmpty && newContent != message.content) {
+                final index = _messages.indexWhere((m) => m.id == message.id);
+                if (index != -1) {
+                  setState(() {
+                    _messages[index] = _messages[index].copyWith(
+                      content: newContent,
+                      isEdited: true,
+                    );
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('메시지가 수정되었습니다'),
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('저장'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, _GroupChatMessage message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('메시지 삭제'),
+        content: const Text(
+          '이 메시지를 삭제하시겠습니까?\n삭제된 메시지는 팬들에게 "삭제된 메시지"로 표시됩니다.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              final index = _messages.indexWhere((m) => m.id == message.id);
+              if (index != -1) {
+                setState(() {
+                  _messages[index] = _messages[index].copyWith(isDeleted: true);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('메시지가 삭제되었습니다'),
+                    behavior: SnackBarBehavior.floating,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+              Navigator.pop(context);
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.danger,
+            ),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 팬 메시지 Long Press 시 답장 타입 선택 바텀시트
@@ -625,17 +946,43 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 ),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.campaign_rounded, size: 18, color: AppColors.primary),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(Icons.campaign_rounded, size: 18, color: AppColors.primary),
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      '여기서 보내는 메시지는 모든 구독자(${DemoConfig.demoSubscriberCount}명)에게 전송됩니다',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '전체 전송 모드',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '입력한 메시지는 구독자 ${DemoConfig.demoSubscriberCount}명에게 모두 전송됩니다',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.primary.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '팬 메시지에 1:1 답장 시 해당 팬에게만 전송됩니다',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppColors.primary.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   GestureDetector(
@@ -681,13 +1028,19 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                           isDark: isDark,
                           isHearted: _heartedMessages.contains(message.id),
                           onHeartTap: () => _toggleHeart(message.id),
-                          onLongPress: message.isFromCreator
+                          onLongPress: message.isDeleted
                               ? null
-                              : () => _showReplyOptionsSheet(
-                                    context,
-                                    message,
-                                    isDark,
-                                  ),
+                              : message.isFromCreator
+                                  ? () => _showCreatorMessageActionsSheet(
+                                        context,
+                                        message,
+                                        isDark,
+                                      )
+                                  : () => _showReplyOptionsSheet(
+                                        context,
+                                        message,
+                                        isDark,
+                                      ),
                         ),
                       ],
                     );
@@ -1390,13 +1743,50 @@ class _GroupChatBubble extends StatelessWidget {
   }
 
   Widget _buildCreatorBubble() {
+    // 삭제된 메시지
+    if (message.isDeleted) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              constraints: const BoxConstraints(maxWidth: 240),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.block, size: 16, color: isDark ? Colors.grey[500] : Colors.grey[500]),
+                  const SizedBox(width: 6),
+                  Text(
+                    '삭제된 메시지입니다',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     // 읽은 수 계산
     final hasReadStats = message.readCount != null && message.totalSubscribers != null;
     final readCount = message.readCount ?? 0;
     final totalSubscribers = message.totalSubscribers ?? 0;
     final isDirectReply = message.isDirectReplyMessage;
 
-    return Padding(
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -1407,6 +1797,19 @@ class _GroupChatBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // 편집됨 표시
+              if (message.isEdited)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text(
+                    '편집됨',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontStyle: FontStyle.italic,
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    ),
+                  ),
+                ),
               // 1:1 답장 표시 또는 읽은 팬 수 표시
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1607,6 +2010,7 @@ class _GroupChatBubble extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -1881,6 +2285,9 @@ class _GroupChatMessage {
   final String messageType;
   // Poll 데이터 (messageType == 'poll'일 때)
   final PollDraft? pollData;
+  // 편집/삭제 상태
+  final bool isEdited;
+  final bool isDeleted;
 
   _GroupChatMessage({
     required this.id,
@@ -1899,5 +2306,34 @@ class _GroupChatMessage {
     this.replyToContent,
     this.messageType = 'text',
     this.pollData,
+    this.isEdited = false,
+    this.isDeleted = false,
   });
+
+  _GroupChatMessage copyWith({
+    String? content,
+    bool? isEdited,
+    bool? isDeleted,
+  }) {
+    return _GroupChatMessage(
+      id: id,
+      content: content ?? this.content,
+      fanId: fanId,
+      fanName: fanName,
+      fanTier: fanTier,
+      isFromCreator: isFromCreator,
+      timestamp: timestamp,
+      donationAmount: donationAmount,
+      readCount: readCount,
+      totalSubscribers: totalSubscribers,
+      isDirectReplyMessage: isDirectReplyMessage,
+      replyToFanId: replyToFanId,
+      replyToFanName: replyToFanName,
+      replyToContent: replyToContent,
+      messageType: messageType,
+      pollData: pollData,
+      isEdited: isEdited ?? this.isEdited,
+      isDeleted: isDeleted ?? this.isDeleted,
+    );
+  }
 }

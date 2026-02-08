@@ -413,7 +413,7 @@ class _CreatorDashboardScreenState
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: AppSpacing.cardGap,
       crossAxisSpacing: AppSpacing.cardGap,
-      childAspectRatio: 2.2,
+      childAspectRatio: 1.6,
       children: [
         _QuickActionCard(
           icon: Icons.chat_bubble_rounded,
@@ -964,7 +964,7 @@ class _QuickActionCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: AppRadius.lgBR,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
           borderRadius: AppRadius.lgBR,
@@ -973,16 +973,17 @@ class _QuickActionCard extends StatelessWidget {
           ),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               label,
               style: TextStyle(
@@ -991,6 +992,8 @@ class _QuickActionCard extends StatelessWidget {
                 color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
