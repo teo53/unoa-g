@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 
 /// Enterprise-grade error boundary widget
 /// Catches and displays errors gracefully with retry functionality
@@ -173,7 +174,7 @@ class ErrorDisplay extends StatelessWidget {
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.baseBR,
                   ),
                 ),
                 icon: const Icon(Icons.refresh, size: 20),
@@ -224,7 +225,7 @@ class _CompactErrorDisplay extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.error.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.baseBR,
         border: Border.all(
           color: AppColors.error.withValues(alpha: 0.3),
         ),

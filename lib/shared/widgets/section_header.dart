@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 
 /// 섹션 헤더 위젯
 ///
@@ -25,7 +26,7 @@ class SectionHeader extends StatelessWidget {
     final hasAction = onTrailingTap != null;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: AppSpacing.screenH,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

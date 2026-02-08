@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../core/config/demo_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../data/repositories/chat_repository.dart';
@@ -9,6 +10,8 @@ import '../../data/repositories/mock_chat_repository.dart';
 import 'widgets/todays_voted_question_section.dart';
 import 'widgets/ai_reply_suggestion_sheet.dart';
 import 'widgets/celebration_queue_section.dart';
+import 'widgets/poll_suggestion_sheet.dart';
+import 'widgets/ai_poll_preview_section.dart';
 
 /// Creator Dashboard Screen - CRM 통합 대시보드
 /// - 수익 요약 및 통계
@@ -28,6 +31,7 @@ class _CreatorDashboardScreenState
   final MockArtistInboxRepository _repository = MockArtistInboxRepository();
   InboxStats? _stats;
   bool _isLoading = true;
+  bool _showBusinessSection = false;
 
   /// Format number with comma separators
   String _formatNumber(int number) {
@@ -77,42 +81,46 @@ class _CreatorDashboardScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Revenue Summary Card
-                  _buildRevenueSummaryCard(isDark, isDemoMode),
-                  const SizedBox(height: 20),
-
-                  // Quick Actions
+                  // 1. Quick Actions (즉시 행동 가능한 액션 우선)
                   _buildSectionTitle('빠른 실행', isDark),
                   const SizedBox(height: 12),
                   _buildQuickActions(context, isDark),
                   const SizedBox(height: 24),
 
-                  // Revenue Chart Section
-                  _buildSectionTitle('월별 수익 추이', isDark, onMore: () => context.push('/creator/crm')),
-                  const SizedBox(height: 12),
-                  _buildRevenueChart(isDark),
-                  const SizedBox(height: 24),
-
-                  // Fan Insights
-                  _buildSectionTitle('팬 인사이트', isDark, onMore: () => context.push('/creator/crm')),
-                  const SizedBox(height: 12),
-                  _buildFanInsights(isDark),
-                  const SizedBox(height: 24),
-
-                  // Stats Grid
+                  // 2. Stats Grid (팬 참여 지표 = 동기부여)
                   _buildSectionTitle('오늘의 현황', isDark),
                   const SizedBox(height: 12),
                   _buildStatsGrid(isDark),
                   const SizedBox(height: 24),
 
-                  // Celebration Queue
+                  // 3. AI 추천 투표 (아티스트 눈에 잘 띄는 위치)
+                  AiPollPreviewSection(
+                    channelId: 'channel_1',
+                    onOpenPollSheet: () {
+                      PollSuggestionSheet.show(
+                        context: context,
+                        channelId: 'channel_1',
+                        onSend: (draft, comment) {
+                          if (context.mounted) {
+                            context.go('/creator/chat', extra: {
+                              'pollDraft': draft,
+                              'pollComment': comment,
+                            });
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // 4. Celebration Queue (따뜻한 커뮤니티 느낌)
                   CelebrationQueueSection(
                     channelId: 'channel_1',
                     artistName: profile?.displayName,
                   ),
                   const SizedBox(height: 24),
 
-                  // Today's Question Section
+                  // 5. Today's Question Section (팬과 소통 유도)
                   TodaysVotedQuestionSection(
                     channelId: 'channel_1',
                     onAnswerCard: (card, setId) {
@@ -131,10 +139,40 @@ class _CreatorDashboardScreenState
                   ),
                   const SizedBox(height: 24),
 
-                  // Recent Activity
-                  _buildSectionTitle('최근 활동', isDark),
+                  // 6-9. Business Section (Progressive Disclosure — collapsed by default)
+                  _buildSectionTitle(
+                    '비즈니스',
+                    isDark,
+                    trailing: _showBusinessSection ? '접기' : '펼치기',
+                    onMore: () => setState(() =>
+                        _showBusinessSection = !_showBusinessSection),
+                  ),
                   const SizedBox(height: 12),
-                  _buildRecentActivity(isDark),
+
+                  if (_showBusinessSection) ...[
+                    // 6. Fan Insights
+                    _buildSectionTitle('팬 인사이트', isDark, onMore: () => context.push('/creator/crm')),
+                    const SizedBox(height: 12),
+                    _buildFanInsights(isDark),
+                    const SizedBox(height: 24),
+
+                    // 7. Revenue Summary
+                    _buildSectionTitle('수익 현황', isDark, onMore: () => context.push('/creator/crm')),
+                    const SizedBox(height: 12),
+                    _buildRevenueSummaryCard(isDark, isDemoMode),
+                    const SizedBox(height: 20),
+
+                    // 8. Revenue Chart
+                    _buildSectionTitle('월별 수익 추이', isDark, onMore: () => context.push('/creator/crm')),
+                    const SizedBox(height: 12),
+                    _buildRevenueChart(isDark),
+                    const SizedBox(height: 24),
+
+                    // 9. Recent Activity
+                    _buildSectionTitle('최근 활동', isDark),
+                    const SizedBox(height: 12),
+                    _buildRecentActivity(isDark),
+                  ],
                   const SizedBox(height: 20),
                 ],
               ),
@@ -145,7 +183,8 @@ class _CreatorDashboardScreenState
     );
   }
 
-  Widget _buildSectionTitle(String title, bool isDark, {VoidCallback? onMore}) {
+  Widget _buildSectionTitle(String title, bool isDark,
+      {VoidCallback? onMore, String? trailing}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -161,7 +200,7 @@ class _CreatorDashboardScreenState
           GestureDetector(
             onTap: onMore,
             child: Text(
-              '더보기',
+              trailing ?? '더보기',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -269,7 +308,7 @@ class _CreatorDashboardScreenState
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.xlBR,
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.3),
@@ -305,7 +344,7 @@ class _CreatorDashboardScreenState
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.baseBR,
                 ),
                 child: Row(
                   children: [
@@ -368,49 +407,61 @@ class _CreatorDashboardScreenState
   }
 
   Widget _buildQuickActions(BuildContext context, bool isDark) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      childAspectRatio: 2.2,
       children: [
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 70) / 4,
-          child: _QuickActionCard(
-            icon: Icons.chat_bubble_rounded,
-            label: '채팅',
-            color: AppColors.primary,
-            isDark: isDark,
-            onTap: () => context.go('/creator/chat'),
-          ),
+        _QuickActionCard(
+          icon: Icons.chat_bubble_rounded,
+          label: '채팅',
+          color: AppColors.primary,
+          isDark: isDark,
+          onTap: () => context.go('/creator/chat'),
         ),
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 70) / 4,
-          child: _QuickActionCard(
-            icon: Icons.mail_rounded,
-            label: '프라이빗 카드',
-            color: const Color(0xFF8B5CF6),
-            isDark: isDark,
-            onTap: () => context.push('/creator/private-card/compose'),
-          ),
+        _QuickActionCard(
+          icon: Icons.mail_rounded,
+          label: '프라이빗 카드',
+          color: const Color(0xFF8B5CF6),
+          isDark: isDark,
+          onTap: () => context.push('/creator/private-card/compose'),
         ),
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 70) / 4,
-          child: _QuickActionCard(
-            icon: Icons.analytics_rounded,
-            label: 'CRM 상세',
-            color: Colors.blue,
-            isDark: isDark,
-            onTap: () => context.push('/creator/crm'),
-          ),
+        _QuickActionCard(
+          icon: Icons.analytics_rounded,
+          label: 'CRM 상세',
+          color: Colors.blue,
+          isDark: isDark,
+          onTap: () => context.push('/creator/crm'),
         ),
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 70) / 4,
-          child: _QuickActionCard(
-            icon: Icons.account_balance_wallet_rounded,
-            label: '출금',
-            color: Colors.green,
-            isDark: isDark,
-            onTap: () => context.push('/creator/crm'),
-          ),
+        _QuickActionCard(
+          icon: Icons.account_balance_wallet_rounded,
+          label: '출금',
+          color: Colors.green,
+          isDark: isDark,
+          onTap: () => context.push('/creator/crm'),
+        ),
+        _QuickActionCard(
+          icon: Icons.poll_outlined,
+          label: '투표 만들기',
+          color: const Color(0xFFE91E63),
+          isDark: isDark,
+          onTap: () {
+            PollSuggestionSheet.show(
+              context: context,
+              channelId: 'channel_1',
+              onSend: (draft, comment) {
+                if (context.mounted) {
+                  context.go('/creator/chat', extra: {
+                    'pollDraft': draft,
+                    'pollComment': comment,
+                  });
+                }
+              },
+            );
+          },
         ),
       ],
     );
@@ -429,7 +480,7 @@ class _CreatorDashboardScreenState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.lgBR,
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
         ),
@@ -501,7 +552,7 @@ class _CreatorDashboardScreenState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.lgBR,
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
         ),
@@ -553,7 +604,7 @@ class _CreatorDashboardScreenState
               color: isDark
                   ? AppColors.backgroundDark
                   : AppColors.backgroundLight,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.baseBR,
             ),
             child: Row(
               children: [
@@ -684,7 +735,7 @@ class _CreatorDashboardScreenState
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.lgBR,
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
         ),
@@ -838,7 +889,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.lgBR,
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
         ),
@@ -852,7 +903,7 @@ class _StatCard extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.baseBR,
             ),
             child: Icon(icon, color: iconColor, size: 22),
           ),
@@ -904,12 +955,12 @@ class _QuickActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.lgBR,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.lgBR,
           border: Border.all(
             color: isDark ? AppColors.borderDark : AppColors.borderLight,
           ),

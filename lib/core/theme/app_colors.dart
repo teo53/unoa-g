@@ -285,6 +285,15 @@ class ArtistThemeColors {
   static int get count => presets.length;
 }
 
+/// Convenience extension for theme-aware color access.
+///
+/// Usage: `context.isDark`, `context.appColors.surface`
+extension AppColorsContext on BuildContext {
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+  AppColorsExtension get appColors =>
+      Theme.of(this).extension<AppColorsExtension>()!;
+}
+
 /// Theme Extension for dynamic color access
 class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color surface;

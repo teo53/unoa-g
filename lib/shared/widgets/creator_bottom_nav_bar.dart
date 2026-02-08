@@ -6,11 +6,13 @@ import '../../core/theme/app_colors.dart';
 class CreatorBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final int dashboardBadgeCount;
 
   const CreatorBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.dashboardBadgeCount = 0,
   });
 
   @override
@@ -38,7 +40,7 @@ class CreatorBottomNavBar extends StatelessWidget {
             label: '대시보드',
             isSelected: currentIndex == 0,
             onTap: () => onTap(0),
-            showBadge: true, // 팬 메시지 알림
+            badgeCount: dashboardBadgeCount,
           ),
           // 채팅 - 내 채널 + 프라이빗 카드 + 구독 아티스트
           _CreatorNavItem(
@@ -85,7 +87,7 @@ class _CreatorNavItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-  final bool showBadge;
+  final int badgeCount;
   final bool isProfile;
 
   const _CreatorNavItem({
@@ -94,7 +96,7 @@ class _CreatorNavItem extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
-    this.showBadge = false,
+    this.badgeCount = 0,
     this.isProfile = false,
   });
 
@@ -104,87 +106,92 @@ class _CreatorNavItem extends StatelessWidget {
     final activeColor = AppColors.primary;
     final inactiveColor = isDark ? Colors.grey[500] : Colors.grey[400];
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 64,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                if (isProfile)
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? activeColor : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                    child: ClipOval(
-                      child: Container(
-                        color: isDark ? Colors.grey[700] : Colors.grey[200],
-                        child: Icon(
-                          Icons.person,
-                          size: 20,
-                          color: isDark ? Colors.grey[400] : Colors.grey[500],
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  Icon(
-                    isSelected ? icon : outlinedIcon,
-                    size: 26,
-                    color: isSelected ? activeColor : inactiveColor,
-                  ),
-                if (showBadge)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      width: 16,
-                      height: 16,
+    return Semantics(
+      label: '$label 탭',
+      selected: isSelected,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: 64,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  if (isProfile)
+                    Container(
+                      width: 28,
+                      height: 28,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isDark
-                              ? AppColors.surfaceDark
-                              : AppColors.surfaceLight,
+                          color: isSelected ? activeColor : Colors.transparent,
                           width: 2,
                         ),
                       ),
-                      child: const Center(
-                        child: Text(
-                          '3',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
+                      child: ClipOval(
+                        child: Container(
+                          color: isDark ? Colors.grey[700] : Colors.grey[200],
+                          child: Icon(
+                            Icons.person,
+                            size: 20,
+                            color: isDark ? Colors.grey[400] : Colors.grey[500],
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Icon(
+                      isSelected ? icon : outlinedIcon,
+                      size: 26,
+                      color: isSelected ? activeColor : inactiveColor,
+                    ),
+                  if (badgeCount > 0)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.surfaceDark
+                                : AppColors.surfaceLight,
+                            width: 2,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            badgeCount > 9 ? '9+' : '$badgeCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? activeColor : inactiveColor,
+                ],
               ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: isSelected ? activeColor : inactiveColor,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

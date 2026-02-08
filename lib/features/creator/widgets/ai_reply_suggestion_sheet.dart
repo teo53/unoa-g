@@ -63,6 +63,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
 
   // 직접 입력/편집용 컨트롤러
   final TextEditingController _editController = TextEditingController();
+  final FocusNode _editFocusNode = FocusNode();
   bool _hasText = false;
 
   @override
@@ -76,6 +77,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
   void dispose() {
     _editController.removeListener(_onEditTextChanged);
     _editController.dispose();
+    _editFocusNode.dispose();
     super.dispose();
   }
 
@@ -119,6 +121,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     _editController.selection = TextSelection.fromPosition(
       TextPosition(offset: text.length),
     );
+    _editFocusNode.requestFocus();
   }
 
   void _rerollSuggestions() {
@@ -192,6 +195,29 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
               child: _showingTemplateLibrary
                   ? _buildTemplateLibrary(isDark)
                   : _buildContent(isDark),
+            ),
+
+            // 직접 작성 라벨 + 구분선
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.edit_outlined,
+                    size: 14,
+                    color: AppColors.primary500,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '직접 작성 / 편집',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary500,
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             // 하단 입력창 (항상 표시)
@@ -387,6 +413,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                   _fillEditField(suggestion.text);
                 },
                 onCopy: () => _copyToClipboard(suggestion.text),
+                onEdit: () => _editFocusNode.requestFocus(),
               );
             },
           ),
@@ -457,6 +484,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                         _fillEditField(t.text);
                       },
                       onCopy: () => _copyToClipboard(t.text),
+                      onEdit: () => _editFocusNode.requestFocus(),
                     ),
                   )),
                 ],
@@ -487,6 +515,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
           Expanded(
             child: TextField(
               controller: _editController,
+              focusNode: _editFocusNode,
               maxLines: 4,
               minLines: 1,
               style: TextStyle(
@@ -680,10 +709,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
               _ActionChip(
                 icon: Icons.edit_outlined,
                 label: '직접 작성하기',
-                onTap: () {
-                  // Focus the edit bar
-                  FocusScope.of(context).requestFocus(FocusNode());
-                },
+                onTap: () => _editFocusNode.requestFocus(),
                 isDark: isDark,
                 isPrimary: true,
               ),
@@ -817,6 +843,7 @@ class _SuggestionCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final VoidCallback onCopy;
+  final VoidCallback? onEdit;
 
   const _SuggestionCard({
     required this.suggestion,
@@ -824,6 +851,7 @@ class _SuggestionCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     required this.onCopy,
+    this.onEdit,
   });
 
   @override
@@ -865,7 +893,27 @@ class _SuggestionCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                if (isSelected)
+                if (isSelected) ...[
+                  if (onEdit != null)
+                    GestureDetector(
+                      onTap: onEdit,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.edit_outlined, size: 13, color: AppColors.primary600),
+                          const SizedBox(width: 3),
+                          Text(
+                            '편집',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primary600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (onEdit != null) const SizedBox(width: 12),
                   GestureDetector(
                     onTap: onCopy,
                     child: Row(
@@ -884,6 +932,7 @@ class _SuggestionCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                ],
               ],
             ),
             const SizedBox(height: 8),
@@ -899,7 +948,7 @@ class _SuggestionCard extends StatelessWidget {
             if (isSelected) ...[
               const SizedBox(height: 6),
               Text(
-                '\u2191 탭하여 편집창에 넣었습니다',
+                '아래에서 수정 후 전송하세요 \u2193',
                 style: TextStyle(
                   fontSize: 11,
                   color: AppColors.primary500,

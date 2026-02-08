@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/config/app_config.dart';
 import '../models/ai_draft_error.dart';
 import '../models/ai_draft_state.dart';
+import '../mock/mock_creator_messages.dart';
 import '../mock/reply_templates.dart';
 import 'creator_pattern_service.dart';
 
@@ -144,7 +145,7 @@ class AiDraftService {
   }) async {
     String patternContext = '';
     if (useFullPrompt) {
-      patternContext = _buildPatternContext(channelId);
+      patternContext = await _buildPatternContext(channelId);
     }
 
     final prompt = _buildPrompt(fanMessage, patternContext: patternContext);
@@ -228,39 +229,41 @@ class AiDraftService {
   }
 
   /// Build pattern context from creator's past messages.
-  String _buildPatternContext(String channelId) {
-    final sampleMessages = [
-      CreatorMessage(
-        id: 'sample_1',
-        content: '오늘 공연 와줘서 너무 고마워요~ 💕',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      CreatorMessage(
-        id: 'sample_2',
-        content: '여러분 덕분에 힘이 나요! 항상 응원해줘서 감사합니다 🙏',
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      ),
-      CreatorMessage(
-        id: 'sample_3',
-        content: '다음 주 컴백 준비 열심히 하고 있어요 기대해주세요!! ✨',
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      ),
-      CreatorMessage(
-        id: 'sample_4',
-        content: 'ㅋㅋㅋ 귀여워요~ 고마워!',
-        createdAt: DateTime.now().subtract(const Duration(days: 4)),
-      ),
-      CreatorMessage(
-        id: 'sample_5',
-        content: '오늘 날씨가 너무 좋아서 산책했어요 🌸 여러분도 좋은 하루 보내세요~',
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-      ),
-    ];
+  ///
+  /// In demo mode, uses per-channel mock messages so each creator
+  /// gets a distinct style analysis. In production, queries Supabase
+  /// for the creator's actual recent messages.
+  Future<String> _buildPatternContext(String channelId) async {
+    List<CreatorMessage> messages;
+
+    if (AppConfig.enableDemoMode) {
+      messages = MockCreatorMessages.forChannel(channelId);
+    } else {
+      // Production: query last 50 broadcast messages from this channel
+      try {
+        final response = await Supabase.instance.client
+            .from('messages')
+            .select('id, content, created_at')
+            .eq('channel_id', channelId)
+            .eq('delivery_scope', 'broadcast')
+            .order('created_at', ascending: false)
+            .limit(50);
+
+        messages = (response as List<dynamic>)
+            .map((m) => CreatorMessage.fromJson(m as Map<String, dynamic>))
+            .toList();
+      } catch (_) {
+        // Fallback to mock data if DB query fails
+        messages = MockCreatorMessages.forChannel(channelId);
+      }
+    }
+
+    if (messages.isEmpty) return '';
 
     final patternService = CreatorPatternService.instance;
     final analysis = patternService.analyzePatterns(
       creatorId: channelId,
-      messages: sampleMessages,
+      messages: messages,
     );
 
     return patternService.buildPatternContext(analysis);

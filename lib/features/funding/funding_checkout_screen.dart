@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
+import '../../shared/widgets/auth_gate.dart';
 import 'funding_result_screen.dart';
 
 /// Checkout screen for funding pledge
@@ -77,6 +78,14 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       return;
     }
 
+    AuthGate.guardAction(
+      context,
+      reason: '펀딩에 참여하려면 로그인이 필요해요',
+      onAuthenticated: () => _doSubmitPledge(),
+    );
+  }
+
+  Future<void> _doSubmitPledge() async {
     setState(() {
       _isLoading = true;
     });

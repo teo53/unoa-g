@@ -183,11 +183,11 @@ void main() {
       await tester.tap(find.text('Show Report'));
       await tester.pumpAndSettle();
 
-      // Verify all report reasons are shown
+      // Verify all report reasons are shown (labels from ReportReason enum)
       expect(find.text('스팸'), findsOneWidget);
-      expect(find.text('괴롭힘'), findsOneWidget);
+      expect(find.text('괴롭힘/폭언'), findsOneWidget);
       expect(find.text('부적절한 콘텐츠'), findsOneWidget);
-      expect(find.text('사기'), findsOneWidget);
+      expect(find.text('사기/허위 정보'), findsOneWidget);
       expect(find.text('저작권 침해'), findsOneWidget);
       expect(find.text('기타'), findsOneWidget);
     });
@@ -217,22 +217,29 @@ void main() {
       await tester.tap(find.text('Show Report'));
       await tester.pumpAndSettle();
 
-      // Find submit button and verify it's disabled initially
+      // '신고하기' appears in both title and submit button
       final submitButton = find.text('신고하기');
-      expect(submitButton, findsOneWidget);
+      expect(submitButton, findsNWidgets(2));
 
-      // The button should be disabled (null onPressed)
-      final buttonWidget =
-          tester.widget<TextButton>(find.widgetWithText(TextButton, '신고하기'));
-      expect(buttonWidget.onPressed, isNull);
+      // The submit button (ElevatedButton) is always enabled;
+      // validation happens inside _submit() which shows an error message
+      final buttonWidget = tester
+          .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, '신고하기'));
+      expect(buttonWidget.onPressed, isNotNull);
+
+      // Tap submit without selecting a reason — shows validation error
+      // '신고 사유를 선택해주세요' appears as both instruction label and error message
+      await tester.tap(find.widgetWithText(ElevatedButton, '신고하기'));
+      await tester.pumpAndSettle();
+      expect(find.text('신고 사유를 선택해주세요'), findsNWidgets(2));
 
       // Select a reason
       await tester.tap(find.text('스팸'));
       await tester.pumpAndSettle();
 
-      // Now the button should be enabled
-      final enabledButtonWidget =
-          tester.widget<TextButton>(find.widgetWithText(TextButton, '신고하기'));
+      // Button is still enabled after selecting a reason
+      final enabledButtonWidget = tester
+          .widget<ElevatedButton>(find.widgetWithText(ElevatedButton, '신고하기'));
       expect(enabledButtonWidget.onPressed, isNotNull);
     });
   });

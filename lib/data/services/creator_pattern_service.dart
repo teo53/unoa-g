@@ -62,8 +62,11 @@ class CreatorPatternService {
 
     // 존댓말 패턴
     final formalPatterns = RegExp(r'(요|입니다|습니다|세요|겠습|니다|드려|드릴게)');
-    // 반말 패턴
-    final casualPatterns = RegExp(r'(해|야|지|어|아|ㅋ|ㅎ|~|ㅠ|ㅜ)$', multiLine: true);
+    // 반말 패턴 — 줄 끝뿐 아니라 구두점/이모지 앞도 감지
+    final casualPatterns = RegExp(
+      r'(해|야|지|어|아|ㅋ|ㅎ|~|ㅠ|ㅜ)(?:$|[!?\s]|[^\w가-힣])',
+      multiLine: true,
+    );
 
     final frequentPhrases = <String, int>{};
 
@@ -224,17 +227,27 @@ class CreatorPatternService {
     return null;
   }
 
-  /// 텍스트에서 자주 사용하는 구문 추출
+  /// 텍스트에서 자주 사용하는 구문 추출 (단어 + 바이그램)
   void _extractPhrases(String text, Map<String, int> phrases) {
     // 이모지 및 특수문자 제거 후 구문 추출
     final cleaned = text.replaceAll(RegExp(r'[^\w가-힣\s]'), '');
-    final words = cleaned.split(RegExp(r'\s+'));
+    final words = cleaned.split(RegExp(r'\s+'))
+        .where((w) => w.trim().isNotEmpty)
+        .toList();
 
-    // 2-3단어 조합으로 구문 추출
+    // 단어 단위 추출
     for (int i = 0; i < words.length; i++) {
       final word = words[i].trim();
       if (word.length >= 2) {
         phrases[word] = (phrases[word] ?? 0) + 1;
+      }
+    }
+
+    // 바이그램 추출 (2단어 조합 빈도 분석)
+    for (int i = 0; i < words.length - 1; i++) {
+      final bigram = '${words[i]} ${words[i + 1]}';
+      if (bigram.length >= 4) {
+        phrases[bigram] = (phrases[bigram] ?? 0) + 1;
       }
     }
   }

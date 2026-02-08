@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../widgets/auth_form.dart';
 
 /// Registration screen for new users
@@ -28,6 +29,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _agreedToTerms = false;
   bool _agreedToPrivacy = false;
   bool _agreedToMarketing = false;
+  int _currentStep = 0; // 0 = credentials, 1 = DOB + terms
 
   @override
   void dispose() {
@@ -174,13 +176,43 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
+  bool get _step1Valid {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+    final displayName = _displayNameController.text.trim();
+
+    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty || displayName.isEmpty) {
+      return false;
+    }
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) return false;
+    if (password.length < 8) return false;
+    if (password != confirmPassword) return false;
+    if (displayName.length < 2 || displayName.length > 20) return false;
+    return true;
+  }
+
+  void _goToStep2() {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _currentStep = 1;
+      _errorMessage = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('회원가입'),
+        title: Text(_currentStep == 0 ? '회원가입' : '추가 정보'),
+        leading: _currentStep == 1
+            ? IconButton(
+                onPressed: () => setState(() => _currentStep = 0),
+                icon: const Icon(Icons.arrow_back),
+              )
+            : null,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -190,13 +222,48 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Step indicator
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: _currentStep >= 1
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _currentStep == 0 ? '1/2 기본 정보' : '2/2 추가 정보',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 // Error message
                 if (_errorMessage != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.mdBR,
                     ),
                     child: Row(
                       children: [
@@ -220,309 +287,328 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: 24),
                 ],
 
-                // Email
-                AuthTextField(
-                  controller: _emailController,
-                  label: '이메일',
-                  keyboardType: TextInputType.emailAddress,
-                  prefixIcon: Icons.email_outlined,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '이메일을 입력해주세요';
-                    }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
-                      return '올바른 이메일 형식이 아닙니다';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+                // ===== STEP 1: Email, Nickname, Password =====
+                if (_currentStep == 0) ...[
+                  // Email
+                  AuthTextField(
+                    controller: _emailController,
+                    label: '이메일',
+                    keyboardType: TextInputType.emailAddress,
+                    prefixIcon: Icons.email_outlined,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '이메일을 입력해주세요';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(value)) {
+                        return '올바른 이메일 형식이 아닙니다';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                // Display name
-                AuthTextField(
-                  controller: _displayNameController,
-                  label: '닉네임',
-                  prefixIcon: Icons.person_outline,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '닉네임을 입력해주세요';
-                    }
-                    if (value.length < 2) {
-                      return '닉네임은 2자 이상이어야 합니다';
-                    }
-                    if (value.length > 20) {
-                      return '닉네임은 20자 이하여야 합니다';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+                  // Display name
+                  AuthTextField(
+                    controller: _displayNameController,
+                    label: '닉네임',
+                    prefixIcon: Icons.person_outline,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '닉네임을 입력해주세요';
+                      }
+                      if (value.length < 2) {
+                        return '닉네임은 2자 이상이어야 합니다';
+                      }
+                      if (value.length > 20) {
+                        return '닉네임은 20자 이하여야 합니다';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                // Password
-                AuthTextField(
-                  controller: _passwordController,
-                  label: '비밀번호',
-                  obscureText: true,
-                  prefixIcon: Icons.lock_outline,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '비밀번호를 입력해주세요';
-                    }
-                    if (value.length < 8) {
-                      return '비밀번호는 8자 이상이어야 합니다';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+                  // Password
+                  AuthTextField(
+                    controller: _passwordController,
+                    label: '비밀번호',
+                    obscureText: true,
+                    prefixIcon: Icons.lock_outline,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '비밀번호를 입력해주세요';
+                      }
+                      if (value.length < 8) {
+                        return '비밀번호는 8자 이상이어야 합니다';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                // Confirm password
-                AuthTextField(
-                  controller: _confirmPasswordController,
-                  label: '비밀번호 확인',
-                  obscureText: true,
-                  prefixIcon: Icons.lock_outline,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '비밀번호를 다시 입력해주세요';
-                    }
-                    if (value != _passwordController.text) {
-                      return '비밀번호가 일치하지 않습니다';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
+                  // Confirm password
+                  AuthTextField(
+                    controller: _confirmPasswordController,
+                    label: '비밀번호 확인',
+                    obscureText: true,
+                    prefixIcon: Icons.lock_outline,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '비밀번호를 다시 입력해주세요';
+                      }
+                      if (value != _passwordController.text) {
+                        return '비밀번호가 일치하지 않습니다';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
 
-                // Date of birth
-                Text(
-                  '생년월일',
-                  style: theme.textTheme.titleSmall,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        controller: _birthYearController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(4),
-                        ],
-                        decoration: const InputDecoration(
-                          hintText: 'YYYY',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '';
-                          }
-                          final year = int.tryParse(value);
-                          if (year == null || year < 1900 || year > DateTime.now().year) {
-                            return '';
-                          }
-                          return null;
-                        },
-                      ),
+                  // Continue button
+                  FilledButton(
+                    onPressed: _goToStep2,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _birthMonthController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(2),
-                        ],
-                        decoration: const InputDecoration(
-                          hintText: 'MM',
-                          border: OutlineInputBorder(),
+                    child: const Text('계속'),
+                  ),
+                ],
+
+                // ===== STEP 2: DOB + Terms =====
+                if (_currentStep == 1) ...[
+                  // Date of birth
+                  Text(
+                    '생년월일',
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: _birthYearController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(4),
+                          ],
+                          decoration: const InputDecoration(
+                            hintText: 'YYYY',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (_currentStep < 1) return null;
+                            if (value == null || value.isEmpty) {
+                              return '';
+                            }
+                            final year = int.tryParse(value);
+                            if (year == null || year < 1900 || year > DateTime.now().year) {
+                              return '';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '';
-                          }
-                          final month = int.tryParse(value);
-                          if (month == null || month < 1 || month > 12) {
-                            return '';
-                          }
-                          return null;
-                        },
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _birthDayController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(2),
-                        ],
-                        decoration: const InputDecoration(
-                          hintText: 'DD',
-                          border: OutlineInputBorder(),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _birthMonthController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(2),
+                          ],
+                          decoration: const InputDecoration(
+                            hintText: 'MM',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (_currentStep < 1) return null;
+                            if (value == null || value.isEmpty) {
+                              return '';
+                            }
+                            final month = int.tryParse(value);
+                            if (month == null || month < 1 || month > 12) {
+                              return '';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '';
-                          }
-                          final day = int.tryParse(value);
-                          if (day == null || day < 1 || day > 31) {
-                            return '';
-                          }
-                          return null;
-                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _birthDayController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(2),
+                          ],
+                          decoration: const InputDecoration(
+                            hintText: 'DD',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (_currentStep < 1) return null;
+                            if (value == null || value.isEmpty) {
+                              return '';
+                            }
+                            final day = int.tryParse(value);
+                            if (day == null || day < 1 || day > 31) {
+                              return '';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_isMinor && !_isUnder14) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.tertiaryContainer,
+                        borderRadius: AppRadius.mdBR,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: theme.colorScheme.tertiary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '만 19세 미만은 법정대리인 동의가 필요합니다.',
+                              style: TextStyle(
+                                color: theme.colorScheme.onTertiaryContainer,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-                if (_isMinor && !_isUnder14) ...[
+                  const SizedBox(height: 24),
+
+                  // Terms and conditions
+                  Text(
+                    '약관 동의',
+                    style: theme.textTheme.titleSmall,
+                  ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
+
+                  // All agree
+                  CheckboxListTile(
+                    value: _agreedToTerms && _agreedToPrivacy && _agreedToMarketing,
+                    onChanged: (value) {
+                      setState(() {
+                        _agreedToTerms = value ?? false;
+                        _agreedToPrivacy = value ?? false;
+                        _agreedToMarketing = value ?? false;
+                      });
+                    },
+                    title: const Text('전체 동의'),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  const Divider(),
+
+                  // Terms of service (required)
+                  CheckboxListTile(
+                    value: _agreedToTerms,
+                    onChanged: (value) {
+                      setState(() {
+                        _agreedToTerms = value ?? false;
+                      });
+                    },
+                    title: Row(
                       children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: theme.colorScheme.tertiary,
-                          size: 20,
+                        Text(
+                          '[필수]',
+                          style: TextStyle(color: theme.colorScheme.error),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            '만 19세 미만은 법정대리인 동의가 필요합니다.',
-                            style: TextStyle(
-                              color: theme.colorScheme.onTertiaryContainer,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
+                        const SizedBox(width: 4),
+                        const Text('이용약관 동의'),
                       ],
                     ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    secondary: TextButton(
+                      onPressed: () => context.push('/terms'),
+                      child: const Text('보기'),
+                    ),
+                  ),
+
+                  // Privacy policy (required)
+                  CheckboxListTile(
+                    value: _agreedToPrivacy,
+                    onChanged: (value) {
+                      setState(() {
+                        _agreedToPrivacy = value ?? false;
+                      });
+                    },
+                    title: Row(
+                      children: [
+                        Text(
+                          '[필수]',
+                          style: TextStyle(color: theme.colorScheme.error),
+                        ),
+                        const SizedBox(width: 4),
+                        const Text('개인정보처리방침 동의'),
+                      ],
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    secondary: TextButton(
+                      onPressed: () => context.push('/privacy'),
+                      child: const Text('보기'),
+                    ),
+                  ),
+
+                  // Marketing (optional)
+                  CheckboxListTile(
+                    value: _agreedToMarketing,
+                    onChanged: (value) {
+                      setState(() {
+                        _agreedToMarketing = value ?? false;
+                      });
+                    },
+                    title: const Row(
+                      children: [
+                        Text(
+                          '[선택]',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        SizedBox(width: 4),
+                        Text('마케팅 정보 수신 동의'),
+                      ],
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Register button
+                  FilledButton(
+                    onPressed: _isLoading ? null : _handleRegister,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('가입하기'),
                   ),
                 ],
-                const SizedBox(height: 24),
 
-                // Terms and conditions
-                Text(
-                  '약관 동의',
-                  style: theme.textTheme.titleSmall,
-                ),
-                const SizedBox(height: 8),
-
-                // All agree
-                CheckboxListTile(
-                  value: _agreedToTerms && _agreedToPrivacy && _agreedToMarketing,
-                  onChanged: (value) {
-                    setState(() {
-                      _agreedToTerms = value ?? false;
-                      _agreedToPrivacy = value ?? false;
-                      _agreedToMarketing = value ?? false;
-                    });
-                  },
-                  title: const Text('전체 동의'),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                const Divider(),
-
-                // Terms of service (required)
-                CheckboxListTile(
-                  value: _agreedToTerms,
-                  onChanged: (value) {
-                    setState(() {
-                      _agreedToTerms = value ?? false;
-                    });
-                  },
-                  title: Row(
-                    children: [
-                      Text(
-                        '[필수]',
-                        style: TextStyle(color: theme.colorScheme.error),
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('이용약관 동의'),
-                    ],
-                  ),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  secondary: TextButton(
-                    onPressed: () => context.push('/terms'),
-                    child: const Text('보기'),
-                  ),
-                ),
-
-                // Privacy policy (required)
-                CheckboxListTile(
-                  value: _agreedToPrivacy,
-                  onChanged: (value) {
-                    setState(() {
-                      _agreedToPrivacy = value ?? false;
-                    });
-                  },
-                  title: Row(
-                    children: [
-                      Text(
-                        '[필수]',
-                        style: TextStyle(color: theme.colorScheme.error),
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('개인정보처리방침 동의'),
-                    ],
-                  ),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  secondary: TextButton(
-                    onPressed: () => context.push('/privacy'),
-                    child: const Text('보기'),
-                  ),
-                ),
-
-                // Marketing (optional)
-                CheckboxListTile(
-                  value: _agreedToMarketing,
-                  onChanged: (value) {
-                    setState(() {
-                      _agreedToMarketing = value ?? false;
-                    });
-                  },
-                  title: const Row(
-                    children: [
-                      Text(
-                        '[선택]',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      SizedBox(width: 4),
-                      Text('마케팅 정보 수신 동의'),
-                    ],
-                  ),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                const SizedBox(height: 24),
-
-                // Register button
-                FilledButton(
-                  onPressed: _isLoading ? null : _handleRegister,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('가입하기'),
-                ),
                 const SizedBox(height: 16),
 
                 // Login link

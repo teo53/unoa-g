@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../widgets/auth_form.dart';
 import '../widgets/social_login_buttons.dart';
 
@@ -42,7 +43,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _emailController.text.trim(),
             _passwordController.text,
           );
-      // Navigation handled by auth state listener
+      // Navigate to next route after successful login
+      if (mounted) {
+        context.go(_nextRoute);
+      }
     } catch (e) {
       setState(() {
         _errorMessage = _getErrorMessage(e.toString());
@@ -69,14 +73,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return '로그인 중 오류가 발생했습니다.';
   }
 
+  /// Read `?next=` query parameter and navigate there, or fallback to home.
+  String get _nextRoute {
+    try {
+      final next = GoRouterState.of(context).uri.queryParameters['next'];
+      if (next != null && next.isNotEmpty) {
+        return Uri.decodeComponent(next);
+      }
+    } catch (_) {}
+    return '/';
+  }
+
   void _enterDemoAsFan() {
     ref.read(authProvider.notifier).enterDemoModeAsFan();
-    context.go('/');
+    context.go(_nextRoute);
   }
 
   void _enterDemoAsCreator() {
     ref.read(authProvider.notifier).enterDemoModeAsCreator();
-    context.go('/creator/dashboard');
+    final next = _nextRoute;
+    // If no explicit next, creator should go to dashboard
+    context.go(next == '/' ? '/creator/dashboard' : next);
   }
 
   @override
@@ -131,7 +148,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadius.xlBR,
                     border: Border.all(
                       color: AppColors.primary.withValues(alpha: 0.2),
                     ),
@@ -408,12 +425,12 @@ class _DemoAccountButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.lgBR,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           decoration: BoxDecoration(
             color: isDark ? AppColors.surfaceDark : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadius.lgBR,
             border: Border.all(
               color: color.withValues(alpha: 0.3),
             ),
@@ -463,7 +480,7 @@ class _DemoAccountButton extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppRadius.xlBR,
                 ),
                 child: Text(
                   '체험하기',

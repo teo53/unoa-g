@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/auth_provider.dart';
 import '../features/home/home_screen.dart';
 import '../features/chat/chat_list_screen.dart';
 import '../features/chat/chat_thread_screen_v2.dart';
@@ -80,7 +82,34 @@ final GlobalKey<NavigatorState> _creatorShellNavigatorKey = GlobalKey<NavigatorS
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: AppRoutes.login,
+  initialLocation: '/',
+  redirect: (context, state) {
+    try {
+      final container = ProviderScope.containerOf(context);
+      final authState = container.read(authProvider);
+      final isLoggedIn =
+          authState is AuthAuthenticated || authState is AuthDemoMode;
+      final path = state.uri.path;
+      final isAuthRoute = path == '/login' || path == '/register';
+
+      // Creator routes require authentication
+      if (!isLoggedIn && path.startsWith('/creator/')) {
+        return '/login?next=${Uri.encodeComponent(state.uri.toString())}';
+      }
+
+      // Redirect authenticated users away from login/register
+      if (isLoggedIn && isAuthRoute) {
+        final auth = container.read(authProvider);
+        if (auth is AuthDemoMode && auth.demoProfile.role == 'creator') {
+          return '/creator/dashboard';
+        }
+        return '/';
+      }
+    } catch (_) {
+      // ProviderScope not available yet (e.g., during initial build)
+    }
+    return null;
+  },
   routes: [
     // ============================================
     // Fan Shell Route (with fan bottom navigation)

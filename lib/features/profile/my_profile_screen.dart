@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../data/mock/mock_data.dart';
 import '../../providers/auth_provider.dart';
+import '../../shared/widgets/primary_button.dart';
 
 class MyProfileScreen extends ConsumerWidget {
   const MyProfileScreen({super.key});
@@ -12,9 +14,15 @@ class MyProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final user = MockData.currentUser;
     final profile = ref.watch(currentProfileProvider);
-    final isCreator = profile?.isCreator ?? false;
+
+    // Guest: show login/demo CTA instead of fake data
+    if (profile == null) {
+      return _GuestProfileView(isDark: isDark);
+    }
+
+    final isCreator = profile.isCreator;
+    final user = MockData.currentUser;
 
     return Column(
       children: [
@@ -73,9 +81,9 @@ class MyProfileScreen extends ConsumerWidget {
                         ),
                       ),
                       child: ClipOval(
-                        child: user.avatarUrl != null
+                        child: profile.avatarUrl != null
                             ? CachedNetworkImage(
-                                imageUrl: user.avatarUrl!,
+                                imageUrl: profile.avatarUrl!,
                                 fit: BoxFit.cover,
                               )
                             : Container(
@@ -113,7 +121,7 @@ class MyProfileScreen extends ConsumerWidget {
 
                 // Name
                 Text(
-                  user.displayName ?? user.name,
+                  profile.displayName ?? user.name,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -184,7 +192,7 @@ class MyProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                // Creator Section - ONLY for actual creators, not demo mode
+                // Creator Section
                 if (isCreator) ...[
                   _MenuSection(
                     items: [
@@ -250,6 +258,162 @@ class MyProfileScreen extends ConsumerWidget {
   }
 }
 
+/// Guest profile view — login/demo CTA instead of fake user data
+class _GuestProfileView extends StatelessWidget {
+  final bool isDark;
+
+  const _GuestProfileView({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Header (settings/help still accessible)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '내 프로필',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? AppColors.textMainDark
+                      : AppColors.textMainLight,
+                ),
+              ),
+              IconButton(
+                onPressed: () => context.push('/settings'),
+                icon: Icon(
+                  Icons.settings,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // App logo
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.chat_bubble_rounded,
+                      size: 40,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  Text(
+                    'UNO A에 오신 것을 환영합니다',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '로그인하면 좋아하는 아티스트와\n직접 소통할 수 있어요',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Login CTA
+                  SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton(
+                      label: '로그인',
+                      onPressed: () => context.push('/login?next=/profile'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Demo CTA
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () {
+                        try {
+                          final container = ProviderScope.containerOf(context);
+                          container
+                              .read(authProvider.notifier)
+                              .enterDemoModeAsFan();
+                        } catch (_) {}
+                      },
+                      child: Text(
+                        '데모로 체험하기',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Divider
+                  Divider(
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Settings/Help still accessible
+                  _MenuSection(
+                    items: [
+                      _MenuItem(
+                        icon: Icons.headset_mic,
+                        iconColor: Colors.green,
+                        iconBgColor: Colors.green.withOpacity(0.1),
+                        title: '고객센터',
+                        onTap: () => context.push('/help'),
+                      ),
+                      _MenuItem(
+                        icon: Icons.info_outline,
+                        iconColor: Colors.blue,
+                        iconBgColor: Colors.blue.withOpacity(0.1),
+                        title: '앱 정보',
+                        onTap: () => context.push('/settings'),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final String label;
   final String value;
@@ -269,7 +433,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.lgBR,
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
         ),
@@ -318,7 +482,7 @@ class _MenuSection extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.lgBR,
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
         ),
@@ -377,7 +541,7 @@ class _MenuItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.lgBR,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(

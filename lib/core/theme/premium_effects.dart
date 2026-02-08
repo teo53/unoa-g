@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'app_spacing.dart';
 
 /// UNO A Premium Effects
 ///
@@ -96,7 +97,7 @@ class PremiumEffects {
       end: Alignment.bottomRight,
       colors: AppColors.primaryGradient,
     ),
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: AppRadius.baseBR,
     boxShadow: primaryCtaShadows,
   );
 
@@ -107,7 +108,7 @@ class PremiumEffects {
       end: Alignment.bottomRight,
       colors: AppColors.premiumGradient,
     ),
-    borderRadius: BorderRadius.circular(16),
+    borderRadius: AppRadius.lgBR,
     boxShadow: premiumCardShadows,
   );
 
@@ -118,7 +119,7 @@ class PremiumEffects {
       end: Alignment.bottomRight,
       colors: AppColors.subtleGradient,
     ),
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: AppRadius.baseBR,
   );
 
   // ═══════════════════════════════════════════════════════════════

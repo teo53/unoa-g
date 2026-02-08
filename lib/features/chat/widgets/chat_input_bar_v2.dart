@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/auth_gate.dart';
 import '../../../data/models/broadcast_message.dart';
 import '../../../providers/chat_provider.dart';
 import '../../../providers/wallet_provider.dart';
@@ -78,6 +79,14 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     final text = _controller.text.trim();
     if (text.isEmpty || _isSending) return;
 
+    AuthGate.guardAction(
+      context,
+      reason: '메시지를 보내려면 로그인이 필요해요',
+      onAuthenticated: () => _doSendMessage(text),
+    );
+  }
+
+  Future<void> _doSendMessage(String text) async {
     setState(() {
       _isSending = true;
     });

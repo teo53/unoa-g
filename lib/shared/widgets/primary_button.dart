@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../core/theme/premium_effects.dart';
 import 'premium_shimmer.dart';
 
@@ -58,7 +59,7 @@ class PrimaryButton extends StatelessWidget {
     Widget button = Container(
       width: width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.baseBR,
         boxShadow: withGlow ? PremiumEffects.primaryCtaShadows : null,
       ),
       child: ElevatedButton(
@@ -69,7 +70,7 @@ class PrimaryButton extends StatelessWidget {
           disabledBackgroundColor: AppColors.primary600.withOpacity(0.5),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.baseBR,
           ),
           elevation: 0,
         ),
@@ -184,7 +185,7 @@ class SecondaryButton extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.baseBR,
         ),
       ),
       child: Row(
@@ -239,7 +240,7 @@ class DestructiveButton extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.baseBR,
           ),
         ),
         child: _buildChild(),
@@ -254,7 +255,7 @@ class DestructiveButton extends StatelessWidget {
         disabledBackgroundColor: AppColors.danger.withOpacity(0.5),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.baseBR,
         ),
         elevation: 0,
       ),
