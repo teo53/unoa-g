@@ -113,6 +113,11 @@ class BroadcastMessage {
   // 리액션 관련 필드
   final int reactionCount;
   final bool hasReacted;
+  final Map<String, List<String>>? reactions;
+
+  // 고정 메시지
+  final bool isPinned;
+  final DateTime? pinnedAt;
 
   // 전체공개 관련 필드
   final bool isPublicShared;
@@ -150,6 +155,9 @@ class BroadcastMessage {
     this.editHistory,
     this.reactionCount = 0,
     this.hasReacted = false,
+    this.reactions,
+    this.isPinned = false,
+    this.pinnedAt,
     this.isPublicShared = false,
     this.sharedByArtistId,
     this.sharedAt,
@@ -240,6 +248,14 @@ class BroadcastMessage {
           : null,
       reactionCount: json['reaction_count'] as int? ?? 0,
       hasReacted: json['has_reacted'] as bool? ?? false,
+      reactions: json['reactions'] != null
+          ? (json['reactions'] as Map<String, dynamic>).map(
+              (k, v) => MapEntry(k, List<String>.from(v as List)))
+          : null,
+      isPinned: json['is_pinned'] as bool? ?? false,
+      pinnedAt: json['pinned_at'] != null
+          ? DateTime.parse(json['pinned_at'] as String)
+          : null,
       isPublicShared: json['is_public_shared'] as bool? ?? false,
       sharedByArtistId: json['shared_by_artist_id'] as String?,
       sharedAt: json['shared_at'] != null
@@ -274,6 +290,9 @@ class BroadcastMessage {
       'edit_history': editHistory?.map((e) => e.toJson()).toList(),
       'reaction_count': reactionCount,
       'has_reacted': hasReacted,
+      'reactions': reactions,
+      'is_pinned': isPinned,
+      'pinned_at': pinnedAt?.toIso8601String(),
       'is_public_shared': isPublicShared,
       'shared_by_artist_id': sharedByArtistId,
       'shared_at': sharedAt?.toIso8601String(),
@@ -311,6 +330,9 @@ class BroadcastMessage {
     List<MessageEditHistory>? editHistory,
     int? reactionCount,
     bool? hasReacted,
+    Map<String, List<String>>? reactions,
+    bool? isPinned,
+    DateTime? pinnedAt,
     bool? isPublicShared,
     String? sharedByArtistId,
     DateTime? sharedAt,
@@ -346,6 +368,9 @@ class BroadcastMessage {
       editHistory: editHistory ?? this.editHistory,
       reactionCount: reactionCount ?? this.reactionCount,
       hasReacted: hasReacted ?? this.hasReacted,
+      reactions: reactions ?? this.reactions,
+      isPinned: isPinned ?? this.isPinned,
+      pinnedAt: pinnedAt ?? this.pinnedAt,
       isPublicShared: isPublicShared ?? this.isPublicShared,
       sharedByArtistId: sharedByArtistId ?? this.sharedByArtistId,
       sharedAt: sharedAt ?? this.sharedAt,
