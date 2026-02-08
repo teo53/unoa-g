@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_radius.dart';
 import 'app_spacing.dart';
 
+const String _fontFamily = 'Pretendard';
+
 class AppTheme {
   static TextTheme _buildTextTheme(Color color) {
     return TextTheme(
-      displayLarge: GoogleFonts.notoSansKr(fontSize: 32, fontWeight: FontWeight.w900, color: color, height: 1.5),
-      displayMedium: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: color, height: 1.5),
-      displaySmall: GoogleFonts.notoSansKr(fontSize: 24, fontWeight: FontWeight.w700, color: color, height: 1.5),
-      headlineLarge: GoogleFonts.notoSansKr(fontSize: 24, fontWeight: FontWeight.w700, color: color, height: 1.5),
-      headlineMedium: GoogleFonts.notoSansKr(fontSize: 20, fontWeight: FontWeight.w700, color: color, height: 1.5),
-      headlineSmall: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: color, height: 1.5),
-      titleLarge: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w600, color: color, height: 1.5),
-      titleMedium: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w600, color: color, height: 1.5),
-      titleSmall: GoogleFonts.notoSansKr(fontSize: 14, fontWeight: FontWeight.w600, color: color, height: 1.5),
-      bodyLarge: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w400, color: color, height: 1.5),
-      bodyMedium: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w400, color: color, height: 1.5),
-      bodySmall: GoogleFonts.notoSansKr(fontSize: 14, fontWeight: FontWeight.w400, color: color, height: 1.5),
-      labelLarge: GoogleFonts.notoSansKr(fontSize: 14, fontWeight: FontWeight.w500, color: color, height: 1.5),
-      labelMedium: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w500, color: color, height: 1.5),
-      labelSmall: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.w500, color: color, height: 1.5),
+      displayLarge: TextStyle(fontFamily: _fontFamily, fontSize: 32, fontWeight: FontWeight.w900, color: color, height: 1.5),
+      displayMedium: TextStyle(fontFamily: _fontFamily, fontSize: 28, fontWeight: FontWeight.w700, color: color, height: 1.5),
+      displaySmall: TextStyle(fontFamily: _fontFamily, fontSize: 24, fontWeight: FontWeight.w700, color: color, height: 1.5),
+      headlineLarge: TextStyle(fontFamily: _fontFamily, fontSize: 24, fontWeight: FontWeight.w700, color: color, height: 1.5),
+      headlineMedium: TextStyle(fontFamily: _fontFamily, fontSize: 20, fontWeight: FontWeight.w700, color: color, height: 1.5),
+      headlineSmall: TextStyle(fontFamily: _fontFamily, fontSize: 18, fontWeight: FontWeight.w700, color: color, height: 1.5),
+      titleLarge: TextStyle(fontFamily: _fontFamily, fontSize: 18, fontWeight: FontWeight.w600, color: color, height: 1.5),
+      titleMedium: TextStyle(fontFamily: _fontFamily, fontSize: 16, fontWeight: FontWeight.w600, color: color, height: 1.5),
+      titleSmall: TextStyle(fontFamily: _fontFamily, fontSize: 14, fontWeight: FontWeight.w600, color: color, height: 1.5),
+      bodyLarge: TextStyle(fontFamily: _fontFamily, fontSize: 16, fontWeight: FontWeight.w400, color: color, height: 1.5),
+      bodyMedium: TextStyle(fontFamily: _fontFamily, fontSize: 15, fontWeight: FontWeight.w400, color: color, height: 1.5),
+      bodySmall: TextStyle(fontFamily: _fontFamily, fontSize: 14, fontWeight: FontWeight.w400, color: color, height: 1.5),
+      labelLarge: TextStyle(fontFamily: _fontFamily, fontSize: 14, fontWeight: FontWeight.w500, color: color, height: 1.5),
+      labelMedium: TextStyle(fontFamily: _fontFamily, fontSize: 12, fontWeight: FontWeight.w500, color: color, height: 1.5),
+      labelSmall: TextStyle(fontFamily: _fontFamily, fontSize: 11, fontWeight: FontWeight.w500, color: color, height: 1.5),
     );
   }
 
@@ -29,6 +30,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: _fontFamily,
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.backgroundLight,
       colorScheme: const ColorScheme.light(
@@ -38,11 +40,12 @@ class AppTheme {
         error: Colors.red,
       ),
       textTheme: _buildTextTheme(AppColors.textMainLight),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textMainLight),
-        titleTextStyle: GoogleFonts.notoSansKr(
+        iconTheme: IconThemeData(color: AppColors.textMainLight),
+        titleTextStyle: TextStyle(
+          fontFamily: _fontFamily,
           color: AppColors.textMainLight,
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -73,7 +76,8 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-        hintStyle: GoogleFonts.notoSansKr(
+        hintStyle: TextStyle(
+          fontFamily: _fontFamily,
           color: Colors.grey[400],
           fontSize: 14,
         ),
@@ -87,7 +91,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          textStyle: GoogleFonts.notoSansKr(
+          textStyle: const TextStyle(
+            fontFamily: _fontFamily,
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
@@ -101,6 +106,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: _fontFamily,
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.backgroundDark,
       colorScheme: const ColorScheme.dark(
@@ -110,11 +116,12 @@ class AppTheme {
         error: Colors.red,
       ),
       textTheme: _buildTextTheme(AppColors.textMainDark),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textMainDark),
-        titleTextStyle: GoogleFonts.notoSansKr(
+        iconTheme: IconThemeData(color: AppColors.textMainDark),
+        titleTextStyle: TextStyle(
+          fontFamily: _fontFamily,
           color: AppColors.textMainDark,
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -145,7 +152,8 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-        hintStyle: GoogleFonts.notoSansKr(
+        hintStyle: TextStyle(
+          fontFamily: _fontFamily,
           color: Colors.grey[500],
           fontSize: 14,
         ),
@@ -159,7 +167,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          textStyle: GoogleFonts.notoSansKr(
+          textStyle: const TextStyle(
+            fontFamily: _fontFamily,
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),

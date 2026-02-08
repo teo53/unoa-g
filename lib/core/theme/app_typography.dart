@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+const String _fontFamily = 'Pretendard';
 
 class AppTypography {
-  static TextStyle get _baseStyle => GoogleFonts.notoSansKr();
+  static const TextStyle _baseStyle = TextStyle(fontFamily: _fontFamily);
 
   // Display
   static TextStyle displayLarge(Color color) => _baseStyle.copyWith(
