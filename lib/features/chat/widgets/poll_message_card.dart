@@ -200,9 +200,12 @@ class _PollOptionButton extends StatelessWidget {
                       fontWeight: isMyVote ? FontWeight.w600 : FontWeight.w400,
                       color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (showResults)
+                if (showResults) ...[
+                  const SizedBox(width: 8),
                   Text(
                     '${(percentage * 100).round()}%',
                     style: TextStyle(
@@ -211,6 +214,7 @@ class _PollOptionButton extends StatelessWidget {
                       color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
                     ),
                   ),
+                ],
               ],
             ),
           ],

@@ -411,8 +411,8 @@ class _CreatorDashboardScreenState
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
+      mainAxisSpacing: AppSpacing.cardGap,
+      crossAxisSpacing: AppSpacing.cardGap,
       childAspectRatio: 2.2,
       children: [
         _QuickActionCard(
@@ -462,6 +462,13 @@ class _CreatorDashboardScreenState
               },
             );
           },
+        ),
+        _QuickActionCard(
+          icon: Icons.people_outline_rounded,
+          label: '팬 관리',
+          color: Colors.teal,
+          isDark: isDark,
+          onTap: () => context.push('/creator/crm'),
         ),
       ],
     );

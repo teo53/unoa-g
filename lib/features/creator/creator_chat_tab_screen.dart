@@ -122,6 +122,22 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         timestamp: now.subtract(const Duration(hours: 1)),
         donationAmount: 1000,
       ),
+      // 1:1 답장 예시
+      _GroupChatMessage(
+        id: '4b',
+        content: '달빛아 감사해요~ 내일 꼭 와주세요!',
+        fanId: 'creator',
+        fanName: '',
+        fanTier: '',
+        isFromCreator: true,
+        timestamp: now.subtract(const Duration(minutes: 55)),
+        readCount: 1,
+        totalSubscribers: 1,
+        isDirectReplyMessage: true,
+        replyToFanId: 'fan_3',
+        replyToFanName: '달빛소녀',
+        replyToContent: '내일 라이브 기대돼요!',
+      ),
       _GroupChatMessage(
         id: '5',
         content: '저도 기대돼요 ㅎㅎ',
@@ -131,15 +147,16 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         isFromCreator: false,
         timestamp: now.subtract(const Duration(minutes: 45)),
       ),
+      // 전체 답장 예시
       _GroupChatMessage(
         id: '6',
-        content: '선물 감사합니다! 💖',
+        content: '여러분 내일 라이브 7시에 시작해요! 많이 와주세요~',
         fanId: 'creator',
         fanName: '',
         fanTier: '',
         isFromCreator: true,
         timestamp: now.subtract(const Duration(minutes: 30)),
-        readCount: 892,
+        readCount: 750,
         totalSubscribers: DemoConfig.demoSubscriberCount,
       ),
     ]);
@@ -1478,6 +1495,39 @@ class _GroupChatBubble extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // 메시지 타입 배지 (1:1 답장 / 전체)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(10, 6, 10, 0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isDirectReply
+                            ? Icons.person
+                            : Icons.campaign_outlined,
+                        size: 12,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        isDirectReply ? '1:1 답장' : '전체',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 // 1:1 답장인 경우 원본 메시지 인용
                 if (isDirectReply && message.replyToContent != null) ...[
                   Container(

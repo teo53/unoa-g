@@ -97,6 +97,20 @@ final appRouter = GoRouter(
         return '/login?next=${Uri.encodeComponent(state.uri.toString())}';
       }
 
+      // Fan users cannot access creator routes
+      if (isLoggedIn && path.startsWith('/creator/')) {
+        final authState = container.read(authProvider);
+        UserAuthProfile? profile;
+        if (authState is AuthAuthenticated) {
+          profile = authState.profile;
+        } else if (authState is AuthDemoMode) {
+          profile = authState.demoProfile;
+        }
+        if (profile != null && !profile.isCreator) {
+          return '/'; // 팬은 홈으로 리다이렉트
+        }
+      }
+
       // Redirect authenticated users away from login/register
       if (isLoggedIn && isAuthRoute) {
         final auth = container.read(authProvider);

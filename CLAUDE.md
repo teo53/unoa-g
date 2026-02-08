@@ -739,6 +739,31 @@ firebase deploy --only hosting
 11. **Responsive**: Use ResponsiveLayout for screens that need tablet/desktop support.
 12. **Config 사용 필수**: 하드코딩 대신 반드시 `DemoConfig`, `BusinessConfig`, `AppConfig` 사용.
 13. **데모 모드 지원**: 새 Provider 작성 시 `AuthDemoMode` 상태 처리 필수.
+14. **팬/크리에이터 UI 완전 분리**: 팬 화면과 크리에이터 화면은 별도 ShellRoute로 분리. 상세 규칙은 아래 참조.
+
+---
+
+## ⚠️ 팬/크리에이터 라우트 분리 (CRITICAL - 반드시 숙지)
+
+### 원칙: 팬과 크리에이터 UI는 완전히 독립적으로 구성
+
+- `/creator/*` 라우트는 **인증 + 역할** 이중 가드 적용 (`app_router.dart`의 `redirect` 함수)
+- 팬(`role == 'fan'`)은 크리에이터 라우트 접근 시 자동으로 `/`로 리다이렉트
+- 새로운 크리에이터 전용 화면 추가 시 반드시 `/creator/` 프리픽스 사용
+- UI 레벨에서도 `isCreatorProvider`로 역할 확인 가능
+- 팬 화면과 크리에이터 화면은 별도의 `ShellRoute`로 완전 분리
+- 팬 네비게이션: `BottomNavBar` (홈, 메시지, 펀딩, 탐색, 프로필)
+- 크리에이터 네비게이션: `CreatorBottomNavBar` (대시보드, 채팅, 펀딩, 탐색, 프로필)
+
+### ❌ 잘못된 구현 (하지 말 것)
+- 팬 계정에서 크리에이터 대시보드/CRM/출금 등의 UI가 보이게 하기
+- 역할 확인 없이 `/creator/*` 라우트 접근 허용
+- 팬과 크리에이터 공용 화면에서 역할별 분기 없이 크리에이터 기능 노출
+
+### ✅ 올바른 구현
+- `app_router.dart`의 `redirect`에서 역할 기반 가드 적용
+- 크리에이터 전용 기능은 반드시 `/creator/` 하위 라우트로 구성
+- 공용 화면(탐색, 프로필 등)에서 역할별 UI 분기 시 `isCreatorProvider` 사용
 
 ---
 

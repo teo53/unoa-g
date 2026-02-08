@@ -51,7 +51,24 @@ class AiDraftService {
       );
     }
 
-    // 2. Try API call
+    // 2. Demo mode: return local suggestions without API call
+    if (AppConfig.enableDemoMode && AppConfig.anthropicApiKey.isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      final demoSuggestions = ReplyTemplates.getRandomSuggestions();
+
+      _cache[idempotencyKey] = _CachedResult(
+        suggestions: demoSuggestions,
+        expiresAt: DateTime.now().add(_cacheTtl),
+      );
+
+      return AiDraftSuccess(
+        suggestions: demoSuggestions,
+        correlationId: correlationId,
+      );
+    }
+
+    // 3. Try API call
     try {
       final suggestions = await _callApi(
         channelId: channelId,

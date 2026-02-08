@@ -390,7 +390,7 @@ class _QuestionCardTile extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 // Question text
-                Expanded(
+                Flexible(
                   child: Text(
                     card.cardText,
                     style: TextStyle(
@@ -408,7 +408,7 @@ class _QuestionCardTile extends StatelessWidget {
 
                 // Result bar (if showing results)
                 if (showResult && votePercentage != null) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   _VoteProgressBar(
                     percentage: votePercentage!,
                     isWinner: isWinner,
@@ -429,6 +429,8 @@ class _QuestionCardTile extends StatelessWidget {
                                   ? AppColors.textSubDark
                                   : AppColors.textSubLight),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ],
