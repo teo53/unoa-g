@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import 'my_pledges_screen.dart';
 
 /// Result screen after funding pledge
 class FundingResultScreen extends StatelessWidget {
@@ -42,8 +43,8 @@ class FundingResultScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: success
-                      ? AppColors.success.withOpacity(0.1)
-                      : AppColors.danger.withOpacity(0.1),
+                      ? AppColors.success.withValues(alpha: 0.1)
+                      : AppColors.danger.withValues(alpha: 0.1),
                 ),
                 child: Icon(
                   success
@@ -71,7 +72,7 @@ class FundingResultScreen extends StatelessWidget {
               // Subtitle
               Text(
                 success
-                    ? '${campaign['title']}에\n${_formatNumber(totalAmount)} DT를 후원했습니다'
+                    ? '${campaign['title']}에\n${_formatNumber(totalAmount)}원을 후원했습니다'
                     : errorMessage ?? '후원 처리 중 오류가 발생했습니다',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -105,14 +106,14 @@ class FundingResultScreen extends StatelessWidget {
                       _buildDetailRow(
                         isDark,
                         '후원 금액',
-                        '${_formatNumber(totalAmount)} DT',
+                        '${_formatNumber(totalAmount)}원',
                       ),
                       if (newBalance != null) ...[
                         const Divider(height: 24),
                         _buildDetailRow(
                           isDark,
-                          'DT 잔액',
-                          '${_formatNumber(newBalance!)} DT',
+                          '잔액',
+                          '${_formatNumber(newBalance!)}원',
                         ),
                       ],
                     ],
@@ -185,7 +186,13 @@ class FundingResultScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navigate to my pledges
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MyPledgesScreen(),
+                      ),
+                    );
                   },
                   child: Text(
                     '내 후원 내역 보기',

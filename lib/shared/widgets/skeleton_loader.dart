@@ -173,7 +173,7 @@ class SkeletonCard extends StatelessWidget {
         SkeletonLoader.card(
           width: width,
           height: height,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
         ),
         if (showTitle) ...[
           const SizedBox(height: 8),
@@ -215,7 +215,7 @@ class SkeletonMessageBubble extends StatelessWidget {
               SkeletonLoader.card(
                 width: width,
                 height: 60,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
               ),
             ],
           ),
@@ -229,7 +229,7 @@ class SkeletonMessageBubble extends StatelessWidget {
         SkeletonLoader.card(
           width: width,
           height: 40,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
         ),
       ],
     );

@@ -39,12 +39,30 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  List<Map<String, dynamic>> get _currentTabFeeds {
+    switch (_tabController.index) {
+      case 0:
+        return MockData.highlightFeeds;
+      case 1:
+        return MockData.announcementFeeds;
+      case 2:
+        return MockData.otaLetterFeeds;
+      default:
+        return MockData.highlightFeeds;
+    }
   }
 
   Future<void> _openYouTubeVideo(String url) async {
@@ -682,8 +700,31 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                         ),
                       ),
 
-                      // Feed List
-                      ...MockData.feeds.map((feed) => _FeedPost(
+                      // Tab Content - different for each tab
+                      ..._currentTabFeeds.map((feed) {
+                        if (_tabController.index == 1) {
+                          // 공지사항 탭 - 공식 공지 스타일
+                          return _AnnouncementPost(
+                            artistName: artist.name,
+                            artistAvatarUrl: artist.avatarUrl,
+                            content: feed['content'] as String,
+                            time: feed['time'] as String,
+                            likes: feed['likes'] as int,
+                            comments: feed['comments'] as int,
+                          );
+                        } else if (_tabController.index == 2) {
+                          // 오타 레터 탭 - 편지 스타일
+                          return _OtaLetterPost(
+                            artistName: artist.name,
+                            artistAvatarUrl: artist.avatarUrl,
+                            content: feed['content'] as String,
+                            time: feed['time'] as String,
+                            likes: feed['likes'] as int,
+                            comments: feed['comments'] as int,
+                          );
+                        } else {
+                          // 하이라이트 탭 - 기존 피드 스타일
+                          return _FeedPost(
                             artistName: artist.name,
                             artistAvatarUrl: artist.avatarUrl,
                             content: feed['content'] as String,
@@ -691,7 +732,10 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                             time: feed['time'] as String,
                             likes: feed['likes'] as int,
                             comments: feed['comments'] as int,
-                          )),
+                            isPinned: feed['isPinned'] as bool? ?? false,
+                          );
+                        }
+                      }),
 
                       const SizedBox(height: 100),
                     ],
@@ -1187,6 +1231,7 @@ class _FeedPost extends StatelessWidget {
   final String time;
   final int likes;
   final int comments;
+  final bool isPinned;
 
   const _FeedPost({
     required this.artistName,
@@ -1196,6 +1241,7 @@ class _FeedPost extends StatelessWidget {
     required this.time,
     required this.likes,
     required this.comments,
+    this.isPinned = false,
   });
 
   String _formatCount(int count) {
@@ -1221,6 +1267,28 @@ class _FeedPost extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Pinned indicator
+          if (isPinned) ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.push_pin,
+                  size: 14,
+                  color: AppColors.primary500,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '고정된 게시물',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primary500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
           // Header
           Row(
             children: [
@@ -1552,6 +1620,354 @@ class _FeedComposeSheetState extends State<_FeedComposeSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Announcement Post Widget - 공지사항 스타일
+class _AnnouncementPost extends StatelessWidget {
+  final String artistName;
+  final String artistAvatarUrl;
+  final String content;
+  final String time;
+  final int likes;
+  final int comments;
+
+  const _AnnouncementPost({
+    required this.artistName,
+    required this.artistAvatarUrl,
+    required this.content,
+    required this.time,
+    required this.likes,
+    required this.comments,
+  });
+
+  String _formatCount(int count) {
+    if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}k';
+    }
+    return count.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? AppColors.primary500.withValues(alpha: 0.3)
+              : AppColors.primary100,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary500.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Official badge header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary600,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.campaign_rounded, size: 14, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text(
+                      '공식 공지',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                time,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+              const Spacer(),
+              Icon(
+                Icons.push_pin,
+                size: 16,
+                color: AppColors.primary500,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // Content
+          Text(
+            content,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.6,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Actions
+          Row(
+            children: [
+              Icon(
+                Icons.favorite,
+                size: 18,
+                color: AppColors.primary500,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _formatCount(likes),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 18,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _formatCount(comments),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+              const Spacer(),
+              Icon(
+                Icons.bookmark_border,
+                size: 20,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Ota Letter Post Widget - 편지/일기 스타일
+class _OtaLetterPost extends StatelessWidget {
+  final String artistName;
+  final String artistAvatarUrl;
+  final String content;
+  final String time;
+  final int likes;
+  final int comments;
+
+  const _OtaLetterPost({
+    required this.artistName,
+    required this.artistAvatarUrl,
+    required this.content,
+    required this.time,
+    required this.likes,
+    required this.comments,
+  });
+
+  String _formatCount(int count) {
+    if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}k';
+    }
+    return count.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.surfaceDark
+            : const Color(0xFFFFFDF5), // 따뜻한 편지 톤
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? Colors.amber.withValues(alpha: 0.2)
+              : const Color(0xFFE8DCC8),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Letter header - 편지 스타일 아이콘
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                  border: Border.all(
+                    color: Colors.amber.withValues(alpha: 0.5),
+                    width: 2,
+                  ),
+                ),
+                child: artistAvatarUrl.isEmpty
+                    ? Icon(
+                        Icons.person_rounded,
+                        size: 18,
+                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      )
+                    : ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: artistAvatarUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Icon(
+                            Icons.person_rounded,
+                            size: 18,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
+                          errorWidget: (context, url, error) => Icon(
+                            Icons.person_rounded,
+                            size: 18,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '$artistName의 편지',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? AppColors.textMainDark
+                                : AppColors.textMainLight,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.mail_outline_rounded,
+                          size: 16,
+                          color: Colors.amber[700],
+                        ),
+                      ],
+                    ),
+                    Text(
+                      time,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Decorative line
+          Container(
+            width: 40,
+            height: 2,
+            decoration: BoxDecoration(
+              color: Colors.amber.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(1),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Letter content
+          Text(
+            content,
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.8,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Actions
+          Row(
+            children: [
+              Icon(
+                Icons.favorite,
+                size: 18,
+                color: AppColors.primary500,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _formatCount(likes),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 18,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _formatCount(comments),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+              ),
+              const Spacer(),
+              Icon(
+                Icons.bookmark_border,
+                size: 20,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/funding_provider.dart';
 import 'funding_detail_screen.dart';
 
-/// Main funding screen showing active campaigns
+/// Main funding screen showing active campaigns (fan view)
 class FundingScreen extends ConsumerStatefulWidget {
   const FundingScreen({super.key});
 
@@ -16,7 +15,8 @@ class FundingScreen extends ConsumerStatefulWidget {
 class _FundingScreenState extends ConsumerState<FundingScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final _supabase = Supabase.instance.client;
+  bool _isSearching = false;
+  final _searchController = TextEditingController();
 
   final List<String> _tabs = ['진행중', '마감임박', '인기', '신규'];
 
@@ -29,13 +29,13 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isDemoMode = ref.watch(isDemoModeProvider);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
@@ -47,11 +47,11 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  _CampaignList(filter: 'active', isDemoMode: isDemoMode),
-                  _CampaignList(filter: 'ending_soon', isDemoMode: isDemoMode),
-                  _CampaignList(filter: 'popular', isDemoMode: isDemoMode),
-                  _CampaignList(filter: 'new', isDemoMode: isDemoMode),
+                children: const [
+                  _CampaignList(filter: 'active'),
+                  _CampaignList(filter: 'ending_soon'),
+                  _CampaignList(filter: 'popular'),
+                  _CampaignList(filter: 'new'),
                 ],
               ),
             ),
@@ -64,28 +64,102 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
   Widget _buildHeader(bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        children: [
-          Text(
-            '펀딩',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textDark : AppColors.text,
+      child: _isSearching
+          ? Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search_rounded,
+                          size: 20,
+                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            autofocus: true,
+                            decoration: InputDecoration(
+                              hintText: '펀딩 검색...',
+                              hintStyle: TextStyle(
+                                fontSize: 15,
+                                color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isDark ? AppColors.textDark : AppColors.text,
+                            ),
+                            onChanged: (value) {
+                              ref.read(fundingProvider.notifier).setSearchQuery(value);
+                            },
+                          ),
+                        ),
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              ref.read(fundingProvider.notifier).setSearchQuery('');
+                            },
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _isSearching = false);
+                    _searchController.clear();
+                    ref.read(fundingProvider.notifier).setSearchQuery('');
+                  },
+                  child: Text(
+                    '취소',
+                    style: TextStyle(
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Text(
+                  '펀딩',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.textDark : AppColors.text,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    Icons.search_rounded,
+                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                  ),
+                  onPressed: () {
+                    setState(() => _isSearching = true);
+                  },
+                ),
+              ],
             ),
-          ),
-          const Spacer(),
-          IconButton(
-            icon: Icon(
-              Icons.search_rounded,
-              color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-            ),
-            onPressed: () {
-              // TODO: Implement search
-            },
-          ),
-        ],
-      ),
     );
   }
 
@@ -121,238 +195,36 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
   }
 }
 
-class _CampaignList extends StatefulWidget {
+class _CampaignList extends ConsumerWidget {
   final String filter;
-  final bool isDemoMode;
 
-  const _CampaignList({required this.filter, this.isDemoMode = false});
-
-  @override
-  State<_CampaignList> createState() => _CampaignListState();
-}
-
-class _CampaignListState extends State<_CampaignList>
-    with AutomaticKeepAliveClientMixin {
-  final _supabase = Supabase.instance.client;
-  List<Map<String, dynamic>> _campaigns = [];
-  bool _isLoading = true;
-  String? _error;
+  const _CampaignList({required this.filter});
 
   @override
-  bool get wantKeepAlive => true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCampaigns();
-  }
-
-  @override
-  void didUpdateWidget(_CampaignList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isDemoMode != widget.isDemoMode) {
-      _loadCampaigns();
-    }
-  }
-
-  Future<void> _loadCampaigns() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    // Demo mode: show demo campaigns
-    if (widget.isDemoMode) {
-      setState(() {
-        _campaigns = _getDemoCampaigns();
-        _isLoading = false;
-      });
-      return;
-    }
-
-    try {
-      List<Map<String, dynamic>> response;
-
-      switch (widget.filter) {
-        case 'ending_soon':
-          response = await _supabase
-              .from('funding_campaigns')
-              .select('*')
-              .eq('status', 'active')
-              .lte('end_at', DateTime.now().add(const Duration(days: 3)).toIso8601String())
-              .order('end_at', ascending: true)
-              .limit(20);
-          break;
-        case 'popular':
-          response = await _supabase
-              .from('funding_campaigns')
-              .select('*')
-              .eq('status', 'active')
-              .order('backer_count', ascending: false)
-              .limit(20);
-          break;
-        case 'new':
-          response = await _supabase
-              .from('funding_campaigns')
-              .select('*')
-              .eq('status', 'active')
-              .order('created_at', ascending: false)
-              .limit(20);
-          break;
-        default:
-          response = await _supabase
-              .from('funding_campaigns')
-              .select('*')
-              .eq('status', 'active')
-              .order('end_at', ascending: true)
-              .limit(20);
-      }
-
-      setState(() {
-        _campaigns = response;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
-  /// Generate demo campaigns for demo mode
-  List<Map<String, dynamic>> _getDemoCampaigns() {
-    final now = DateTime.now();
-
-    final demoCampaigns = [
-      {
-        'id': 'demo_campaign_1',
-        'title': '김민지 1st 미니앨범 "Butterfly" 펀딩',
-        'subtitle': '데뷔 1주년 기념 스페셜 앨범',
-        'cover_image_url': 'https://picsum.photos/seed/funding1/800/450',
-        'status': 'active',
-        'goal_amount_dt': 50000000,
-        'current_amount_dt': 42350000,
-        'funding_percent': 84.7,
-        'backer_count': 1523,
-        'end_at': now.add(const Duration(days: 12)).toIso8601String(),
-        'created_at': now.subtract(const Duration(days: 18)).toIso8601String(),
-      },
-      {
-        'id': 'demo_campaign_2',
-        'title': '이준호 팬미팅 "With You" 개최 프로젝트',
-        'subtitle': '팬들과 함께하는 특별한 시간',
-        'cover_image_url': 'https://picsum.photos/seed/funding2/800/450',
-        'status': 'active',
-        'goal_amount_dt': 30000000,
-        'current_amount_dt': 38500000,
-        'funding_percent': 128.3,
-        'backer_count': 2891,
-        'end_at': now.add(const Duration(days: 2)).toIso8601String(),
-        'created_at': now.subtract(const Duration(days: 28)).toIso8601String(),
-      },
-      {
-        'id': 'demo_campaign_3',
-        'title': '박서연 화보집 "BLOOM" 제작',
-        'subtitle': '봄을 닮은 청순 콘셉트',
-        'cover_image_url': 'https://picsum.photos/seed/funding3/800/450',
-        'status': 'active',
-        'goal_amount_dt': 20000000,
-        'current_amount_dt': 15200000,
-        'funding_percent': 76.0,
-        'backer_count': 847,
-        'end_at': now.add(const Duration(days: 25)).toIso8601String(),
-        'created_at': now.subtract(const Duration(days: 5)).toIso8601String(),
-      },
-      {
-        'id': 'demo_campaign_4',
-        'title': 'NOVA 그룹 콘서트 굿즈 제작',
-        'subtitle': '월드투어 기념 한정판',
-        'cover_image_url': 'https://picsum.photos/seed/funding4/800/450',
-        'status': 'active',
-        'goal_amount_dt': 100000000,
-        'current_amount_dt': 89000000,
-        'funding_percent': 89.0,
-        'backer_count': 4521,
-        'end_at': now.add(const Duration(days: 7)).toIso8601String(),
-        'created_at': now.subtract(const Duration(days: 23)).toIso8601String(),
-      },
-      {
-        'id': 'demo_campaign_5',
-        'title': '최유나 생일 서포트 펀딩',
-        'subtitle': '팬들의 마음을 담은 생일 선물',
-        'cover_image_url': 'https://picsum.photos/seed/funding5/800/450',
-        'status': 'active',
-        'goal_amount_dt': 10000000,
-        'current_amount_dt': 12500000,
-        'funding_percent': 125.0,
-        'backer_count': 632,
-        'end_at': now.add(const Duration(days: 1)).toIso8601String(),
-        'created_at': now.subtract(const Duration(days: 14)).toIso8601String(),
-      },
-    ];
-
-    // Filter based on tab
-    switch (widget.filter) {
-      case 'ending_soon':
-        return demoCampaigns.where((c) {
-          final endAt = DateTime.parse(c['end_at'] as String);
-          return endAt.difference(now).inDays <= 3;
-        }).toList();
-      case 'popular':
-        final sorted = List<Map<String, dynamic>>.from(demoCampaigns);
-        sorted.sort((a, b) => (b['backer_count'] as int).compareTo(a['backer_count'] as int));
-        return sorted;
-      case 'new':
-        final sorted = List<Map<String, dynamic>>.from(demoCampaigns);
-        sorted.sort((a, b) {
-          final aDate = DateTime.parse(a['created_at'] as String);
-          final bDate = DateTime.parse(b['created_at'] as String);
-          return bDate.compareTo(aDate);
-        });
-        return sorted;
-      default:
-        return demoCampaigns;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isLoading = ref.watch(fundingLoadingProvider);
 
-    if (_isLoading) {
+    List<Campaign> campaigns;
+    switch (filter) {
+      case 'ending_soon':
+        campaigns = ref.watch(endingSoonCampaignsProvider);
+        break;
+      case 'popular':
+        campaigns = ref.watch(popularCampaignsProvider);
+        break;
+      case 'new':
+        campaigns = ref.watch(newCampaignsProvider);
+        break;
+      default:
+        campaigns = ref.watch(exploreCampaignsProvider);
+    }
+
+    if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 48,
-              color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '데이터를 불러오지 못했습니다',
-              style: TextStyle(
-                color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: _loadCampaigns,
-              child: const Text('다시 시도'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_campaigns.isEmpty) {
+    if (campaigns.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -376,20 +248,21 @@ class _CampaignListState extends State<_CampaignList>
     }
 
     return RefreshIndicator(
-      onRefresh: _loadCampaigns,
+      onRefresh: () => ref.read(fundingProvider.notifier).refresh(),
       color: AppColors.primary,
       child: ListView.builder(
         padding: const EdgeInsets.all(20),
-        itemCount: _campaigns.length,
+        itemCount: campaigns.length,
         itemBuilder: (context, index) {
+          final campaign = campaigns[index];
           return _CampaignCard(
-            campaign: _campaigns[index],
+            campaign: campaign,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => FundingDetailScreen(
-                    campaignId: _campaigns[index]['id'],
+                    campaignId: campaign.id,
                   ),
                 ),
               );
@@ -402,7 +275,7 @@ class _CampaignListState extends State<_CampaignList>
 }
 
 class _CampaignCard extends StatelessWidget {
-  final Map<String, dynamic> campaign;
+  final Campaign campaign;
   final VoidCallback onTap;
 
   const _CampaignCard({
@@ -413,9 +286,7 @@ class _CampaignCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final fundingPercent = (campaign['funding_percent'] as num?)?.toDouble() ?? 0;
-    final endAt = DateTime.tryParse(campaign['end_at'] ?? '');
-    final daysLeft = endAt != null ? endAt.difference(DateTime.now()).inDays : 0;
+    final daysLeft = campaign.daysLeft;
 
     return GestureDetector(
       onTap: onTap,
@@ -426,7 +297,7 @@ class _CampaignCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -440,9 +311,9 @@ class _CampaignCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
-                child: campaign['cover_image_url'] != null
+                child: campaign.coverImageUrl != null
                     ? Image.network(
-                        campaign['cover_image_url'],
+                        campaign.coverImageUrl!,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => _buildPlaceholder(isDark),
                       )
@@ -457,7 +328,7 @@ class _CampaignCard extends StatelessWidget {
                 children: [
                   // Title
                   Text(
-                    campaign['title'] ?? '제목 없음',
+                    campaign.title,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -467,10 +338,11 @@ class _CampaignCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  if (campaign['subtitle'] != null) ...[
+                  if (campaign.subtitle != null &&
+                      campaign.subtitle!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      campaign['subtitle'],
+                      campaign.subtitle!,
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
@@ -486,10 +358,10 @@ class _CampaignCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: (fundingPercent / 100).clamp(0, 1),
+                      value: (campaign.fundingPercent / 100).clamp(0.0, 1.0),
                       backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        fundingPercent >= 100 ? AppColors.success : AppColors.primary,
+                        campaign.fundingPercent >= 100 ? AppColors.success : AppColors.primary,
                       ),
                       minHeight: 6,
                     ),
@@ -502,11 +374,11 @@ class _CampaignCard extends StatelessWidget {
                     children: [
                       // Funding percent
                       Text(
-                        '${fundingPercent.toStringAsFixed(0)}%',
+                        '${campaign.fundingPercent.toStringAsFixed(0)}%',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: fundingPercent >= 100
+                          color: campaign.fundingPercent >= 100
                               ? AppColors.success
                               : AppColors.primary,
                         ),
@@ -516,7 +388,7 @@ class _CampaignCard extends StatelessWidget {
 
                       // Amount
                       Text(
-                        '${_formatNumber(campaign['current_amount_dt'] ?? 0)} DT',
+                        '${_formatNumber(campaign.currentAmountKrw)}원',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

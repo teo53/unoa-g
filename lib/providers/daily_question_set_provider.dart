@@ -1,16 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../core/config/app_config.dart';
 import '../data/models/daily_question_set.dart';
 import '../data/repositories/question_cards_repository.dart';
+import 'auth_provider.dart';
 
 /// Provider for question cards repository
+/// Uses isDemoModeProvider to determine mock vs real implementation
 final questionCardsRepositoryProvider = Provider<IQuestionCardsRepository>((ref) {
-  if (AppConfig.enableDemoMode) {
+  final isDemoMode = ref.watch(isDemoModeProvider);
+  if (isDemoMode) {
     return MockQuestionCardsRepository();
   }
-  return SupabaseQuestionCardsRepository(Supabase.instance.client);
+  try {
+    return SupabaseQuestionCardsRepository(Supabase.instance.client);
+  } catch (_) {
+    // Fallback to mock if Supabase is not initialized
+    return MockQuestionCardsRepository();
+  }
 });
 
 /// State for daily question set
@@ -46,12 +54,14 @@ class DailyQuestionSetNotifier extends StateNotifier<DailyQuestionSetState> {
 
   /// Load or create today's question set
   Future<void> load() async {
+    if (state is DailyQuestionSetLoading) return; // Prevent double loading
     state = DailyQuestionSetLoading();
 
     try {
       final set = await _repository.getOrCreateDailySet(channelId);
       state = DailyQuestionSetLoaded(set);
     } catch (e) {
+      debugPrint('[QuestionSet] Error loading for $channelId: $e');
       state = DailyQuestionSetError(e.toString());
     }
   }
