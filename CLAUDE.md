@@ -462,9 +462,9 @@ AppRadius.full  // 999px (pill shape)
 ```
 
 ### Typography
-- Font: **Pretendard** (Korean-optimized) - 기본 폰트로 사용 예정
-- ⚠️ **현재 상태**: Flutter 앱은 `GoogleFonts.notoSansKr()`을 사용 중. Pretendard 로컬 폰트 파일 추가 및 `pubspec.yaml` fonts 섹션 선언 필요 (Pretendard는 Google Fonts에 없음)
-- `apps/web/` (Next.js)에서는 이미 Pretendard CDN 적용 완료
+- Font: **Pretendard** (Korean-optimized) - 로컬 OTF 파일로 번들 (`assets/fonts/`)
+- 9개 웨이트 지원: Thin(100) ~ Black(900), `pubspec.yaml` fonts 섹션에 선언
+- `apps/web/` (Next.js)에서는 Pretendard CDN 적용
 - Line height: 1.5 for readability
 - Use `Theme.of(context).textTheme` for consistent typography
 - Categories: display, heading, body, label, caption, button
@@ -912,7 +912,6 @@ decorativeWidget.excludeSemantics()
 - `provider: ^6.1.2` - Legacy state management (being migrated)
 
 ### UI
-- `google_fonts: ^6.1.0` - 현재 Noto Sans KR 사용 중 (Pretendard 전환 예정)
 - `cached_network_image: ^3.3.1` - Image caching
 - `shimmer: ^3.0.0` - Shimmer effects
 
