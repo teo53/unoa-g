@@ -35,6 +35,9 @@ import '../data/models/poll_draft.dart';
 import '../features/creator/creator_content_screen.dart';
 import '../features/private_card/private_card_compose_screen.dart';
 import '../features/settings/birthday_settings_screen.dart';
+import '../features/settings/terms_screen.dart';
+import '../features/settings/privacy_screen.dart';
+import '../features/settings/company_info_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/widgets/creator_bottom_nav_bar.dart';
@@ -75,6 +78,9 @@ class AppRoutes {
   static const String creatorPrivateCard = '/creator/private-card';
   static const String creatorPrivateCardCompose = '/creator/private-card/compose';
   static const String birthdaySettings = '/settings/birthday';
+  static const String settingsTerms = '/settings/terms';
+  static const String settingsPrivacy = '/settings/privacy';
+  static const String settingsCompanyInfo = '/settings/company-info';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -291,6 +297,21 @@ final appRouter = GoRouter(
           initialVisible: extra?['initialVisible'] as bool? ?? false,
         );
       },
+    ),
+    GoRoute(
+      path: '/settings/terms',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const TermsScreen(),
+    ),
+    GoRoute(
+      path: '/settings/privacy',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PrivacyScreen(),
+    ),
+    GoRoute(
+      path: '/settings/company-info',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CompanyInfoScreen(),
     ),
     GoRoute(
       path: '/notifications',

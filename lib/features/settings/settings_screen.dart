@@ -1,44 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
-// 웹 링크 URL 상수 (실제 운영 시 변경 필요)
-const String _termsOfServiceUrl = 'https://unoa.app/terms';
-const String _privacyPolicyUrl = 'https://unoa.app/privacy';
-
 /// 설정 화면
 ///
 /// 계정, 알림, 구독, 앱 설정을 관리하는 화면
 /// 다크 모드 토글이 여기서 동작함
+
+/// Marketing consent change confirmation dialog
+void _showConsentChangeDialog(
+  BuildContext context,
+  String consentType,
+  bool newValue,
+) {
+  final action = newValue ? '수신 동의' : '수신 거부';
+  
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text('$consentType $action'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            newValue 
+                ? '$consentType 수신에 동의하시겠습니까?'
+                : '$consentType 수신을 거부하시겠습니까?',
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              newValue
+                  ? '동의 시 프로모션, 이벤트 등의 정보를 받을 수 있습니다.'
+                  : '거부 시에도 서비스 이용에 필요한 필수 안내는 수신됩니다.\n\n정보통신망법에 따라 마케팅 수신 동의는 언제든지 철회할 수 있습니다.',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(dialogContext);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$consentType $action가 처리되었습니다'),
+              ),
+            );
+            // TODO: Call API to update consent preference
+          },
+          child: Text(action),
+        ),
+      ],
+    ),
+  );
+}
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
-
-  /// 외부 URL을 브라우저에서 열기
-  static Future<void> _launchUrl(String url, BuildContext context) async {
-    final uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('링크를 열 수 없습니다: $url')),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('링크를 열 수 없습니다: $url')),
-        );
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -217,6 +253,77 @@ class SettingsScreen extends ConsumerWidget {
 
                   const SizedBox(height: 32),
 
+                  // Privacy & Marketing Section
+                  _SectionTitle(title: '개인정보 및 마케팅'),
+                  const SizedBox(height: 12),
+                  _SettingsGroup(
+                    items: [
+                      _SettingsItem(
+                        icon: Icons.email_outlined,
+                        title: '이메일 마케팅 수신',
+                        subtitle: '프로모션, 이벤트 안내',
+                        trailing: Switch(
+                          value: true,
+                          onChanged: (value) {
+                            _showConsentChangeDialog(
+                              context,
+                              '이메일 마케팅',
+                              value,
+                            );
+                          },
+                          activeColor: AppColors.primary600,
+                        ),
+                        onTap: () {},
+                      ),
+                      _SettingsItem(
+                        icon: Icons.sms_outlined,
+                        title: 'SMS 마케팅 수신',
+                        subtitle: '문자 알림, 할인 정보',
+                        trailing: Switch(
+                          value: false,
+                          onChanged: (value) {
+                            _showConsentChangeDialog(
+                              context,
+                              'SMS 마케팅',
+                              value,
+                            );
+                          },
+                          activeColor: AppColors.primary600,
+                        ),
+                        onTap: () {},
+                      ),
+                      _SettingsItem(
+                        icon: Icons.campaign_outlined,
+                        title: '푸시 마케팅 수신',
+                        subtitle: '앱 푸시 광고 알림',
+                        trailing: Switch(
+                          value: true,
+                          onChanged: (value) {
+                            _showConsentChangeDialog(
+                              context,
+                              '푸시 마케팅',
+                              value,
+                            );
+                          },
+                          activeColor: AppColors.primary600,
+                        ),
+                        onTap: () {},
+                      ),
+                      _SettingsItem(
+                        icon: Icons.history,
+                        title: '동의 내역 확인',
+                        subtitle: '마케팅 수신 동의 변경 기록',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('동의 내역 확인 기능 준비 중')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
+
                   // Support Section
                   _SectionTitle(title: '지원'),
                   const SizedBox(height: 12),
@@ -230,22 +337,17 @@ class SettingsScreen extends ConsumerWidget {
                       _SettingsItem(
                         icon: Icons.description_outlined,
                         title: '이용약관',
-                        trailing: Icon(
-                          Icons.open_in_new,
-                          size: 16,
-                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
-                        ),
-                        onTap: () => _launchUrl(_termsOfServiceUrl, context),
+                        onTap: () => context.push('/settings/terms'),
                       ),
                       _SettingsItem(
                         icon: Icons.privacy_tip_outlined,
                         title: '개인정보 처리방침',
-                        trailing: Icon(
-                          Icons.open_in_new,
-                          size: 16,
-                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
-                        ),
-                        onTap: () => _launchUrl(_privacyPolicyUrl, context),
+                        onTap: () => context.push('/settings/privacy'),
+                      ),
+                      _SettingsItem(
+                        icon: Icons.business_outlined,
+                        title: '사업자 정보',
+                        onTap: () => context.push('/settings/company-info'),
                       ),
                       _SettingsItem(
                         icon: Icons.info_outline,

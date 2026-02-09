@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +37,8 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   bool _isSending = false;
   bool _isMediaMenuOpen = false;
   bool _isRecording = false;
+  bool _isOffline = false;
+  String? _failedMessageText;
   int _recordingDuration = 0;
   StreamSubscription<int>? _durationSub;
   StreamSubscription<VoiceRecordingState>? _stateSub;
@@ -89,7 +92,21 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   Future<void> _doSendMessage(String text) async {
     setState(() {
       _isSending = true;
+      _failedMessageText = null;
     });
+
+    // Check connectivity first
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity == ConnectivityResult.none) {
+      setState(() {
+        _isSending = false;
+        _isOffline = true;
+        _failedMessageText = text;
+      });
+      _showOfflineWarning();
+      return;
+    }
+    _isOffline = false;
 
     try {
       final success = await ref
@@ -103,10 +120,12 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
         });
         widget.onMessageSent?.call();
       } else {
-        _showError('메시지 전송에 실패했습니다.');
+        setState(() => _failedMessageText = text);
+        _showRetrySnackbar(text, '메시지 전송에 실패했습니다.');
       }
     } catch (e) {
-      _showError(e.toString());
+      setState(() => _failedMessageText = text);
+      _showRetrySnackbar(text, '메시지 전송 중 오류가 발생했습니다.');
     } finally {
       setState(() {
         _isSending = false;
@@ -408,6 +427,46 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showOfflineWarning() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.wifi_off, color: Colors.white, size: 20),
+            SizedBox(width: 8),
+            Text('네트워크 연결을 확인해 주세요'),
+          ],
+        ),
+        backgroundColor: Colors.orange,
+        action: SnackBarAction(
+          label: '재시도',
+          textColor: Colors.white,
+          onPressed: () {
+            if (_failedMessageText != null) {
+              _doSendMessage(_failedMessageText!);
+            }
+          },
+        ),
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
+  void _showRetrySnackbar(String text, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        action: SnackBarAction(
+          label: '재시도',
+          textColor: Colors.white,
+          onPressed: () => _doSendMessage(text),
+        ),
+        duration: const Duration(seconds: 5),
       ),
     );
   }

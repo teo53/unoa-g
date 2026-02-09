@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/config/business_config.dart';
 import '../../shared/widgets/auth_gate.dart';
 import 'funding_result_screen.dart';
 
@@ -216,6 +217,41 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                         '${_formatNumber(_totalAmount)} DT',
                         isBold: true,
                         valueColor: AppColors.primary,
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildSummaryRow(
+                              isDark,
+                              '크리에이터 수령액 (${BusinessConfig.creatorPayoutPercent.toInt()}%)',
+                              '${_formatNumber((_totalAmount * BusinessConfig.creatorPayoutPercent / 100).round())} DT',
+                              valueColor: AppColors.success,
+                            ),
+                            const SizedBox(height: 4),
+                            _buildSummaryRow(
+                              isDark,
+                              '플랫폼 수수료 (${BusinessConfig.platformCommissionPercent.toInt()}%)',
+                              '${_formatNumber((_totalAmount * BusinessConfig.platformCommissionPercent / 100).round())} DT',
+                            ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '* 표시된 수수료는 정산 시 적용됩니다',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

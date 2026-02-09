@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 
@@ -50,7 +52,7 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
   }
 }
 
-/// Standard error display widget
+/// Standard error display widget with error reference codes
 class ErrorDisplay extends StatelessWidget {
   final Object error;
   final VoidCallback? onRetry;
@@ -58,8 +60,17 @@ class ErrorDisplay extends StatelessWidget {
   final String? message;
   final IconData? icon;
   final bool compact;
+  final String errorCode;
 
-  const ErrorDisplay({
+  /// Generates a unique error reference code for customer support
+  /// Format: ERR-{timestamp_base36}-{random3digits}
+  static String generateErrorCode() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36).toUpperCase();
+    final random = Random().nextInt(999).toString().padLeft(3, '0');
+    return 'ERR-$timestamp-$random';
+  }
+
+  ErrorDisplay({
     super.key,
     required this.error,
     this.onRetry,
@@ -67,7 +78,8 @@ class ErrorDisplay extends StatelessWidget {
     this.message,
     this.icon,
     this.compact = false,
-  });
+    String? errorCode,
+  }) : errorCode = errorCode ?? generateErrorCode();
 
   /// Preset: Network error
   factory ErrorDisplay.network({VoidCallback? onRetry}) => ErrorDisplay(
@@ -96,8 +108,8 @@ class ErrorDisplay extends StatelessWidget {
       );
 
   /// Preset: Permission denied
-  factory ErrorDisplay.permissionDenied() => const ErrorDisplay(
-        error: UnauthorizedException(),
+  factory ErrorDisplay.permissionDenied() => ErrorDisplay(
+        error: const UnauthorizedException(),
         title: '접근 권한 없음',
         message: '이 내용을 볼 수 있는 권한이 없습니다',
         icon: Icons.lock_outline_rounded,
@@ -187,6 +199,55 @@ class ErrorDisplay extends StatelessWidget {
                 ),
               ),
             ],
+            // Error Code Display for Customer Support
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '오류 코드: $errorCode',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: errorCode));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('오류 코드가 복사되었습니다'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.copy,
+                      size: 16,
+                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '문제가 지속되면 고객센터에 문의해 주세요',
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              ),
+            ),
           ],
         ),
       ),

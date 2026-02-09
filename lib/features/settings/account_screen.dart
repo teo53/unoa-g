@@ -1,14 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../providers/auth_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
+  /// Gets user email from auth state
+  static String _getUserEmail(AuthState state) {
+    if (state is AuthAuthenticated) {
+      return state.user.email ?? 'unknown@example.com';
+    }
+    if (state is AuthDemoMode) {
+      return 'demo@unoa.app';
+    }
+    return 'unknown@example.com';
+  }
+
+  /// Masks an email address for privacy
+  /// Example: user@example.com -> u***r@example.com
+  static String maskEmail(String email) {
+    final parts = email.split('@');
+    if (parts.length != 2) return email;
+    final name = parts[0];
+    if (name.isEmpty) return email;
+    final masked = name.length > 2
+        ? '${name[0]}${'*' * (name.length - 2)}${name[name.length - 1]}'
+        : name.length == 2
+            ? '${name[0]}*'
+            : name;
+    return '$masked@${parts[1]}';
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppScaffold(
@@ -58,7 +86,9 @@ class AccountScreen extends StatelessWidget {
                     children: [
                       _InfoItem(
                         label: '이메일',
-                        value: 'user@example.com',
+                        value: maskEmail(
+                          _getUserEmail(ref.watch(authProvider)),
+                        ),
                         verified: true,
                       ),
                       _CardDivider(),
@@ -135,7 +165,7 @@ class AccountScreen extends StatelessWidget {
                         icon: Icons.g_mobiledata,
                         title: 'Google',
                         connected: true,
-                        email: 'user@gmail.com',
+                        email: maskEmail('user@gmail.com'),
                       ),
                       _CardDivider(),
                       _ConnectedAccount(
@@ -148,7 +178,7 @@ class AccountScreen extends StatelessWidget {
                         icon: Icons.chat_bubble,
                         title: 'Kakao',
                         connected: true,
-                        email: 'kakao_user',
+                        email: 'k****o_user',
                       ),
                     ],
                   ),
@@ -214,22 +244,37 @@ class AccountScreen extends StatelessWidget {
                           onPressed: () {
                             showDialog(
                               context: context,
-                              builder: (context) => AlertDialog(
+                              builder: (dialogContext) => AlertDialog(
                                 title: const Text('계정 삭제'),
                                 content: const Text(
                                     '정말로 계정을 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.'),
                                 actions: [
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context),
+                                    onPressed: () =>
+                                        Navigator.pop(dialogContext),
                                     child: const Text('취소'),
                                   ),
                                   TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text('계정 삭제 기능 준비 중')),
-                                      );
+                                    onPressed: () async {
+                                      Navigator.pop(dialogContext);
+                                      try {
+                                        await ref
+                                            .read(authProvider.notifier)
+                                            .deleteAccount();
+                                        if (context.mounted) {
+                                          context.go('/login');
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content:
+                                                  Text('계정 삭제에 실패했습니다. 다시 시도해주세요.'),
+                                            ),
+                                          );
+                                        }
+                                      }
                                     },
                                     child: Text(
                                       '삭제',

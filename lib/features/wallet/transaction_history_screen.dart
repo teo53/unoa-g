@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/mock/mock_data.dart';
+import '../../data/models/user_profile.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
@@ -200,7 +201,9 @@ class _TransactionList extends StatelessWidget {
 
                   return Column(
                     children: [
-                      Padding(
+                      InkWell(
+                        onTap: () => _showRefundDialog(context, txn, isCredit, isDark),
+                        child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
@@ -237,14 +240,38 @@ class _TransactionList extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(
-                                    txn.formattedDate.split(' ').last,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark
-                                          ? AppColors.textSubDark
-                                          : AppColors.textSubLight,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        txn.formattedDate.split(' ').last,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: isDark
+                                              ? AppColors.textSubDark
+                                              : AppColors.textSubLight,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      // Status Badge
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Color(txn.status.colorValue).withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          txn.status.label,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(txn.status.colorValue),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -262,6 +289,7 @@ class _TransactionList extends StatelessWidget {
                           ],
                         ),
                       ),
+                      ), // Close InkWell
                       if (i < txns.length - 1)
                         Divider(
                           height: 1,
@@ -279,6 +307,200 @@ class _TransactionList extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  void _showRefundDialog(BuildContext context, Transaction txn, bool isCredit, bool isDark) {
+    // Only credit transactions (charges) can be refunded
+    if (!isCredit) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('DT 사용 내역은 환불할 수 없습니다.')),
+      );
+      return;
+    }
+
+    // Check 7-day refund window
+    final daysSinceTransaction = DateTime.now().difference(txn.timestamp).inDays;
+    final canRefund = daysSinceTransaction <= 7 && txn.status == TransactionStatus.completed;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.receipt_long,
+                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '거래 상세',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _DetailRow(label: '거래 내용', value: txn.description, isDark: isDark),
+            _DetailRow(label: '금액', value: txn.formattedAmount, isDark: isDark),
+            _DetailRow(label: '거래일', value: txn.formattedDate, isDark: isDark),
+            _DetailRow(label: '상태', value: txn.status.label, isDark: isDark),
+            const SizedBox(height: 20),
+            if (canRefund) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: AppColors.warning, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '충전 후 7일 이내에만 환불이 가능합니다.\n환불 시 보너스 DT는 회수됩니다.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _confirmRefund(context, txn);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.danger,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('환불 요청', style: TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+            ] else ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.block, color: Colors.grey, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        daysSinceTransaction > 7
+                            ? '충전 후 7일이 경과하여 환불이 불가능합니다.'
+                            : '이미 처리된 거래는 환불할 수 없습니다.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmRefund(BuildContext context, Transaction txn) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('환불 요청'),
+        content: Text(
+          '${txn.amount} DT 충전 내역을 환불 요청하시겠습니까?\n\n'
+          '• 환불은 영업일 기준 3-5일 소요됩니다.\n'
+          '• 보너스 DT는 회수됩니다.\n'
+          '• 환불 수수료가 발생할 수 있습니다.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('환불 요청이 접수되었습니다. 영업일 기준 3-5일 내 처리됩니다.'),
+                ),
+              );
+            },
+            child: const Text('환불 요청', style: TextStyle(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isDark;
+
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

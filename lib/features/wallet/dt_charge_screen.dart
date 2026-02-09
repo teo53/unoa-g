@@ -154,6 +154,7 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
+                          '• DT는 UNO A 앱 내에서만 사용 가능한 선불 크레딧으로, 현금 또는 법정화폐가 아닙니다\n'
                           '• DT는 환불이 불가합니다\n'
                           '• 구매 후 7일 이내 미사용 시 환불 요청 가능\n'
                           '• 보너스 DT는 환불 대상에서 제외됩니다',
@@ -215,7 +216,17 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
+                    Text(
+                      'DT 충전 시 별도의 수수료가 부과되지 않습니다',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                   ],
                   SizedBox(
                     width: double.infinity,

@@ -342,6 +342,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthUnauthenticated();
   }
 
+  /// Delete account
+  ///
+  /// Demo mode: calls exitDemoMode()
+  /// Real mode: deletes user profile then signs out
+  Future<void> deleteAccount() async {
+    final currentState = state;
+
+    if (currentState is AuthDemoMode) {
+      exitDemoMode();
+      return;
+    }
+
+    if (currentState is! AuthAuthenticated) return;
+
+    try {
+      // Delete user profile data
+      await _client
+          .from('user_profiles')
+          .delete()
+          .eq('id', currentState.user.id);
+
+      // Sign out
+      await _authService.signOut();
+      state = const AuthUnauthenticated();
+    } catch (e) {
+      state = AuthError('계정 삭제에 실패했습니다.', e);
+    }
+  }
+
   /// Update demo profile (for demo mode only)
   ///
   /// Social link fields use [Object?] with sentinel to distinguish

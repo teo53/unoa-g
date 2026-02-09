@@ -19,6 +19,7 @@ class Transaction {
   final int amount;
   final DateTime timestamp;
   final TransactionType type;
+  final TransactionStatus status;
 
   const Transaction({
     required this.id,
@@ -26,6 +27,7 @@ class Transaction {
     required this.amount,
     required this.timestamp,
     required this.type,
+    this.status = TransactionStatus.completed,
   });
 
   String get formattedAmount {
@@ -46,6 +48,7 @@ class Transaction {
       type: (json['type'] as String? ?? json['entry_type'] as String?) == 'credit'
           ? TransactionType.credit
           : TransactionType.debit,
+      status: TransactionStatus.fromString(json['status'] as String?),
     );
   }
 
@@ -56,6 +59,7 @@ class Transaction {
       'amount': amount,
       'timestamp': timestamp.toIso8601String(),
       'type': type == TransactionType.credit ? 'credit' : 'debit',
+      'status': status.name,
     };
   }
 }
@@ -63,6 +67,28 @@ class Transaction {
 enum TransactionType {
   credit,
   debit,
+}
+
+/// Transaction status for timeline display
+enum TransactionStatus {
+  pending('대기중', 0xFFF59E0B),       // Orange
+  processing('처리중', 0xFF3B82F6),    // Blue
+  completed('완료', 0xFF10B981),        // Green
+  failed('실패', 0xFFEF4444),           // Red
+  refunded('환불됨', 0xFF8B5CF6);       // Purple
+
+  final String label;
+  final int colorValue;
+
+  const TransactionStatus(this.label, this.colorValue);
+
+  static TransactionStatus fromString(String? value) {
+    if (value == null) return TransactionStatus.completed;
+    return TransactionStatus.values.firstWhere(
+      (s) => s.name.toLowerCase() == value.toLowerCase(),
+      orElse: () => TransactionStatus.completed,
+    );
+  }
 }
 
 // Note: DTPackage has been moved to dt_package.dart

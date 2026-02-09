@@ -161,6 +161,37 @@ class WalletScreen extends StatelessWidget {
                     ),
                   ),
 
+                  const SizedBox(height: 16),
+
+                  // DT 법적 고지
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'DT는 UNO A 앱 내에서만 사용 가능한 선불 충전 크레딧이며, 현금 또는 법정화폐가 아닙니다.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.4,
+                              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 32),
 
                   // DT Packages
