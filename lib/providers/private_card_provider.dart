@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/demo_config.dart';
 import '../data/models/fan_filter.dart';
 import '../data/models/private_card.dart';
@@ -214,11 +215,40 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
     final authState = _ref.read(authProvider);
     final isDemoMode = authState is AuthDemoMode;
 
-    if (isDemoMode) {
-      _toggleDemoFavorite(userId);
-    } else {
-      // TODO: Supabase toggle favorite
-      _toggleDemoFavorite(userId);
+    // 로컬 UI 즉시 업데이트
+    _toggleDemoFavorite(userId);
+
+    if (!isDemoMode) {
+      // Supabase에 즐겨찾기 상태 동기화
+      _syncFavoriteToSupabase(userId);
+    }
+  }
+
+  Future<void> _syncFavoriteToSupabase(String userId) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final currentUserId = supabase.auth.currentUser?.id;
+      if (currentUserId == null) return;
+
+      final isFavorite = state.matchedFans
+          .where((f) => f.userId == userId)
+          .firstOrNull
+          ?.isFavorite ?? false;
+
+      if (isFavorite) {
+        await supabase.from('fan_favorites').upsert({
+          'creator_id': currentUserId,
+          'fan_id': userId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } else {
+        await supabase.from('fan_favorites')
+            .delete()
+            .eq('creator_id', currentUserId)
+            .eq('fan_id', userId);
+      }
+    } catch (e) {
+      debugPrint('Favorite sync failed: $e');
     }
   }
 
@@ -236,8 +266,7 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
       if (authState is AuthDemoMode) {
         await _sendDemoCard();
       } else {
-        // TODO: Real Supabase send
-        await _sendDemoCard();
+        await _sendSupabaseCard();
       }
 
       state = state.copyWith(isSending: false, isSent: true);
@@ -350,6 +379,29 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
     debugPrint('Demo: Private card sent to ${state.selectedFanCount} fans');
   }
 
+  Future<void> _sendSupabaseCard() async {
+    final supabase = Supabase.instance.client;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception('인증이 필요합니다');
+
+    final response = await supabase.functions.invoke(
+      'send-private-card',
+      body: {
+        'creatorId': userId,
+        'templateId': state.selectedTemplateId,
+        'cardText': state.cardText,
+        'attachedMediaUrls': state.attachedMediaUrls,
+        'recipientIds': state.selectedFanIds.toList(),
+        'filterUsed': state.selectedFilter?.name,
+      },
+    );
+
+    final data = response.data as Map<String, dynamic>?;
+    if (data?['success'] != true) {
+      throw Exception(data?['message'] ?? '카드 전송에 실패했습니다');
+    }
+  }
+
   List<FanSummary> _getDemoFanList() {
     return DemoConfig.demoFans.map((data) {
       return FanSummary(
@@ -381,7 +433,48 @@ class PrivateCardHistoryNotifier extends StateNotifier<PrivateCardHistoryState> 
     if (authState is AuthDemoMode) {
       _loadDemoHistory();
     } else {
-      _loadDemoHistory(); // TODO: Real Supabase load
+      _loadSupabaseHistory();
+    }
+  }
+
+  Future<void> _loadSupabaseHistory() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) return;
+
+      final response = await supabase
+          .from('private_cards')
+          .select()
+          .eq('artist_id', userId)
+          .order('created_at', ascending: false)
+          .limit(50);
+
+      final cards = (response as List).map((data) {
+        return PrivateCard(
+          id: data['id'] as String,
+          channelId: data['channel_id'] as String,
+          artistId: data['artist_id'] as String,
+          templateContent: data['template_content'] as String? ?? '',
+          cardTemplateId: (data['card_template_id'] as String?) ?? '',
+          cardImageUrl: data['card_image_url'] as String?,
+          recipientCount: data['recipient_count'] as int? ?? 0,
+          filterUsed: (data['filter_used'] as String?) ?? '',
+          status: PrivateCardStatus.values.firstWhere(
+            (s) => s.name == (data['status'] as String? ?? 'sent'),
+            orElse: () => PrivateCardStatus.sent,
+          ),
+          createdAt: DateTime.parse(data['created_at'] as String),
+          sentAt: data['sent_at'] != null
+              ? DateTime.parse(data['sent_at'] as String)
+              : null,
+        );
+      }).toList();
+
+      state = state.copyWith(sentCards: cards, isLoading: false);
+    } catch (e) {
+      debugPrint('Load private card history failed: $e');
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 

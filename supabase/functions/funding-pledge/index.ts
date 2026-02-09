@@ -1,18 +1,23 @@
-// Funding Pledge Edge Function
-// Processes funding pledges with DT wallet deduction
-// Implements atomic transactions with idempotency
+// =====================================================
+// Funding Pledge Edge Function (KRW Version)
+// Processes funding pledges with KRW payment via PG (PortOne/TossPayments)
 //
-// SECURITY:
-// - Requires authenticated user
-// - Validates campaign status and end date
-// - Validates tier availability
-// - Atomic transaction: wallet deduction + pledge creation + stats update
+// FLOW:
+//   1. Client initiates PG payment (PortOne SDK)
+//   2. Client sends paymentId + pledgeInfo to this function
+//   3. This function verifies payment with PortOne API
+//   4. Creates funding_payment + funding_pledge records
+//   5. Updates campaign stats
+//
+// IMPORTANT: No DT wallet deduction. Funding is KRW-only.
+// =====================================================
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+const PORTONE_API_SECRET = Deno.env.get('PORTONE_API_SECRET') || ''
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,8 +27,11 @@ const corsHeaders = {
 interface PledgeRequest {
   campaignId: string
   tierId?: string
-  amountDt: number
-  extraSupportDt?: number
+  amountKrw: number
+  extraSupportKrw?: number
+  paymentId: string          // PortOne paymentId (결제 완료 후 받은 ID)
+  paymentOrderId: string     // 가맹점 주문번호
+  paymentMethod: string      // 'card', 'bank_transfer', etc
   idempotencyKey: string
   isAnonymous?: boolean
   supportMessage?: string
@@ -32,9 +40,72 @@ interface PledgeRequest {
 interface PledgeResponse {
   success: boolean
   pledgeId?: string
-  newBalance?: number
+  paymentId?: string
+  totalAmountKrw?: number
   message?: string
   error?: string
+}
+
+/**
+ * PortOne API로 결제 검증
+ */
+async function verifyPortOnePayment(paymentId: string, expectedAmountKrw: number): Promise<{
+  verified: boolean
+  pgTransactionId?: string
+  cardCompany?: string
+  cardNumberMasked?: string
+  cardType?: string
+  installmentMonths?: number
+  error?: string
+}> {
+  try {
+    // PortOne V2 API: GET /payments/{paymentId}
+    const response = await fetch(`https://api.portone.io/v2/payments/${paymentId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `PortOne ${PORTONE_API_SECRET}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      const errorBody = await response.text()
+      console.error('PortOne API error:', response.status, errorBody)
+      return { verified: false, error: `PortOne API error: ${response.status}` }
+    }
+
+    const payment = await response.json()
+
+    // 결제 상태 확인
+    if (payment.status !== 'PAID') {
+      return { verified: false, error: `Payment not completed: status=${payment.status}` }
+    }
+
+    // 금액 검증
+    if (payment.amount?.total !== expectedAmountKrw) {
+      return {
+        verified: false,
+        error: `Amount mismatch: expected=${expectedAmountKrw}, actual=${payment.amount?.total}`,
+      }
+    }
+
+    // 통화 검증
+    if (payment.currency !== 'KRW') {
+      return { verified: false, error: `Currency mismatch: expected=KRW, actual=${payment.currency}` }
+    }
+
+    return {
+      verified: true,
+      pgTransactionId: payment.pgTxId || payment.transactionId,
+      cardCompany: payment.card?.publisher,
+      cardNumberMasked: payment.card?.number,
+      cardType: payment.card?.type,
+      installmentMonths: payment.card?.installmentMonth || 0,
+    }
+  } catch (error) {
+    console.error('PortOne verification error:', error)
+    return { verified: false, error: `Verification failed: ${String(error)}` }
+  }
 }
 
 serve(async (req) => {
@@ -43,7 +114,6 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ success: false, error: 'Method not allowed' }),
@@ -52,7 +122,7 @@ serve(async (req) => {
   }
 
   try {
-    // Get auth token from header
+    // Auth verification
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
@@ -61,13 +131,10 @@ serve(async (req) => {
       )
     }
 
-    // Create Supabase client with user's auth token
-    const supabaseUser = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    })
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
     // Verify user
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser(
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(
       authHeader.replace('Bearer ', '')
     )
 
@@ -78,73 +145,57 @@ serve(async (req) => {
       )
     }
 
-    // Parse request body
+    // Parse request
     const body: PledgeRequest = await req.json()
     const {
       campaignId,
       tierId,
-      amountDt,
-      extraSupportDt = 0,
+      amountKrw,
+      extraSupportKrw = 0,
+      paymentId,
+      paymentOrderId,
+      paymentMethod,
       idempotencyKey,
       isAnonymous = false,
       supportMessage,
     } = body
 
     // Validate required fields
-    if (!campaignId) {
+    if (!campaignId || !amountKrw || amountKrw <= 0 || !paymentId || !paymentOrderId || !idempotencyKey) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Campaign ID is required' }),
+        JSON.stringify({
+          success: false,
+          error: 'Missing required fields: campaignId, amountKrw, paymentId, paymentOrderId, idempotencyKey',
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    if (!amountDt || amountDt <= 0) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Amount must be greater than 0' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    const totalAmountKrw = amountKrw + extraSupportKrw
 
-    if (!idempotencyKey) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Idempotency key is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Create admin client for database operations
-    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-
-    // Check idempotency - return existing pledge if already processed
+    // Check idempotency
     const { data: existingPledge } = await supabaseAdmin
       .from('funding_pledges')
-      .select('id, status, total_amount_dt')
+      .select('id, status, total_amount_krw')
       .eq('idempotency_key', idempotencyKey)
       .single()
 
     if (existingPledge) {
-      // Get current wallet balance
-      const { data: wallet } = await supabaseAdmin
-        .from('wallets')
-        .select('balance_dt')
-        .eq('user_id', user.id)
-        .single()
-
       return new Response(
         JSON.stringify({
           success: true,
           pledgeId: existingPledge.id,
-          newBalance: wallet?.balance_dt ?? 0,
+          totalAmountKrw: existingPledge.total_amount_krw,
           message: 'Pledge already processed',
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Validate campaign exists and is active
+    // Validate campaign
     const { data: campaign, error: campaignError } = await supabaseAdmin
       .from('funding_campaigns')
-      .select('id, status, end_at, creator_id, current_amount_dt, backer_count')
+      .select('id, status, end_at, creator_id, current_amount_krw, backer_count')
       .eq('id', campaignId)
       .single()
 
@@ -155,7 +206,6 @@ serve(async (req) => {
       )
     }
 
-    // Check campaign is active
     if (campaign.status !== 'active') {
       return new Response(
         JSON.stringify({ success: false, error: 'Campaign is not active' }),
@@ -163,7 +213,6 @@ serve(async (req) => {
       )
     }
 
-    // Check campaign has not ended
     if (campaign.end_at && new Date(campaign.end_at) < new Date()) {
       return new Response(
         JSON.stringify({ success: false, error: 'Campaign has ended' }),
@@ -171,7 +220,6 @@ serve(async (req) => {
       )
     }
 
-    // Check user is not the creator
     if (campaign.creator_id === user.id) {
       return new Response(
         JSON.stringify({ success: false, error: 'Cannot pledge to your own campaign' }),
@@ -179,117 +227,99 @@ serve(async (req) => {
       )
     }
 
-    // Validate tier if provided
-    let tier = null
+    // Validate tier
     if (tierId) {
-      const { data: tierData, error: tierError } = await supabaseAdmin
+      const { data: tier, error: tierError } = await supabaseAdmin
         .from('funding_reward_tiers')
-        .select('id, price_dt, is_active, remaining_quantity, pledge_count')
+        .select('id, price_krw, is_active, remaining_quantity')
         .eq('id', tierId)
         .eq('campaign_id', campaignId)
         .single()
 
-      if (tierError || !tierData) {
+      if (tierError || !tier) {
         return new Response(
           JSON.stringify({ success: false, error: 'Reward tier not found' }),
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      if (!tierData.is_active) {
+      if (!tier.is_active) {
         return new Response(
           JSON.stringify({ success: false, error: 'Reward tier is not available' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      // Check tier availability (quantity)
-      if (tierData.remaining_quantity !== null && tierData.remaining_quantity <= 0) {
+      if (tier.remaining_quantity !== null && tier.remaining_quantity <= 0) {
         return new Response(
           JSON.stringify({ success: false, error: 'Reward tier is sold out' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      // Validate amount matches tier price
-      if (amountDt < tierData.price_dt) {
+      if (amountKrw < tier.price_krw) {
         return new Response(
           JSON.stringify({
             success: false,
-            error: `Amount must be at least ${tierData.price_dt} DT for this tier`,
+            error: `Amount must be at least ${tier.price_krw.toLocaleString()} KRW for this tier`,
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
-
-      tier = tierData
     }
 
-    // Calculate total amount
-    const totalAmountDt = amountDt + extraSupportDt
+    // === KRW PAYMENT VERIFICATION ===
+    // Verify payment with PortOne API (DT 지갑 차감 아님!)
+    const verification = await verifyPortOnePayment(paymentId, totalAmountKrw)
 
-    // Get user's wallet
-    const { data: wallet, error: walletError } = await supabaseAdmin
-      .from('wallets')
-      .select('id, balance_dt')
-      .eq('user_id', user.id)
-      .single()
-
-    if (walletError || !wallet) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Wallet not found. Please top up your DT balance.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Check sufficient balance
-    if (wallet.balance_dt < totalAmountDt) {
+    if (!verification.verified) {
+      console.error('Payment verification failed:', verification.error)
       return new Response(
         JSON.stringify({
           success: false,
-          error: 'Insufficient DT balance',
-          message: `You need ${totalAmountDt} DT but only have ${wallet.balance_dt} DT`,
+          error: 'Payment verification failed',
+          message: verification.error,
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Execute atomic transaction using RPC
-    const { data: result, error: txError } = await supabaseAdmin.rpc('process_funding_pledge', {
-      p_campaign_id: campaignId,
-      p_tier_id: tierId || null,
-      p_user_id: user.id,
-      p_wallet_id: wallet.id,
-      p_amount_dt: amountDt,
-      p_extra_support_dt: extraSupportDt,
-      p_idempotency_key: idempotencyKey,
-      p_is_anonymous: isAnonymous,
-      p_support_message: supportMessage || null,
-    })
+    // === ATOMIC TRANSACTION: Create pledge + payment + update stats ===
+    const { data: pledgeResult, error: txError } = await supabaseAdmin.rpc(
+      'process_funding_pledge_krw',
+      {
+        p_campaign_id: campaignId,
+        p_tier_id: tierId || null,
+        p_user_id: user.id,
+        p_amount_krw: amountKrw,
+        p_extra_support_krw: extraSupportKrw,
+        p_payment_order_id: paymentOrderId,
+        p_payment_method: paymentMethod || 'card',
+        p_pg_transaction_id: verification.pgTransactionId || null,
+        p_idempotency_key: idempotencyKey,
+        p_is_anonymous: isAnonymous,
+        p_support_message: supportMessage || null,
+      }
+    )
 
     if (txError) {
-      console.error('Transaction error:', txError)
+      console.error('Pledge transaction error:', txError)
 
-      // Check for specific errors
-      if (txError.message?.includes('insufficient_balance')) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Insufficient DT balance' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+      const errorMap: Record<string, string> = {
+        'tier_sold_out': 'Reward tier is sold out',
+        'campaign_not_active': 'Campaign is no longer active',
+        'campaign_ended': 'Campaign has ended',
+        'tier_not_found': 'Reward tier not found',
+        'tier_not_active': 'Reward tier is not available',
       }
 
-      if (txError.message?.includes('tier_sold_out')) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Reward tier is sold out' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      if (txError.message?.includes('campaign_not_active')) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Campaign is no longer active' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+      for (const [key, msg] of Object.entries(errorMap)) {
+        if (txError.message?.includes(key)) {
+          return new Response(
+            JSON.stringify({ success: false, error: msg }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
       }
 
       return new Response(
@@ -298,11 +328,40 @@ serve(async (req) => {
       )
     }
 
+    // Create funding_payment record
+    const { error: paymentInsertError } = await supabaseAdmin
+      .from('funding_payments')
+      .insert({
+        pledge_id: pledgeResult.pledge_id,
+        campaign_id: campaignId,
+        user_id: user.id,
+        amount_krw: totalAmountKrw,
+        payment_method: paymentMethod || 'card',
+        payment_provider: 'portone',
+        payment_order_id: paymentOrderId,
+        pg_transaction_id: verification.pgTransactionId,
+        pg_payment_id: paymentId,
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        card_company: verification.cardCompany,
+        card_number_masked: verification.cardNumberMasked,
+        card_type: verification.cardType,
+        installment_months: verification.installmentMonths || 0,
+        idempotency_key: `payment:${idempotencyKey}`,
+      })
+
+    if (paymentInsertError) {
+      console.error('Payment record insert error:', paymentInsertError)
+      // Pledge was created successfully, payment record is supplementary
+      // Don't fail the whole transaction for this
+    }
+
     const response: PledgeResponse = {
       success: true,
-      pledgeId: result.pledge_id,
-      newBalance: result.new_balance,
-      message: 'Pledge successful!',
+      pledgeId: pledgeResult.pledge_id,
+      paymentId: paymentId,
+      totalAmountKrw: totalAmountKrw,
+      message: '후원이 완료되었습니다!',
     }
 
     return new Response(

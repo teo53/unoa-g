@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/accessibility_helper.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../shared/widgets/app_scaffold.dart';
 
 /// 비밀번호 찾기 화면
@@ -33,9 +35,18 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Supabase Auth 연동 시 구현
-      // await supabase.auth.resetPasswordForEmail(_emailController.text.trim());
-      await Future.delayed(const Duration(seconds: 1)); // Demo delay
+      final authState = ref.read(authProvider);
+      final isDemoMode = authState is AuthDemoMode;
+
+      if (isDemoMode) {
+        // 데모 모드: API 호출 없이 성공 시뮬레이션
+        await Future.delayed(const Duration(seconds: 1));
+      } else {
+        // 프로덕션: Supabase Auth 비밀번호 리셋 이메일 발송
+        await Supabase.instance.client.auth.resetPasswordForEmail(
+          _emailController.text.trim(),
+        );
+      }
 
       if (mounted) {
         setState(() {
@@ -43,12 +54,34 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           _isLoading = false;
         });
       }
+    } on AuthException catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        String errorMessage;
+        if (e.message.contains('rate limit')) {
+          errorMessage = '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
+        } else if (e.message.contains('not found')) {
+          // 보안상 가입되지 않은 이메일도 동일한 성공 메시지 표시
+          setState(() {
+            _isEmailSent = true;
+          });
+          return;
+        } else {
+          errorMessage = '비밀번호 재설정 이메일 발송에 실패했습니다.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('비밀번호 재설정 이메일 발송에 실패했습니다: $e'),
+            content: const Text('네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'),
             backgroundColor: AppColors.danger,
           ),
         );

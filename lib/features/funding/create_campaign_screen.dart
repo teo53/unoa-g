@@ -545,15 +545,22 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: GestureDetector(
-                        onTap: onRemove,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
+                      child: Semantics(
+                        label: '이미지 삭제',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: onRemove,
+                          child: Tooltip(
+                            message: '이미지 삭제',
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close, size: 16, color: Colors.white),
+                            ),
                           ),
-                          child: const Icon(Icons.close, size: 16, color: Colors.white),
                         ),
                       ),
                     ),

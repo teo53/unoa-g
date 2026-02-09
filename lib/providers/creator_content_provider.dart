@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/models/creator_content.dart';
+import 'auth_provider.dart';
 
 /// 크리에이터 콘텐츠 상태 (드롭, 이벤트, 직캠, 하이라이트, 소셜링크)
 class CreatorContentState {
@@ -45,7 +48,9 @@ class CreatorContentState {
 
 /// 크리에이터 콘텐츠 관리 Notifier
 class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
-  CreatorContentNotifier() : super(const CreatorContentState()) {
+  final Ref _ref;
+
+  CreatorContentNotifier(this._ref) : super(const CreatorContentState()) {
     loadContent();
   }
 
@@ -237,9 +242,62 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
     state = state.copyWith(socialLinks: links, hasChanges: true);
   }
 
-  /// 변경사항 저장 (현재는 로컬만, 추후 Supabase)
+  /// 변경사항 저장
   Future<void> saveAll() async {
-    // TODO: Supabase에 저장
+    final authState = _ref.read(authProvider);
+    final isDemoMode = authState is AuthDemoMode;
+
+    if (isDemoMode) {
+      // 데모 모드: 저장 시뮬레이션
+      await Future.delayed(const Duration(milliseconds: 500));
+      debugPrint('Demo: Content saved locally');
+    } else {
+      try {
+        final supabase = Supabase.instance.client;
+        final userId = supabase.auth.currentUser?.id;
+        if (userId == null) return;
+
+        // 소셜 링크 저장
+        await supabase.from('creator_profiles').upsert({
+          'user_id': userId,
+          'social_links': {
+            'instagram': state.socialLinks.instagram,
+            'youtube': state.socialLinks.youtube,
+            'tiktok': state.socialLinks.tiktok,
+            'twitter': state.socialLinks.twitter,
+          },
+          'updated_at': DateTime.now().toIso8601String(),
+        });
+
+        // 드롭 저장
+        await supabase.from('creator_drops').upsert(
+          state.drops.map((d) => {
+            'id': d.id,
+            'creator_id': userId,
+            'name': d.name,
+            'price_krw': d.priceKrw,
+            'is_new': d.isNew,
+            'is_sold_out': d.isSoldOut,
+          }).toList(),
+        );
+
+        // 이벤트 저장
+        await supabase.from('creator_events').upsert(
+          state.events.map((e) => {
+            'id': e.id,
+            'creator_id': userId,
+            'title': e.title,
+            'location': e.location,
+            'date': e.date.toIso8601String(),
+            'is_offline': e.isOffline,
+          }).toList(),
+        );
+      } catch (e) {
+        debugPrint('Content save failed: $e');
+        rethrow;
+      }
+    }
+
     state = state.copyWith(hasChanges: false);
   }
 }
@@ -247,5 +305,5 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
 /// Provider
 final creatorContentProvider =
     StateNotifierProvider<CreatorContentNotifier, CreatorContentState>((ref) {
-  return CreatorContentNotifier();
+  return CreatorContentNotifier(ref);
 });

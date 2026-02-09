@@ -46,8 +46,12 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
     super.dispose();
   }
 
+  bool _walletLoadFailed = false;
+
   Future<void> _loadWalletBalance() async {
     try {
+      setState(() => _walletLoadFailed = false);
+
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return;
 
@@ -57,11 +61,24 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
           .eq('user_id', userId)
           .single();
 
-      setState(() {
-        _walletBalance = response['balance_dt'] as int?;
-      });
+      if (mounted) {
+        setState(() {
+          _walletBalance = response['balance_dt'] as int?;
+        });
+      }
     } catch (e) {
-      // Ignore errors
+      if (mounted) {
+        setState(() => _walletLoadFailed = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('지갑 잔액을 불러오지 못했습니다'),
+            action: SnackBarAction(
+              label: '재시도',
+              onPressed: _loadWalletBalance,
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -302,8 +319,12 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                       ),
                       if (hasInsufficientBalance)
                         TextButton(
-                          onPressed: () {
-                            // TODO: Navigate to DT purchase
+                          onPressed: () async {
+                            final result = await context.push<bool>('/wallet/charge');
+                            // 충전 완료 후 잔액 새로고침
+                            if (result == true) {
+                              _loadWalletBalance();
+                            }
                           },
                           child: const Text('충전하기'),
                         ),

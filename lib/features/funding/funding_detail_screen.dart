@@ -47,6 +47,15 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                   color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
                 ),
               ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: () => setState(() {}),
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('다시 시도'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary600,
+                ),
+              ),
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => context.pop(),

@@ -258,10 +258,13 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
       _isProcessing = true;
     });
 
-    // Simulate payment processing
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      // Simulate payment processing (데모 모드)
+      // 프로덕션에서는 Supabase Edge Function 호출로 대체
+      await Future.delayed(const Duration(seconds: 2));
 
-    if (mounted) {
+      if (!mounted) return;
+
       setState(() {
         _isProcessing = false;
       });
@@ -270,7 +273,7 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
 
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (dialogCtx) => AlertDialog(
           title: Row(
             children: [
               Icon(Icons.check_circle, color: AppColors.success),
@@ -284,8 +287,8 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                context.pop();
+                Navigator.pop(dialogCtx);
+                context.pop(true); // 충전 완료 결과 전달
               },
               child: Text(
                 '확인',
@@ -293,6 +296,24 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
               ),
             ),
           ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isProcessing = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.'),
+          backgroundColor: AppColors.danger,
+          action: SnackBarAction(
+            label: '재시도',
+            textColor: Colors.white,
+            onPressed: () => _processPayment(context),
+          ),
         ),
       );
     }

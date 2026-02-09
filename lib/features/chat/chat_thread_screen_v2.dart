@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
@@ -639,7 +640,6 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       message: message,
       maxCharacters: 300, // Based on subscription, can be dynamic
       onEdit: (newContent) async {
-        // TODO: Call repository to update message
         await ref.read(chatProvider(widget.channelId).notifier)
             .editMessage(message.id, newContent);
       },
@@ -658,20 +658,95 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     ReportReason reason,
     String? description,
   ) async {
-    // TODO: Call repository to submit report
-    debugPrint('Report submitted: $reason - $description');
+    final authState = ref.read(authProvider);
+    final isDemoMode = authState is AuthDemoMode;
+
+    if (isDemoMode) {
+      // 데모 모드: 신고 접수 시뮬레이션
+      debugPrint('Demo: Report submitted: $reason - $description');
+    } else {
+      try {
+        final supabase = Supabase.instance.client;
+        final userId = supabase.auth.currentUser?.id;
+        if (userId == null) return;
+
+        await supabase.from('reports').insert({
+          'reporter_id': userId,
+          'channel_id': widget.channelId,
+          'reason': reason.name,
+          'description': description,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } catch (e) {
+        debugPrint('Report failed: $e');
+      }
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('신고가 접수되었습니다. 검토 후 조치하겠습니다.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   /// Handle block user
-  void _handleBlockUser(String userId) {
-    // TODO: Call repository to block user
-    debugPrint('Blocking user: $userId');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('사용자를 차단했습니다'),
-        behavior: SnackBarBehavior.floating,
+  void _handleBlockUser(String userId) async {
+    // 차단 확인 다이얼로그
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('사용자 차단'),
+        content: const Text(
+          '이 사용자를 차단하시겠습니까?\n차단하면 해당 사용자의 메시지가 더 이상 표시되지 않습니다.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+            child: const Text('차단'),
+          ),
+        ],
       ),
     );
+
+    if (confirmed != true || !mounted) return;
+
+    final authState = ref.read(authProvider);
+    final isDemoMode = authState is AuthDemoMode;
+
+    if (isDemoMode) {
+      debugPrint('Demo: Blocking user $userId');
+    } else {
+      try {
+        final supabase = Supabase.instance.client;
+        final currentUserId = supabase.auth.currentUser?.id;
+        if (currentUserId == null) return;
+
+        await supabase.from('user_blocks').insert({
+          'blocker_id': currentUserId,
+          'blocked_id': userId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } catch (e) {
+        debugPrint('Block failed: $e');
+      }
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('사용자를 차단했습니다'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
 
