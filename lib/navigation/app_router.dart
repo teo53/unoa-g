@@ -33,6 +33,8 @@ import '../features/creator/creator_dashboard_screen.dart';
 import '../features/creator/creator_profile_screen.dart';
 import '../features/creator/creator_chat_tab_screen.dart';
 import '../features/creator/creator_my_channel_screen.dart';
+import '../features/creator/settlement_history_screen.dart';
+import '../features/settings/tax_settings_screen.dart';
 
 import '../data/models/poll_draft.dart';
 import '../features/creator/creator_content_screen.dart';
@@ -97,6 +99,8 @@ class AppRoutes {
   static const String guardianConsent = '/guardian-consent';
   static const String settingsModerationPolicy = '/settings/moderation-policy';
   static const String settingsConsentHistory = '/settings/consent-history';
+  static const String settingsTax = '/settings/tax';
+  static const String creatorSettlement = '/creator/settlement';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -415,6 +419,20 @@ final appRouter = GoRouter(
       path: '/guardian-consent',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AgeVerificationScreen(),
+    ),
+
+    // Creator Settlement History (full screen)
+    GoRoute(
+      path: '/creator/settlement',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SettlementHistoryScreen(),
+    ),
+
+    // Tax Settings (full screen)
+    GoRoute(
+      path: '/settings/tax',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const TaxSettingsScreen(),
     ),
 
     // Creator Private Card Compose (full screen)

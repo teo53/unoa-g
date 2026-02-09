@@ -1,8 +1,28 @@
-// Payout Calculate Edge Function
-// Monthly job to calculate creator payouts with Korean tax withholding
-// Scheduled to run on the 1st of each month
+// =====================================================
+// Edge Function: payout-calculate
+// Purpose: 월별 크리에이터 정산 계산 (DT + KRW 분리)
+//
+// 매월 1일 실행 (scheduled-dispatcher에서 호출)
+//
+// 수익 구조:
+//   DT 수익: 팁/도네이션, 프라이빗카드 판매, 유료답글
+//     → DT로 집계 → KRW 변환 (DT_TO_KRW_RATE)
+//   KRW 수익: 펀딩 결제 (funding_payments)
+//     → KRW 그대로 집계 (변환 불필요)
+//
+// 플랫폼 수수료: 20% (양쪽 동일)
+// 원천징수: income_tax_rates 테이블에서 크리에이터별 조회
+//   - 사업소득 3.3%
+//   - 기타소득 8.8%
+//   - 세금계산서 0%
+//
+// 출력:
+//   - payouts 레코드 (pending_review 상태)
+//   - payout_line_items (소득유형별 상세)
+//   - settlement_statements (정산 명세서)
+// =====================================================
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -10,27 +30,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Korean withholding tax rates (fallback defaults)
-// Actual rates are dynamically fetched from income_tax_rates table via get_withholding_rate()
-const TAX_RATES = {
-  // 기타소득세 3% + 지방소득세 0.3% = 3.3%
-  individual: 0.033,
-  // 사업자는 별도 세율 적용 가능
-  business: 0.033,
-}
+// DT → KRW 변환율 (1 DT = 1 KRW, 현재 1:1)
+const DT_TO_KRW_RATE = 1.0
 
-// Income type mapping for get_withholding_rate() lookup
-const INCOME_TYPE_MAP: Record<string, string> = {
-  tip: 'tips',
-  private_card: 'private_cards',
-  funding: 'funding',
-}
-
-// Platform fee
+// 플랫폼 수수료율
 const PLATFORM_FEE_RATE = 0.20 // 20%
 
-// Minimum payout threshold in KRW
-const MINIMUM_PAYOUT_KRW = 10000 // 10,000 KRW
+// 최소 지급 기준 (KRW)
+const MINIMUM_PAYOUT_KRW = 10000
+
+// 원천징수 기본값 (income_tax_rates 조회 실패 시)
+const DEFAULT_TAX_RATE = 0.033 // 3.3%
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -43,14 +53,16 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Calculate period (previous month)
+    // === 1. 정산 기간 계산 (전월) ===
     const now = new Date()
-    const periodEnd = new Date(now.getFullYear(), now.getMonth(), 0) // Last day of previous month
-    const periodStart = new Date(periodEnd.getFullYear(), periodEnd.getMonth(), 1) // First day of previous month
+    const periodEnd = new Date(now.getFullYear(), now.getMonth(), 0) // 전월 말일
+    const periodStart = new Date(periodEnd.getFullYear(), periodEnd.getMonth(), 1) // 전월 1일
+    const periodStartStr = periodStart.toISOString().split('T')[0]
+    const periodEndStr = periodEnd.toISOString().split('T')[0]
 
-    console.log(`Calculating payouts for period: ${periodStart.toISOString().split('T')[0]} to ${periodEnd.toISOString().split('T')[0]}`)
+    console.log(`=== Payout calculation: ${periodStartStr} ~ ${periodEndStr} ===`)
 
-    // Get all verified creators
+    // === 2. 인증된 크리에이터 조회 ===
     const { data: creators, error: creatorsError } = await supabase
       .from('creator_profiles')
       .select(`
@@ -72,20 +84,20 @@ serve(async (req) => {
       created: 0,
       skipped: 0,
       errors: 0,
-      payouts: [] as any[],
+      payouts: [] as Record<string, unknown>[],
     }
 
     for (const creator of creators || []) {
       try {
         results.processed++
 
-        // Check for existing payout in this period
+        // === 3. 중복 정산 체크 ===
         const { data: existingPayout } = await supabase
           .from('payouts')
           .select('id')
           .eq('creator_id', creator.user_id)
-          .eq('period_start', periodStart.toISOString().split('T')[0])
-          .eq('period_end', periodEnd.toISOString().split('T')[0])
+          .eq('period_start', periodStartStr)
+          .eq('period_end', periodEndStr)
           .not('status', 'in', '("cancelled","failed")')
           .single()
 
@@ -95,22 +107,44 @@ serve(async (req) => {
           continue
         }
 
-        // Calculate earnings from tips/donations
-        const { data: donations, error: donationsError } = await supabase
+        // === 4. 크리에이터 세금 정보 조회 ===
+        const incomeType = creator.payout_settings?.income_type || 'business_income'
+        let taxRate = DEFAULT_TAX_RATE
+
+        const { data: taxInfo } = await supabase
+          .rpc('get_creator_tax_info', { p_creator_id: creator.user_id })
+
+        if (taxInfo) {
+          taxRate = (taxInfo.tax_rate || 3.3) / 100 // DB에서는 %로 저장
+        } else {
+          // Fallback: income_tax_rates 테이블에서 직접 조회
+          const { data: rateData } = await supabase
+            .from('income_tax_rates')
+            .select('tax_rate')
+            .eq('income_type', incomeType)
+            .eq('is_active', true)
+            .single()
+
+          if (rateData) {
+            taxRate = rateData.tax_rate / 100
+          }
+        }
+
+        // === 5. DT 수익 집계 ===
+
+        // 5a. 팁/도네이션 (DT)
+        const { data: donations } = await supabase
           .from('dt_donations')
           .select('amount_dt, creator_share_dt, platform_fee_dt')
           .eq('to_creator_id', creator.user_id)
           .gte('created_at', periodStart.toISOString())
           .lte('created_at', periodEnd.toISOString())
 
-        if (donationsError) {
-          console.error(`Failed to fetch donations for creator ${creator.user_id}:`, donationsError)
-          results.errors++
-          continue
-        }
+        const tipsTotalDt = donations?.reduce((sum, d) => sum + (d.creator_share_dt || 0), 0) || 0
+        const tipsCount = donations?.length || 0
 
-        // Calculate earnings from private card sales
-        const { data: cardSales, error: cardSalesError } = await supabase
+        // 5b. 프라이빗카드 판매 (DT)
+        const { data: cardSales } = await supabase
           .from('private_card_purchases')
           .select(`
             price_paid_dt,
@@ -120,122 +154,113 @@ serve(async (req) => {
           .gte('created_at', periodStart.toISOString())
           .lte('created_at', periodEnd.toISOString())
 
-        if (cardSalesError) {
-          console.error(`Failed to fetch card sales for creator ${creator.user_id}:`, cardSalesError)
-          // Continue with just donations
-        }
-
-        // Calculate earnings from funding pledges
-        const { data: fundingPledges, error: fundingError } = await supabase
-          .from('funding_pledges')
-          .select(`
-            amount_dt,
-            funding_campaigns!inner (creator_id)
-          `)
-          .eq('funding_campaigns.creator_id', creator.user_id)
-          .eq('status', 'completed')
-          .gte('created_at', periodStart.toISOString())
-          .lte('created_at', periodEnd.toISOString())
-
-        if (fundingError) {
-          console.error(`Failed to fetch funding pledges for creator ${creator.user_id}:`, fundingError)
-          // Continue with other earnings
-        }
-
-        // Sum up earnings
-        const tipTotal = donations?.reduce((sum, d) => sum + (d.creator_share_dt || 0), 0) || 0
-        const cardTotal = cardSales?.reduce((sum, s) => {
+        const cardsTotalDt = cardSales?.reduce((sum, s) => {
           const creatorShare = Math.floor(s.price_paid_dt * (1 - PLATFORM_FEE_RATE))
           return sum + creatorShare
         }, 0) || 0
-        const fundingTotal = fundingPledges?.reduce((sum, p) => {
-          const creatorShare = Math.floor((p.amount_dt || 0) * (1 - PLATFORM_FEE_RATE))
-          return sum + creatorShare
-        }, 0) || 0
+        const cardsCount = cardSales?.length || 0
 
-        const grossDt = tipTotal + cardTotal + fundingTotal
+        // 5c. 유료답글 수익 (DT) - paid_replies 테이블
+        const { data: replies } = await supabase
+          .from('paid_replies')
+          .select('amount_dt, creator_share_dt')
+          .eq('creator_id', creator.user_id)
+          .gte('created_at', periodStart.toISOString())
+          .lte('created_at', periodEnd.toISOString())
 
-        if (grossDt === 0) {
+        const repliesTotalDt = replies?.reduce((sum, r) => sum + (r.creator_share_dt || 0), 0) || 0
+        const repliesCount = replies?.length || 0
+
+        // DT 합계 → KRW 변환
+        const dtTotalGross = tipsTotalDt + cardsTotalDt + repliesTotalDt
+        const dtRevenueKrw = Math.floor(dtTotalGross * DT_TO_KRW_RATE)
+
+        // === 6. KRW 수익 집계 (펀딩) ===
+        // funding_payments 테이블에서 직접 조회 (DT 원장과 완전 분리)
+        const { data: fundingPayments } = await supabase
+          .from('funding_payments')
+          .select(`
+            amount_krw,
+            campaign_id,
+            funding_pledges!inner (
+              campaign_id,
+              funding_campaigns!inner (creator_id)
+            )
+          `)
+          .eq('funding_pledges.funding_campaigns.creator_id', creator.user_id)
+          .eq('status', 'paid')
+          .gte('paid_at', periodStart.toISOString())
+          .lte('paid_at', periodEnd.toISOString())
+
+        const fundingGrossKrw = fundingPayments?.reduce((sum, p) => sum + (p.amount_krw || 0), 0) || 0
+        const fundingCount = fundingPayments?.length || 0
+        const fundingCampaigns = new Set(fundingPayments?.map(p => p.campaign_id) || []).size
+
+        // === 7. 수수료 및 세금 계산 ===
+
+        // DT 수익에 대한 플랫폼 수수료 (팁은 이미 creator_share에 반영됨)
+        const dtPlatformFeeKrw = Math.floor(dtRevenueKrw * PLATFORM_FEE_RATE)
+
+        // KRW 수익에 대한 플랫폼 수수료
+        const fundingPlatformFeeKrw = Math.floor(fundingGrossKrw * PLATFORM_FEE_RATE)
+
+        // 총 수수료
+        const totalPlatformFeeKrw = dtPlatformFeeKrw + fundingPlatformFeeKrw
+
+        // 총 수익
+        const totalRevenueKrw = dtRevenueKrw + fundingGrossKrw
+
+        if (totalRevenueKrw === 0) {
           console.log(`No earnings for creator ${creator.user_id}`)
           results.skipped++
           continue
         }
 
-        // Convert to KRW (1 DT = 100 KRW)
-        const grossKrw = grossDt * 100
+        // 과세 대상 (수익 - 수수료)
+        const taxableKrw = totalRevenueKrw - totalPlatformFeeKrw
 
-        // Calculate platform fee (already deducted for donations, need for cards)
-        const platformFeeKrw = Math.floor(grossKrw * PLATFORM_FEE_RATE)
+        // 원천징수세 계산
+        // 소득세 = 과세대상 × 세율 (지방소득세 포함)
+        const withholdingTaxKrw = Math.floor(taxableKrw * taxRate)
 
-        // Get tax rates per income type from income_tax_rates table (get_withholding_rate)
-        // This allows different rates for tips (8.8%) vs business income (3.3%)
-        const taxType = creator.payout_settings?.tax_type || creator.tax_type || 'individual'
-        const fallbackRate = TAX_RATES[taxType as keyof typeof TAX_RATES] || TAX_RATES.individual
+        // 소득세/지방소득세 분리 (세율이 3.3%인 경우: 소득세 3% + 지방소득세 0.3%)
+        const baseRate = taxRate / 1.1 // 지방소득세 10% 분리
+        const incomeTaxKrw = Math.floor(taxableKrw * baseRate)
+        const localTaxKrw = withholdingTaxKrw - incomeTaxKrw
 
-        // Fetch dynamic withholding rates per income type
-        const incomeTypes = ['tips', 'private_cards', 'funding']
-        const rateByType: Record<string, number> = {}
+        // 순 지급액
+        const netPayoutKrw = taxableKrw - withholdingTaxKrw
 
-        for (const incomeType of incomeTypes) {
-          const { data: rateData } = await supabase
-            .rpc('get_withholding_rate', { p_income_type: incomeType })
-
-          rateByType[incomeType] = rateData ?? fallbackRate
-        }
-
-        // Calculate withholding tax per income type (소득 유형별 원천징수)
-        const tipKrw = tipTotal * 100
-        const cardKrw = cardTotal * 100
-        const fundingKrw = fundingTotal * 100
-
-        const tipTaxableKrw = tipKrw - Math.floor(tipKrw * PLATFORM_FEE_RATE)
-        const cardTaxableKrw = cardKrw - Math.floor(cardKrw * PLATFORM_FEE_RATE)
-        const fundingTaxableKrw = fundingKrw - Math.floor(fundingKrw * PLATFORM_FEE_RATE)
-
-        const withholdingTaxKrw = Math.floor(tipTaxableKrw * (rateByType['tips'] || fallbackRate))
-          + Math.floor(cardTaxableKrw * (rateByType['private_cards'] || fallbackRate))
-          + Math.floor(fundingTaxableKrw * (rateByType['funding'] || fallbackRate))
-
-        // Effective blended withholding rate for record
-        const taxableKrw = grossKrw - platformFeeKrw
-        const withholdingRate = taxableKrw > 0
-          ? withholdingTaxKrw / taxableKrw
-          : fallbackRate
-
-        // Calculate net payout
-        const netKrw = grossKrw - platformFeeKrw - withholdingTaxKrw
-
-        // Check minimum threshold
+        // 최소 지급 기준 체크
         const minimumPayout = creator.payout_settings?.minimum_payout_krw || MINIMUM_PAYOUT_KRW
-
-        if (netKrw < minimumPayout) {
-          console.log(`Creator ${creator.user_id} below minimum threshold: ${netKrw} < ${minimumPayout}`)
+        if (netPayoutKrw < minimumPayout) {
+          console.log(`Creator ${creator.user_id} below minimum: ${netPayoutKrw} < ${minimumPayout}`)
           results.skipped++
           continue
         }
 
-        // Get bank info
+        // === 8. 은행 정보 조회 ===
         const { data: bankInfo } = await supabase
           .from('bank_codes')
           .select('name')
           .eq('code', creator.bank_code)
           .single()
 
-        // Create payout record
+        // === 9. 정산 레코드 생성 ===
         const { data: payout, error: payoutError } = await supabase
           .from('payouts')
           .insert({
             creator_id: creator.user_id,
             creator_profile_id: creator.id,
-            period_start: periodStart.toISOString().split('T')[0],
-            period_end: periodEnd.toISOString().split('T')[0],
-            gross_dt: grossDt,
-            gross_krw: grossKrw,
+            period_start: periodStartStr,
+            period_end: periodEndStr,
+            gross_dt: dtTotalGross,
+            gross_krw: totalRevenueKrw,
             platform_fee_rate: PLATFORM_FEE_RATE,
-            platform_fee_krw: platformFeeKrw,
-            withholding_tax_rate: withholdingRate,
+            platform_fee_krw: totalPlatformFeeKrw,
+            withholding_tax_rate: taxRate,
             withholding_tax_krw: withholdingTaxKrw,
-            net_krw: netKrw,
+            net_krw: netPayoutKrw,
             bank_code: creator.bank_code || '',
             bank_name: bankInfo?.name || '',
             bank_account_last4: creator.bank_account_number?.slice(-4) || '****',
@@ -246,41 +271,51 @@ serve(async (req) => {
           .single()
 
         if (payoutError) {
-          console.error(`Failed to create payout for creator ${creator.user_id}:`, payoutError)
+          console.error(`Failed to create payout for ${creator.user_id}:`, payoutError)
           results.errors++
           continue
         }
 
-        // Create line items
-        const lineItems = []
+        // === 10. 소득유형별 라인 아이템 생성 ===
+        const lineItems: Record<string, unknown>[] = []
 
-        if (tipTotal > 0) {
+        if (tipsTotalDt > 0) {
           lineItems.push({
             payout_id: payout.id,
             item_type: 'tip',
-            item_count: donations?.length || 0,
-            gross_dt: tipTotal,
-            gross_krw: tipTotal * 100,
+            item_count: tipsCount,
+            gross_dt: tipsTotalDt,
+            gross_krw: Math.floor(tipsTotalDt * DT_TO_KRW_RATE),
           })
         }
 
-        if (cardTotal > 0) {
+        if (cardsTotalDt > 0) {
           lineItems.push({
             payout_id: payout.id,
             item_type: 'private_card',
-            item_count: cardSales?.length || 0,
-            gross_dt: cardTotal,
-            gross_krw: cardTotal * 100,
+            item_count: cardsCount,
+            gross_dt: cardsTotalDt,
+            gross_krw: Math.floor(cardsTotalDt * DT_TO_KRW_RATE),
           })
         }
 
-        if (fundingTotal > 0) {
+        if (repliesTotalDt > 0) {
+          lineItems.push({
+            payout_id: payout.id,
+            item_type: 'paid_reply',
+            item_count: repliesCount,
+            gross_dt: repliesTotalDt,
+            gross_krw: Math.floor(repliesTotalDt * DT_TO_KRW_RATE),
+          })
+        }
+
+        if (fundingGrossKrw > 0) {
           lineItems.push({
             payout_id: payout.id,
             item_type: 'funding',
-            item_count: fundingPledges?.length || 0,
-            gross_dt: fundingTotal,
-            gross_krw: fundingTotal * 100,
+            item_count: fundingCount,
+            gross_dt: 0, // 펀딩은 DT 미사용
+            gross_krw: fundingGrossKrw,
           })
         }
 
@@ -288,16 +323,66 @@ serve(async (req) => {
           await supabase.from('payout_line_items').insert(lineItems)
         }
 
-        console.log(`Created payout for creator ${creator.user_id}: ${netKrw} KRW`)
+        // === 11. 정산 명세서 생성 ===
+        const { error: statementError } = await supabase
+          .from('settlement_statements')
+          .insert({
+            payout_id: payout.id,
+            creator_id: creator.user_id,
+            period_start: periodStartStr,
+            period_end: periodEndStr,
+
+            // DT 수익 상세
+            dt_tips_count: tipsCount,
+            dt_tips_gross: tipsTotalDt,
+            dt_cards_count: cardsCount,
+            dt_cards_gross: cardsTotalDt,
+            dt_replies_count: repliesCount,
+            dt_replies_gross: repliesTotalDt,
+            dt_total_gross: dtTotalGross,
+            dt_to_krw_rate: DT_TO_KRW_RATE,
+            dt_revenue_krw: dtRevenueKrw,
+
+            // KRW 수익 상세 (펀딩)
+            funding_campaigns_count: fundingCampaigns,
+            funding_pledges_count: fundingCount,
+            funding_revenue_krw: fundingGrossKrw,
+
+            // 합산
+            total_revenue_krw: totalRevenueKrw,
+            platform_fee_rate: PLATFORM_FEE_RATE * 100, // %로 저장
+            platform_fee_krw: totalPlatformFeeKrw,
+
+            // 세금
+            income_type: incomeType,
+            tax_rate: taxRate * 100, // %로 저장
+            income_tax_krw: incomeTaxKrw,
+            local_tax_krw: localTaxKrw,
+            withholding_tax_krw: withholdingTaxKrw,
+
+            // 순 지급액
+            net_payout_krw: netPayoutKrw,
+          })
+
+        if (statementError) {
+          console.error(`Failed to create statement for ${creator.user_id}:`, statementError)
+          // 정산 명세서 실패는 payout 생성에 영향 주지 않음
+        }
+
+        console.log(`Payout created: creator=${creator.user_id}, DT=${dtTotalGross} KRW_funding=${fundingGrossKrw} net=${netPayoutKrw}`)
 
         results.created++
         results.payouts.push({
           creatorId: creator.user_id,
           payoutId: payout.id,
-          grossKrw,
-          platformFeeKrw,
+          dtRevenueKrw,
+          fundingRevenueKrw: fundingGrossKrw,
+          totalRevenueKrw,
+          platformFeeKrw: totalPlatformFeeKrw,
           withholdingTaxKrw,
-          netKrw,
+          netPayoutKrw,
+          incomeType,
+          taxRate: taxRate * 100,
         })
       } catch (error) {
         console.error(`Error processing creator ${creator.user_id}:`, error)
@@ -305,15 +390,13 @@ serve(async (req) => {
       }
     }
 
-    console.log('Payout calculation complete:', results)
+    console.log('=== Payout calculation complete ===', JSON.stringify(results, null, 2))
 
     return new Response(
       JSON.stringify({
         success: true,
-        period: {
-          start: periodStart.toISOString().split('T')[0],
-          end: periodEnd.toISOString().split('T')[0],
-        },
+        period: { start: periodStartStr, end: periodEndStr },
+        dtToKrwRate: DT_TO_KRW_RATE,
         results,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

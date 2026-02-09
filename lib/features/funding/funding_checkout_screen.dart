@@ -6,7 +6,10 @@ import '../../core/config/business_config.dart';
 import '../../shared/widgets/auth_gate.dart';
 import 'funding_result_screen.dart';
 
-/// Checkout screen for funding pledge
+/// Checkout screen for funding pledge (KRW 결제)
+///
+/// 펀딩은 KRW 전용 - DT 지갑과 완전히 분리
+/// 결제 플로우: PortOne SDK → 결제완료 → Edge Function 검증 → pledge 생성
 class FundingCheckoutScreen extends StatefulWidget {
   final Map<String, dynamic> campaign;
   final Map<String, dynamic> tier;
@@ -30,56 +33,15 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
   bool _isAnonymous = false;
   bool _agreeTerms = false;
   bool _isLoading = false;
-  int? _walletBalance;
+  String _selectedPaymentMethod = 'card'; // card, bank_transfer, virtual_account
 
-  int get _totalAmount => (widget.tier['price_dt'] as int? ?? 0) + widget.extraSupport;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadWalletBalance();
-  }
+  // KRW 결제: DT 지갑이 아니라 원화 결제
+  int get _totalAmount => (widget.tier['price_krw'] as int? ?? widget.tier['price_dt'] as int? ?? 0) + widget.extraSupport;
 
   @override
   void dispose() {
     _messageController.dispose();
     super.dispose();
-  }
-
-  bool _walletLoadFailed = false;
-
-  Future<void> _loadWalletBalance() async {
-    try {
-      setState(() => _walletLoadFailed = false);
-
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) return;
-
-      final response = await _supabase
-          .from('wallets')
-          .select('balance_dt')
-          .eq('user_id', userId)
-          .single();
-
-      if (mounted) {
-        setState(() {
-          _walletBalance = response['balance_dt'] as int?;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _walletLoadFailed = true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('지갑 잔액을 불러오지 못했습니다'),
-            action: SnackBarAction(
-              label: '재시도',
-              onPressed: _loadWalletBalance,
-            ),
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _submitPledge() async {
@@ -90,33 +52,55 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       return;
     }
 
-    if (_walletBalance != null && _walletBalance! < _totalAmount) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('DT 잔액이 부족합니다')),
-      );
-      return;
-    }
-
     AuthGate.guardAction(
       context,
       reason: '펀딩에 참여하려면 로그인이 필요해요',
-      onAuthenticated: () => _doSubmitPledge(),
+      onAuthenticated: () => _initiateKrwPayment(),
     );
   }
 
-  Future<void> _doSubmitPledge() async {
+  /// KRW 결제 시작 (PortOne SDK 연동)
+  Future<void> _initiateKrwPayment() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) throw Exception('로그인이 필요합니다');
+
+      // 주문번호 생성 (가맹점 고유)
+      final orderId = 'FUND_${widget.campaign['id']}_${DateTime.now().millisecondsSinceEpoch}';
+      final idempotencyKey = 'pledge:${userId}_${widget.campaign['id']}_${widget.tier['id'] ?? 'no_tier'}_${DateTime.now().millisecondsSinceEpoch}';
+
+      // TODO: 프로덕션에서는 PortOne SDK 호출
+      // IMP.request_pay({
+      //   pg: 'tosspayments',
+      //   pay_method: _selectedPaymentMethod,
+      //   merchant_uid: orderId,
+      //   name: '${widget.campaign['title']} - ${widget.tier['title']}',
+      //   amount: _totalAmount,
+      //   buyer_name: user.name,
+      //   buyer_email: user.email,
+      // });
+      //
+      // 결제 완료 후 paymentId를 받아서 아래 Edge Function 호출
+
+      // 데모 모드에서는 결제 시뮬레이션
+      final paymentId = 'demo_payment_${DateTime.now().millisecondsSinceEpoch}';
+
+      // Edge Function으로 결제 검증 + pledge 생성
       final response = await _supabase.functions.invoke(
         'funding-pledge',
         body: {
           'campaignId': widget.campaign['id'],
           'tierId': widget.tier['id'],
-          'amountDt': widget.tier['price_dt'],
-          'extraSupportDt': widget.extraSupport,
+          'amountKrw': widget.tier['price_krw'] ?? widget.tier['price_dt'] ?? 0,
+          'extraSupportKrw': widget.extraSupport,
+          'paymentId': paymentId,
+          'paymentOrderId': orderId,
+          'paymentMethod': _selectedPaymentMethod,
+          'idempotencyKey': idempotencyKey,
           'isAnonymous': _isAnonymous,
           'supportMessage': _messageController.text.isNotEmpty
               ? _messageController.text
@@ -137,23 +121,29 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
               tier: widget.tier,
               totalAmount: _totalAmount,
               pledgeId: data?['pledgeId'],
-              newBalance: data?['newBalance'],
             ),
           ),
         );
       } else {
-        throw Exception(data?['message'] ?? '후원에 실패했습니다');
+        throw Exception(data?['error'] ?? data?['message'] ?? '후원에 실패했습니다');
       }
     } catch (e) {
       if (!mounted) return;
 
       String errorMessage = '후원 중 오류가 발생했습니다';
-      if (e.toString().contains('Insufficient DT balance') ||
-          e.toString().contains('DT 잔액')) {
-        errorMessage = 'DT 잔액이 부족합니다';
-      } else if (e.toString().contains('sold out') ||
-          e.toString().contains('품절')) {
+      final errorStr = e.toString();
+      if (errorStr.contains('Payment verification failed') ||
+          errorStr.contains('결제 검증')) {
+        errorMessage = '결제 검증에 실패했습니다. 다시 시도해주세요.';
+      } else if (errorStr.contains('sold out') ||
+          errorStr.contains('품절')) {
         errorMessage = '선택한 리워드가 품절되었습니다';
+      } else if (errorStr.contains('Campaign is not active')) {
+        errorMessage = '캠페인이 진행 중이 아닙니다';
+      } else if (errorStr.contains('Campaign has ended')) {
+        errorMessage = '캠페인이 종료되었습니다';
+      } else if (errorStr.contains('Cannot pledge to your own')) {
+        errorMessage = '본인 캠페인에는 후원할 수 없습니다';
       }
 
       Navigator.pushReplacement(
@@ -180,8 +170,6 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hasInsufficientBalance =
-        _walletBalance != null && _walletBalance! < _totalAmount;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
@@ -218,21 +206,21 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                       _buildSummaryRow(
                         isDark,
                         widget.tier['title'] ?? '리워드',
-                        '${_formatNumber(widget.tier['price_dt'] ?? 0)} DT',
+                        '${_formatKrw(widget.tier['price_krw'] ?? widget.tier['price_dt'] ?? 0)}원',
                       ),
                       if (widget.extraSupport > 0) ...[
                         const SizedBox(height: 8),
                         _buildSummaryRow(
                           isDark,
                           '추가 후원',
-                          '+${_formatNumber(widget.extraSupport)} DT',
+                          '+${_formatKrw(widget.extraSupport)}원',
                         ),
                       ],
                       const Divider(height: 24),
                       _buildSummaryRow(
                         isDark,
                         '총 후원금액',
-                        '${_formatNumber(_totalAmount)} DT',
+                        '${_formatKrw(_totalAmount)}원',
                         isBold: true,
                         valueColor: AppColors.primary,
                       ),
@@ -248,14 +236,14 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                             _buildSummaryRow(
                               isDark,
                               '크리에이터 수령액 (${BusinessConfig.creatorPayoutPercent.toInt()}%)',
-                              '${_formatNumber((_totalAmount * BusinessConfig.creatorPayoutPercent / 100).round())} DT',
+                              '${_formatKrw((_totalAmount * BusinessConfig.creatorPayoutPercent / 100).round())}원',
                               valueColor: AppColors.success,
                             ),
                             const SizedBox(height: 4),
                             _buildSummaryRow(
                               isDark,
                               '플랫폼 수수료 (${BusinessConfig.platformCommissionPercent.toInt()}%)',
-                              '${_formatNumber((_totalAmount * BusinessConfig.platformCommissionPercent / 100).round())} DT',
+                              '${_formatKrw((_totalAmount * BusinessConfig.platformCommissionPercent / 100).round())}원',
                             ),
                             const SizedBox(height: 8),
                             Align(
@@ -277,57 +265,35 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
 
                 const SizedBox(height: 16),
 
-                // Wallet balance
+                // Payment method selection (KRW)
                 _buildSection(
                   isDark,
                   '결제 수단',
-                  Row(
+                  Column(
                     children: [
-                      Icon(
-                        Icons.account_balance_wallet_rounded,
-                        color: AppColors.primary,
-                        size: 24,
+                      _buildPaymentMethodTile(
+                        isDark,
+                        icon: Icons.credit_card_rounded,
+                        title: '카드 결제',
+                        subtitle: '신용카드/체크카드',
+                        value: 'card',
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'DT 지갑',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: isDark ? AppColors.textDark : AppColors.text,
-                              ),
-                            ),
-                            Text(
-                              _walletBalance != null
-                                  ? '잔액: ${_formatNumber(_walletBalance!)} DT'
-                                  : '잔액 확인 중...',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: hasInsufficientBalance
-                                    ? AppColors.danger
-                                    : (isDark
-                                        ? AppColors.textMutedDark
-                                        : AppColors.textMuted),
-                              ),
-                            ),
-                          ],
-                        ),
+                      const SizedBox(height: 8),
+                      _buildPaymentMethodTile(
+                        isDark,
+                        icon: Icons.account_balance_rounded,
+                        title: '계좌이체',
+                        subtitle: '실시간 계좌이체',
+                        value: 'bank_transfer',
                       ),
-                      if (hasInsufficientBalance)
-                        TextButton(
-                          onPressed: () async {
-                            final result = await context.push<bool>('/wallet/charge');
-                            // 충전 완료 후 잔액 새로고침
-                            if (result == true) {
-                              _loadWalletBalance();
-                            }
-                          },
-                          child: const Text('충전하기'),
-                        ),
+                      const SizedBox(height: 8),
+                      _buildPaymentMethodTile(
+                        isDark,
+                        icon: Icons.receipt_long_rounded,
+                        title: '가상계좌',
+                        subtitle: '무통장입금',
+                        value: 'virtual_account',
+                      ),
                     ],
                   ),
                 ),
@@ -485,6 +451,36 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                     ],
                   ),
                 ),
+
+                // KRW 결제 안내
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.info.withValues(alpha: 0.1)
+                        : AppColors.info.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.info.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: AppColors.info),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '펀딩 결제는 원화(KRW)로 진행되며, DT 잔액과는 별개입니다.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -508,7 +504,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (_isLoading || !_agreeTerms || hasInsufficientBalance)
+                onPressed: (_isLoading || !_agreeTerms)
                     ? null
                     : _submitPledge,
                 style: ElevatedButton.styleFrom(
@@ -533,9 +529,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                         ),
                       )
                     : Text(
-                        hasInsufficientBalance
-                            ? 'DT 잔액 부족'
-                            : '${_formatNumber(_totalAmount)} DT 후원하기',
+                        '${_formatKrw(_totalAmount)}원 결제하기',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -545,6 +539,69 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodTile(
+    bool isDark, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String value,
+  }) {
+    final isSelected = _selectedPaymentMethod == value;
+    return InkWell(
+      onTap: () => setState(() => _selectedPaymentMethod = value),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : (isDark ? AppColors.borderDark : AppColors.border),
+            width: isSelected ? 2 : 1,
+          ),
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.05)
+              : Colors.transparent,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? AppColors.primary : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? AppColors.textDark : AppColors.text,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check_circle, color: AppColors.primary, size: 20),
+          ],
+        ),
       ),
     );
   }
@@ -609,12 +666,16 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
     );
   }
 
-  String _formatNumber(int number) {
-    if (number >= 10000) {
-      return '${(number / 10000).toStringAsFixed(0)}만';
-    } else if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(1)}천';
+  /// 원화 포맷팅 (1,000 단위 콤마)
+  String _formatKrw(int amount) {
+    if (amount < 0) return '-${_formatKrw(-amount)}';
+    if (amount < 1000) return amount.toString();
+    final result = StringBuffer();
+    final str = amount.toString();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) result.write(',');
+      result.write(str[i]);
     }
-    return number.toString();
+    return result.toString();
   }
 }

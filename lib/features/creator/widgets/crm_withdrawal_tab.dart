@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../providers/settlement_provider.dart';
 import 'crm_revenue_tab.dart' show formatNumber;
 
 /// Withdrawal tab for Creator CRM
 /// Shows balance, withdraw button, history, and pending earnings info
-class CrmWithdrawalTab extends StatelessWidget {
+/// 정산 데이터를 settlement_provider에서 연동
+class CrmWithdrawalTab extends ConsumerWidget {
   const CrmWithdrawalTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final state = ref.watch(settlementProvider);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -17,11 +22,34 @@ class CrmWithdrawalTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Available balance
-          _BalanceCard(isDark: isDark),
+          _BalanceCard(isDark: isDark, summary: state.summary),
           const SizedBox(height: 20),
 
-          // Quick withdraw button
-          _WithdrawButton(isDark: isDark),
+          // Quick action buttons
+          Row(
+            children: [
+              Expanded(
+                child: _WithdrawButton(isDark: isDark),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push('/creator/settlement'),
+                  icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                  label: const Text('정산 내역'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: BorderSide(
+                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
 
           // Withdrawal history
@@ -39,8 +67,9 @@ class CrmWithdrawalTab extends StatelessWidget {
 
 class _BalanceCard extends StatelessWidget {
   final bool isDark;
+  final SettlementSummary summary;
 
-  const _BalanceCard({required this.isDark});
+  const _BalanceCard({required this.isDark, required this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +115,9 @@ class _BalanceCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            '845,000 DT',
-            style: TextStyle(
+          Text(
+            '${formatNumber(summary.totalPayout)}원',
+            style: const TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -97,7 +126,7 @@ class _BalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '≈ ₩845,000',
+            '총 ${summary.settlementCount}건 정산 완료',
             style: TextStyle(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.8),
