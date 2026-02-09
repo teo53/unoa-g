@@ -1,14 +1,15 @@
 import Link from 'next/link'
-import { Clock, CheckCircle, XCircle, Eye } from 'lucide-react'
+import { Clock, CheckCircle, XCircle, Eye, Wallet, CreditCard, Calculator } from 'lucide-react'
 import { DEMO_MODE, mockCampaigns } from '@/lib/mock/demo-data'
 import { Button } from '@/components/ui/button'
-import { formatDate, formatDT } from '@/lib/utils/format'
+import { formatDate, formatDT, formatKRW } from '@/lib/utils/format'
 
 interface Campaign {
   id: string
   title: string
   cover_image_url: string | null
   goal_amount_dt: number
+  goal_amount_krw?: number
   submitted_at: string | null
   status: string
 }
@@ -130,6 +131,43 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
+      {/* Quick Links */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <Link href="/admin/settlements" className="bg-white rounded-xl p-4 border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <div className="font-medium text-gray-900 group-hover:text-blue-600">정산 관리</div>
+              <div className="text-sm text-gray-500">크리에이터 정산 심사</div>
+            </div>
+          </div>
+        </Link>
+        <Link href="/admin/funding-payments" className="bg-white rounded-xl p-4 border border-gray-200 hover:border-green-300 hover:shadow-sm transition-all group">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <div className="font-medium text-gray-900 group-hover:text-green-600">펀딩 결제</div>
+              <div className="text-sm text-gray-500">KRW 결제 현황</div>
+            </div>
+          </div>
+        </Link>
+        <Link href="/admin/tax-reports" className="bg-white rounded-xl p-4 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all group">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Calculator className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <div className="font-medium text-gray-900 group-hover:text-purple-600">세금 보고서</div>
+              <div className="text-sm text-gray-500">원천징수 내역</div>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       {/* Pending Campaigns */}
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="p-4 border-b border-gray-200">
@@ -170,7 +208,7 @@ export default async function AdminDashboardPage() {
                       {campaign.title}
                     </h3>
                     <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                      <span>목표: {formatDT(campaign.goal_amount_dt)}</span>
+                      <span>목표: {campaign.goal_amount_krw ? formatKRW(campaign.goal_amount_krw) : formatDT(campaign.goal_amount_dt)}</span>
                       {campaign.submitted_at && (
                         <span>제출: {formatDate(campaign.submitted_at)}</span>
                       )}

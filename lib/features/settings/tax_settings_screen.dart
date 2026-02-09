@@ -107,17 +107,17 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? AppColors.info.withValues(alpha: 0.1)
-                          : AppColors.info.withValues(alpha: 0.05),
+                          ? AppColors.verified.withValues(alpha: 0.1)
+                          : AppColors.verified.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.info.withValues(alpha: 0.3),
+                        color: AppColors.verified.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.info_outline, size: 20, color: AppColors.info),
+                        Icon(Icons.info_outline, size: 20, color: AppColors.verified),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(

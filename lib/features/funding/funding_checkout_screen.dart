@@ -458,16 +458,16 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? AppColors.info.withValues(alpha: 0.1)
-                        : AppColors.info.withValues(alpha: 0.05),
+                        ? AppColors.verified.withValues(alpha: 0.1)
+                        : AppColors.verified.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppColors.info.withValues(alpha: 0.3),
+                      color: AppColors.verified.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 16, color: AppColors.info),
+                      Icon(Icons.info_outline, size: 16, color: AppColors.verified),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(

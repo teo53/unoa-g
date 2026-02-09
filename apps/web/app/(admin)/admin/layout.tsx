@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, FileCheck, Flag, LogOut } from 'lucide-react'
+import { LayoutDashboard, FileCheck, Flag, LogOut, Wallet, FileText, CreditCard, Calculator } from 'lucide-react'
 
 export default function AdminLayout({
   children,
@@ -43,8 +43,41 @@ export default function AdminLayout({
               className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <FileCheck className="w-5 h-5" />
-              <span>심사 대기</span>
+              <span>캠페인 심사</span>
             </Link>
+
+            {/* Separator */}
+            <div className="pt-2 pb-1 px-4">
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">정산 / 결제</div>
+            </div>
+
+            <Link
+              href="/admin/settlements"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Wallet className="w-5 h-5" />
+              <span>정산 관리</span>
+            </Link>
+            <Link
+              href="/admin/funding-payments"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <CreditCard className="w-5 h-5" />
+              <span>펀딩 결제</span>
+            </Link>
+            <Link
+              href="/admin/tax-reports"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Calculator className="w-5 h-5" />
+              <span>세금 보고서</span>
+            </Link>
+
+            {/* Separator */}
+            <div className="pt-2 pb-1 px-4">
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">관리</div>
+            </div>
+
             <Link
               href="/admin/reports"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
