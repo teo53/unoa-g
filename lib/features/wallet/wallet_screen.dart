@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
+import '../../core/utils/accessibility_helper.dart';
 import '../../data/mock/mock_data.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/premium_shimmer.dart';
@@ -23,9 +24,10 @@ class WalletScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () => context.pop(),
-                  icon: Icon(
+                AccessibleTapTarget(
+                  semanticLabel: '뒤로가기',
+                  onTap: () => context.pop(),
+                  child: Icon(
                     Icons.arrow_back_ios_new,
                     color: isDark
                         ? AppColors.textMainDark
@@ -191,6 +193,11 @@ class WalletScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // DT 만료 알림 배너
+                  _DtExpirationBanner(isDark: isDark),
 
                   const SizedBox(height: 32),
 
@@ -506,6 +513,98 @@ class _TransactionTile extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: isCredit ? AppColors.success : AppColors.danger,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// DT 만료 알림 배너
+/// get_expiring_dt_summary() 함수 기반 - 60일 이내 만료 예정 DT 알림
+class _DtExpirationBanner extends StatelessWidget {
+  final bool isDark;
+
+  const _DtExpirationBanner({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    // Demo data: 90일 이내 만료 예정 DT (실제로는 get_expiring_dt_summary RPC 호출)
+    const hasExpiringDt = true;
+    const expiringAmount = 500;
+    const daysUntilExpiry = 45;
+
+    if (!hasExpiringDt) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.warning.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.warning.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.timer_outlined,
+              size: 18,
+              color: AppColors.warning,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'DT 만료 예정 알림',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.4,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '$expiringAmount DT',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.warning,
+                        ),
+                      ),
+                      const TextSpan(text: '가 '),
+                      TextSpan(
+                        text: '$daysUntilExpiry일 후',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const TextSpan(text: ' 만료됩니다.\n구매일로부터 5년 경과 시 소멸됩니다.'),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],

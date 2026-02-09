@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import 'funding_checkout_screen.dart';
 
@@ -57,7 +58,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
             Icons.arrow_back_ios_new_rounded,
             color: isDark ? AppColors.textDark : AppColors.text,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: Column(

@@ -9,6 +9,7 @@ import '../features/funding/funding_screen.dart';
 import '../features/discover/discover_screen.dart';
 import '../features/profile/my_profile_screen.dart';
 import '../features/profile/artist_profile_screen.dart';
+import '../features/profile/fan_profile_edit_screen.dart';
 import '../features/wallet/wallet_screen.dart';
 import '../features/wallet/dt_charge_screen.dart';
 import '../features/wallet/transaction_history_screen.dart';
@@ -24,6 +25,8 @@ import '../features/creator/creator_dm_screen.dart';
 import '../features/creator/creator_crm_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
+import '../features/auth/screens/age_verification_screen.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/funding/creator_funding_screen.dart';
 import '../features/funding/create_campaign_screen.dart';
 import '../features/creator/creator_dashboard_screen.dart';
@@ -33,11 +36,17 @@ import '../features/creator/creator_my_channel_screen.dart';
 
 import '../data/models/poll_draft.dart';
 import '../features/creator/creator_content_screen.dart';
+import '../features/creator/creator_profile_edit_screen.dart';
 import '../features/private_card/private_card_compose_screen.dart';
 import '../features/settings/birthday_settings_screen.dart';
 import '../features/settings/terms_screen.dart';
 import '../features/settings/privacy_screen.dart';
 import '../features/settings/company_info_screen.dart';
+import '../features/settings/refund_policy_screen.dart';
+import '../features/settings/fee_policy_screen.dart';
+import '../features/settings/funding_terms_screen.dart';
+import '../features/settings/moderation_policy_screen.dart';
+import '../features/settings/consent_history_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/widgets/creator_bottom_nav_bar.dart';
@@ -81,6 +90,13 @@ class AppRoutes {
   static const String settingsTerms = '/settings/terms';
   static const String settingsPrivacy = '/settings/privacy';
   static const String settingsCompanyInfo = '/settings/company-info';
+  static const String settingsRefundPolicy = '/settings/refund-policy';
+  static const String settingsFeePolicy = '/settings/fee-policy';
+  static const String settingsFundingTerms = '/settings/funding-terms';
+  static const String forgotPassword = '/forgot-password';
+  static const String guardianConsent = '/guardian-consent';
+  static const String settingsModerationPolicy = '/settings/moderation-policy';
+  static const String settingsConsentHistory = '/settings/consent-history';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -255,6 +271,12 @@ final appRouter = GoRouter(
         artistId: state.pathParameters['artistId']!,
       ),
     ),
+    // Fan Profile Edit
+    GoRoute(
+      path: '/profile/edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FanProfileEditScreen(),
+    ),
     GoRoute(
       path: '/wallet',
       parentNavigatorKey: _rootNavigatorKey,
@@ -314,6 +336,31 @@ final appRouter = GoRouter(
       builder: (context, state) => const CompanyInfoScreen(),
     ),
     GoRoute(
+      path: '/settings/refund-policy',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RefundPolicyScreen(),
+    ),
+    GoRoute(
+      path: '/settings/fee-policy',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FeePolicyScreen(),
+    ),
+    GoRoute(
+      path: '/settings/funding-terms',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FundingTermsScreen(),
+    ),
+    GoRoute(
+      path: '/settings/moderation-policy',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ModerationPolicyScreen(),
+    ),
+    GoRoute(
+      path: '/settings/consent-history',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConsentHistoryScreen(),
+    ),
+    GoRoute(
       path: '/notifications',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const NotificationsScreen(),
@@ -359,6 +406,16 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RegisterScreen(),
     ),
+    GoRoute(
+      path: '/forgot-password',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/guardian-consent',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AgeVerificationScreen(),
+    ),
 
     // Creator Private Card Compose (full screen)
     GoRoute(
@@ -381,11 +438,11 @@ final appRouter = GoRouter(
       builder: (context, state) => const CreatorMyChannelScreen(),
     ),
 
-    // Creator Profile Edit → redirects to Content Management
+    // Creator Profile Edit (3-tab: 기본 정보, 콘텐츠, 테마 & 소셜)
     GoRoute(
       path: '/creator/profile/edit',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) => '/creator/content',
+      builder: (context, state) => const CreatorProfileEditScreen(),
     ),
 
     // Creator Content Management (WYSIWYG)

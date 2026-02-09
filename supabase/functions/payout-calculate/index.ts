@@ -10,12 +10,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Korean withholding tax rates
+// Korean withholding tax rates (fallback defaults)
+// Actual rates are dynamically fetched from income_tax_rates table via get_withholding_rate()
 const TAX_RATES = {
   // 기타소득세 3% + 지방소득세 0.3% = 3.3%
   individual: 0.033,
   // 사업자는 별도 세율 적용 가능
   business: 0.033,
+}
+
+// Income type mapping for get_withholding_rate() lookup
+const INCOME_TYPE_MAP: Record<string, string> = {
+  tip: 'tips',
+  private_card: 'private_cards',
+  funding: 'funding',
 }
 
 // Platform fee
@@ -117,14 +125,35 @@ serve(async (req) => {
           // Continue with just donations
         }
 
+        // Calculate earnings from funding pledges
+        const { data: fundingPledges, error: fundingError } = await supabase
+          .from('funding_pledges')
+          .select(`
+            amount_dt,
+            funding_campaigns!inner (creator_id)
+          `)
+          .eq('funding_campaigns.creator_id', creator.user_id)
+          .eq('status', 'completed')
+          .gte('created_at', periodStart.toISOString())
+          .lte('created_at', periodEnd.toISOString())
+
+        if (fundingError) {
+          console.error(`Failed to fetch funding pledges for creator ${creator.user_id}:`, fundingError)
+          // Continue with other earnings
+        }
+
         // Sum up earnings
         const tipTotal = donations?.reduce((sum, d) => sum + (d.creator_share_dt || 0), 0) || 0
         const cardTotal = cardSales?.reduce((sum, s) => {
           const creatorShare = Math.floor(s.price_paid_dt * (1 - PLATFORM_FEE_RATE))
           return sum + creatorShare
         }, 0) || 0
+        const fundingTotal = fundingPledges?.reduce((sum, p) => {
+          const creatorShare = Math.floor((p.amount_dt || 0) * (1 - PLATFORM_FEE_RATE))
+          return sum + creatorShare
+        }, 0) || 0
 
-        const grossDt = tipTotal + cardTotal
+        const grossDt = tipTotal + cardTotal + fundingTotal
 
         if (grossDt === 0) {
           console.log(`No earnings for creator ${creator.user_id}`)
@@ -138,16 +167,40 @@ serve(async (req) => {
         // Calculate platform fee (already deducted for donations, need for cards)
         const platformFeeKrw = Math.floor(grossKrw * PLATFORM_FEE_RATE)
 
-        // Get tax rate
+        // Get tax rates per income type from income_tax_rates table (get_withholding_rate)
+        // This allows different rates for tips (8.8%) vs business income (3.3%)
         const taxType = creator.payout_settings?.tax_type || creator.tax_type || 'individual'
-        const withholdingRate = creator.payout_settings?.withholding_tax_rate ||
-                               creator.withholding_tax_rate ||
-                               TAX_RATES[taxType as keyof typeof TAX_RATES] ||
-                               TAX_RATES.individual
+        const fallbackRate = TAX_RATES[taxType as keyof typeof TAX_RATES] || TAX_RATES.individual
 
-        // Calculate withholding tax (3.3% of taxable income)
+        // Fetch dynamic withholding rates per income type
+        const incomeTypes = ['tips', 'private_cards', 'funding']
+        const rateByType: Record<string, number> = {}
+
+        for (const incomeType of incomeTypes) {
+          const { data: rateData } = await supabase
+            .rpc('get_withholding_rate', { p_income_type: incomeType })
+
+          rateByType[incomeType] = rateData ?? fallbackRate
+        }
+
+        // Calculate withholding tax per income type (소득 유형별 원천징수)
+        const tipKrw = tipTotal * 100
+        const cardKrw = cardTotal * 100
+        const fundingKrw = fundingTotal * 100
+
+        const tipTaxableKrw = tipKrw - Math.floor(tipKrw * PLATFORM_FEE_RATE)
+        const cardTaxableKrw = cardKrw - Math.floor(cardKrw * PLATFORM_FEE_RATE)
+        const fundingTaxableKrw = fundingKrw - Math.floor(fundingKrw * PLATFORM_FEE_RATE)
+
+        const withholdingTaxKrw = Math.floor(tipTaxableKrw * (rateByType['tips'] || fallbackRate))
+          + Math.floor(cardTaxableKrw * (rateByType['private_cards'] || fallbackRate))
+          + Math.floor(fundingTaxableKrw * (rateByType['funding'] || fallbackRate))
+
+        // Effective blended withholding rate for record
         const taxableKrw = grossKrw - platformFeeKrw
-        const withholdingTaxKrw = Math.floor(taxableKrw * withholdingRate)
+        const withholdingRate = taxableKrw > 0
+          ? withholdingTaxKrw / taxableKrw
+          : fallbackRate
 
         // Calculate net payout
         const netKrw = grossKrw - platformFeeKrw - withholdingTaxKrw
@@ -218,6 +271,16 @@ serve(async (req) => {
             item_count: cardSales?.length || 0,
             gross_dt: cardTotal,
             gross_krw: cardTotal * 100,
+          })
+        }
+
+        if (fundingTotal > 0) {
+          lineItems.push({
+            payout_id: payout.id,
+            item_type: 'funding',
+            item_count: fundingPledges?.length || 0,
+            gross_dt: fundingTotal,
+            gross_krw: fundingTotal * 100,
           })
         }
 

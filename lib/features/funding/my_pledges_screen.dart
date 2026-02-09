@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
 
@@ -29,7 +30,7 @@ class MyPledgesScreen extends ConsumerWidget {
             Icons.arrow_back_ios_new_rounded,
             color: isDark ? AppColors.textDark : AppColors.text,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: pledges.isEmpty

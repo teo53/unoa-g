@@ -78,23 +78,7 @@ class CreatorProfileScreen extends ConsumerWidget {
                       iconColor: AppColors.primary,
                       iconBgColor: AppColors.primary.withValues(alpha: 0.1),
                       title: '프로필 편집',
-                      subtitle: '아바타, 배경, 소개글, 테마 색상',
-                      onTap: () => context.push('/creator/profile/edit'),
-                    ),
-                    _MenuItem(
-                      icon: Icons.link_rounded,
-                      iconColor: Colors.blue,
-                      iconBgColor: Colors.blue.withValues(alpha: 0.1),
-                      title: '소셜 링크 관리',
-                      subtitle: 'Instagram, YouTube, TikTok 등',
-                      onTap: () => context.push('/creator/profile/edit'),
-                    ),
-                    _MenuItem(
-                      icon: Icons.verified_rounded,
-                      iconColor: Colors.amber,
-                      iconBgColor: Colors.amber.withValues(alpha: 0.1),
-                      title: '뱃지 & 스타일',
-                      subtitle: '인증 뱃지 스타일, 프로필 레이아웃',
+                      subtitle: '아바타, 배경, 소개글, 소셜 링크, 테마',
                       onTap: () => context.push('/creator/profile/edit'),
                     ),
                   ],
@@ -106,14 +90,6 @@ class CreatorProfileScreen extends ConsumerWidget {
                 _MenuSection(
                   title: '크리에이터 관리',
                   items: [
-                    _MenuItem(
-                      icon: Icons.dashboard_customize_rounded,
-                      iconColor: Colors.indigo,
-                      iconBgColor: Colors.indigo.withValues(alpha: 0.1),
-                      title: '콘텐츠 관리',
-                      subtitle: '팬에게 보여질 프로필 꾸미기',
-                      onTap: () => context.push('/creator/content'),
-                    ),
                     _MenuItem(
                       icon: Icons.analytics_rounded,
                       iconColor: Colors.teal,

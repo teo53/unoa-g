@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
@@ -33,7 +34,7 @@ class TermsScreen extends StatelessWidget {
                     size: 20,
                     color: isDark ? AppColors.textDark : AppColors.text,
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                 ),
                 Expanded(
                   child: Text(

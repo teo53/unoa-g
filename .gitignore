@@ -41,6 +41,9 @@ app.*.map.json
 /android/app/release
 
 # Web related
+**/node_modules/
+**/.next/
+test_output*.txt
 
 # Firebase CLI cache
 .firebase/

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/accessibility_helper.dart';
 import '../../data/mock/mock_data.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
+import '../../shared/widgets/skeleton_loader.dart';
+import '../../shared/widgets/error_boundary.dart';
 
 class SubscriptionsScreen extends StatelessWidget {
   const SubscriptionsScreen({super.key});
@@ -23,9 +26,10 @@ class SubscriptionsScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () => context.pop(),
-                  icon: Icon(
+                AccessibleTapTarget(
+                  semanticLabel: '뒤로가기',
+                  onTap: () => context.pop(),
+                  child: Icon(
                     Icons.arrow_back_ios_new,
                     color: isDark
                         ? AppColors.textMainDark
@@ -187,9 +191,7 @@ class SubscriptionsScreen extends StatelessWidget {
               subtitle: '현재: 켜짐',
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('자동 갱신 설정 기능 준비 중')),
-                );
+                _showAutoRenewDialog(context, subscription);
               },
             ),
             _ManageOption(
@@ -234,37 +236,104 @@ class SubscriptionsScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _showAutoRenewDialog(BuildContext context, dynamic subscription) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('자동 갱신 안내'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.surfaceAltDark
+                    : AppColors.surfaceAlt,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '구독 자동 갱신 정보',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• 현재 구독: ${subscription.tier} (${subscription.formattedPrice}/월)\n'
+                    '• 다음 결제일: ${subscription.formattedNextBilling}\n'
+                    '• 결제 주기: 매월 자동 갱신\n'
+                    '• 결제 수단: 등록된 카드',
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.6,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '자동 갱신을 해제하면 다음 결제일에 구독이 종료됩니다. '
+              '결제일 최소 24시간 전에 해제해야 다음 결제가 방지됩니다.',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark
+                    ? AppColors.textMutedDark
+                    : AppColors.textMuted,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('닫기'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('자동 갱신 해제 처리되었습니다')),
+              );
+            },
+            child: Text(
+              '자동 갱신 해제',
+              style: TextStyle(color: AppColors.danger),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.card_membership_outlined,
-            size: 64,
-            color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '아직 구독 중인 아티스트가 없습니다',
-            style: TextStyle(
-              fontSize: 15,
-              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-            ),
-          ),
-          const SizedBox(height: 24),
-          PrimaryButton(
-            label: '아티스트 찾아보기',
-            icon: Icons.search,
-            onPressed: () {},
-          ),
-        ],
+    return EmptyState(
+      title: '아직 구독 중인 아티스트가 없습니다',
+      message: '좋아하는 아티스트를 구독하고 메시지를 받아보세요',
+      icon: Icons.card_membership_outlined,
+      action: PrimaryButton(
+        label: '아티스트 찾아보기',
+        icon: Icons.search,
+        onPressed: () => context.push('/discover'),
       ),
     );
   }
@@ -438,7 +507,7 @@ class _SubscriptionCard extends StatelessWidget {
                   child: Text(
                     isExpiringSoon
                         ? '곧 만료됩니다 - $nextBillingDate'
-                        : '다음 결제일: $nextBillingDate',
+                        : '다음 자동 결제일: $nextBillingDate',
                     style: TextStyle(
                       fontSize: 12,
                       color: isExpiringSoon

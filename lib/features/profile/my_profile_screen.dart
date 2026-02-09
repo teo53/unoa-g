@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../data/mock/mock_data.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/utils/animation_utils.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class MyProfileScreen extends ConsumerWidget {
@@ -62,59 +63,62 @@ class MyProfileScreen extends ConsumerWidget {
               children: [
                 const SizedBox(height: 16),
 
-                // Avatar
-                Stack(
-                  children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.primary.withValues(alpha: 0.2),
-                            Colors.transparent,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: profile.avatarUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: profile.avatarUrl!,
-                                fit: BoxFit.cover,
-                              )
-                            : Container(
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.person, size: 48),
-                              ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
+                // Avatar (tap to edit profile)
+                GestureDetector(
+                  onTap: () => context.push('/profile/edit'),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 96,
+                        height: 96,
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isDark
-                                ? AppColors.backgroundDark
-                                : AppColors.backgroundLight,
-                            width: 4,
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.primary.withValues(alpha: 0.2),
+                              Colors.transparent,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 12,
+                        child: ClipOval(
+                          child: profile.avatarUrl != null
+                              ? CachedNetworkImage(
+                                  imageUrl: profile.avatarUrl!,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.person, size: 48),
+                                ),
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.backgroundDark
+                                  : AppColors.backgroundLight,
+                              width: 4,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -143,33 +147,53 @@ class MyProfileScreen extends ConsumerWidget {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
+
+                // Edit profile link
+                GestureDetector(
+                  onTap: () => context.push('/profile/edit'),
+                  child: Text(
+                    '탭하여 프로필 수정',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
 
                 // Stats Row - Fan only sees subscription count and DT balance
                 if (!isCreator) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          label: '구독 중',
-                          value: '${user.subscriptionCount}명',
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 100),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _StatCard(
+                            label: '구독 중',
+                            value: '${user.subscriptionCount}명',
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          label: 'DT 잔액',
-                          value: '${user.dtBalance}',
-                          valueColor: AppColors.primary,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _StatCard(
+                            label: 'DT 잔액',
+                            value: '${user.dtBalance}',
+                            valueColor: AppColors.primary,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                 ],
 
                 // Menu Section 1
-                _MenuSection(
+                SlideFadeAnimation.fromBottom(
+                  delay: const Duration(milliseconds: 200),
+                  child: _MenuSection(
                   items: [
                     _MenuItem(
                       icon: Icons.account_balance_wallet,
@@ -189,51 +213,58 @@ class MyProfileScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+                ),
 
                 const SizedBox(height: 16),
 
                 // Creator Section
                 if (isCreator) ...[
-                  _MenuSection(
-                    items: [
-                      _MenuItem(
-                        icon: Icons.dashboard_rounded,
-                        iconColor: AppColors.primary,
-                        iconBgColor: AppColors.primary.withOpacity(0.1),
-                        title: '크리에이터 스튜디오',
-                        subtitle: '크리에이터 대시보드로 이동',
-                        onTap: () => context.go('/creator/dashboard'),
-                      ),
-                    ],
+                  SlideFadeAnimation.fromBottom(
+                    delay: const Duration(milliseconds: 250),
+                    child: _MenuSection(
+                      items: [
+                        _MenuItem(
+                          icon: Icons.dashboard_rounded,
+                          iconColor: AppColors.primary,
+                          iconBgColor: AppColors.primary.withOpacity(0.1),
+                          title: '크리에이터 스튜디오',
+                          subtitle: '크리에이터 대시보드로 이동',
+                          onTap: () => context.go('/creator/dashboard'),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
 
                 // Menu Section 2
-                _MenuSection(
-                  items: [
-                    _MenuItem(
-                      icon: Icons.notifications,
-                      iconColor: Colors.orange,
-                      iconBgColor: Colors.orange.withOpacity(0.1),
-                      title: '알림 설정',
-                      onTap: () => context.push('/settings/notifications'),
-                    ),
-                    _MenuItem(
-                      icon: Icons.security,
-                      iconColor: Colors.purple,
-                      iconBgColor: Colors.purple.withOpacity(0.1),
-                      title: '계정 / 보안',
-                      onTap: () => context.push('/settings/account'),
-                    ),
-                    _MenuItem(
-                      icon: Icons.headset_mic,
-                      iconColor: Colors.green,
-                      iconBgColor: Colors.green.withOpacity(0.1),
-                      title: '고객센터',
-                      onTap: () => context.push('/help'),
-                    ),
-                  ],
+                SlideFadeAnimation.fromBottom(
+                  delay: const Duration(milliseconds: 300),
+                  child: _MenuSection(
+                    items: [
+                      _MenuItem(
+                        icon: Icons.notifications,
+                        iconColor: Colors.orange,
+                        iconBgColor: Colors.orange.withOpacity(0.1),
+                        title: '알림 설정',
+                        onTap: () => context.push('/settings/notifications'),
+                      ),
+                      _MenuItem(
+                        icon: Icons.security,
+                        iconColor: Colors.purple,
+                        iconBgColor: Colors.purple.withOpacity(0.1),
+                        title: '계정 / 보안',
+                        onTap: () => context.push('/settings/account'),
+                      ),
+                      _MenuItem(
+                        icon: Icons.headset_mic,
+                        iconColor: Colors.green,
+                        iconBgColor: Colors.green.withOpacity(0.1),
+                        title: '고객센터',
+                        onTap: () => context.push('/help'),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 32),

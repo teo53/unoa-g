@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
 import 'funding_tier_select_screen.dart';
@@ -48,7 +49,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
               ),
               const SizedBox(height: 8),
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => context.pop(),
                 child: const Text('돌아가기'),
               ),
             ],

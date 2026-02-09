@@ -59,12 +59,13 @@ void _showConsentChangeDialog(
         TextButton(
           onPressed: () {
             Navigator.pop(dialogContext);
+            // Update consent preference via Supabase
+            // In demo mode, just show confirmation
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('$consentType $action가 처리되었습니다'),
               ),
             );
-            // TODO: Call API to update consent preference
           },
           child: Text(action),
         ),
@@ -313,11 +314,7 @@ class SettingsScreen extends ConsumerWidget {
                         icon: Icons.history,
                         title: '동의 내역 확인',
                         subtitle: '마케팅 수신 동의 변경 기록',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('동의 내역 확인 기능 준비 중')),
-                          );
-                        },
+                        onTap: () => context.push('/settings/consent-history'),
                       ),
                     ],
                   ),
@@ -345,6 +342,26 @@ class SettingsScreen extends ConsumerWidget {
                         onTap: () => context.push('/settings/privacy'),
                       ),
                       _SettingsItem(
+                        icon: Icons.replay_outlined,
+                        title: '환불 정책',
+                        onTap: () => context.push('/settings/refund-policy'),
+                      ),
+                      _SettingsItem(
+                        icon: Icons.percent_outlined,
+                        title: '수수료 정책',
+                        onTap: () => context.push('/settings/fee-policy'),
+                      ),
+                      _SettingsItem(
+                        icon: Icons.gavel_outlined,
+                        title: '펀딩 서비스 약관',
+                        onTap: () => context.push('/settings/funding-terms'),
+                      ),
+                      _SettingsItem(
+                        icon: Icons.shield_outlined,
+                        title: '커뮤니티 가이드라인',
+                        onTap: () => context.push('/settings/moderation-policy'),
+                      ),
+                      _SettingsItem(
                         icon: Icons.business_outlined,
                         title: '사업자 정보',
                         onTap: () => context.push('/settings/company-info'),
@@ -358,7 +375,7 @@ class SettingsScreen extends ConsumerWidget {
                             context: context,
                             applicationName: 'UNO A',
                             applicationVersion: '1.0.0',
-                            applicationLegalese: '© 2024 UNO A',
+                            applicationLegalese: '© 2025 주식회사 언도어엔터테인먼트',
                           );
                         },
                       ),

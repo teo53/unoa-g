@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/accessibility_helper.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
@@ -34,9 +35,10 @@ class _NotificationSettingsScreenState
             padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () => context.pop(),
-                  icon: Icon(
+                AccessibleTapTarget(
+                  semanticLabel: '뒤로가기',
+                  onTap: () => context.pop(),
+                  child: Icon(
                     Icons.arrow_back_ios_new,
                     color: isDark
                         ? AppColors.textMainDark

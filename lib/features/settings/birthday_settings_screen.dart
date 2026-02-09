@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/accessibility_helper.dart';
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
@@ -184,9 +185,10 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
             padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () => context.pop(),
-                  icon: Icon(
+                AccessibleTapTarget(
+                  semanticLabel: '뒤로가기',
+                  onTap: () => context.pop(),
+                  child: Icon(
                     Icons.arrow_back_ios_new,
                     color: isDark
                         ? AppColors.textMainDark

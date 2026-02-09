@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
@@ -9,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/chat_list_provider.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import '../../shared/widgets/push_permission_prompt.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/chat_input_bar_v2.dart';
 import 'widgets/voice_message_widget.dart';
@@ -65,6 +67,26 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
 
     // Add scroll listener for pagination
     _scrollController.addListener(_onScroll);
+
+    // Show push notification prompt on first chat entry
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPushPermissionPrompt();
+    });
+  }
+
+  Future<void> _checkPushPermissionPrompt() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final hasShown = prefs.getBool('push_prompt_shown') ?? false;
+      if (!hasShown && mounted) {
+        await prefs.setBool('push_prompt_shown', true);
+        if (mounted) {
+          PushPermissionPrompt.show(context);
+        }
+      }
+    } catch (_) {
+      // SharedPreferences may not be available
+    }
   }
 
   @override
@@ -223,9 +245,12 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
             ),
           ),
 
-          // Artist Info
+          // Artist Info (tappable → artist profile)
           Expanded(
-            child: Row(
+            child: GestureDetector(
+              onTap: () => context.push('/artist/${channel?.artistId ?? widget.channelId}'),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Stack(
@@ -307,6 +332,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
                     ),
                   ),
               ],
+            ),
             ),
           ),
 

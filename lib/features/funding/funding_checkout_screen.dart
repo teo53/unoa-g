@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/business_config.dart';
@@ -182,7 +183,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
             Icons.arrow_back_ios_new_rounded,
             color: isDark ? AppColors.textDark : AppColors.text,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: Column(

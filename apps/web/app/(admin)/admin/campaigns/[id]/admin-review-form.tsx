@@ -381,30 +381,29 @@ export default function AdminReviewForm({ id }: AdminReviewFormProps) {
             )}
           </div>
 
+          ```tsx
           {/* Checklist */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">검토 항목</h2>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-center gap-2">
-                <input type="checkbox" className="rounded" />
-                <span>제목과 내용이 일치</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <input type="checkbox" className="rounded" />
-                <span>커버 이미지 적절</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <input type="checkbox" className="rounded" />
-                <span>리워드 가격 적정</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <input type="checkbox" className="rounded" />
-                <span>부적절한 내용 없음</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <input type="checkbox" className="rounded" />
-                <span>저작권 문제 없음</span>
-              </li>
+            <ul className="space-y-3 text-sm text-gray-600">
+              {[
+                { id: 'check-content', label: '제목과 내용이 일치' },
+                { id: 'check-image', label: '커버 이미지 적절' },
+                { id: 'check-price', label: '리워드 가격 적정' },
+                { id: 'check-inappropriate', label: '부적절한 내용 없음' },
+                { id: 'check-copyright', label: '저작권 문제 없음' },
+              ].map((item) => (
+                <li key={item.id} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id={item.id}
+                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                  />
+                  <label htmlFor={item.id} className="cursor-pointer select-none">
+                    {item.label}
+                  </label>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

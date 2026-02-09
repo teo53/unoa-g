@@ -357,6 +357,16 @@ serve(async (req) => {
       paymentData.status === 'CANCELED' ||
       paymentData.status === 'CANCELLED'
 
+    // Chargeback detection
+    // PortOne V2: Transaction.PartialCancelled, Transaction.CancelPending
+    // TossPayments: PARTIAL_CANCELED status, cancels array with chargeback reason
+    const isChargeback =
+      eventType === 'Transaction.PartialCancelled' ||
+      eventType === 'Transaction.CancelPending' ||
+      eventType === 'payment.chargeback' ||
+      paymentData.status === 'PARTIAL_CANCELED' ||
+      (paymentData.cancels && paymentData.cancels[0]?.cancelReason?.toUpperCase().includes('CHARGEBACK'))
+
     // Get purchase record
     const { data: purchase, error: purchaseError } = await supabase
       .from('dt_purchases')
@@ -400,6 +410,46 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ success: true, message: 'Cancellation processed' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Handle chargeback dispute
+    if (isChargeback) {
+      const disputeAmountKrw = paymentData.cancels?.[0]?.cancelAmount || purchase.price_krw || 0
+      const disputeReason = paymentData.cancels?.[0]?.cancelReason || paymentData.failReason || 'Chargeback'
+
+      console.log(`Processing chargeback for purchase ${orderId}: ${disputeAmountKrw} KRW`)
+
+      const { data: chargebackResult, error: chargebackError } = await supabase.rpc('process_chargeback', {
+        p_purchase_id: orderId,
+        p_provider_dispute_id: paymentId || webhookId,
+        p_payment_provider: provider,
+        p_dispute_amount_krw: disputeAmountKrw,
+        p_dispute_reason: disputeReason,
+      })
+
+      if (chargebackError) {
+        console.error(`Chargeback processing failed for purchase ${orderId}:`, chargebackError)
+        logEntry.error_message = `Chargeback processing failed: ${chargebackError.message}`
+        logEntry.processed_status = 'failed'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ error: 'Chargeback processing failed' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      console.log(`Chargeback processed for purchase ${orderId}:`, JSON.stringify(chargebackResult))
+      logEntry.processed_status = 'success'
+      await logWebhookEvent(supabase, logEntry)
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Chargeback processed',
+          disputeId: chargebackResult?.dispute_id,
+          dtFrozen: chargebackResult?.dt_frozen,
+        }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

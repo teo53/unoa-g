@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../shared/widgets/status_timeline.dart';
 import 'my_pledges_screen.dart';
 
 /// Result screen after funding pledge
@@ -121,6 +122,34 @@ class FundingResultScreen extends StatelessWidget {
                 ),
 
               if (success) ...[
+                const SizedBox(height: 16),
+
+                // Funding progress timeline
+                StatusTimeline(
+                  steps: [
+                    StatusTimelineStep(
+                      title: '후원 완료',
+                      subtitle: '결제가 정상 처리되었습니다',
+                      status: StepStatus.completed,
+                    ),
+                    StatusTimelineStep(
+                      title: '펀딩 진행 중',
+                      subtitle: '목표 금액 달성까지 진행 중',
+                      status: StepStatus.active,
+                    ),
+                    StatusTimelineStep(
+                      title: '펀딩 종료',
+                      subtitle: '목표 달성 여부 확인',
+                      status: StepStatus.pending,
+                    ),
+                    StatusTimelineStep(
+                      title: '리워드 발송',
+                      subtitle: '크리에이터가 리워드를 발송합니다',
+                      status: StepStatus.pending,
+                    ),
+                  ],
+                ),
+
                 const SizedBox(height: 16),
 
                 // Notice

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
+import '../../shared/widgets/skeleton_loader.dart';
+import '../../shared/widgets/error_boundary.dart';
 import 'funding_detail_screen.dart';
 
 /// Main funding screen showing active campaigns (fan view)
@@ -221,29 +223,21 @@ class _CampaignList extends ConsumerWidget {
     }
 
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return ListView.builder(
+        padding: const EdgeInsets.all(20),
+        itemCount: 4,
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: SkeletonCard(width: double.infinity, height: 180),
+        ),
+      );
     }
 
     if (campaigns.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.campaign_outlined,
-              size: 64,
-              color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '진행 중인 펀딩이 없습니다',
-              style: TextStyle(
-                fontSize: 16,
-                color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        title: '진행 중인 펀딩이 없습니다',
+        message: '새로운 크리에이터의 펀딩 캠페인을 기다려주세요',
+        icon: Icons.campaign_outlined,
       );
     }
 

@@ -154,10 +154,11 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '• DT는 UNO A 앱 내에서만 사용 가능한 선불 크레딧으로, 현금 또는 법정화폐가 아닙니다\n'
-                          '• DT는 환불이 불가합니다\n'
-                          '• 구매 후 7일 이내 미사용 시 환불 요청 가능\n'
-                          '• 보너스 DT는 환불 대상에서 제외됩니다',
+                          '• DT는 UNO A 앱 내에서만 사용 가능한 선불전자지급수단(선불 크레딧)으로, 현금 또는 법정화폐가 아닙니다\n'
+                          '• 구매 후 7일 이내 미사용 DT는 환불 요청이 가능합니다\n'
+                          '• 사용된 DT 및 보너스 DT는 환불 대상에서 제외됩니다\n'
+                          '• DT 유효기간: 구매일로부터 5년 (전자금융거래법)\n'
+                          '• 환불 요청: 설정 > 고객센터 또는 거래내역에서 신청',
                           style: TextStyle(
                             fontSize: 12,
                             height: 1.5,
