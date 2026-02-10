@@ -144,6 +144,33 @@ serve(async (req) => {
       )
     }
 
+    // Fetch conversation context (last 5 messages for dialog flow)
+    let conversationHistory: { content: string; sender_type: string }[] = []
+    if (message_id) {
+      // Get the target message's created_at for ordering
+      const { data: targetMsg } = await adminClient
+        .from('messages')
+        .select('created_at, sender_id')
+        .eq('id', message_id)
+        .single()
+
+      if (targetMsg) {
+        // Fetch recent messages before this one (same channel, same fan + creator only)
+        const { data: contextMsgs } = await adminClient
+          .from('messages')
+          .select('content, sender_type')
+          .eq('channel_id', channel_id)
+          .lt('created_at', targetMsg.created_at)
+          .is('deleted_at', null)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (contextMsgs) {
+          conversationHistory = contextMsgs.reverse() // chronological order
+        }
+      }
+    }
+
     // --- Observability: Compute idempotency key for caching ---
     const idempotencyInput = `${channel_id}:${message_id || ''}:${fanMessageContent}`
     const idempotencyKey = `idem_${hashString(idempotencyInput)}`
@@ -219,12 +246,14 @@ serve(async (req) => {
       fanMessageContent,
       creatorProfile,
       recentMessages || [],
+      conversationHistory,
       style,
       max_chars
     )
 
     // Call Claude API
     if (!ANTHROPIC_API_KEY) {
+      console.error('AI service not configured')
       // Update job status on error
       if (jobId) {
         await adminClient.from('ai_draft_jobs').update({
@@ -235,7 +264,7 @@ serve(async (req) => {
         }).eq('id', jobId)
       }
       return new Response(
-        JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }),
+        JSON.stringify({ error: 'AI service configuration error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -356,12 +385,25 @@ function buildPrompt(
   fanMessage: string,
   creator: { stage_name?: string; category?: string[] } | null,
   recentMessages: { content: string }[],
+  conversationHistory: { content: string; sender_type: string }[],
   style: string,
   maxChars: number
 ): string {
   const stageName = creator?.stage_name || '크리에이터'
   const categories = creator?.category?.join(', ') || '엔터테인먼트'
   const patternAnalysis = analyzeCreatorPatterns(recentMessages)
+
+  // Build conversation context section
+  let contextSection = ''
+  if (conversationHistory.length > 0) {
+    const contextLines = conversationHistory.map(m =>
+      m.sender_type === 'artist' ? `[크리에이터] "${m.content}"` : `[팬] "${m.content}"`
+    ).join('\n')
+    contextSection = `[대화 맥락 (최근 대화 흐름)]
+${contextLines}
+
+`
+  }
 
   return `
 당신은 K-pop/엔터테인먼트 크리에이터의 팬 메시지 답글 초안을 작성하는 도우미입니다.
@@ -372,8 +414,13 @@ function buildPrompt(
 
 ${patternAnalysis}
 
-[팬 메시지]
+${contextSection}[팬 메시지]
 "${fanMessage}"
+
+[메시지 유형 분석]
+먼저 팬 메시지의 유형을 파악하세요 (질문/감사/축하/일상대화/요청/동의/감탄).
+대화 맥락을 고려하여 문맥에 맞는 답변을 작성하세요.
+특히 "맞아", "그래", "ㅋㅋ", "ㅎㅎ" 등 짧은 반응형 메시지는 이전 대화 흐름에서 답변 단서를 찾으세요.
 
 [스타일 가이드]: ${style === 'warm' ? '따뜻하고 다정하게' : style === 'playful' ? '재미있고 유쾌하게' : '자연스럽고 친근하게'}
 [글자 제한]: 각 답변 ${maxChars}자 이내
@@ -410,6 +457,7 @@ async function callAnthropic(prompt: string, apiKey: string): Promise<{ suggesti
     body: JSON.stringify({
       model,
       max_tokens: 1024,
+      temperature: 0.7,
       messages: [{ role: 'user', content: prompt }],
     }),
   })

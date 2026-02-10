@@ -1,5 +1,6 @@
 /// Shared widgets barrel export file
 /// Import this file to access all shared widgets in one import
+library;
 
 // Layout & Scaffold
 export 'app_scaffold.dart';

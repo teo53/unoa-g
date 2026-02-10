@@ -96,7 +96,7 @@ class FcmService {
     try {
       final user = SupabaseConfig.client.auth.currentUser;
       if (user == null) {
-        debugPrint('[FCM] No authenticated user, skipping token save');
+        assert(() { debugPrint('[FCM] No authenticated user, skipping token save'); return true; }());
         return;
       }
 
@@ -108,9 +108,9 @@ class FcmService {
         'updated_at': DateTime.now().toIso8601String(),
       }, onConflict: 'user_id, token');
 
-      debugPrint('[FCM] Token saved to server');
+      assert(() { debugPrint('[FCM] Token saved to server'); return true; }());
     } catch (e) {
-      debugPrint('[FCM] Error saving token: $e');
+      assert(() { debugPrint('[FCM] Error saving token: ${e.runtimeType}'); return true; }());
     }
   }
 
@@ -128,9 +128,9 @@ class FcmService {
           .eq('user_id', user.id)
           .eq('token', _token!);
 
-      debugPrint('[FCM] Token removed from server');
+      assert(() { debugPrint('[FCM] Token removed from server'); return true; }());
     } catch (e) {
-      debugPrint('[FCM] Error removing token: $e');
+      assert(() { debugPrint('[FCM] Error removing token: ${e.runtimeType}'); return true; }());
     }
   }
 

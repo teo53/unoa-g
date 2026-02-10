@@ -139,7 +139,7 @@ class _OtpInputFieldState extends State<OtpInputField> {
     }
   }
 
-  void _onKeyDown(int index, RawKeyEvent event) {
+  void _onKeyDown(int index, KeyEvent event) {
     if (event.logicalKey.keyLabel == 'Backspace' &&
         _controllers[index].text.isEmpty &&
         index > 0) {
@@ -155,9 +155,9 @@ class _OtpInputFieldState extends State<OtpInputField> {
         widget.length,
         (index) => SizedBox(
           width: 45,
-          child: RawKeyboardListener(
+          child: KeyboardListener(
             focusNode: FocusNode(),
-            onKey: (event) => _onKeyDown(index, event),
+            onKeyEvent: (event) => _onKeyDown(index, event),
             child: TextFormField(
               controller: _controllers[index],
               focusNode: _focusNodes[index],

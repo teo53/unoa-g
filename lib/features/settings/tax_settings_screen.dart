@@ -40,16 +40,16 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('소득유형이 변경되었습니다'),
+          const SnackBar(
+            content: Text('소득유형이 변경되었습니다'),
             backgroundColor: AppColors.success,
           ),
         );
         context.pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('변경에 실패했습니다. 다시 시도해주세요.'),
+          const SnackBar(
+            content: Text('변경에 실패했습니다. 다시 시도해주세요.'),
             backgroundColor: AppColors.danger,
           ),
         );
@@ -117,7 +117,7 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.info_outline, size: 20, color: AppColors.verified),
+                        const Icon(Icons.info_outline, size: 20, color: AppColors.verified),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -147,34 +147,51 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                   const SizedBox(height: 12),
 
                   // Income type options
-                  _buildIncomeTypeOption(
-                    isDark,
-                    title: '사업소득',
-                    subtitle: '프리랜서/개인사업자 (가장 일반적)',
-                    taxRate: '3.3%',
-                    description: '소득세 3.0% + 지방소득세 0.3%',
-                    value: 'business_income',
-                    isRecommended: true,
-                  ),
-                  const SizedBox(height: 12),
+                  RadioGroup<String>(
+                    groupValue: _selectedIncomeType,
+                    onChanged: (v) => setState(() => _selectedIncomeType = v),
+                    child: Column(
+                      children: [
+                        _buildIncomeTypeOption(
+                          isDark,
+                          title: '사업소득',
+                          subtitle: '프리랜서/개인사업자 (가장 일반적)',
+                          taxRate: '3.3%',
+                          description: '소득세 3.0% + 지방소득세 0.3%',
+                          value: 'business_income',
+                          isRecommended: true,
+                        ),
+                        const SizedBox(height: 12),
 
-                  _buildIncomeTypeOption(
-                    isDark,
-                    title: '기타소득',
-                    subtitle: '일시적 소득 (비정기 활동)',
-                    taxRate: '8.8%',
-                    description: '소득세 8.0% + 지방소득세 0.8%',
-                    value: 'other_income',
-                  ),
-                  const SizedBox(height: 12),
+                        _buildIncomeTypeOption(
+                          isDark,
+                          title: '기타소득',
+                          subtitle: '일시적 소득 (비정기 활동)',
+                          taxRate: '8.8%',
+                          description: '소득세 8.0% + 지방소득세 0.8%',
+                          value: 'other_income',
+                        ),
+                        const SizedBox(height: 12),
 
-                  _buildIncomeTypeOption(
-                    isDark,
-                    title: '세금계산서 발행',
-                    subtitle: '사업자등록증 보유자',
-                    taxRate: '0%',
-                    description: '원천징수 없음, 부가세 별도 신고',
-                    value: 'invoice',
+                        _buildIncomeTypeOption(
+                          isDark,
+                          title: '세금계산서 발행',
+                          subtitle: '사업자등록증 보유자',
+                          taxRate: '0%',
+                          description: '원천징수 없음, 부가세 별도 신고',
+                          value: 'invoice',
+                        ),
+                        const SizedBox(height: 12),
+                        _buildIncomeTypeOption(
+                          isDark,
+                          title: '비거주자',
+                          subtitle: '해외 거주 크리에이터',
+                          taxRate: '22%',
+                          description: '소득세 20.0% + 지방소득세 2.0% (소득세법 §156①④)',
+                          value: 'non_resident',
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 24),
@@ -192,7 +209,7 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.check_circle_outline,
                             color: AppColors.success,
                             size: 20,
@@ -288,8 +305,6 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
           children: [
             Radio<String>(
               value: value,
-              groupValue: _selectedIncomeType,
-              onChanged: (v) => setState(() => _selectedIncomeType = v),
               activeColor: AppColors.primary,
             ),
             const SizedBox(width: 8),
@@ -315,7 +330,7 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
+                          child: const Text(
                             '추천',
                             style: TextStyle(
                               fontSize: 11,
@@ -356,7 +371,7 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                         ),
                         child: Text(
                           taxRate,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
@@ -382,6 +397,8 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
         return '기타소득 (8.8%)';
       case 'invoice':
         return '세금계산서 (0%)';
+      case 'non_resident':
+        return '비거주자 (22%)';
       default:
         return type;
     }

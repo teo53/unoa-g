@@ -120,13 +120,13 @@ class ModerationPolicyScreen extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(Icons.shield_outlined, color: AppColors.primary600, size: 24),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 '안전한 커뮤니티를 위해',
                 style: TextStyle(
@@ -137,7 +137,7 @@ class ModerationPolicyScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'UNO A는 모든 이용자가 안전하고 즐겁게 소통할 수 있는 환경을 만들기 위해 '
             '커뮤니티 가이드라인을 운영합니다. 아래 규칙을 준수해주세요.',

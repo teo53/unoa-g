@@ -66,7 +66,7 @@ class SettlementHistoryScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.error_outline, size: 48, color: AppColors.danger),
+                    const Icon(Icons.error_outline, size: 48, color: AppColors.danger),
                     const SizedBox(height: 12),
                     Text(state.error!, style: TextStyle(color: isDark ? AppColors.textSubDark : AppColors.textSubLight)),
                     const SizedBox(height: 16),
@@ -119,7 +119,7 @@ class SettlementHistoryScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             AppColors.primary600,
             AppColors.primary700,
@@ -234,7 +234,7 @@ class SettlementHistoryScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   settlement.incomeTypeLabel,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.success,

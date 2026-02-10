@@ -62,7 +62,7 @@ class Settlement {
     this.dtRepliesCount = 0,
     this.dtRepliesGross = 0,
     this.dtTotalGross = 0,
-    this.dtToKrwRate = 1.0,
+    this.dtToKrwRate = 100.0,
     this.dtRevenueKrw = 0,
     this.fundingCampaignsCount = 0,
     this.fundingPledgesCount = 0,
@@ -94,7 +94,7 @@ class Settlement {
       dtRepliesCount: (json['dt_replies_count'] as num?)?.toInt() ?? 0,
       dtRepliesGross: (json['dt_replies_gross'] as num?)?.toInt() ?? 0,
       dtTotalGross: (json['dt_total_gross'] as num?)?.toInt() ?? 0,
-      dtToKrwRate: (json['dt_to_krw_rate'] as num?)?.toDouble() ?? 1.0,
+      dtToKrwRate: (json['dt_to_krw_rate'] as num?)?.toDouble() ?? 100.0,
       dtRevenueKrw: (json['dt_revenue_krw'] as num?)?.toInt() ?? 0,
       fundingCampaignsCount: (json['funding_campaigns_count'] as num?)?.toInt() ?? 0,
       fundingPledgesCount: (json['funding_pledges_count'] as num?)?.toInt() ?? 0,
@@ -123,6 +123,8 @@ class Settlement {
         return '기타소득 (8.8%)';
       case 'invoice':
         return '세금계산서 (0%)';
+      case 'non_resident':
+        return '비거주자 (22%)';
       default:
         return incomeType;
     }
@@ -216,6 +218,13 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
 
     final now = DateTime.now();
     final settlements = [
+      // 데모 정산 1: 1 DT = 100 KRW 기준
+      // DT 팁 3500 DT × 100 = 350,000원, 카드 1800 DT × 100 = 180,000원,
+      // 답글 240 DT × 100 = 24,000원 → DT 합계 5540 DT = 554,000원
+      // 펀딩 690,000원 → 총 수익 1,244,000원
+      // 수수료 20% = 248,800원 → 과세대상 995,200원
+      // 원천징수 3.3% = 32,842원 (소득세 29,856 + 지방세 2,986)
+      // 순 지급 = 962,358원
       Settlement(
         id: 'demo_settlement_1',
         payoutId: 'demo_payout_1',
@@ -223,12 +232,13 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
         periodStart: '${now.year}-${(now.month - 1).toString().padLeft(2, '0')}-01',
         periodEnd: '${now.year}-${(now.month - 1).toString().padLeft(2, '0')}-${DateTime(now.year, now.month, 0).day}',
         dtTipsCount: 45,
-        dtTipsGross: 350000,
+        dtTipsGross: 3500,
         dtCardsCount: 12,
-        dtCardsGross: 180000,
+        dtCardsGross: 1800,
         dtRepliesCount: 8,
-        dtRepliesGross: 24000,
-        dtTotalGross: 554000,
+        dtRepliesGross: 240,
+        dtTotalGross: 5540,
+        dtToKrwRate: 100.0,
         dtRevenueKrw: 554000,
         fundingCampaignsCount: 1,
         fundingPledgesCount: 23,
@@ -238,12 +248,17 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
         platformFeeKrw: 248800,
         incomeType: 'business_income',
         taxRate: 3.3,
-        incomeTaxKrw: 29857,
+        incomeTaxKrw: 29856,
         localTaxKrw: 2986,
-        withholdingTaxKrw: 32843,
-        netPayoutKrw: 962357,
+        withholdingTaxKrw: 32842,
+        netPayoutKrw: 962358,
         createdAt: DateTime(now.year, now.month, 1),
       ),
+      // 데모 정산 2: DT만 있는 월
+      // DT 팁 2800 DT, 카드 1200 DT, 답글 150 DT = 4150 DT × 100 = 415,000원
+      // 수수료 20% = 83,000원 → 과세대상 332,000원
+      // 원천징수 3.3% = 10,956원
+      // 순 지급 = 321,044원
       Settlement(
         id: 'demo_settlement_2',
         payoutId: 'demo_payout_2',
@@ -251,12 +266,13 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
         periodStart: '${now.year}-${(now.month - 2).toString().padLeft(2, '0')}-01',
         periodEnd: '${now.year}-${(now.month - 2).toString().padLeft(2, '0')}-${DateTime(now.year, now.month - 1, 0).day}',
         dtTipsCount: 38,
-        dtTipsGross: 280000,
+        dtTipsGross: 2800,
         dtCardsCount: 8,
-        dtCardsGross: 120000,
+        dtCardsGross: 1200,
         dtRepliesCount: 5,
-        dtRepliesGross: 15000,
-        dtTotalGross: 415000,
+        dtRepliesGross: 150,
+        dtTotalGross: 4150,
+        dtToKrwRate: 100.0,
         dtRevenueKrw: 415000,
         fundingCampaignsCount: 0,
         fundingPledgesCount: 0,

@@ -115,7 +115,7 @@ extension PreviewFanTypeExtension on PreviewFanType {
 /// 구독 일수에 따른 글자 수 제한 계산
 int getCharacterLimitForDays(int days) {
   // BusinessConfig의 characterLimitsByDays 맵 사용
-  final limits = BusinessConfig.characterLimitsByDays;
+  const limits = BusinessConfig.characterLimitsByDays;
 
   // 내림차순으로 정렬된 키들을 순회하여 해당하는 제한 찾기
   final sortedKeys = limits.keys.toList()..sort((a, b) => b.compareTo(a));

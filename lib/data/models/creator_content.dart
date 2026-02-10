@@ -1,5 +1,6 @@
 /// 크리에이터 콘텐츠 관련 모델 정의
 /// - 드롭(상품), 이벤트, 직캠 관리
+library;
 
 import 'package:flutter/material.dart';
 

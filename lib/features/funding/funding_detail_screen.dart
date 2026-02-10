@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
+import '../../shared/widgets/intermediary_notice_widget.dart';
 import 'funding_tier_select_screen.dart';
 
 /// Campaign detail screen showing full information
@@ -97,6 +98,11 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
             ),
           ),
 
+          // 통신판매중개자 고지 (전자상거래법 §20①)
+          const SliverToBoxAdapter(
+            child: IntermediaryNoticeWidget(),
+          ),
+
           // Content
           SliverToBoxAdapter(
             child: Column(
@@ -121,7 +127,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                           ),
                           child: Text(
                             campaign.category!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               color: AppColors.primary600,
@@ -230,7 +236,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                       children: [
                         Text(
                           '${fundingPercent.toStringAsFixed(0)}% 달성',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
@@ -436,7 +442,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                         color: AppColors.primary100,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
+                      child: const Text(
                         '인기',
                         style: TextStyle(
                           fontSize: 11,
@@ -452,7 +458,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
 
               Text(
                 '${_formatNumber(tier.priceKrw)}원',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,

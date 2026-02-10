@@ -198,7 +198,7 @@ class FundingTermsScreen extends StatelessWidget {
       ),
       child: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w700,
           color: AppColors.primary700,

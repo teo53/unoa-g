@@ -106,8 +106,9 @@ serve(async (req) => {
 
     // Check API key
     if (!ANTHROPIC_API_KEY) {
+      console.error('AI service not configured')
       return new Response(
-        JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured', correlation_id: correlationId }),
+        JSON.stringify({ error: 'AI service configuration error', correlation_id: correlationId }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

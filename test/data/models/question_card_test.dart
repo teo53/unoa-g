@@ -5,7 +5,7 @@ import 'package:uno_a_flutter/data/models/poll_draft.dart';
 
 void main() {
   group('QuestionCard', () {
-    Map<String, dynamic> _createCardJson({
+    Map<String, dynamic> createCardJson({
       String id = 'qc-1',
       String cardText = '오늘 기분이 어떤가요?',
       int level = 1,
@@ -27,7 +27,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips all fields correctly', () {
-        final json = _createCardJson(
+        final json = createCardJson(
           tags: ['일상', '감정'],
           voteCount: 5,
           answerHint: '솔직하게!',
@@ -45,7 +45,7 @@ void main() {
       });
 
       test('handles null tags and answerHint', () {
-        final json = _createCardJson();
+        final json = createCardJson();
         final card = QuestionCard.fromJson(json);
         expect(card.tags, isEmpty);
         expect(card.answerHint, isNull);
@@ -54,22 +54,22 @@ void main() {
 
     group('levelDisplayName', () {
       test('returns 가벼운 for level 1', () {
-        final card = QuestionCard.fromJson(_createCardJson(level: 1));
+        final card = QuestionCard.fromJson(createCardJson(level: 1));
         expect(card.levelDisplayName, equals('가벼운'));
       });
 
       test('returns 보통 for level 2', () {
-        final card = QuestionCard.fromJson(_createCardJson(level: 2));
+        final card = QuestionCard.fromJson(createCardJson(level: 2));
         expect(card.levelDisplayName, equals('보통'));
       });
 
       test('returns 깊은 for level 3', () {
-        final card = QuestionCard.fromJson(_createCardJson(level: 3));
+        final card = QuestionCard.fromJson(createCardJson(level: 3));
         expect(card.levelDisplayName, equals('깊은'));
       });
 
       test('returns empty string for unknown level', () {
-        final card = QuestionCard.fromJson(_createCardJson(level: 99));
+        final card = QuestionCard.fromJson(createCardJson(level: 99));
         expect(card.levelDisplayName, equals(''));
       });
     });
@@ -77,47 +77,47 @@ void main() {
     group('subdeckDisplayName', () {
       test('returns 아이스브레이커 for icebreaker', () {
         final card =
-            QuestionCard.fromJson(_createCardJson(subdeck: 'icebreaker'));
+            QuestionCard.fromJson(createCardJson(subdeck: 'icebreaker'));
         expect(card.subdeckDisplayName, equals('아이스브레이커'));
       });
 
       test('returns 일상 for daily_scene', () {
         final card =
-            QuestionCard.fromJson(_createCardJson(subdeck: 'daily_scene'));
+            QuestionCard.fromJson(createCardJson(subdeck: 'daily_scene'));
         expect(card.subdeckDisplayName, equals('일상'));
       });
 
       test('returns 깊은 대화 for deep_but_safe', () {
         final card =
-            QuestionCard.fromJson(_createCardJson(subdeck: 'deep_but_safe'));
+            QuestionCard.fromJson(createCardJson(subdeck: 'deep_but_safe'));
         expect(card.subdeckDisplayName, equals('깊은 대화'));
       });
 
       test('returns raw value for unknown subdeck', () {
         final card =
-            QuestionCard.fromJson(_createCardJson(subdeck: 'custom'));
+            QuestionCard.fromJson(createCardJson(subdeck: 'custom'));
         expect(card.subdeckDisplayName, equals('custom'));
       });
     });
 
     group('equality', () {
       test('cards with same id are equal', () {
-        final a = QuestionCard.fromJson(_createCardJson(id: 'qc-1'));
+        final a = QuestionCard.fromJson(createCardJson(id: 'qc-1'));
         final b = QuestionCard.fromJson(
-            _createCardJson(id: 'qc-1', cardText: '다른 질문'));
+            createCardJson(id: 'qc-1', cardText: '다른 질문'));
         expect(a, equals(b));
       });
 
       test('cards with different id are not equal', () {
-        final a = QuestionCard.fromJson(_createCardJson(id: 'qc-1'));
-        final b = QuestionCard.fromJson(_createCardJson(id: 'qc-2'));
+        final a = QuestionCard.fromJson(createCardJson(id: 'qc-1'));
+        final b = QuestionCard.fromJson(createCardJson(id: 'qc-2'));
         expect(a, isNot(equals(b)));
       });
     });
   });
 
   group('DailyQuestionSet', () {
-    QuestionCard _card(String id, {int voteCount = 0}) {
+    QuestionCard card0(String id, {int voteCount = 0}) {
       return QuestionCard(
         id: id,
         cardText: 'Question $id',
@@ -177,7 +177,7 @@ void main() {
           setId: 'set-1',
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
-          cards: [_card('qc-1')],
+          cards: [card0('qc-1')],
           userVote: 'qc-1',
         );
         expect(set.hasVoted, isTrue);
@@ -188,7 +188,7 @@ void main() {
           setId: 'set-1',
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
-          cards: [_card('qc-1')],
+          cards: [card0('qc-1')],
         );
         expect(set.hasVoted, isFalse);
       });
@@ -200,7 +200,7 @@ void main() {
           setId: 'set-1',
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
-          cards: [_card('qc-1'), _card('qc-2')],
+          cards: [card0('qc-1'), card0('qc-2')],
           userVote: 'qc-2',
         );
         expect(set.votedCard?.id, equals('qc-2'));
@@ -211,7 +211,7 @@ void main() {
           setId: 'set-1',
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
-          cards: [_card('qc-1')],
+          cards: [card0('qc-1')],
         );
         expect(set.votedCard, isNull);
       });
@@ -224,9 +224,9 @@ void main() {
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
           cards: [
-            _card('qc-1', voteCount: 3),
-            _card('qc-2', voteCount: 7),
-            _card('qc-3', voteCount: 5),
+            card0('qc-1', voteCount: 3),
+            card0('qc-2', voteCount: 7),
+            card0('qc-3', voteCount: 5),
           ],
           totalVotes: 15,
         );
@@ -251,8 +251,8 @@ void main() {
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
           cards: [
-            _card('qc-1', voteCount: 0),
-            _card('qc-2', voteCount: 0),
+            card0('qc-1', voteCount: 0),
+            card0('qc-2', voteCount: 0),
           ],
         );
 
@@ -276,8 +276,8 @@ void main() {
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
           cards: [
-            _card('qc-1', voteCount: 3),
-            _card('qc-2', voteCount: 7),
+            card0('qc-1', voteCount: 3),
+            card0('qc-2', voteCount: 7),
           ],
           totalVotes: 10,
         );
@@ -290,7 +290,7 @@ void main() {
           setId: 'set-1',
           kstDate: DateTime(2024, 6, 15),
           deckCode: 'ex_idol',
-          cards: [_card('qc-1')],
+          cards: [card0('qc-1')],
           totalVotes: 0,
         );
         expect(set.getVotePercentage('qc-1'), equals(0.0));

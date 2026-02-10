@@ -68,7 +68,7 @@ class DemoModeService {
         avatarUrl: DemoConfig.demoCreatorAvatarUrl,
         bio: DemoConfig.demoCreatorBio,
         createdAt:
-            DateTime.now().subtract(Duration(days: DemoConfig.demoAccountCreatedDaysAgo)),
+            DateTime.now().subtract(const Duration(days: DemoConfig.demoAccountCreatedDaysAgo)),
       );
 
   /// Get demo fan profile

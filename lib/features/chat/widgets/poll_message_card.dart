@@ -39,7 +39,7 @@ class PollMessageCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
+              const Icon(
                 Icons.poll_outlined,
                 size: 18,
                 color: AppColors.primary500,
@@ -184,8 +184,8 @@ class _PollOptionButton extends StatelessWidget {
             Row(
               children: [
                 if (isMyVote)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
+                  const Padding(
+                    padding: EdgeInsets.only(right: 6),
                     child: Icon(
                       Icons.check_circle,
                       size: 16,

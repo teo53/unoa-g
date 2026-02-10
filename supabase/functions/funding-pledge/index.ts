@@ -28,7 +28,6 @@ interface PledgeRequest {
   campaignId: string
   tierId?: string
   amountKrw: number
-  extraSupportKrw?: number
   paymentId: string          // PortOne paymentId (결제 완료 후 받은 ID)
   paymentOrderId: string     // 가맹점 주문번호
   paymentMethod: string      // 'card', 'bank_transfer', etc
@@ -151,7 +150,6 @@ serve(async (req) => {
       campaignId,
       tierId,
       amountKrw,
-      extraSupportKrw = 0,
       paymentId,
       paymentOrderId,
       paymentMethod,
@@ -171,7 +169,7 @@ serve(async (req) => {
       )
     }
 
-    const totalAmountKrw = amountKrw + extraSupportKrw
+    const totalAmountKrw = amountKrw
 
     // Check idempotency
     const { data: existingPledge } = await supabaseAdmin
@@ -292,7 +290,7 @@ serve(async (req) => {
         p_tier_id: tierId || null,
         p_user_id: user.id,
         p_amount_krw: amountKrw,
-        p_extra_support_krw: extraSupportKrw,
+        p_extra_support_krw: 0, // deprecated: extra support removed
         p_payment_order_id: paymentOrderId,
         p_payment_method: paymentMethod || 'card',
         p_pg_transaction_id: verification.pgTransactionId || null,

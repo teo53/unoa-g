@@ -66,6 +66,9 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
   final FocusNode _editFocusNode = FocusNode();
   bool _hasText = false;
 
+  // 수정 강제화: AI/템플릿 원본 추적
+  String? _originalAiText;
+
   @override
   void initState() {
     super.initState();
@@ -90,7 +93,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
 
   Future<void> _fetchSuggestions() async {
     setState(() {
-      _state = AiDraftGenerating(correlationId: '');
+      _state = const AiDraftGenerating(correlationId: '');
       _showingTemplateLibrary = false;
     });
 
@@ -121,7 +124,14 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     _editController.selection = TextSelection.fromPosition(
       TextPosition(offset: text.length),
     );
+    _originalAiText = text; // 원본 저장 (수정 강제화용)
     _editFocusNode.requestFocus();
+  }
+
+  /// 원본 AI/템플릿 텍스트와 동일한지 확인
+  bool get _isUnmodifiedDraft {
+    if (_originalAiText == null) return false;
+    return _editController.text.trim() == _originalAiText!.trim();
   }
 
   void _rerollSuggestions() {
@@ -134,6 +144,16 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
   }
 
   void _insertAndClose(String text) {
+    // 수정 강제화: AI/템플릿 초안을 그대로 전송하는 것 차단
+    if (_isUnmodifiedDraft) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('AI 초안을 그대로 사용할 수 없습니다. 약간이라도 수정해주세요.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     Navigator.pop(context);
     widget.onInsert(text);
   }
@@ -189,18 +209,18 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                   : _buildContent(isDark),
             ),
 
-            // 직접 작성 라벨 + 구분선
+            // 직접 작성 라벨 + 수정 상태 표시
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.edit_outlined,
                     size: 14,
                     color: AppColors.primary500,
                   ),
                   const SizedBox(width: 4),
-                  Text(
+                  const Text(
                     '직접 작성 / 편집',
                     style: TextStyle(
                       fontSize: 12,
@@ -208,6 +228,33 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                       color: AppColors.primary500,
                     ),
                   ),
+                  const Spacer(),
+                  // 수정 상태 표시기
+                  if (_originalAiText != null && _hasText)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _isUnmodifiedDraft
+                              ? Icons.warning_amber_rounded
+                              : Icons.check_circle,
+                          size: 13,
+                          color: _isUnmodifiedDraft
+                              ? AppColors.warning
+                              : AppColors.success,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _isUnmodifiedDraft ? '수정이 필요합니다' : '수정됨',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: _isUnmodifiedDraft
+                                ? AppColors.warning
+                                : AppColors.success,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -227,7 +274,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.auto_awesome,
             size: 24,
             color: AppColors.primary500,
@@ -426,7 +473,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
             children: [
               GestureDetector(
                 onTap: () => setState(() => _showingTemplateLibrary = false),
-                child: Icon(
+                child: const Icon(
                   Icons.arrow_back_ios,
                   size: 16,
                   color: AppColors.primary500,
@@ -564,7 +611,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 36,
             height: 36,
             child: CircularProgressIndicator(
@@ -611,7 +658,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline, size: 18, color: AppColors.warning),
+              const Icon(Icons.info_outline, size: 18, color: AppColors.warning),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -877,7 +924,7 @@ class _SuggestionCard extends StatelessWidget {
                   ),
                   child: Text(
                     suggestion.label,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppColors.primary500,
@@ -889,11 +936,11 @@ class _SuggestionCard extends StatelessWidget {
                   if (onEdit != null)
                     GestureDetector(
                       onTap: onEdit,
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.edit_outlined, size: 13, color: AppColors.primary600),
-                          const SizedBox(width: 3),
+                          SizedBox(width: 3),
                           Text(
                             '편집',
                             style: TextStyle(
@@ -908,11 +955,11 @@ class _SuggestionCard extends StatelessWidget {
                   if (onEdit != null) const SizedBox(width: 12),
                   GestureDetector(
                     onTap: onCopy,
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.copy, size: 13, color: AppColors.primary600),
-                        const SizedBox(width: 3),
+                        SizedBox(width: 3),
                         Text(
                           '복사',
                           style: TextStyle(
@@ -939,7 +986,7 @@ class _SuggestionCard extends StatelessWidget {
             ),
             if (isSelected) ...[
               const SizedBox(height: 6),
-              Text(
+              const Text(
                 '아래에서 수정 후 전송하세요 \u2193',
                 style: TextStyle(
                   fontSize: 11,

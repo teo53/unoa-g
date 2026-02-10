@@ -201,7 +201,7 @@ class _CreatorDashboardScreenState
             onTap: onMore,
             child: Text(
               trailing ?? '더보기',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: AppColors.primary,
@@ -346,15 +346,15 @@ class _CreatorDashboardScreenState
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: AppRadius.baseBR,
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(
                       Icons.trending_up_rounded,
                       color: Colors.white,
                       size: 16,
                     ),
-                    const SizedBox(width: 4),
-                    const Text(
+                    SizedBox(width: 4),
+                    Text(
                       '+23%',
                       style: TextStyle(
                         fontSize: 12,
@@ -386,14 +386,14 @@ class _CreatorDashboardScreenState
             ),
           ),
           const SizedBox(height: 20),
-          Row(
+          const Row(
             children: [
               _RevenueDetailItem(
                 label: '후원',
                 value: '845,000',
                 icon: Icons.diamond_rounded,
               ),
-              const SizedBox(width: 24),
+              SizedBox(width: 24),
               _RevenueDetailItem(
                 label: '구독',
                 value: '400,000',
@@ -476,10 +476,10 @@ class _CreatorDashboardScreenState
 
   Widget _buildRevenueChart(bool isDark) {
     final data = [
-      _ChartData('9월', 820000),
-      _ChartData('10월', 950000),
-      _ChartData('11월', 1100000),
-      _ChartData('12월', 1245000),
+      const _ChartData('9월', 820000),
+      const _ChartData('10월', 950000),
+      const _ChartData('11월', 1100000),
+      const _ChartData('12월', 1245000),
     ];
     final maxValue = data.map((e) => e.value).reduce((a, b) => a > b ? a : b);
 
@@ -615,7 +615,7 @@ class _CreatorDashboardScreenState
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.people_rounded,
                   color: AppColors.primary,
                   size: 20,
@@ -644,7 +644,7 @@ class _CreatorDashboardScreenState
                     color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
+                  child: const Text(
                     '+15',
                     style: TextStyle(
                       fontSize: 12,
@@ -713,25 +713,25 @@ class _CreatorDashboardScreenState
 
   Widget _buildRecentActivity(bool isDark) {
     final activities = [
-      _ActivityItem(
+      const _ActivityItem(
         icon: Icons.diamond,
         iconColor: Colors.pink,
         title: '하늘덕후님이 500 DT를 후원했어요',
         time: '2시간 전',
       ),
-      _ActivityItem(
+      const _ActivityItem(
         icon: Icons.chat_bubble,
         iconColor: Colors.teal,
         title: '별빛팬님이 메시지를 보냈어요',
         time: '3시간 전',
       ),
-      _ActivityItem(
+      const _ActivityItem(
         icon: Icons.person_add,
         iconColor: Colors.blue,
         title: '새로운 구독자 15명이 추가되었어요',
         time: '오늘',
       ),
-      _ActivityItem(
+      const _ActivityItem(
         icon: Icons.trending_up,
         iconColor: Colors.green,
         title: '이번 주 수익이 23% 증가했어요',

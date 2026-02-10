@@ -1,6 +1,7 @@
 /// Private Card Model
 /// Special "letter-style" message that artists send to selected fans
 /// with decorative card backgrounds and personalized messages.
+library;
 
 /// Status of a private card
 enum PrivateCardStatus {

@@ -78,7 +78,7 @@ class _CreatorFundingScreenState extends ConsumerState<CreatorFundingScreen>
           ),
           const Spacer(),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.add_circle_outline_rounded,
               color: AppColors.primary600,
             ),
@@ -241,7 +241,7 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             AppColors.primary600,
             AppColors.primary700,
@@ -566,8 +566,8 @@ class _CreatorCampaignList extends ConsumerWidget {
             ),
             if (campaign.status == CampaignStatus.draft)
               ListTile(
-                leading: Icon(Icons.publish_outlined, color: AppColors.primary),
-                title: Text(
+                leading: const Icon(Icons.publish_outlined, color: AppColors.primary),
+                title: const Text(
                   '펀딩 시작하기',
                   style: TextStyle(color: AppColors.primary),
                 ),
@@ -596,9 +596,9 @@ class _CreatorCampaignList extends ConsumerWidget {
               ),
             if (campaign.status == CampaignStatus.active)
               ListTile(
-                leading: Icon(Icons.pause_circle_outline,
+                leading: const Icon(Icons.pause_circle_outline,
                     color: AppColors.warning),
-                title: Text(
+                title: const Text(
                   '펀딩 일시정지',
                   style: TextStyle(color: AppColors.warning),
                 ),
@@ -624,9 +624,9 @@ class _CreatorCampaignList extends ConsumerWidget {
               ),
             if (campaign.status == CampaignStatus.paused)
               ListTile(
-                leading: Icon(Icons.play_circle_outline,
+                leading: const Icon(Icons.play_circle_outline,
                     color: AppColors.success),
-                title: Text(
+                title: const Text(
                   '펀딩 재개하기',
                   style: TextStyle(color: AppColors.success),
                 ),
@@ -841,7 +841,7 @@ class _CreatorCampaignCard extends StatelessWidget {
                               color: AppColors.warning.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: Text(
+                            child: const Text(
                               '일시정지',
                               style: TextStyle(
                                 fontSize: 12,

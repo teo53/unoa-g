@@ -314,7 +314,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             avatarUrl: DemoConfig.demoCreatorAvatarUrl,
             bio: DemoConfig.demoCreatorBio,
             createdAt: DateTime.now().subtract(
-              Duration(days: DemoConfig.demoAccountCreatedDaysAgo),
+              const Duration(days: DemoConfig.demoAccountCreatedDaysAgo),
             ),
           )
         : UserProfile(

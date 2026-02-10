@@ -94,9 +94,11 @@ class SemanticTextField extends StatelessWidget {
 class ScreenReaderAnnouncement {
   /// Announce a message to screen readers
   static void announce(BuildContext context, String message, {bool assertive = false}) {
-    SemanticsService.announce(
+    SemanticsService.sendAnnouncement(
+      View.of(context),
       message,
-      assertive ? TextDirection.ltr : TextDirection.ltr,
+      TextDirection.ltr,
+      assertiveness: assertive ? Assertiveness.assertive : Assertiveness.polite,
     );
   }
 

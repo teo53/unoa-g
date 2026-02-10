@@ -81,12 +81,12 @@ class _IdentityVerificationButtonState
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.primary500.withOpacity(0.1),
+                color: AppColors.primary500.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.phone_android,
                     size: 48,
                     color: AppColors.primary500,
@@ -115,9 +115,9 @@ class _IdentityVerificationButtonState
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
+                color: Colors.amber.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -193,9 +193,9 @@ class _IdentityVerificationButtonState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.withOpacity(0.3)),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -203,7 +203,7 @@ class _IdentityVerificationButtonState
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.2),
+              color: Colors.green.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -286,18 +286,18 @@ class _IdentityVerificationButtonState
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.primary500.withOpacity(0.1),
+                color: AppColors.primary500.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: _isLoading
-                  ? Padding(
-                      padding: const EdgeInsets.all(12),
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: AppColors.primary500,
                       ),
                     )
-                  : Icon(
+                  : const Icon(
                       Icons.phone_android,
                       color: AppColors.primary500,
                       size: 24,

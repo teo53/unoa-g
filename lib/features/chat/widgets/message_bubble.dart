@@ -302,7 +302,7 @@ class _FanBubble extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.star_rounded,
                             size: 10,
                             color: AppColors.star,

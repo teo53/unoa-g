@@ -58,7 +58,7 @@ class _SubscriberStatsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.people_rounded, color: AppColors.primary, size: 20),
+              const Icon(Icons.people_rounded, color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
               Text(
                 '구독자 현황',
@@ -189,7 +189,7 @@ class _TierBreakdownCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.stars_rounded, color: Colors.amber, size: 20),
+              const Icon(Icons.stars_rounded, color: Colors.amber, size: 20),
               const SizedBox(width: 8),
               Text(
                 '구독 등급별 현황',
@@ -302,11 +302,11 @@ class _TopDonorsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final donors = [
-      _Donor('팬클럽회장', 'VIP', 50000, 365),
-      _Donor('응원봇', 'VIP', 25000, 180),
-      _Donor('하늘덕후', 'VIP', 15000, 200),
-      _Donor('열혈팬', 'STANDARD', 3500, 90),
-      _Donor('별빛팬', 'STANDARD', 2000, 45),
+      const _Donor('팬클럽회장', 'VIP', 50000, 365),
+      const _Donor('응원봇', 'VIP', 25000, 180),
+      const _Donor('하늘덕후', 'VIP', 15000, 200),
+      const _Donor('열혈팬', 'STANDARD', 3500, 90),
+      const _Donor('별빛팬', 'STANDARD', 2000, 45),
     ];
 
     return Container(
@@ -323,7 +323,7 @@ class _TopDonorsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.diamond_rounded, color: Colors.pink, size: 20),
+              const Icon(Icons.diamond_rounded, color: Colors.pink, size: 20),
               const SizedBox(width: 8),
               Text(
                 '상위 후원자',
@@ -459,7 +459,7 @@ class _DonorTile extends StatelessWidget {
           ),
           Text(
             '${formatNumber(donor.totalDonation)} DT',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Colors.pink,
@@ -492,7 +492,7 @@ class _EngagementCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.insights_rounded, color: AppColors.verified, size: 20),
+              const Icon(Icons.insights_rounded, color: AppColors.verified, size: 20),
               const SizedBox(width: 8),
               Text(
                 '참여도 지표',

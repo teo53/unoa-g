@@ -61,10 +61,10 @@ class FeePolicyScreen extends StatelessWidget {
                   _buildSectionTitle(isDark, '제1조 이용자(팬) 수수료'),
                   const SizedBox(height: 12),
                   _buildFeeTable(isDark, [
-                    _FeeRow('DT 충전', '무료', '결제 금액 = 충전 금액'),
-                    _FeeRow('구독 결제', '무료', '구독료 외 추가 수수료 없음'),
-                    _FeeRow('펀딩 참여', '무료', '후원 금액 외 추가 수수료 없음'),
-                    _FeeRow('DT 환불', '무료', '환불 수수료 없음'),
+                    const _FeeRow('DT 충전', '무료', '결제 금액 = 충전 금액'),
+                    const _FeeRow('구독 결제', '무료', '구독료 외 추가 수수료 없음'),
+                    const _FeeRow('펀딩 참여', '무료', '후원 금액 외 추가 수수료 없음'),
+                    const _FeeRow('DT 환불', '무료', '환불 수수료 없음'),
                   ]),
                   const SizedBox(height: 8),
                   Text(
@@ -89,9 +89,9 @@ class FeePolicyScreen extends StatelessWidget {
                     _FeeRow('크리에이터 정산',
                         '${BusinessConfig.creatorPayoutPercent.toInt()}%',
                         '수익의 ${BusinessConfig.creatorPayoutPercent.toInt()}% 지급'),
-                    _FeeRow('원천징수세', '3.3%',
+                    const _FeeRow('원천징수세', '3.3%',
                         '기타소득세 3% + 지방소득세 0.3%'),
-                    _FeeRow('최소 정산금액', '₩10,000',
+                    const _FeeRow('최소 정산금액', '₩10,000',
                         '미만 시 익월 이월'),
                   ]),
 
@@ -243,7 +243,7 @@ class FeePolicyScreen extends StatelessWidget {
                       width: 64,
                       child: Text(
                         row.fee,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: AppColors.primary600,

@@ -227,7 +227,7 @@ class SettingsSwitchItem extends StatelessWidget {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeColor: AppColors.primary600,
+        activeThumbColor: AppColors.primary600,
       ),
       onTap: () => onChanged(!value),
     );

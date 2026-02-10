@@ -4,7 +4,7 @@ import 'package:uno_a_flutter/data/models/fan_celebration.dart';
 
 void main() {
   group('CelebrationEvent', () {
-    Map<String, dynamic> _createEventJson({
+    Map<String, dynamic> createEventJson({
       String id = 'event-1',
       String channelId = 'ch-1',
       String fanCelebrationId = 'fc-1',
@@ -31,7 +31,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips core fields correctly', () {
-        final json = _createEventJson(status: 'sent', messageId: 'msg-1');
+        final json = createEventJson(status: 'sent', messageId: 'msg-1');
         final event = CelebrationEvent.fromJson(json);
 
         expect(event.id, equals('event-1'));
@@ -62,7 +62,7 @@ void main() {
       });
 
       test('defaults status to pending', () {
-        final json = _createEventJson();
+        final json = createEventJson();
         final event = CelebrationEvent.fromJson(json);
         expect(event.status, equals('pending'));
       });
@@ -71,13 +71,13 @@ void main() {
     group('isBirthday', () {
       test('returns true for birthday eventType', () {
         final event =
-            CelebrationEvent.fromJson(_createEventJson(eventType: 'birthday'));
+            CelebrationEvent.fromJson(createEventJson(eventType: 'birthday'));
         expect(event.isBirthday, isTrue);
       });
 
       test('returns false for milestone', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'milestone_100'),
+          createEventJson(eventType: 'milestone_100'),
         );
         expect(event.isBirthday, isFalse);
       });
@@ -86,21 +86,21 @@ void main() {
     group('isMilestone', () {
       test('returns true for milestone_100', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'milestone_100'),
+          createEventJson(eventType: 'milestone_100'),
         );
         expect(event.isMilestone, isTrue);
       });
 
       test('returns true for milestone_365', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'milestone_365'),
+          createEventJson(eventType: 'milestone_365'),
         );
         expect(event.isMilestone, isTrue);
       });
 
       test('returns false for birthday', () {
         final event =
-            CelebrationEvent.fromJson(_createEventJson(eventType: 'birthday'));
+            CelebrationEvent.fromJson(createEventJson(eventType: 'birthday'));
         expect(event.isMilestone, isFalse);
       });
     });
@@ -108,27 +108,27 @@ void main() {
     group('eventTypeLabel', () {
       test('returns 생일 for birthday', () {
         final event =
-            CelebrationEvent.fromJson(_createEventJson(eventType: 'birthday'));
+            CelebrationEvent.fromJson(createEventJson(eventType: 'birthday'));
         expect(event.eventTypeLabel, equals('생일'));
       });
 
       test('returns 100일 for milestone_100', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'milestone_100'),
+          createEventJson(eventType: 'milestone_100'),
         );
         expect(event.eventTypeLabel, equals('100일'));
       });
 
       test('returns 1주년 for milestone_365', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'milestone_365'),
+          createEventJson(eventType: 'milestone_365'),
         );
         expect(event.eventTypeLabel, equals('1주년'));
       });
 
       test('returns raw value for unknown type', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'custom_type'),
+          createEventJson(eventType: 'custom_type'),
         );
         expect(event.eventTypeLabel, equals('custom_type'));
       });
@@ -137,20 +137,20 @@ void main() {
     group('eventTypeEmoji', () {
       test('returns cake for birthday', () {
         final event =
-            CelebrationEvent.fromJson(_createEventJson(eventType: 'birthday'));
+            CelebrationEvent.fromJson(createEventJson(eventType: 'birthday'));
         expect(event.eventTypeEmoji, equals('🎂'));
       });
 
       test('returns party for milestone_100', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'milestone_100'),
+          createEventJson(eventType: 'milestone_100'),
         );
         expect(event.eventTypeEmoji, equals('🎊'));
       });
 
       test('returns default for unknown type', () {
         final event = CelebrationEvent.fromJson(
-          _createEventJson(eventType: 'unknown'),
+          createEventJson(eventType: 'unknown'),
         );
         expect(event.eventTypeEmoji, equals('🎉'));
       });
@@ -180,7 +180,7 @@ void main() {
   });
 
   group('FanCelebration', () {
-    Map<String, dynamic> _createFanCelebrationJson({
+    Map<String, dynamic> createFanCelebrationJson({
       String id = 'fc-1',
       String userId = 'user-1',
       String channelId = 'ch-1',
@@ -203,7 +203,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips core fields', () {
-        final json = _createFanCelebrationJson(
+        final json = createFanCelebrationJson(
           birthMonth: 3,
           birthDay: 15,
           birthdayVisible: true,
@@ -221,21 +221,21 @@ void main() {
     group('hasBirthday', () {
       test('returns true when both month and day are set', () {
         final fc = FanCelebration.fromJson(
-          _createFanCelebrationJson(birthMonth: 7, birthDay: 20),
+          createFanCelebrationJson(birthMonth: 7, birthDay: 20),
         );
         expect(fc.hasBirthday, isTrue);
       });
 
       test('returns false when month is null', () {
         final fc = FanCelebration.fromJson(
-          _createFanCelebrationJson(birthDay: 20),
+          createFanCelebrationJson(birthDay: 20),
         );
         expect(fc.hasBirthday, isFalse);
       });
 
       test('returns false when day is null', () {
         final fc = FanCelebration.fromJson(
-          _createFanCelebrationJson(birthMonth: 7),
+          createFanCelebrationJson(birthMonth: 7),
         );
         expect(fc.hasBirthday, isFalse);
       });
@@ -244,14 +244,14 @@ void main() {
     group('birthdayLabel', () {
       test('returns M월 D일 format when birthday is set', () {
         final fc = FanCelebration.fromJson(
-          _createFanCelebrationJson(birthMonth: 3, birthDay: 15),
+          createFanCelebrationJson(birthMonth: 3, birthDay: 15),
         );
         expect(fc.birthdayLabel, equals('3월 15일'));
       });
 
       test('returns 미등록 when no birthday', () {
         final fc = FanCelebration.fromJson(
-          _createFanCelebrationJson(),
+          createFanCelebrationJson(),
         );
         expect(fc.birthdayLabel, equals('미등록'));
       });
@@ -260,7 +260,7 @@ void main() {
     group('copyWith', () {
       test('can update birthday fields', () {
         final fc = FanCelebration.fromJson(
-          _createFanCelebrationJson(),
+          createFanCelebrationJson(),
         );
         final updated = fc.copyWith(birthMonth: 12, birthDay: 25);
 

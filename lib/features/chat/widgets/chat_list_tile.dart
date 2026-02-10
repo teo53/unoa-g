@@ -215,7 +215,7 @@ class ChatListTile extends StatelessWidget {
                         Icon(
                           Icons.push_pin,
                           size: 14,
-                          color: AppColors.primary.withOpacity(0.5),
+                          color: AppColors.primary.withValues(alpha: 0.5),
                         )
                       else
                         Icon(

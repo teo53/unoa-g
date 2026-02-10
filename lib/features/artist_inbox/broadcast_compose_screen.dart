@@ -197,7 +197,7 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.campaign_outlined,
             color: AppColors.primary600,
             size: 24,
@@ -207,7 +207,7 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   '모든 구독자에게 전송됩니다',
                   style: TextStyle(
                     fontSize: 14,
@@ -437,7 +437,7 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
       children: [
         Row(
           children: [
-            Icon(
+            const Icon(
               Icons.auto_fix_high,
               size: 16,
               color: AppColors.primary,
@@ -712,14 +712,14 @@ class _PlaceholderChip extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(
+              const Icon(
                 Icons.add_circle_outline,
                 size: 14,
                 color: AppColors.primary,

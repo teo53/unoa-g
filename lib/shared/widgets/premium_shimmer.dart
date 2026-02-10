@@ -166,7 +166,7 @@ class _PremiumShimmerState extends State<PremiumShimmer>
 
     final baseColor = widget.baseColor ?? AppColors.primaryShimmer;
     final highlightColor = widget.highlightColor ??
-        Colors.white.withOpacity(widget.intensity * 4); // Scale for visibility
+        Colors.white.withValues(alpha: widget.intensity * 4); // Scale for visibility
 
     return ClipRRect(
       borderRadius: widget.borderRadius ?? BorderRadius.zero,
@@ -185,9 +185,9 @@ class _PremiumShimmerState extends State<PremiumShimmer>
                         end: Alignment.bottomRight,
                         colors: [
                           Colors.transparent,
-                          baseColor.withOpacity(widget.intensity),
+                          baseColor.withValues(alpha: widget.intensity),
                           highlightColor,
-                          baseColor.withOpacity(widget.intensity),
+                          baseColor.withValues(alpha: widget.intensity),
                           Colors.transparent,
                         ],
                         stops: [
@@ -312,7 +312,7 @@ class PremiumContainer extends StatelessWidget {
       strongGlow: true,
       shimmerIntensity: 0.02,
       shimmerDuration: PremiumAnimations.shimmerSlow,
-      gradient: LinearGradient(
+      gradient: const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: AppColors.premiumGradient,

@@ -272,13 +272,14 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
       final package = MockData.dtPackages[_selectedPackageIndex!];
 
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (dialogCtx) => AlertDialog(
-          title: Row(
+          title: const Row(
             children: [
               Icon(Icons.check_circle, color: AppColors.success),
-              const SizedBox(width: 8),
-              const Text('충전 완료'),
+              SizedBox(width: 8),
+              Text('충전 완료'),
             ],
           ),
           content: Text(
@@ -290,7 +291,7 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                 Navigator.pop(dialogCtx);
                 context.pop(true); // 충전 완료 결과 전달
               },
-              child: Text(
+              child: const Text(
                 '확인',
                 style: TextStyle(color: AppColors.primary600),
               ),
@@ -305,6 +306,7 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
         _isProcessing = false;
       });
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.'),
@@ -330,7 +332,7 @@ class _CurrentBalanceCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: AppColors.premiumGradient,
@@ -460,7 +462,7 @@ class _PackageCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Icon(
+                const Icon(
                   Icons.diamond,
                   size: 18,
                   color: AppColors.primary500,
@@ -482,7 +484,7 @@ class _PackageCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '+$bonus 보너스',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary500,
@@ -567,7 +569,7 @@ class _PaymentMethodCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
+          const Icon(
             Icons.check_circle,
             color: AppColors.primary600,
           ),

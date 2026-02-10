@@ -408,7 +408,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          Icon(Icons.verified, size: 22, color: AppColors.verified),
+                          const Icon(Icons.verified, size: 22, color: AppColors.verified),
                           const SizedBox(width: 6),
                           const Icon(Icons.edit, size: 14, color: Colors.white70),
                         ],
@@ -1766,7 +1766,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               Navigator.pop(dialogContext);
               context.pop();
             },
-            child: Text('나가기', style: TextStyle(color: AppColors.danger)),
+            child: const Text('나가기', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -1860,7 +1860,7 @@ class _EditableSection extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary600,
@@ -1992,7 +1992,7 @@ class _ManageListSheet<T> extends StatelessWidget {
                         onPressed: () => onEdit(item),
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete_outline,
+                        icon: const Icon(Icons.delete_outline,
                             size: 20, color: AppColors.danger),
                         onPressed: () => onDelete(item),
                       ),

@@ -4,6 +4,7 @@
 /// - [UserAuthProfile]: Authentication and authorization data (from auth_provider)
 /// - [UserDisplayProfile]: UI display data with subscription and wallet info
 /// - [UserBase]: Common interface for all user types
+library;
 
 /// Sentinel value for copyWith to distinguish "not provided" from "set to null"
 const Object _sentinel = Object();

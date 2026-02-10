@@ -578,7 +578,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
             // 헤더
             Row(
               children: [
-                Icon(Icons.reply_rounded, color: AppColors.primary, size: 24),
+                const Icon(Icons.reply_rounded, color: AppColors.primary, size: 24),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -865,7 +865,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                         child: Container(
                           width: 8,
                           height: 8,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
@@ -946,8 +946,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
                     child: Icon(Icons.campaign_rounded, size: 18, color: AppColors.primary),
                   ),
                   const SizedBox(width: 8),
@@ -955,7 +955,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           '전체 전송 모드',
                           style: TextStyle(
                             fontSize: 13,
@@ -985,8 +985,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ),
                   GestureDetector(
                     onTap: () => setState(() => _isBannerDismissed = true),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
                       child: Icon(Icons.close, size: 16, color: AppColors.primary),
                     ),
                   ),
@@ -999,7 +999,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
           ),
 
         // 질문카드 패널
-        DailyQuestionCardsPanel(
+        const DailyQuestionCardsPanel(
           channelId: DemoConfig.demoChannelId,
           compact: true,
         ),
@@ -1192,12 +1192,14 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                               },
                             );
                             if (context.mounted) {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('투표가 전송되었습니다')),
                               );
                             }
                           } catch (e) {
                             if (context.mounted) {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('투표 전송 실패: $e')),
                               );
@@ -1632,7 +1634,7 @@ class _GroupChatBubble extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.diamond_rounded,
                               size: 10,
                               color: Colors.pink,
@@ -1821,7 +1823,7 @@ class _GroupChatBubble extends StatelessWidget {
                   if (isDirectReply)
                     Text(
                       '→ ${message.replyToFanName}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         color: Colors.purple,
                         fontWeight: FontWeight.w600,
@@ -1830,14 +1832,14 @@ class _GroupChatBubble extends StatelessWidget {
                   else if (hasReadStats)
                     Text(
                       '$readCount / ${_formatNumber(totalSubscribers)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     )
                   else
-                    Text(
+                    const Text(
                       '전체',
                       style: TextStyle(
                         fontSize: 9,

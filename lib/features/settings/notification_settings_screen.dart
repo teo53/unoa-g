@@ -68,7 +68,7 @@ class _NotificationSettingsScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Messages Section
-                  _SectionHeader(title: '메시지'),
+                  const _SectionHeader(title: '메시지'),
                   const SizedBox(height: 12),
                   _NotificationCard(
                     children: [
@@ -85,7 +85,7 @@ class _NotificationSettingsScreenState
                   const SizedBox(height: 24),
 
                   // Content Section
-                  _SectionHeader(title: '콘텐츠'),
+                  const _SectionHeader(title: '콘텐츠'),
                   const SizedBox(height: 12),
                   _NotificationCard(
                     children: [
@@ -110,7 +110,7 @@ class _NotificationSettingsScreenState
                   const SizedBox(height: 24),
 
                   // Account Section
-                  _SectionHeader(title: '계정'),
+                  const _SectionHeader(title: '계정'),
                   const SizedBox(height: 12),
                   _NotificationCard(
                     children: [
@@ -256,7 +256,7 @@ class _NotificationToggle extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.primary600,
+            activeThumbColor: AppColors.primary600,
           ),
         ],
       ),

@@ -43,7 +43,7 @@ class TokenExplanationSheet {
                     color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.chat_bubble_outline_rounded,
                     color: AppColors.primary,
                     size: 28,

@@ -226,7 +226,7 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
                         color: AppColors.primary500.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.cake_outlined,
                         size: 40,
                         color: AppColors.primary500,
@@ -495,7 +495,7 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
             Switch(
               value: _isVisible,
               onChanged: _onVisibilityChanged,
-              activeColor: AppColors.primary600,
+              activeThumbColor: AppColors.primary600,
             ),
           ],
         ),

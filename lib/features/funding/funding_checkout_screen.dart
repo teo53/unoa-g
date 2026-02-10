@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/business_config.dart';
 import '../../shared/widgets/auth_gate.dart';
+import '../../shared/widgets/intermediary_notice_widget.dart';
 import 'funding_result_screen.dart';
 
 /// Checkout screen for funding pledge (KRW 결제)
@@ -14,13 +15,11 @@ import 'funding_result_screen.dart';
 class FundingCheckoutScreen extends StatefulWidget {
   final Map<String, dynamic> campaign;
   final Map<String, dynamic> tier;
-  final int extraSupport;
 
   const FundingCheckoutScreen({
     super.key,
     required this.campaign,
     required this.tier,
-    required this.extraSupport,
   });
 
   @override
@@ -41,10 +40,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
 
   // KRW 결제: DT 지갑이 아니라 원화 결제
   int get _totalAmount =>
-      (widget.tier['price_krw'] as int? ??
-          widget.tier['price_dt'] as int? ??
-          0) +
-      widget.extraSupport;
+      widget.tier['price_krw'] as int? ??
+      widget.tier['price_dt'] as int? ??
+      0;
 
   @override
   void initState() {
@@ -117,7 +115,6 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
           'campaignId': widget.campaign['id'],
           'tierId': widget.tier['id'],
           'amountKrw': widget.tier['price_krw'] ?? widget.tier['price_dt'] ?? 0,
-          'extraSupportKrw': widget.extraSupport,
           'paymentId': paymentId,
           'paymentOrderId': orderId,
           'paymentMethod': _selectedPaymentMethod,
@@ -213,6 +210,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       ),
       body: Column(
         children: [
+          const IntermediaryNoticeWidget(),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(20),
@@ -228,14 +226,6 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                         widget.tier['title'] ?? '리워드',
                         '${_formatKrw(widget.tier['price_krw'] ?? widget.tier['price_dt'] ?? 0)}원',
                       ),
-                      if (widget.extraSupport > 0) ...[
-                        const SizedBox(height: 8),
-                        _buildSummaryRow(
-                          isDark,
-                          '추가 후원',
-                          '+${_formatKrw(widget.extraSupport)}원',
-                        ),
-                      ],
                       const Divider(height: 24),
                       _buildSummaryRow(
                         isDark,
@@ -355,7 +345,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.primary),
+                        borderSide: const BorderSide(color: AppColors.primary),
                       ),
                       filled: true,
                       fillColor: isDark
@@ -409,7 +399,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                             _isAnonymous = value;
                           });
                         },
-                        activeColor: AppColors.primary,
+                        activeThumbColor: AppColors.primary,
                       ),
                     ],
                   ),
@@ -446,7 +436,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                             TextSpan(
                               text: '펀딩 이용약관',
                               recognizer: _termsRecognizer,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.primary,
                                 decoration: TextDecoration.underline,
@@ -465,7 +455,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                                 TextSpan(
                                   text: '환불 정책',
                                   recognizer: _refundRecognizer,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppColors.primary,
                                     decoration: TextDecoration.underline,
                                   ),
@@ -503,7 +493,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline,
+                      const Icon(Icons.info_outline,
                           size: 16, color: AppColors.verified),
                       const SizedBox(width: 8),
                       Expanded(
@@ -640,7 +630,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
               ),
             ),
             if (isSelected)
-              Icon(Icons.check_circle, color: AppColors.primary, size: 20),
+              const Icon(Icons.check_circle, color: AppColors.primary, size: 20),
           ],
         ),
       ),

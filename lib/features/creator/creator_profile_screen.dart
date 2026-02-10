@@ -195,14 +195,14 @@ class CreatorProfileScreen extends ConsumerWidget {
                         color: AppColors.primary.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(
                           Icons.info_outline,
                           color: AppColors.primary,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             '데모 모드로 체험 중입니다. 실제 데이터는 저장되지 않습니다.',
@@ -371,7 +371,7 @@ class CreatorProfileScreen extends ConsumerWidget {
             },
             child: Text(
               isDemoMode ? '종료' : '로그아웃',
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
@@ -409,7 +409,7 @@ class _StatCard extends StatelessWidget {
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
@@ -695,7 +695,7 @@ class _TappableProfileArea extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
@@ -703,7 +703,7 @@ class _TappableProfileArea extends StatelessWidget {
                           size: 12,
                           color: AppColors.primary,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           '크리에이터',
                           style: TextStyle(

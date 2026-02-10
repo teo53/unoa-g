@@ -17,5 +17,6 @@
 /// LoadingState(message: '로딩 중...')
 /// LoadingState.compact(message: '로딩 중...')
 /// ```
+library;
 
 export 'error_boundary.dart';

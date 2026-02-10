@@ -109,8 +109,10 @@ class BusinessConfig {
   // DT (Digital Token) Currency
   // ============================================================
 
-  /// DT per KRW exchange rate (1 KRW = X DT)
-  static const int dtPerKrw = 1;
+  /// DT 기본 단가 참고값 (패키지별 고정 가격 적용, 환율 개념 아님)
+  /// 정산 시에는 실제 결제 금액(price_krw) 기준으로 처리
+  /// 이 값은 UI 표시용 참고값으로만 사용
+  static const int dtBaseUnitPriceKrw = 100;
 
   /// Minimum DT charge amount
   static const int minChargeDt = 1000;

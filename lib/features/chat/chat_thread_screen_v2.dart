@@ -99,7 +99,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   void _onScroll() {
     // Load more messages when scrolled near the top (with tolerance for floating point)
     final position = _scrollController.position;
-    final threshold = 100.0; // pixels from end to trigger load
+    const threshold = 100.0; // pixels from end to trigger load
 
     if (position.pixels >= position.maxScrollExtent - threshold) {
       ref.read(chatProvider(widget.channelId).notifier).loadMoreMessages();

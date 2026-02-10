@@ -58,7 +58,7 @@ async function verifyPortOneSignature(
   }
 
   if (!PORTONE_WEBHOOK_SECRET) {
-    console.error('Missing PORTONE_WEBHOOK_SECRET')
+    console.error('Webhook signature verification not configured')
     return false
   }
 

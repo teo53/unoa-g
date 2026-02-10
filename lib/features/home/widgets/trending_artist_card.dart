@@ -31,7 +31,7 @@ class TrendingArtistCard extends StatelessWidget {
           // uno-a (2) soft shadow style
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 20,
               spreadRadius: -2,
               offset: const Offset(0, 4),
@@ -90,7 +90,7 @@ class TrendingArtistCard extends StatelessWidget {
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.4),
+                              Colors.black.withValues(alpha: 0.4),
                             ],
                           ),
                         ),
@@ -136,7 +136,7 @@ class TrendingArtistCard extends StatelessWidget {
                               artist.group!,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 shadows: const [
                                   Shadow(
                                     color: Colors.black38,

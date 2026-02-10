@@ -36,7 +36,7 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
   Widget build(BuildContext context) {
     final composeState = ref.watch(privateCardComposeProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final maxChars = BusinessConfig.privateCardMaxChars;
+    const maxChars = BusinessConfig.privateCardMaxChars;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 100),
@@ -72,7 +72,7 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
+                    const Text(
                       '(필수)',
                       style: TextStyle(
                         fontSize: 13,
@@ -108,7 +108,7 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                           height: 1.6,
                         ),
                         decoration: InputDecoration(
-                          hintText: '팬에게 전할 마음을 담아보세요\n(${maxChars}자 이내)',
+                          hintText: '팬에게 전할 마음을 담아보세요\n($maxChars자 이내)',
                           hintStyle: TextStyle(
                             color: isDark ? Colors.grey[600] : Colors.grey[400],
                             fontSize: 15,

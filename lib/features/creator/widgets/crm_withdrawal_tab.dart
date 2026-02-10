@@ -184,7 +184,7 @@ class _WithdrawButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: AppColors.primary),
+            side: const BorderSide(color: AppColors.primary),
           ),
           elevation: 0,
         ),
@@ -277,8 +277,8 @@ class _WithdrawButton extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('출금 신청이 완료되었습니다'),
+                    const SnackBar(
+                      content: Text('출금 신청이 완료되었습니다'),
                       backgroundColor: AppColors.success,
                     ),
                   );
@@ -373,7 +373,7 @@ class _WithdrawalHistoryCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.history_rounded,
                     color: AppColors.primary,
                     size: 20,
@@ -440,7 +440,7 @@ class _WithdrawalHistoryTile extends StatelessWidget {
               color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.check_circle_rounded,
               color: AppColors.success,
               size: 20,
@@ -479,7 +479,7 @@ class _WithdrawalHistoryTile extends StatelessWidget {
               color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
+            child: const Text(
               '완료',
               style: TextStyle(
                 fontSize: 12,
@@ -513,10 +513,10 @@ class _PendingEarningsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.info_outline, color: AppColors.verified, size: 20),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 '정산 안내',
                 style: TextStyle(

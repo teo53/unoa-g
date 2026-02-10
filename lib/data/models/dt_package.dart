@@ -1,6 +1,7 @@
 /// DT Package Model
 /// Unified model for DT (Diamond Token) packages
 /// Used for in-app purchases of virtual currency
+library;
 
 class DtPackage {
   final String id;

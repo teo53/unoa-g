@@ -45,7 +45,7 @@ class NotificationsScreen extends StatelessWidget {
                       const SnackBar(content: Text('모든 알림을 읽음 처리했습니다')),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     '모두 읽음',
                     style: TextStyle(
                       fontSize: 13,
@@ -62,7 +62,7 @@ class NotificationsScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 16),
               children: [
-                _DateHeader(title: '오늘'),
+                const _DateHeader(title: '오늘'),
                 _NotificationItem(
                   avatarUrl:
                       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100',
@@ -93,7 +93,7 @@ class NotificationsScreen extends StatelessWidget {
                   onTap: () => context.push('/wallet'),
                 ),
 
-                _DateHeader(title: '어제'),
+                const _DateHeader(title: '어제'),
                 _NotificationItem(
                   avatarUrl:
                       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
@@ -115,7 +115,7 @@ class NotificationsScreen extends StatelessWidget {
                   onTap: () => context.push('/artist/4'),
                 ),
 
-                _DateHeader(title: '이번 주'),
+                const _DateHeader(title: '이번 주'),
                 _NotificationItem(
                   avatarUrl: '',
                   title: '구독 갱신 알림',
@@ -237,7 +237,7 @@ class _NotificationItem extends StatelessWidget {
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.primary500,
                             shape: BoxShape.circle,
                           ),

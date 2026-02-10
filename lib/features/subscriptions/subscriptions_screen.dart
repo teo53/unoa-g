@@ -56,7 +56,7 @@ class SubscriptionsScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: AppColors.subtleGradient,
@@ -97,7 +97,7 @@ class SubscriptionsScreen extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: const Text(
                       '아티스트 찾기',
                       style: TextStyle(
                         fontSize: 12,
@@ -219,7 +219,7 @@ class SubscriptionsScreen extends StatelessWidget {
                             const SnackBar(content: Text('구독 해지 기능 준비 중')),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           '해지',
                           style: TextStyle(color: AppColors.danger),
                         ),
@@ -311,7 +311,7 @@ class SubscriptionsScreen extends StatelessWidget {
                 const SnackBar(content: Text('자동 갱신 해제 처리되었습니다')),
               );
             },
-            child: Text(
+            child: const Text(
               '자동 갱신 해제',
               style: TextStyle(color: AppColors.danger),
             ),
@@ -452,7 +452,7 @@ class _SubscriptionCard extends StatelessWidget {
                               ),
                               child: Text(
                                 tier,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.primary600,
@@ -519,7 +519,7 @@ class _SubscriptionCard extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: onManage,
-                  child: Text(
+                  child: const Text(
                     '관리',
                     style: TextStyle(
                       fontSize: 12,

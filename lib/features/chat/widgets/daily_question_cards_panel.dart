@@ -67,8 +67,8 @@ class _DailyQuestionCardsPanelState
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: List.generate(3, (i) => Padding(
-                padding: const EdgeInsets.only(right: 12),
+              children: List.generate(3, (i) => const Padding(
+                padding: EdgeInsets.only(right: 12),
                 child: SkeletonLoader.card(width: 200, height: 120),
               )),
             ),
@@ -157,7 +157,7 @@ class _DailyQuestionCardsPanelState
                       color: AppColors.success.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
+                    child: const Text(
                       '완료',
                       style: TextStyle(
                         fontSize: 10,
@@ -229,11 +229,11 @@ class _DailyQuestionCardsPanelState
             .vote(cardId);
         if (success && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('투표했어요!'),
+            const SnackBar(
+              content: Text('투표했어요!'),
               backgroundColor: AppColors.success,
               behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 2),
+              duration: Duration(seconds: 2),
             ),
           );
         }

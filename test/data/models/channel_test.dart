@@ -3,7 +3,7 @@ import 'package:uno_a_flutter/data/models/channel.dart';
 
 void main() {
   group('Channel', () {
-    Map<String, dynamic> _createChannelJson({
+    Map<String, dynamic> createChannelJson({
       String id = 'channel-1',
       String artistId = 'artist-1',
       String name = '테스트 채널',
@@ -36,7 +36,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips core fields correctly', () {
-        final json = _createChannelJson(
+        final json = createChannelJson(
           description: '설명',
           avatarUrl: 'https://example.com/avatar.jpg',
           isActive: true,
@@ -55,7 +55,7 @@ void main() {
       });
 
       test('handles null optional fields', () {
-        final json = _createChannelJson();
+        final json = createChannelJson();
         final channel = Channel.fromJson(json);
 
         expect(channel.description, isNull);
@@ -67,7 +67,7 @@ void main() {
       });
 
       test('defaults isActive to true and themeColorIndex to 0', () {
-        final json = _createChannelJson();
+        final json = createChannelJson();
         final channel = Channel.fromJson(json);
 
         expect(channel.isActive, isTrue);
@@ -77,7 +77,7 @@ void main() {
 
     group('toJson', () {
       test('excludes joined data fields', () {
-        final json = _createChannelJson(
+        final json = createChannelJson(
           subscriberCount: 100,
           unreadCount: 5,
           lastMessagePreview: 'Hello',
@@ -96,7 +96,7 @@ void main() {
     group('copyWith', () {
       test('preserves unchanged values', () {
         final channel = Channel.fromJson(
-          _createChannelJson(description: '원래 설명'),
+          createChannelJson(description: '원래 설명'),
         );
         final copy = channel.copyWith(name: '변경된 이름');
 
@@ -108,7 +108,7 @@ void main() {
   });
 
   group('Subscription', () {
-    Map<String, dynamic> _createSubscriptionJson({
+    Map<String, dynamic> createSubscriptionJson({
       String id = 'sub-1',
       String userId = 'user-1',
       String channelId = 'channel-1',
@@ -135,7 +135,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips all fields correctly', () {
-        final json = _createSubscriptionJson(
+        final json = createSubscriptionJson(
           tier: 'VIP',
           expiresAt: '2025-01-01T00:00:00.000Z',
           isActive: true,
@@ -154,7 +154,7 @@ void main() {
       });
 
       test('defaults tier to STANDARD when absent', () {
-        final json = _createSubscriptionJson();
+        final json = createSubscriptionJson();
         json.remove('tier');
         final sub = Subscription.fromJson(json);
         expect(sub.tier, equals('STANDARD'));
@@ -166,7 +166,7 @@ void main() {
         final pastDate =
             DateTime.now().subtract(const Duration(days: 30));
         final sub = Subscription.fromJson(
-          _createSubscriptionJson(startedAt: pastDate.toIso8601String()),
+          createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );
         expect(sub.daysSubscribed, greaterThanOrEqualTo(29));
         expect(sub.daysSubscribed, lessThanOrEqualTo(31));
@@ -176,7 +176,7 @@ void main() {
     group('formattedDuration', () {
       test('returns 오늘 시작 for today', () {
         final sub = Subscription.fromJson(
-          _createSubscriptionJson(
+          createSubscriptionJson(
             startedAt: DateTime.now().toIso8601String(),
           ),
         );
@@ -187,7 +187,7 @@ void main() {
         final pastDate =
             DateTime.now().subtract(const Duration(days: 15));
         final sub = Subscription.fromJson(
-          _createSubscriptionJson(startedAt: pastDate.toIso8601String()),
+          createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );
         expect(sub.formattedDuration, contains('일째'));
       });
@@ -196,7 +196,7 @@ void main() {
         final pastDate =
             DateTime.now().subtract(const Duration(days: 90));
         final sub = Subscription.fromJson(
-          _createSubscriptionJson(startedAt: pastDate.toIso8601String()),
+          createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );
         expect(sub.formattedDuration, contains('개월째'));
       });
@@ -205,7 +205,7 @@ void main() {
         final pastDate =
             DateTime.now().subtract(const Duration(days: 400));
         final sub = Subscription.fromJson(
-          _createSubscriptionJson(startedAt: pastDate.toIso8601String()),
+          createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );
         expect(sub.formattedDuration, contains('년째'));
       });

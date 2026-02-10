@@ -223,7 +223,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                 // Header
                 Row(
                   children: [
-                    Icon(Icons.reply, color: AppColors.primary500),
+                    const Icon(Icons.reply, color: AppColors.primary500),
                     const SizedBox(width: 8),
                     Text(
                       '${message.senderName ?? '팬'}님에게 답장',
@@ -260,7 +260,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.diamond,
                         size: 16,
                         color: AppColors.primary500,
@@ -342,8 +342,8 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                         if (context.mounted) {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('답장을 보냈습니다'),
+                            const SnackBar(
+                              content: Text('답장을 보냈습니다'),
                               backgroundColor: AppColors.success,
                             ),
                           );

@@ -105,7 +105,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
+              children: const [
                 _TransactionList(filter: null),
                 _TransactionList(filter: 'credit'),
                 _TransactionList(filter: 'debit'),
@@ -362,12 +362,12 @@ class _TransactionList extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.1),
+                  color: AppColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: AppColors.warning, size: 20),
+                    const Icon(Icons.info_outline, color: AppColors.warning, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -404,7 +404,7 @@ class _TransactionList extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(

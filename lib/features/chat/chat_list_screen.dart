@@ -41,7 +41,7 @@ class ChatListScreen extends ConsumerWidget {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primarySoft,
                   shape: BoxShape.circle,
                 ),
@@ -56,7 +56,7 @@ class ChatListScreen extends ConsumerWidget {
                       ),
                     );
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.edit_square,
                     color: AppColors.primary,
                     size: 20,

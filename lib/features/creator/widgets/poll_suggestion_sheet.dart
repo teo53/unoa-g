@@ -293,7 +293,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Icon(Icons.poll_outlined, size: 24, color: AppColors.primary500),
+          const Icon(Icons.poll_outlined, size: 24, color: AppColors.primary500),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -397,7 +397,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 36,
               height: 36,
               child: CircularProgressIndicator(
@@ -489,12 +489,12 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
                         });
                         _fetchDrafts();
                       },
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.refresh,
                         size: 14, color: AppColors.primary500),
-                    const SizedBox(width: 3),
+                    SizedBox(width: 3),
                     Text(
                       '다시 생성',
                       style: TextStyle(
@@ -735,7 +735,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
               onTap: _addOption,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -743,7 +743,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
                       size: 18,
                       color: AppColors.primary500,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       '선택지 추가',
                       style: TextStyle(
@@ -899,7 +899,7 @@ class _PollDraftCard extends StatelessWidget {
               ),
               child: Text(
                 draft.categoryLabel,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary500,

@@ -17,11 +17,11 @@ class PublicShareBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = AppColors.primary500;
+    const primaryColor = AppColors.primary500;
 
     switch (size) {
       case PublicShareBadgeSize.small:
-        return _SmallBadge(primaryColor: primaryColor);
+        return const _SmallBadge(primaryColor: primaryColor);
       case PublicShareBadgeSize.medium:
         return _MediumBadge(primaryColor: primaryColor, isDark: isDark);
       case PublicShareBadgeSize.large:
@@ -188,7 +188,7 @@ class PublicShareInlineText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
@@ -196,7 +196,7 @@ class PublicShareInlineText extends StatelessWidget {
           size: 12,
           color: AppColors.primary500,
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4),
         Text(
           '전체공개',
           style: TextStyle(

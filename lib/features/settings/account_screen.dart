@@ -83,7 +83,7 @@ class AccountScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Account Info Section
-                  _SectionHeader(title: '계정 정보'),
+                  const _SectionHeader(title: '계정 정보'),
                   const SizedBox(height: 12),
                   _InfoCard(
                     children: [
@@ -95,13 +95,13 @@ class AccountScreen extends ConsumerWidget {
                         verified: true,
                       ),
                       _CardDivider(),
-                      _InfoItem(
+                      const _InfoItem(
                         label: '전화번호',
                         value: '010-****-1234',
                         verified: true,
                       ),
                       _CardDivider(),
-                      _InfoItem(
+                      const _InfoItem(
                         label: '가입일',
                         value: '2024년 1월 15일',
                       ),
@@ -111,7 +111,7 @@ class AccountScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Security Section
-                  _SectionHeader(title: '보안'),
+                  const _SectionHeader(title: '보안'),
                   const SizedBox(height: 12),
                   _ActionCard(
                     children: [
@@ -135,7 +135,7 @@ class AccountScreen extends ConsumerWidget {
                               const SnackBar(content: Text('생체 인증 설정 준비 중')),
                             );
                           },
-                          activeColor: AppColors.primary600,
+                          activeThumbColor: AppColors.primary600,
                         ),
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +160,7 @@ class AccountScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Connected Accounts
-                  _SectionHeader(title: '연결된 계정'),
+                  const _SectionHeader(title: '연결된 계정'),
                   const SizedBox(height: 12),
                   _ActionCard(
                     children: [
@@ -171,13 +171,13 @@ class AccountScreen extends ConsumerWidget {
                         email: maskEmail('user@gmail.com'),
                       ),
                       _CardDivider(),
-                      _ConnectedAccount(
+                      const _ConnectedAccount(
                         icon: Icons.apple,
                         title: 'Apple',
                         connected: false,
                       ),
                       _CardDivider(),
-                      _ConnectedAccount(
+                      const _ConnectedAccount(
                         icon: Icons.chat_bubble,
                         title: 'Kakao',
                         connected: true,
@@ -189,7 +189,7 @@ class AccountScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Login History
-                  _SectionHeader(title: '로그인 기록'),
+                  const _SectionHeader(title: '로그인 기록'),
                   const SizedBox(height: 12),
                   _ActionCard(
                     children: [
@@ -220,7 +220,7 @@ class AccountScreen extends ConsumerWidget {
                   const SizedBox(height: 32),
 
                   // Danger Zone
-                  _SectionHeader(title: '계정 삭제'),
+                  const _SectionHeader(title: '계정 삭제'),
                   const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
@@ -233,7 +233,7 @@ class AccountScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           '계정을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.',
                           style: TextStyle(
                             fontSize: 13,
@@ -270,7 +270,7 @@ class AccountScreen extends ConsumerWidget {
                                         ),
                                         child: Row(
                                           children: [
-                                            Icon(Icons.warning_amber_rounded,
+                                            const Icon(Icons.warning_amber_rounded,
                                                 color: AppColors.warning,
                                                 size: 20),
                                             const SizedBox(width: 8),
@@ -315,7 +315,7 @@ class AccountScreen extends ConsumerWidget {
                                         }
                                       }
                                     },
-                                    child: Text(
+                                    child: const Text(
                                       '삭제',
                                       style: TextStyle(color: AppColors.danger),
                                     ),
@@ -467,7 +467,7 @@ class _InfoItem extends StatelessWidget {
                     ),
                     if (verified) ...[
                       const SizedBox(width: 6),
-                      Icon(
+                      const Icon(
                         Icons.verified,
                         size: 14,
                         color: AppColors.verified,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../shared/widgets/intermediary_notice_widget.dart';
 import 'funding_checkout_screen.dart';
 
 /// Screen for selecting a reward tier
@@ -20,7 +21,6 @@ class FundingTierSelectScreen extends StatefulWidget {
 
 class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
   String? _selectedTierId;
-  int _extraSupport = 0;
 
   Map<String, dynamic>? get _selectedTier {
     if (_selectedTierId == null) return null;
@@ -33,8 +33,8 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
 
   int get _totalAmount {
     final tier = _selectedTier;
-    if (tier == null) return _extraSupport;
-    return (tier['price_krw'] as int? ?? 0) + _extraSupport;
+    if (tier == null) return 0;
+    return tier['price_krw'] as int? ?? 0;
   }
 
   @override
@@ -63,6 +63,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
       ),
       body: Column(
         children: [
+          const IntermediaryNoticeWidget(),
           // Tier list
           Expanded(
             child: ListView(
@@ -129,7 +130,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                       child: Container(
                                         width: 12,
                                         height: 12,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           shape: BoxShape.circle,
                                           color: AppColors.primary,
                                         ),
@@ -168,7 +169,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                             color: AppColors.danger100,
                                             borderRadius: BorderRadius.circular(4),
                                           ),
-                                          child: Text(
+                                          child: const Text(
                                             '품절',
                                             style: TextStyle(
                                               fontSize: 11,
@@ -182,7 +183,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     '${_formatNumber(tier['price_krw'] ?? 0)}원',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.primary,
@@ -223,67 +224,6 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                 }),
 
                 const SizedBox(height: 24),
-
-                // Extra support
-                Text(
-                  '추가 후원 (선택)',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.textDark : AppColors.text,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '마음을 담아 추가 후원해주세요',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Extra support buttons
-                Wrap(
-                  spacing: 8,
-                  children: [0, 10, 50, 100, 500].map((amount) {
-                    final isSelected = _extraSupport == amount;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _extraSupport = amount;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primary
-                              : (isDark ? AppColors.surfaceDark : AppColors.surface),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppColors.primary
-                                : (isDark ? AppColors.borderDark : AppColors.border),
-                          ),
-                        ),
-                        child: Text(
-                          amount == 0 ? '없음' : '+$amount원',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: isSelected
-                                ? AppColors.onPrimary
-                                : (isDark ? AppColors.textDark : AppColors.text),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
               ],
             ),
           ),
@@ -319,7 +259,7 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                     ),
                     Text(
                       '${_formatNumber(_totalAmount)}원',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
@@ -342,7 +282,6 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                 builder: (_) => FundingCheckoutScreen(
                                   campaign: widget.campaign,
                                   tier: _selectedTier!,
-                                  extraSupport: _extraSupport,
                                 ),
                               ),
                             );

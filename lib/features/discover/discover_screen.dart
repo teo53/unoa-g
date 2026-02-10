@@ -63,9 +63,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              _FilterOption(title: '카테고리', value: '전체'),
-              _FilterOption(title: '정렬', value: '인기순'),
-              _FilterOption(title: '활동 상태', value: '전체'),
+              const _FilterOption(title: '카테고리', value: '전체'),
+              const _FilterOption(title: '정렬', value: '인기순'),
+              const _FilterOption(title: '활동 상태', value: '전체'),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -190,11 +190,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         const SizedBox(height: 32),
 
         // Section title skeleton
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               SkeletonLoader.text(width: 100, height: 18),
               SkeletonLoader.text(width: 40, height: 14),
             ],
@@ -314,9 +314,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         const SizedBox(height: 32),
 
         // Recommended Artists
-        SlideFadeAnimation.fromBottom(
-          delay: const Duration(milliseconds: 150),
-          child: const SectionHeader(
+        const SlideFadeAnimation.fromBottom(
+          delay: Duration(milliseconds: 150),
+          child: SectionHeader(
             title: '추천 아티스트',
             trailing: '더보기',
           ),
@@ -384,7 +384,7 @@ class _FeaturedBanner extends StatelessWidget {
         height: 180,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: AppColors.subtleGradient,
@@ -401,7 +401,7 @@ class _FeaturedBanner extends StatelessWidget {
                     ? Container(
                         width: 160,
                         height: 160,
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         child: const Icon(
                           Icons.person_rounded,
                           size: 80,
@@ -416,12 +416,12 @@ class _FeaturedBanner extends StatelessWidget {
                         placeholder: (context, url) => Container(
                           width: 160,
                           height: 160,
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                         ),
                         errorWidget: (context, url, error) => Container(
                           width: 160,
                           height: 160,
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           child: const Icon(
                             Icons.person_rounded,
                             size: 80,
@@ -442,7 +442,7 @@ class _FeaturedBanner extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
@@ -467,7 +467,7 @@ class _FeaturedBanner extends StatelessWidget {
                     artist.group ?? '',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
                   const Spacer(),
@@ -480,7 +480,7 @@ class _FeaturedBanner extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: const Text(
                       '프로필 보기',
                       style: TextStyle(
                         fontSize: 12,
@@ -529,7 +529,7 @@ class _FilterOption extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   color: AppColors.primary500,
                   fontWeight: FontWeight.w500,
@@ -582,7 +582,7 @@ class _DiscoverArtistCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -648,7 +648,7 @@ class _DiscoverArtistCard extends StatelessWidget {
                         ),
                       ),
                       if (isVerified)
-                        Icon(
+                        const Icon(
                           Icons.verified,
                           size: 14,
                           color: AppColors.verified,
@@ -670,7 +670,7 @@ class _DiscoverArtistCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.person,
                         size: 12,
                         color: AppColors.primary500,
@@ -678,7 +678,7 @@ class _DiscoverArtistCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         followerCount,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                           color: AppColors.primary500,

@@ -1,5 +1,6 @@
 /// Channel Model
 /// One channel per artist for broadcast messaging
+library;
 
 class Channel {
   final String id;

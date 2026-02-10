@@ -37,7 +37,7 @@ void _showConsentChangeDialog(
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -133,7 +133,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Account Section
-                  _SectionTitle(title: '계정'),
+                  const _SectionTitle(title: '계정'),
                   const SizedBox(height: 12),
                   _SettingsGroup(
                     items: [
@@ -166,7 +166,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 32),
 
                   // Notifications Section
-                  _SectionTitle(title: '알림'),
+                  const _SectionTitle(title: '알림'),
                   const SizedBox(height: 12),
                   _SettingsGroup(
                     items: [
@@ -185,7 +185,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               const SnackBar(content: Text('방해금지 모드 설정 준비 중')),
                             );
                           },
-                          activeColor: AppColors.primary600,
+                          activeThumbColor: AppColors.primary600,
                         ),
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -199,7 +199,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 32),
 
                   // Subscription Section
-                  _SectionTitle(title: '구독'),
+                  const _SectionTitle(title: '구독'),
                   const SizedBox(height: 12),
                   _SettingsGroup(
                     items: [
@@ -220,7 +220,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 32),
 
                   // App Section
-                  _SectionTitle(title: '앱'),
+                  const _SectionTitle(title: '앱'),
                   const SizedBox(height: 12),
                   _SettingsGroup(
                     items: [
@@ -235,7 +235,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           onChanged: (value) {
                             themeNotifier.toggleTheme();
                           },
-                          activeColor: AppColors.primary600,
+                          activeThumbColor: AppColors.primary600,
                         ),
                         onTap: () => themeNotifier.toggleTheme(),
                       ),
@@ -265,7 +265,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 32),
 
                   // Privacy & Marketing Section
-                  _SectionTitle(title: '개인정보 및 마케팅'),
+                  const _SectionTitle(title: '개인정보 및 마케팅'),
                   const SizedBox(height: 12),
                   _SettingsGroup(
                     items: [
@@ -284,7 +284,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   setState(() => _emailMarketing = value),
                             );
                           },
-                          activeColor: AppColors.primary600,
+                          activeThumbColor: AppColors.primary600,
                         ),
                         onTap: () {},
                       ),
@@ -303,7 +303,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   setState(() => _smsMarketing = value),
                             );
                           },
-                          activeColor: AppColors.primary600,
+                          activeThumbColor: AppColors.primary600,
                         ),
                         onTap: () {},
                       ),
@@ -322,7 +322,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   setState(() => _pushMarketing = value),
                             );
                           },
-                          activeColor: AppColors.primary600,
+                          activeThumbColor: AppColors.primary600,
                         ),
                         onTap: () {},
                       ),
@@ -338,7 +338,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 32),
 
                   // Support Section
-                  _SectionTitle(title: '지원'),
+                  const _SectionTitle(title: '지원'),
                   const SizedBox(height: 12),
                   _SettingsGroup(
                     items: [
@@ -436,7 +436,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     // Navigate to login screen
                                     context.go('/login');
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     '로그아웃',
                                     style: TextStyle(color: AppColors.danger),
                                   ),

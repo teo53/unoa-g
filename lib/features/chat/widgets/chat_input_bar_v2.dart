@@ -826,7 +826,7 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
 
     if (amount > _maxAmount) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('최대 $_maxAmount DT까지 후원할 수 있습니다.'),
           backgroundColor: Colors.red,
         ),
@@ -883,6 +883,7 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('후원에 실패했습니다: $e'),
@@ -980,11 +981,11 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
             TextField(
               controller: _customAmountController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: '후원 금액 (DT)',
                 hintText: '10 ~ 1,000,000',
                 suffixText: 'DT',
-                border: const OutlineInputBorder(),
+                border: OutlineInputBorder(),
                 helperText: '최소 10 DT, 최대 1,000,000 DT',
               ),
               onChanged: (_) => setState(() {}),

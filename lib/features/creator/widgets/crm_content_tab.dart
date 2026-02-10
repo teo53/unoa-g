@@ -53,7 +53,7 @@ class _ContentStatsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.analytics_rounded, color: AppColors.primary, size: 20),
+              const Icon(Icons.analytics_rounded, color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
               Text(
                 '콘텐츠 성과 요약',
@@ -159,7 +159,7 @@ class _ContentStatItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             subLabel,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: AppColors.success,
             ),
@@ -178,10 +178,10 @@ class _BestMessagesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final messages = [
-      _MessagePerf('오늘 연습 끝났어요! 집 가는 중~', 127, 89, '2시간 전'),
-      _MessagePerf('컴백 준비 중... 기대해주세요!', 98, 76, '어제'),
-      _MessagePerf('오늘 날씨 너무 좋다 ☀️', 76, 65, '2일 전'),
-      _MessagePerf('새 앨범 작업 중이에요 🎵', 68, 58, '3일 전'),
+      const _MessagePerf('오늘 연습 끝났어요! 집 가는 중~', 127, 89, '2시간 전'),
+      const _MessagePerf('컴백 준비 중... 기대해주세요!', 98, 76, '어제'),
+      const _MessagePerf('오늘 날씨 너무 좋다 ☀️', 76, 65, '2일 전'),
+      const _MessagePerf('새 앨범 작업 중이에요 🎵', 68, 58, '3일 전'),
     ];
 
     return Container(
@@ -198,7 +198,7 @@ class _BestMessagesCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.local_fire_department_rounded,
                 color: Colors.orange,
                 size: 20,
@@ -379,7 +379,7 @@ class _MessageTypePerformanceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.category_rounded, color: AppColors.verified, size: 20),
+              const Icon(Icons.category_rounded, color: AppColors.verified, size: 20),
               const SizedBox(width: 8),
               Text(
                 '메시지 유형별 성과',
@@ -462,7 +462,7 @@ class _TypePerfRow extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            '${count}개',
+            '$count개',
             style: TextStyle(
               fontSize: 13,
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
@@ -473,7 +473,7 @@ class _TypePerfRow extends StatelessWidget {
         Expanded(
           child: Text(
             '답장 ${avgReply.toStringAsFixed(1)}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.primary,
@@ -484,7 +484,7 @@ class _TypePerfRow extends StatelessWidget {
         Expanded(
           child: Text(
             '열람 $avgRate%',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.success,

@@ -185,7 +185,7 @@ class _AgeVerificationScreenState
 
                 // Guardian relationship
                 DropdownButtonFormField<String>(
-                  value: _guardianRelationController.text.isEmpty
+                  initialValue: _guardianRelationController.text.isEmpty
                       ? null
                       : _guardianRelationController.text,
                   decoration: const InputDecoration(

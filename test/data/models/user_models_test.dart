@@ -3,7 +3,7 @@ import 'package:uno_a_flutter/data/models/user.dart';
 
 void main() {
   group('UserAuthProfile', () {
-    Map<String, dynamic> _createAuthProfileJson({
+    Map<String, dynamic> createAuthProfileJson({
       String id = 'user-1',
       String? role,
       String? displayName = '테스트유저',
@@ -36,7 +36,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips all fields correctly', () {
-        final json = _createAuthProfileJson(
+        final json = createAuthProfileJson(
           role: 'creator',
           bio: '안녕하세요',
           instagramLink: 'https://instagram.com/test',
@@ -52,13 +52,13 @@ void main() {
       });
 
       test('defaults role to fan when absent', () {
-        final json = _createAuthProfileJson();
+        final json = createAuthProfileJson();
         final profile = UserAuthProfile.fromJson(json);
         expect(profile.role, equals('fan'));
       });
 
       test('defaults isBanned to false and locale to ko-KR', () {
-        final json = _createAuthProfileJson();
+        final json = createAuthProfileJson();
         final profile = UserAuthProfile.fromJson(json);
         expect(profile.isBanned, isFalse);
         expect(profile.locale, equals('ko-KR'));
@@ -68,7 +68,7 @@ void main() {
     group('role helpers', () {
       test('isFan returns true for fan role', () {
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(role: 'fan'),
+          createAuthProfileJson(role: 'fan'),
         );
         expect(profile.isFan, isTrue);
         expect(profile.isCreator, isFalse);
@@ -76,7 +76,7 @@ void main() {
 
       test('isCreator returns true for creator role', () {
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(role: 'creator'),
+          createAuthProfileJson(role: 'creator'),
         );
         expect(profile.isCreator, isTrue);
         expect(profile.isFan, isFalse);
@@ -84,14 +84,14 @@ void main() {
 
       test('isCreatorManager returns true for creator_manager role', () {
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(role: 'creator_manager'),
+          createAuthProfileJson(role: 'creator_manager'),
         );
         expect(profile.isCreatorManager, isTrue);
       });
 
       test('isAdmin returns true for admin role', () {
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(role: 'admin'),
+          createAuthProfileJson(role: 'admin'),
         );
         expect(profile.isAdmin, isTrue);
       });
@@ -102,7 +102,7 @@ void main() {
         final yearsAgo =
             DateTime.now().subtract(const Duration(days: 365 * 20));
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(
+          createAuthProfileJson(
             dateOfBirth: yearsAgo.toIso8601String(),
           ),
         );
@@ -114,7 +114,7 @@ void main() {
         final yearsAgo =
             DateTime.now().subtract(const Duration(days: 365 * 10));
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(
+          createAuthProfileJson(
             dateOfBirth: yearsAgo.toIso8601String(),
           ),
         );
@@ -123,7 +123,7 @@ void main() {
 
       test('isMinorUnder14 returns false when dateOfBirth is null', () {
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(),
+          createAuthProfileJson(),
         );
         expect(profile.age, isNull);
         expect(profile.isMinorUnder14, isFalse);
@@ -133,7 +133,7 @@ void main() {
     group('copyWith sentinel', () {
       test('preserves unchanged values', () {
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(
+          createAuthProfileJson(
             instagramLink: 'https://instagram.com/test',
           ),
         );
@@ -145,7 +145,7 @@ void main() {
 
       test('can set instagramLink to null using sentinel', () {
         final profile = UserAuthProfile.fromJson(
-          _createAuthProfileJson(
+          createAuthProfileJson(
             instagramLink: 'https://instagram.com/test',
           ),
         );
@@ -157,7 +157,7 @@ void main() {
   });
 
   group('UserDisplayProfile', () {
-    Map<String, dynamic> _createDisplayProfileJson({
+    Map<String, dynamic> createDisplayProfileJson({
       String id = 'user-1',
       String name = '테스트유저',
       String? englishName,
@@ -181,7 +181,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips all fields correctly', () {
-        final json = _createDisplayProfileJson(
+        final json = createDisplayProfileJson(
           englishName: 'TestUser',
           dtBalance: 10000,
         );
@@ -198,14 +198,14 @@ void main() {
     group('displayName', () {
       test('includes English name in parentheses when available', () {
         final profile = UserDisplayProfile.fromJson(
-          _createDisplayProfileJson(englishName: 'TestUser'),
+          createDisplayProfileJson(englishName: 'TestUser'),
         );
         expect(profile.displayName, equals('테스트유저 (TestUser)'));
       });
 
       test('returns name only when no English name', () {
         final profile = UserDisplayProfile.fromJson(
-          _createDisplayProfileJson(),
+          createDisplayProfileJson(),
         );
         expect(profile.displayName, equals('테스트유저'));
       });
@@ -214,14 +214,14 @@ void main() {
     group('tierBadge', () {
       test('returns diamond VIP badge', () {
         final profile = UserDisplayProfile.fromJson(
-          _createDisplayProfileJson(tier: 'VIP'),
+          createDisplayProfileJson(tier: 'VIP'),
         );
         expect(profile.tierBadge, equals('💎 VIP'));
       });
 
       test('returns star STANDARD badge', () {
         final profile = UserDisplayProfile.fromJson(
-          _createDisplayProfileJson(tier: 'STANDARD'),
+          createDisplayProfileJson(tier: 'STANDARD'),
         );
         expect(profile.tierBadge, equals('⭐ STANDARD'));
       });
@@ -230,7 +230,7 @@ void main() {
     group('formattedBalance', () {
       test('returns correct DT format', () {
         final profile = UserDisplayProfile.fromJson(
-          _createDisplayProfileJson(dtBalance: 15000),
+          createDisplayProfileJson(dtBalance: 15000),
         );
         expect(profile.formattedBalance, equals('15000 DT'));
       });
@@ -239,7 +239,7 @@ void main() {
     group('copyWith', () {
       test('preserves unchanged values', () {
         final profile = UserDisplayProfile.fromJson(
-          _createDisplayProfileJson(dtBalance: 5000),
+          createDisplayProfileJson(dtBalance: 5000),
         );
         final copy = profile.copyWith(tier: 'VIP');
 

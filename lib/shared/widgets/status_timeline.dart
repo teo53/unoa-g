@@ -115,7 +115,7 @@ class StatusTimeline extends StatelessWidget {
 
     return StatusTimeline(
       steps: [
-        StatusTimelineStep(
+        const StatusTimelineStep(
           title: '분쟁 접수',
           subtitle: 'DT 동결',
           status: StepStatus.completed,
@@ -230,7 +230,7 @@ class StatusTimeline extends StatelessWidget {
         return Container(
           width: 24,
           height: 24,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.primary500,
             shape: BoxShape.circle,
           ),

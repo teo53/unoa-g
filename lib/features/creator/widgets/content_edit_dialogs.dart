@@ -4,6 +4,7 @@
 /// WYSIWYG 화면과 프로필 편집 화면 모두에서 재사용 가능하도록 함.
 ///
 /// 패턴: setState() 대신 onSave 콜백 사용
+library;
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -742,7 +743,7 @@ void showDeleteConfirmDialog(
             onConfirm();
             Navigator.pop(context);
           },
-          child: Text('삭제', style: TextStyle(color: AppColors.danger)),
+          child: const Text('삭제', style: TextStyle(color: AppColors.danger)),
         ),
       ],
     ),

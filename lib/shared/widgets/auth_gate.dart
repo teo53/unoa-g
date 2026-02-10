@@ -47,7 +47,7 @@ class AuthGate {
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surface,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
       builder: (sheetContext) {
@@ -76,7 +76,7 @@ class AuthGate {
                     color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.lock_outline_rounded,
                     color: AppColors.primary,
                     size: 28,

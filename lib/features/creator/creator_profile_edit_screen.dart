@@ -107,13 +107,13 @@ class _CreatorProfileEditScreenState
   void _loadMockContent() {
     // Mock 데이터 로드
     _drops = [
-      CreatorDrop(
+      const CreatorDrop(
         id: '1',
         name: '시즌 포토카드 세트',
         priceKrw: 15000,
         isNew: true,
       ),
-      CreatorDrop(
+      const CreatorDrop(
         id: '2',
         name: '한정판 굿즈 박스',
         priceKrw: 45000,
@@ -130,7 +130,7 @@ class _CreatorProfileEditScreenState
       ),
     ];
     _fancams = [
-      CreatorFancam(
+      const CreatorFancam(
         id: '1',
         videoId: 'dQw4w9WgXcQ',
         title: '직캠 - 신곡 무대',
@@ -246,7 +246,7 @@ class _CreatorProfileEditScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       '이 변경 사항은 다음 화면에 반영됩니다:',
                       style: TextStyle(
                         fontSize: 12,
@@ -573,7 +573,7 @@ class _CreatorProfileEditScreenState
                           _hasChanges = true;
                         });
                       },
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                     ),
                   ],
                 ),
@@ -696,7 +696,7 @@ class _CreatorProfileEditScreenState
               ),
               child: Text(
                 '$itemCount',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,
@@ -824,7 +824,7 @@ class _CreatorProfileEditScreenState
                 const SizedBox(height: 4),
                 Text(
                   drop.formattedPrice,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.primary,
                     fontWeight: FontWeight.w600,
@@ -852,7 +852,7 @@ class _CreatorProfileEditScreenState
               setState(() => _drops.removeWhere((d) => d.id == drop.id));
               _onFieldChanged();
             }),
-            icon: Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+            icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
           ),
         ],
       ),
@@ -964,7 +964,7 @@ class _CreatorProfileEditScreenState
               setState(() => _events.removeWhere((e) => e.id == event.id));
               _onFieldChanged();
             }),
-            icon: Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+            icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
           ),
         ],
       ),
@@ -1095,7 +1095,7 @@ class _CreatorProfileEditScreenState
               setState(() => _fancams.removeWhere((f) => f.id == fancam.id));
               _onFieldChanged();
             }),
-            icon: Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+            icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
           ),
         ],
       ),
@@ -1446,7 +1446,7 @@ class _CreatorProfileEditScreenState
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.camera_alt, color: AppColors.primary),
+                  child: const Icon(Icons.camera_alt, color: AppColors.primary),
                 ),
                 title: const Text('카메라로 촬영'),
                 onTap: () {
@@ -1511,7 +1511,7 @@ class _CreatorProfileEditScreenState
               Navigator.pop(dialogContext);
               context.pop();
             },
-            child: Text(
+            child: const Text(
               '나가기',
               style: TextStyle(
                 color: AppColors.danger,

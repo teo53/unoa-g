@@ -205,8 +205,8 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
               },
             ),
             ListTile(
-              leading: Icon(Icons.report_outlined, color: AppColors.danger),
-              title: Text('신고하기', style: TextStyle(color: AppColors.danger)),
+              leading: const Icon(Icons.report_outlined, color: AppColors.danger),
+              title: const Text('신고하기', style: TextStyle(color: AppColors.danger)),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -247,7 +247,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            AppColors.primary600.withOpacity(0.8),
+                            AppColors.primary600.withValues(alpha: 0.8),
                             AppColors.primary500,
                           ],
                         ),
@@ -257,7 +257,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                               child: Icon(
                                 Icons.person_rounded,
                                 size: 120,
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                               ),
                             )
                           : CachedNetworkImage(
@@ -270,7 +270,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                                 child: Icon(
                                   Icons.person_rounded,
                                   size: 120,
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                 ),
                               ),
                             ),
@@ -288,7 +288,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.7),
+                              Colors.black.withValues(alpha: 0.7),
                             ],
                           ),
                         ),
@@ -357,7 +357,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                               if (artist.isVerified)
                                 Container(
                                   padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.verified,
                                     shape: BoxShape.circle,
                                   ),
@@ -376,7 +376,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                                 : 'Solo Artist',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -522,11 +522,11 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                               Container(
                                 width: 40,
                                 height: 40,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: AppColors.primary100,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.emoji_events_outlined,
                                   color: AppColors.primary600,
                                   size: 20,
@@ -566,7 +566,7 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                                     const SnackBar(content: Text('랭킹 알림 설정 준비 중')),
                                   );
                                 },
-                                activeColor: AppColors.primary500,
+                                activeThumbColor: AppColors.primary500,
                               ),
                             ],
                           ),
@@ -623,19 +623,19 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          children: [
+                          children: const [
                             _DropItem(
                               name: '1st Anniversary T-shirt',
                               price: '35,000 KRW',
                               isSoldOut: true,
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             _DropItem(
                               name: 'Winter Photo Set A',
                               price: '12,000 KRW',
                               isNew: true,
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             _DropItem(
                               name: 'Gold Member Kit',
                               price: '5,000 KRW',
@@ -657,8 +657,8 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                         },
                       ),
                       const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
                         child: _EventCard(
                           title: 'Starlight Christmas Live',
                           location: '홍대 롤링홀',
@@ -963,7 +963,7 @@ class _SectionHeader extends StatelessWidget {
               onTap: onTrailingTap,
               child: Text(
                 trailing!,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppColors.primary500,
@@ -1149,7 +1149,7 @@ class _EventCard extends StatelessWidget {
               color: AppColors.primary100,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.event,
               color: AppColors.primary600,
               size: 28,
@@ -1269,14 +1269,14 @@ class _FeedPost extends StatelessWidget {
         children: [
           // Pinned indicator
           if (isPinned) ...[
-            Row(
+            const Row(
               children: [
                 Icon(
                   Icons.push_pin,
                   size: 14,
                   color: AppColors.primary500,
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(
                   '고정된 게시물',
                   style: TextStyle(
@@ -1404,7 +1404,7 @@ class _FeedPost extends StatelessWidget {
           // Actions
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.favorite,
                 size: 18,
                 color: AppColors.primary500,
@@ -1590,8 +1590,8 @@ class _FeedComposeSheetState extends State<_FeedComposeSheet> {
                     ? () {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('피드가 작성되었습니다'),
+                          const SnackBar(
+                            content: Text('피드가 작성되었습니다'),
                             backgroundColor: AppColors.primary600,
                           ),
                         );
@@ -1711,7 +1711,7 @@ class _AnnouncementPost extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Icon(
+              const Icon(
                 Icons.push_pin,
                 size: 16,
                 color: AppColors.primary500,
@@ -1736,7 +1736,7 @@ class _AnnouncementPost extends StatelessWidget {
           // Actions
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.favorite,
                 size: 18,
                 color: AppColors.primary500,
@@ -1931,7 +1931,7 @@ class _OtaLetterPost extends StatelessWidget {
           // Actions
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.favorite,
                 size: 18,
                 color: AppColors.primary500,
@@ -2454,10 +2454,10 @@ class _SocialIconButton extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
           ),

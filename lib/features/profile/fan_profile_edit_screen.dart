@@ -225,7 +225,7 @@ class _FanProfileEditScreenState extends ConsumerState<FanProfileEditScreen> {
             Center(
               child: TextButton(
                 onPressed: _changeAvatar,
-                child: Text(
+                child: const Text(
                   '프로필 사진 변경',
                   style: TextStyle(
                     fontSize: 13,
@@ -316,7 +316,7 @@ class _FanProfileEditScreenState extends ConsumerState<FanProfileEditScreen> {
                             _hasChanges = true;
                           });
                         },
-                        activeColor: AppColors.primary,
+                        activeThumbColor: AppColors.primary,
                       ),
                     ],
                   ),
@@ -436,7 +436,7 @@ class _StyledTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
+          borderSide: const BorderSide(
             color: AppColors.primary,
             width: 1.5,
           ),

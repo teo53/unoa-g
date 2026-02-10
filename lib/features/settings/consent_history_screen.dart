@@ -147,11 +147,11 @@ class ConsentHistoryScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.verified_user_outlined,
                   color: AppColors.primary600, size: 24),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 '현재 동의 상태',
                 style: TextStyle(
@@ -190,7 +190,7 @@ class ConsentHistoryScreen extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.primary700,
             ),

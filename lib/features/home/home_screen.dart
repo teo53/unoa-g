@@ -369,7 +369,7 @@ class _GuestHeroSection extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              _FloatingIcon(
+              const _FloatingIcon(
                 icon: Icons.chat_bubble_rounded,
                 color: AppColors.primary,
                 size: 28,
@@ -524,7 +524,7 @@ class _FeatureCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.10),
+              color: iconColor.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 22),

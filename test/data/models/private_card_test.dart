@@ -41,7 +41,7 @@ void main() {
   });
 
   group('PrivateCard', () {
-    Map<String, dynamic> _createCardJson({
+    Map<String, dynamic> createCardJson({
       String id = 'card-1',
       String channelId = 'ch-1',
       String artistId = 'artist-1',
@@ -66,7 +66,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips all fields correctly', () {
-        final json = _createCardJson(
+        final json = createCardJson(
           templateContent: '안녕 {fanName}님!',
           status: 'sent',
           mediaUrls: ['url1', 'url2'],
@@ -84,13 +84,13 @@ void main() {
       });
 
       test('defaults status to draft for unknown value', () {
-        final json = _createCardJson(status: 'unknown_status');
+        final json = createCardJson(status: 'unknown_status');
         final card = PrivateCard.fromJson(json);
         expect(card.status, equals(PrivateCardStatus.draft));
       });
 
       test('handles empty mediaUrls and recipientIds', () {
-        final json = _createCardJson();
+        final json = createCardJson();
         final card = PrivateCard.fromJson(json);
         expect(card.mediaUrls, isEmpty);
         expect(card.recipientIds, isEmpty);
@@ -100,7 +100,7 @@ void main() {
     group('getPersonalizedContent', () {
       test('replaces {fanName} placeholder', () {
         final card = PrivateCard.fromJson(
-          _createCardJson(templateContent: '안녕 {fanName}님!'),
+          createCardJson(templateContent: '안녕 {fanName}님!'),
         );
         final result = card.getPersonalizedContent(fanName: '하늘덕후');
         expect(result, equals('안녕 하늘덕후님!'));
@@ -108,7 +108,7 @@ void main() {
 
       test('replaces {subscribeDays} placeholder', () {
         final card = PrivateCard.fromJson(
-          _createCardJson(
+          createCardJson(
             templateContent: '구독 {subscribeDays}일 감사합니다!',
           ),
         );
@@ -121,7 +121,7 @@ void main() {
 
       test('replaces {tier} placeholder', () {
         final card = PrivateCard.fromJson(
-          _createCardJson(templateContent: '{tier} 구독자님 감사합니다!'),
+          createCardJson(templateContent: '{tier} 구독자님 감사합니다!'),
         );
         final result = card.getPersonalizedContent(
           fanName: 'Fan',
@@ -131,7 +131,7 @@ void main() {
       });
 
       test('returns empty string when templateContent is null', () {
-        final card = PrivateCard.fromJson(_createCardJson());
+        final card = PrivateCard.fromJson(createCardJson());
         final result = card.getPersonalizedContent(fanName: 'Fan');
         expect(result, equals(''));
       });
@@ -140,7 +140,7 @@ void main() {
     group('copyWith', () {
       test('preserves unchanged values', () {
         final card = PrivateCard.fromJson(
-          _createCardJson(
+          createCardJson(
             templateContent: '원래 내용',
             status: 'draft',
           ),

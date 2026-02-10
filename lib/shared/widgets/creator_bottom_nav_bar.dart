@@ -103,7 +103,7 @@ class _CreatorNavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = AppColors.primary;
+    const activeColor = AppColors.primary;
     final inactiveColor = isDark ? Colors.grey[500] : Colors.grey[400];
 
     return Semantics(

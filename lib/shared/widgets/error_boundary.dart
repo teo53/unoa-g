@@ -99,7 +99,7 @@ class ErrorDisplay extends StatelessWidget {
 
   /// Preset: Not found error
   factory ErrorDisplay.notFound({String? itemName}) => ErrorDisplay(
-        error: NotFoundException(),
+        error: const NotFoundException(),
         title: '찾을 수 없음',
         message: '${itemName ?? '요청한 내용'}을 찾을 수 없습니다',
         icon: Icons.search_off_rounded,
@@ -115,7 +115,7 @@ class ErrorDisplay extends StatelessWidget {
 
   /// Preset: Session expired
   factory ErrorDisplay.sessionExpired({VoidCallback? onLogin}) => ErrorDisplay(
-        error: UnauthorizedException('Session expired'),
+        error: const UnauthorizedException('Session expired'),
         title: '세션 만료',
         message: '다시 로그인해주세요',
         icon: Icons.timer_off_rounded,
@@ -291,7 +291,7 @@ class _CompactErrorDisplay extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.warning_amber_rounded,
             color: AppColors.error,
             size: 24,
@@ -520,7 +520,7 @@ class LoadingState extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
@@ -546,7 +546,7 @@ class LoadingState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 48,
             height: 48,
             child: CircularProgressIndicator(

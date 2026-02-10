@@ -33,7 +33,7 @@ class AiPollPreviewSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.poll_outlined,
                   size: 20,
                   color: AppColors.primary500,
@@ -53,7 +53,7 @@ class AiPollPreviewSection extends StatelessWidget {
             ),
             GestureDetector(
               onTap: onOpenPollSheet,
-              child: Text(
+              child: const Text(
                 '전체 보기',
                 style: TextStyle(
                   fontSize: 14,
@@ -123,7 +123,7 @@ class _PollPreviewCard extends StatelessWidget {
               ),
               child: Text(
                 draft.categoryLabel,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,

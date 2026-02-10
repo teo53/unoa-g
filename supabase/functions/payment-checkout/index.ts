@@ -94,6 +94,13 @@ serve(async (req) => {
     // Calculate refund eligibility (7 days from now)
     const refundEligibleUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
+    // VAT 계산 (부가가치세법 §29① + 서면법규과-823)
+    // 선불전자지급수단은 충전 시점에 부가세 과세
+    // 공급가액 = price_krw × 10/11 (원 미만 절사)
+    // 부가세 = price_krw - 공급가액
+    const supplyAmountKrw = Math.floor(pkg.priceKrw * 10 / 11)
+    const vatAmountKrw = pkg.priceKrw - supplyAmountKrw
+
     // Create pending purchase record
     const { data: purchase, error: purchaseError } = await supabase
       .from('dt_purchases')
@@ -103,6 +110,8 @@ serve(async (req) => {
         dt_amount: pkg.dt,
         bonus_dt: pkg.bonus,
         price_krw: pkg.priceKrw,
+        supply_amount_krw: supplyAmountKrw,
+        vat_amount_krw: vatAmountKrw,
         payment_method: paymentMethod,
         payment_provider: 'tosspayments', // Default provider
         status: 'pending',

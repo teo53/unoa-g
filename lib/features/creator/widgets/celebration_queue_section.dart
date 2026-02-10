@@ -175,9 +175,9 @@ class _CelebrationQueueSectionState extends State<CelebrationQueueSection> {
         // Section header
         Row(
           children: [
-            Text(
+            const Text(
               '🎉',
-              style: const TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 18),
             ),
             const SizedBox(width: 8),
             Text(
@@ -248,7 +248,7 @@ class _CountBadge extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: AppColors.primary500,
@@ -337,7 +337,7 @@ class _CelebrationEventCard extends StatelessWidget {
                         ),
                         child: Text(
                           event.payload.tier,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary500,

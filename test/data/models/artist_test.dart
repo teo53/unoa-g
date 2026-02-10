@@ -55,7 +55,7 @@ void main() {
     });
 
     group('computed properties', () {
-      final fancam = YouTubeFancam(
+      const fancam = YouTubeFancam(
         id: 'fc-1',
         videoId: 'dQw4w9WgXcQ',
         title: 'Test Fancam',

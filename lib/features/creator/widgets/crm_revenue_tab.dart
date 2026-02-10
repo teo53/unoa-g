@@ -122,7 +122,7 @@ class _TotalEarningsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             AppColors.primary,
             AppColors.primary600,
@@ -205,13 +205,13 @@ class _TotalEarningsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
+          const Row(
             children: [
               _EarningsStat(
                 label: '출금 가능',
                 value: '845,000 DT',
               ),
-              const SizedBox(width: 24),
+              SizedBox(width: 24),
               _EarningsStat(
                 label: '대기 중',
                 value: '400,000 DT',
@@ -264,8 +264,8 @@ class _RevenueBreakdownCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _RevenueItem('후원', 520000, Colors.pink, 0.54),
-      _RevenueItem('구독', 450000, Colors.blue, 0.46),
+      const _RevenueItem('후원', 520000, Colors.pink, 0.54),
+      const _RevenueItem('구독', 450000, Colors.blue, 0.46),
     ];
 
     return Container(
@@ -282,7 +282,7 @@ class _RevenueBreakdownCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.pie_chart_rounded,
                 color: AppColors.primary,
                 size: 20,
@@ -440,12 +440,12 @@ class _MonthlyRevenueChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = [
-      _ChartData('1월', 450000),
-      _ChartData('2월', 520000),
-      _ChartData('3월', 380000),
-      _ChartData('4월', 620000),
-      _ChartData('5월', 780000),
-      _ChartData('6월', 1245000),
+      const _ChartData('1월', 450000),
+      const _ChartData('2월', 520000),
+      const _ChartData('3월', 380000),
+      const _ChartData('4월', 620000),
+      const _ChartData('5월', 780000),
+      const _ChartData('6월', 1245000),
     ];
     final maxValue = data.map((d) => d.value).reduce((a, b) => a > b ? a : b);
 
@@ -463,7 +463,7 @@ class _MonthlyRevenueChart extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.show_chart_rounded,
                 color: AppColors.primary,
                 size: 20,
@@ -588,7 +588,7 @@ class _RecentTransactionsCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.receipt_long_rounded,
                     color: AppColors.primary,
                     size: 20,
@@ -608,7 +608,7 @@ class _RecentTransactionsCard extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {},
-                child: Text(
+                child: const Text(
                   '전체보기',
                   style: TextStyle(
                     fontSize: 13,
@@ -707,7 +707,7 @@ class _TransactionTile extends StatelessWidget {
             children: [
               Text(
                 '+${formatNumber(transaction.amount)} DT',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.success,

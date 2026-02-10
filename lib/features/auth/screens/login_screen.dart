@@ -150,7 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     child: Column(
                       children: [
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
@@ -158,7 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               size: 20,
                               color: AppColors.primary,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               '데모 모드로 체험하기',
                               style: TextStyle(
@@ -480,9 +480,9 @@ class _DemoAccountButton extends StatelessWidget {
                   color: color,
                   borderRadius: AppRadius.xlBR,
                 ),
-                child: Text(
+                child: const Text(
                   '체험하기',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,

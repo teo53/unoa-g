@@ -205,7 +205,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // Create demo subscription
     final demoSubscription = Subscription(
-      id: 'demo_sub_${channelId}',
+      id: 'demo_sub_$channelId',
       userId: 'demo_user_001',
       channelId: channelId,
       tier: demoThread.tier,
@@ -217,7 +217,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // Create demo quota
     final demoQuota = ReplyQuota(
-      id: 'demo_quota_${channelId}',
+      id: 'demo_quota_$channelId',
       userId: 'demo_user_001',
       channelId: channelId,
       tokensAvailable: 3,

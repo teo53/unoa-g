@@ -125,7 +125,7 @@ class FundingResultScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Funding progress timeline
-                StatusTimeline(
+                const StatusTimeline(
                   steps: [
                     StatusTimelineStep(
                       title: '후원 완료',
@@ -159,14 +159,14 @@ class FundingResultScreen extends StatelessWidget {
                     color: AppColors.primary100,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(
                         Icons.info_outline_rounded,
                         size: 20,
                         color: AppColors.primary600,
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           '펀딩 성공 시 리워드가 발송됩니다.\n진행 상황은 마이페이지에서 확인하세요.',
@@ -223,7 +223,7 @@ class FundingResultScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     '내 후원 내역 보기',
                     style: TextStyle(
                       fontSize: 15,
@@ -239,7 +239,7 @@ class FundingResultScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text(
+                  child: const Text(
                     '다시 시도',
                     style: TextStyle(
                       fontSize: 15,

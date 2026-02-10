@@ -274,20 +274,20 @@ class MockData {
       id: 'pkg_1',
       name: '스타터',
       dtAmount: BusinessConfig.chargeAmounts[0], // 1000
-      priceKrw: BusinessConfig.chargeAmounts[0] * BusinessConfig.dtPerKrw,
+      priceKrw: BusinessConfig.chargeAmounts[0] * BusinessConfig.dtBaseUnitPriceKrw,
     ),
     DtPackage(
       id: 'pkg_2',
       name: '베이직',
       dtAmount: BusinessConfig.chargeAmounts[2], // 5000
-      priceKrw: BusinessConfig.chargeAmounts[2] * BusinessConfig.dtPerKrw,
+      priceKrw: BusinessConfig.chargeAmounts[2] * BusinessConfig.dtBaseUnitPriceKrw,
       bonusDt: 50,
     ),
     DtPackage(
       id: 'pkg_3',
       name: '스탠다드',
       dtAmount: BusinessConfig.chargeAmounts[3], // 10000
-      priceKrw: BusinessConfig.chargeAmounts[3] * BusinessConfig.dtPerKrw,
+      priceKrw: BusinessConfig.chargeAmounts[3] * BusinessConfig.dtBaseUnitPriceKrw,
       bonusDt: 150,
       isPopular: true,
     ),
@@ -295,7 +295,7 @@ class MockData {
       id: 'pkg_4',
       name: '프리미엄',
       dtAmount: BusinessConfig.chargeAmounts[4], // 30000
-      priceKrw: BusinessConfig.chargeAmounts[4] * BusinessConfig.dtPerKrw,
+      priceKrw: BusinessConfig.chargeAmounts[4] * BusinessConfig.dtBaseUnitPriceKrw,
       bonusDt: 600,
     ),
   ];

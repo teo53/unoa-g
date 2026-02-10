@@ -3,6 +3,7 @@
 /// This file provides backward compatibility for existing code.
 /// For new code, import directly from:
 /// - `data/models/user.dart` for UserAuthProfile and UserDisplayProfile
+library;
 
 // Re-export from unified user models
 export 'user.dart' show UserAuthProfile, UserDisplayProfile, UserBase;

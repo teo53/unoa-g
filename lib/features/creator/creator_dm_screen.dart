@@ -163,7 +163,7 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                 shape: BoxShape.circle,
                 color: AppColors.primary.withValues(alpha: 0.1),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.forum_rounded,
                 color: AppColors.primary,
                 size: 20,
@@ -260,7 +260,7 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.diamond_rounded,
                   size: 16,
                   color: AppColors.primary,
@@ -358,7 +358,7 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -366,7 +366,7 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                       size: 14,
                       color: AppColors.primary,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       '3/3',
                       style: TextStyle(
@@ -432,7 +432,7 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                   );
                   _toggleHeart(latestFanMessage.id);
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.favorite_border,
                   color: AppColors.primary,
                 ),
@@ -473,7 +473,7 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
@@ -695,7 +695,7 @@ class _MessageBubble extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (message.isRead)
-                Row(
+                const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -726,9 +726,9 @@ class _MessageBubble extends StatelessWidget {
               horizontal: 14,
               vertical: 10,
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primary,
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(18),
                 topRight: Radius.circular(4),
                 bottomLeft: Radius.circular(18),

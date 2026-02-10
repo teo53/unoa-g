@@ -111,15 +111,15 @@ class _ReportDialogState extends State<ReportDialog> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AlertDialog(
-      title: Row(
+      title: const Row(
         children: [
           Icon(
             Icons.flag_outlined,
             color: AppColors.danger,
             size: 24,
           ),
-          const SizedBox(width: 8),
-          const Text('신고하기'),
+          SizedBox(width: 8),
+          Text('신고하기'),
         ],
       ),
       content: SingleChildScrollView(
@@ -191,7 +191,7 @@ class _ReportDialogState extends State<ReportDialog> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.error_outline,
                       color: AppColors.danger,
                       size: 20,
@@ -200,7 +200,7 @@ class _ReportDialogState extends State<ReportDialog> {
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.danger,
                           fontSize: 13,
                         ),

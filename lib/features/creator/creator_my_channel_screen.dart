@@ -177,11 +177,11 @@ class _CreatorMyChannelScreenState
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.people, size: 14, color: AppColors.primary),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(
                   '1,250명',
                   style: TextStyle(
@@ -209,14 +209,14 @@ class _CreatorMyChannelScreenState
           color: AppColors.primary.withValues(alpha: 0.2),
         ),
       ),
-      child: Row(
+      child: const Row(
         children: [
           Icon(
             Icons.campaign_rounded,
             size: 18,
             color: AppColors.primary,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Expanded(
             child: Text(
               '여기서 보내는 메시지는 모든 구독자에게 전송됩니다',
@@ -340,7 +340,7 @@ class _CreatorMyChannelScreenState
           Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primary,
               shape: BoxShape.circle,
             ),
@@ -453,7 +453,7 @@ class _MessageBubble extends StatelessWidget {
                         color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
+                      child: const Text(
                         '나',
                         style: TextStyle(
                           fontSize: 10,
@@ -526,7 +526,7 @@ class _MessageBubble extends StatelessWidget {
                     ),
                     if (message.fanReactions > 0) ...[
                       const SizedBox(width: 12),
-                      Icon(
+                      const Icon(
                         Icons.favorite,
                         size: 12,
                         color: AppColors.primary,
@@ -534,7 +534,7 @@ class _MessageBubble extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${message.fanReactions}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.primary,
                         ),

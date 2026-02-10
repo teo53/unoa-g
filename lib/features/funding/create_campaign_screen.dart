@@ -455,13 +455,13 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
             color: AppColors.primary100.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Row(
+          child: const Row(
             children: [
               Icon(
                 Icons.info_outline,
                 color: AppColors.primary600,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Text(
                   '펀딩 등록 후 리워드 티어를 추가할 수 있습니다.\n등록 후 바로 활성화됩니다.',

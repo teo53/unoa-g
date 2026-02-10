@@ -55,14 +55,14 @@ class WalletService {
   /// Platform's share of donation (20%)
   static const double platformShareRate = 0.20;
 
-  /// DT to KRW conversion rate (1 DT = 100 KRW)
-  static const int dtToKrwRate = 100;
+  /// DT 기본 단가 (패키지별 고정가 기준, 환율 아님)
+  static const int dtUnitPriceKrw = 100;
 
-  /// Minimum donation amount in DT
-  static const int minimumDonationDt = 10;
+  /// Minimum donation amount in DT (BusinessConfig.minDonationDt 기준)
+  static const int minimumDonationDt = 100;
 
-  /// Maximum donation amount in DT
-  static const int maximumDonationDt = 100000;
+  /// Maximum donation amount in DT (BusinessConfig.maxDonationDt 기준)
+  static const int maximumDonationDt = 1000000;
 
   /// Refund period in days
   static const int refundPeriodDays = 7;
@@ -76,7 +76,7 @@ class WalletService {
     if (amountDt < minimumDonationDt) {
       return WalletResult.error(
         'MINIMUM_AMOUNT',
-        '최소 후원 금액은 ${minimumDonationDt} DT입니다.',
+        '최소 후원 금액은 $minimumDonationDt DT입니다.',
       );
     }
 
@@ -84,7 +84,7 @@ class WalletService {
     if (amountDt > maximumDonationDt) {
       return WalletResult.error(
         'MAXIMUM_AMOUNT',
-        '최대 후원 금액은 ${maximumDonationDt} DT입니다.',
+        '최대 후원 금액은 $maximumDonationDt DT입니다.',
       );
     }
 
@@ -105,25 +105,25 @@ class WalletService {
       totalDt: amountDt,
       creatorShareDt: creatorShare,
       platformShareDt: platformShare,
-      creatorShareKrw: creatorShare * dtToKrwRate,
-      platformShareKrw: platformShare * dtToKrwRate,
+      creatorShareKrw: creatorShare * dtUnitPriceKrw,
+      platformShareKrw: platformShare * dtUnitPriceKrw,
     );
   }
 
   /// Convert DT to KRW
-  int dtToKrw(int dt) => dt * dtToKrwRate;
+  int dtToKrw(int dt) => dt * dtUnitPriceKrw;
 
   /// Convert KRW to DT
-  int krwToDt(int krw) => krw ~/ dtToKrwRate;
+  int krwToDt(int krw) => krw ~/ dtUnitPriceKrw;
 
   /// Format DT amount for display
   String formatDt(int amount) {
-    return _formatNumber(amount) + ' DT';
+    return '${_formatNumber(amount)} DT';
   }
 
   /// Format KRW amount for display
   String formatKrw(int amount) {
-    return '₩' + _formatNumber(amount);
+    return '₩${_formatNumber(amount)}';
   }
 
   /// Check if refund is allowed
@@ -215,7 +215,7 @@ class DtPackageDetails {
 
   /// Discount percentage compared to base rate
   double get discountPercent {
-    final basePrice = totalDt * WalletService.dtToKrwRate;
+    final basePrice = totalDt * WalletService.dtUnitPriceKrw;
     return ((basePrice - priceKrw) / basePrice * 100).clamp(0, 100);
   }
 

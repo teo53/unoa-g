@@ -286,7 +286,6 @@ class Pledge {
   final String? tierTitle;
   final String? campaignTitle;
   final int amountKrw;
-  final int extraSupportKrw;
   final bool isAnonymous;
   final String? supportMessage;
   final String status;
@@ -300,14 +299,13 @@ class Pledge {
     this.tierTitle,
     this.campaignTitle,
     required this.amountKrw,
-    this.extraSupportKrw = 0,
     this.isAnonymous = false,
     this.supportMessage,
     this.status = 'active',
     required this.createdAt,
   });
 
-  int get totalAmount => amountKrw + extraSupportKrw;
+  int get totalAmount => amountKrw;
 }
 
 /// Backer model (for creator's backer list)
@@ -1016,16 +1014,14 @@ class FundingNotifier extends StateNotifier<FundingState> {
     required String campaignId,
     required String tierId,
     required int amountKrw,
-    int extraSupportKrw = 0,
     bool isAnonymous = false,
     String? supportMessage,
   }) async {
     final isDemoMode = _ref.read(isDemoModeProvider);
-    final totalAmount = amountKrw + extraSupportKrw;
 
     if (isDemoMode) {
       // Check wallet balance
-      if (state.demoWalletBalance < totalAmount) {
+      if (state.demoWalletBalance < amountKrw) {
         throw Exception('잔액이 부족합니다');
       }
 
@@ -1041,7 +1037,6 @@ class FundingNotifier extends StateNotifier<FundingState> {
         tierTitle: tier?.title,
         campaignTitle: campaign?.title,
         amountKrw: amountKrw,
-        extraSupportKrw: extraSupportKrw,
         isAnonymous: isAnonymous,
         supportMessage: supportMessage,
         createdAt: DateTime.now(),
@@ -1050,7 +1045,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
       // Update campaign stats
       final updatedAll = state.allCampaigns.map((c) {
         if (c.id == campaignId) {
-          final newAmount = c.currentAmountKrw + totalAmount;
+          final newAmount = c.currentAmountKrw + amountKrw;
           final newPercent = c.goalAmountKrw > 0
               ? (newAmount / c.goalAmountKrw * 100)
               : 0.0;
@@ -1066,7 +1061,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
       state = state.copyWith(
         allCampaigns: updatedAll,
         myPledges: [pledge, ...state.myPledges],
-        demoWalletBalance: state.demoWalletBalance - totalAmount,
+        demoWalletBalance: state.demoWalletBalance - amountKrw,
       );
 
       return pledge;
@@ -1080,7 +1075,6 @@ class FundingNotifier extends StateNotifier<FundingState> {
         'campaignId': campaignId,
         'tierId': tierId,
         'amountKrw': amountKrw,
-        'extraSupportKrw': extraSupportKrw,
         'isAnonymous': isAnonymous,
         'supportMessage': supportMessage,
       },
@@ -1097,7 +1091,6 @@ class FundingNotifier extends StateNotifier<FundingState> {
       userId: client.auth.currentUser?.id ?? '',
       tierId: tierId,
       amountKrw: amountKrw,
-      extraSupportKrw: extraSupportKrw,
       isAnonymous: isAnonymous,
       supportMessage: supportMessage,
       createdAt: DateTime.now(),

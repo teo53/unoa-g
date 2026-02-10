@@ -333,10 +333,10 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
             Icon(
               Icons.image_outlined,
               size: 64,
-              color: AppColors.primary.withOpacity(0.5),
+              color: AppColors.primary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 12),
-            Text(
+            const Text(
               '선택된 이미지',
               style: TextStyle(
                 color: AppColors.textSubDark,
@@ -346,7 +346,7 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
             const SizedBox(height: 4),
             Text(
               widget.mediaPath.split('/').last,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.textMutedDark,
                 fontSize: 12,
               ),
@@ -373,10 +373,10 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.play_arrow,
               size: 40,
               color: AppColors.primary600,
@@ -392,7 +392,7 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(
+              child: const Text(
                 '0:15',
                 style: TextStyle(
                   color: Colors.white,
@@ -415,7 +415,7 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
       child: Column(
         children: [
           // 파형 시각화 (시뮬레이션)
-          Container(
+          SizedBox(
             height: 60,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -427,7 +427,7 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
                   width: 4,
                   height: height,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.6),
+                    color: AppColors.primary.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 );
@@ -442,7 +442,7 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
               Container(
                 width: 48,
                 height: 48,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
@@ -660,10 +660,10 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.05),
+            color: AppColors.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.3),
+              color: AppColors.primary.withValues(alpha: 0.3),
             ),
           ),
           child: MessageBubbleV2(
@@ -693,10 +693,10 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.1),
+        color: Colors.amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.amber.withOpacity(0.3),
+          color: Colors.amber.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -762,12 +762,12 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
                   Navigator.of(context).pop(false);
                   widget.onReselect?.call();
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.refresh,
                   size: 18,
                   color: AppColors.primary,
                 ),
-                label: Text(
+                label: const Text(
                   '다시 선택',
                   style: TextStyle(
                     color: AppColors.primary,
@@ -775,7 +775,7 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
                 ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: BorderSide(color: AppColors.primary),
+                  side: const BorderSide(color: AppColors.primary),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

@@ -100,7 +100,7 @@ class HelpCenterScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  _FaqCategory(
+                  const _FaqCategory(
                     icon: Icons.diamond_outlined,
                     title: 'DT 충전 및 사용',
                     questions: [
@@ -110,7 +110,7 @@ class HelpCenterScreen extends StatelessWidget {
                     ],
                   ),
 
-                  _FaqCategory(
+                  const _FaqCategory(
                     icon: Icons.card_membership_outlined,
                     title: '구독 관리',
                     questions: [
@@ -120,7 +120,7 @@ class HelpCenterScreen extends StatelessWidget {
                     ],
                   ),
 
-                  _FaqCategory(
+                  const _FaqCategory(
                     icon: Icons.chat_outlined,
                     title: '메시지 및 채팅',
                     questions: [
@@ -130,7 +130,7 @@ class HelpCenterScreen extends StatelessWidget {
                     ],
                   ),
 
-                  _FaqCategory(
+                  const _FaqCategory(
                     icon: Icons.person_outline,
                     title: '계정 및 보안',
                     questions: [
@@ -164,17 +164,17 @@ class HelpCenterScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        _InfoRow(
+                        const _InfoRow(
                           label: '채팅 상담',
                           value: '평일 09:00 - 18:00',
                         ),
                         const SizedBox(height: 8),
-                        _InfoRow(
+                        const _InfoRow(
                           label: '전화 상담',
                           value: '평일 10:00 - 17:00',
                         ),
                         const SizedBox(height: 8),
-                        _InfoRow(
+                        const _InfoRow(
                           label: '이메일',
                           value: 'support@unoa.com',
                         ),
@@ -224,7 +224,7 @@ class _QuickAction extends StatelessWidget {
             Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.primary100,
                 shape: BoxShape.circle,
               ),

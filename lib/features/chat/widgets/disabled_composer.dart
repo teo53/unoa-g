@@ -124,7 +124,7 @@ class DisabledComposer extends StatelessWidget {
                     color: AppColors.primary500.withValues(alpha: 0.3),
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -132,7 +132,7 @@ class DisabledComposer extends StatelessWidget {
                       size: 18,
                       color: AppColors.primary500,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       'DT 후원으로 메시지 보내기',
                       style: TextStyle(
@@ -227,7 +227,7 @@ class DisabledComposerCompact extends StatelessWidget {
               child: Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primary500,
                   shape: BoxShape.circle,
                 ),

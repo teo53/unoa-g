@@ -233,7 +233,7 @@ class CampaignStatsScreen extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    '${count}명 (${(pct * 100).toStringAsFixed(0)}%)',
+                    '$count명 (${(pct * 100).toStringAsFixed(0)}%)',
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark ? AppColors.textMutedDark : AppColors.textMuted,

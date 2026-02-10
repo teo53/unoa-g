@@ -195,7 +195,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 onPressed: widget.onDtGiftPressed ?? () {
                   _showDtGiftSheet(context, isDark);
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.diamond,
                   color: AppColors.primary500,
                   size: 22,
@@ -342,7 +342,7 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.diamond,
                       color: AppColors.primary500,
                       size: 24,
@@ -389,7 +389,7 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                       color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
                     ),
                   ),
-                  Icon(Icons.diamond, size: 14, color: AppColors.primary500),
+                  const Icon(Icons.diamond, size: 14, color: AppColors.primary500),
                   const SizedBox(width: 4),
                   Text(
                     '1,250 DT',

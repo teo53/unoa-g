@@ -164,7 +164,7 @@ class _PledgeCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${_formatNumber(pledge.totalAmount)}원',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
@@ -172,30 +172,6 @@ class _PledgeCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (pledge.extraSupportKrw > 0) ...[
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '추가 후원',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '+${_formatNumber(pledge.extraSupportKrw)}원',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? AppColors.textDark : AppColors.text,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
               const Spacer(),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,

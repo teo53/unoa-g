@@ -89,7 +89,7 @@ class _MessageEditDialogState extends State<MessageEditDialog> {
     } else if (remainingHours == 1) {
       return '편집 가능 시간: 1시간 미만';
     } else {
-      return '편집 가능 시간: ${remainingHours}시간';
+      return '편집 가능 시간: $remainingHours시간';
     }
   }
 

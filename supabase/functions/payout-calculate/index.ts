@@ -6,7 +6,7 @@
 //
 // 수익 구조:
 //   DT 수익: 팁/도네이션, 프라이빗카드 판매, 유료답글
-//     → DT로 집계 → KRW 변환 (DT_TO_KRW_RATE)
+//     → DT로 집계 → KRW 변환 (DT_UNIT_PRICE_KRW)
 //   KRW 수익: 펀딩 결제 (funding_payments)
 //     → KRW 그대로 집계 (변환 불필요)
 //
@@ -30,8 +30,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// DT → KRW 변환율 (1 DT = 1 KRW, 현재 1:1)
-const DT_TO_KRW_RATE = 1.0
+// DT → KRW 내부 변환 단가 (패키지별 고정가 기준)
+// DT_PACKAGES: 10 DT = 1,000원, 100 DT = 10,000원 등
+// 환율(exchange rate) 개념이 아닌 패키지 기본 단가 기반 정산용 참고값
+const DT_UNIT_PRICE_KRW = 100
 
 // 플랫폼 수수료율
 const PLATFORM_FEE_RATE = 0.20 // 20%
@@ -132,7 +134,7 @@ serve(async (req) => {
 
         // === 5. DT 수익 집계 ===
 
-        // 5a. 팁/도네이션 (DT)
+        // 5a. 팁/도네이션 (DT) — gross(amount_dt) + net(creator_share_dt) 분리 추적
         const { data: donations } = await supabase
           .from('dt_donations')
           .select('amount_dt, creator_share_dt, platform_fee_dt')
@@ -140,10 +142,11 @@ serve(async (req) => {
           .gte('created_at', periodStart.toISOString())
           .lte('created_at', periodEnd.toISOString())
 
-        const tipsTotalDt = donations?.reduce((sum, d) => sum + (d.creator_share_dt || 0), 0) || 0
+        const tipsGrossDt = donations?.reduce((sum, d) => sum + (d.amount_dt || 0), 0) || 0
+        const tipsNetDt = donations?.reduce((sum, d) => sum + (d.creator_share_dt || 0), 0) || 0
         const tipsCount = donations?.length || 0
 
-        // 5b. 프라이빗카드 판매 (DT)
+        // 5b. 프라이빗카드 판매 (DT) — gross 기준 추적 (수수료는 아래에서 일괄 차감)
         const { data: cardSales } = await supabase
           .from('private_card_purchases')
           .select(`
@@ -154,13 +157,10 @@ serve(async (req) => {
           .gte('created_at', periodStart.toISOString())
           .lte('created_at', periodEnd.toISOString())
 
-        const cardsTotalDt = cardSales?.reduce((sum, s) => {
-          const creatorShare = Math.floor(s.price_paid_dt * (1 - PLATFORM_FEE_RATE))
-          return sum + creatorShare
-        }, 0) || 0
+        const cardsGrossDt = cardSales?.reduce((sum, s) => sum + (s.price_paid_dt || 0), 0) || 0
         const cardsCount = cardSales?.length || 0
 
-        // 5c. 유료답글 수익 (DT) - paid_replies 테이블
+        // 5c. 유료답글 수익 (DT) — gross(amount_dt) + net(creator_share_dt) 분리 추적
         const { data: replies } = await supabase
           .from('paid_replies')
           .select('amount_dt, creator_share_dt')
@@ -168,12 +168,13 @@ serve(async (req) => {
           .gte('created_at', periodStart.toISOString())
           .lte('created_at', periodEnd.toISOString())
 
-        const repliesTotalDt = replies?.reduce((sum, r) => sum + (r.creator_share_dt || 0), 0) || 0
+        const repliesGrossDt = replies?.reduce((sum, r) => sum + (r.amount_dt || 0), 0) || 0
+        const repliesNetDt = replies?.reduce((sum, r) => sum + (r.creator_share_dt || 0), 0) || 0
         const repliesCount = replies?.length || 0
 
-        // DT 합계 → KRW 변환
-        const dtTotalGross = tipsTotalDt + cardsTotalDt + repliesTotalDt
-        const dtRevenueKrw = Math.floor(dtTotalGross * DT_TO_KRW_RATE)
+        // DT 합계 → KRW 변환 (gross 기준, 수수료는 7번에서 1회만 차감)
+        const dtGrossTotalDt = tipsGrossDt + cardsGrossDt + repliesGrossDt
+        const dtGrossRevenueKrw = Math.floor(dtGrossTotalDt * DT_UNIT_PRICE_KRW)
 
         // === 6. KRW 수익 집계 (펀딩) ===
         // funding_payments 테이블에서 직접 조회 (DT 원장과 완전 분리)
@@ -197,9 +198,11 @@ serve(async (req) => {
         const fundingCampaigns = new Set(fundingPayments?.map(p => p.campaign_id) || []).size
 
         // === 7. 수수료 및 세금 계산 ===
+        // ⚠️ 중요: DT 수익은 gross 기준으로 수수료 1회만 차감
+        //    이전 버그: creator_share_dt(이미 80%)에 다시 20% 적용 → 64% 지급 오류
 
-        // DT 수익에 대한 플랫폼 수수료 (팁은 이미 creator_share에 반영됨)
-        const dtPlatformFeeKrw = Math.floor(dtRevenueKrw * PLATFORM_FEE_RATE)
+        // DT 수익에 대한 플랫폼 수수료 (gross 기준, 1회 차감)
+        const dtPlatformFeeKrw = Math.floor(dtGrossRevenueKrw * PLATFORM_FEE_RATE)
 
         // KRW 수익에 대한 플랫폼 수수료
         const fundingPlatformFeeKrw = Math.floor(fundingGrossKrw * PLATFORM_FEE_RATE)
@@ -207,8 +210,8 @@ serve(async (req) => {
         // 총 수수료
         const totalPlatformFeeKrw = dtPlatformFeeKrw + fundingPlatformFeeKrw
 
-        // 총 수익
-        const totalRevenueKrw = dtRevenueKrw + fundingGrossKrw
+        // 총 수익 (gross)
+        const totalRevenueKrw = dtGrossRevenueKrw + fundingGrossKrw
 
         if (totalRevenueKrw === 0) {
           console.log(`No earnings for creator ${creator.user_id}`)
@@ -221,6 +224,8 @@ serve(async (req) => {
 
         // 원천징수세 계산
         // 소득세 = 과세대상 × 세율 (지방소득세 포함)
+        // ※ 소득세법 §86 (2024.7.1~) 소액부징수 폐지: 1,000원 미만도 반드시 원천징수
+        //   현재 최소지급기준(10,000원) 덕분에 taxableKrw > 0이면 항상 withholdingTaxKrw > 0
         const withholdingTaxKrw = Math.floor(taxableKrw * taxRate)
 
         // 소득세/지방소득세 분리 (세율이 3.3%인 경우: 소득세 3% + 지방소득세 0.3%)
@@ -254,7 +259,7 @@ serve(async (req) => {
             creator_profile_id: creator.id,
             period_start: periodStartStr,
             period_end: periodEndStr,
-            gross_dt: dtTotalGross,
+            gross_dt: dtGrossTotalDt,
             gross_krw: totalRevenueKrw,
             platform_fee_rate: PLATFORM_FEE_RATE,
             platform_fee_krw: totalPlatformFeeKrw,
@@ -279,33 +284,33 @@ serve(async (req) => {
         // === 10. 소득유형별 라인 아이템 생성 ===
         const lineItems: Record<string, unknown>[] = []
 
-        if (tipsTotalDt > 0) {
+        if (tipsGrossDt > 0) {
           lineItems.push({
             payout_id: payout.id,
             item_type: 'tip',
             item_count: tipsCount,
-            gross_dt: tipsTotalDt,
-            gross_krw: Math.floor(tipsTotalDt * DT_TO_KRW_RATE),
+            gross_dt: tipsGrossDt,
+            gross_krw: Math.floor(tipsGrossDt * DT_UNIT_PRICE_KRW),
           })
         }
 
-        if (cardsTotalDt > 0) {
+        if (cardsGrossDt > 0) {
           lineItems.push({
             payout_id: payout.id,
             item_type: 'private_card',
             item_count: cardsCount,
-            gross_dt: cardsTotalDt,
-            gross_krw: Math.floor(cardsTotalDt * DT_TO_KRW_RATE),
+            gross_dt: cardsGrossDt,
+            gross_krw: Math.floor(cardsGrossDt * DT_UNIT_PRICE_KRW),
           })
         }
 
-        if (repliesTotalDt > 0) {
+        if (repliesGrossDt > 0) {
           lineItems.push({
             payout_id: payout.id,
             item_type: 'paid_reply',
             item_count: repliesCount,
-            gross_dt: repliesTotalDt,
-            gross_krw: Math.floor(repliesTotalDt * DT_TO_KRW_RATE),
+            gross_dt: repliesGrossDt,
+            gross_krw: Math.floor(repliesGrossDt * DT_UNIT_PRICE_KRW),
           })
         }
 
@@ -332,16 +337,16 @@ serve(async (req) => {
             period_start: periodStartStr,
             period_end: periodEndStr,
 
-            // DT 수익 상세
+            // DT 수익 상세 (gross 기준)
             dt_tips_count: tipsCount,
-            dt_tips_gross: tipsTotalDt,
+            dt_tips_gross: tipsGrossDt,
             dt_cards_count: cardsCount,
-            dt_cards_gross: cardsTotalDt,
+            dt_cards_gross: cardsGrossDt,
             dt_replies_count: repliesCount,
-            dt_replies_gross: repliesTotalDt,
-            dt_total_gross: dtTotalGross,
-            dt_to_krw_rate: DT_TO_KRW_RATE,
-            dt_revenue_krw: dtRevenueKrw,
+            dt_replies_gross: repliesGrossDt,
+            dt_total_gross: dtGrossTotalDt,
+            dt_to_krw_rate: DT_UNIT_PRICE_KRW,
+            dt_revenue_krw: dtGrossRevenueKrw,
 
             // KRW 수익 상세 (펀딩)
             funding_campaigns_count: fundingCampaigns,
@@ -369,13 +374,13 @@ serve(async (req) => {
           // 정산 명세서 실패는 payout 생성에 영향 주지 않음
         }
 
-        console.log(`Payout created: creator=${creator.user_id}, DT=${dtTotalGross} KRW_funding=${fundingGrossKrw} net=${netPayoutKrw}`)
+        console.log(`Payout created: creator=${creator.user_id}, DT=${dtGrossTotalDt} KRW_funding=${fundingGrossKrw} net=${netPayoutKrw}`)
 
         results.created++
         results.payouts.push({
           creatorId: creator.user_id,
           payoutId: payout.id,
-          dtRevenueKrw,
+          dtRevenueKrw: dtGrossRevenueKrw,
           fundingRevenueKrw: fundingGrossKrw,
           totalRevenueKrw,
           platformFeeKrw: totalPlatformFeeKrw,
@@ -396,7 +401,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         period: { start: periodStartStr, end: periodEndStr },
-        dtToKrwRate: DT_TO_KRW_RATE,
+        dtToKrwRate: DT_UNIT_PRICE_KRW,
         results,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

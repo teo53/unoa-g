@@ -219,7 +219,7 @@ class _BackerCard extends StatelessWidget {
                   )
                 : Text(
                     backer.displayName.characters.first,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: AppColors.primary,
@@ -246,7 +246,7 @@ class _BackerCard extends StatelessWidget {
                   children: [
                     Text(
                       backer.tierTitle,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.primary600,
                       ),

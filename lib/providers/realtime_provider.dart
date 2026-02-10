@@ -102,14 +102,14 @@ class RealtimeNotifier extends StateNotifier<RealtimeState> {
 
   /// Initialize demo mode with simulated data
   void _initializeDemoMode() {
-    state = RealtimeConnected(
+    state = const RealtimeConnected(
       subscribedChannels: {DemoConfig.demoChannelId},
       onlineUsers: {
         DemoConfig.demoChannelId: {
           DemoConfig.demoCreatorId: true, // Creator is "online"
         },
       },
-      typingUsers: const {},
+      typingUsers: {},
     );
   }
 

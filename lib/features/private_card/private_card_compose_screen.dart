@@ -69,7 +69,7 @@ class _PrivateCardComposeScreenState
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('나가기', style: TextStyle(color: AppColors.danger)),
+            child: const Text('나가기', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -95,7 +95,7 @@ class _PrivateCardComposeScreenState
           ),
         );
         Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) context.pop();
+          if (mounted && context.mounted) context.pop();
         });
       });
     }
@@ -126,8 +126,8 @@ class _PrivateCardComposeScreenState
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         final shouldPop = await _confirmDiscard();
-        if (shouldPop && mounted) {
-          Navigator.of(context).pop();
+        if (shouldPop && mounted && context.mounted) {
+          context.pop();
         }
       },
       child: Scaffold(
@@ -145,7 +145,7 @@ class _PrivateCardComposeScreenState
                 _goToStep(composeState.currentStep - 1);
               } else {
                 final shouldPop = await _confirmDiscard();
-                if (shouldPop && mounted) {
+                if (shouldPop && mounted && context.mounted) {
                   context.pop();
                 }
               }

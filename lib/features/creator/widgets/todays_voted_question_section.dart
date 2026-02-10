@@ -58,14 +58,14 @@ class _TodaysVotedQuestionSectionState
   }
 
   Widget _buildLoading() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    return const Padding(
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SkeletonLoader(width: 150, height: 24),
-          const SizedBox(height: 12),
-          const SkeletonLoader(width: double.infinity, height: 80),
+          SkeletonLoader(width: 150, height: 24),
+          SizedBox(height: 12),
+          SkeletonLoader(width: double.infinity, height: 80),
         ],
       ),
     );
@@ -110,7 +110,7 @@ class _TodaysVotedQuestionSectionState
           // Header
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.question_answer_outlined,
                 size: 22,
                 color: AppColors.primary500,
@@ -375,7 +375,7 @@ class _QuestionStatCard extends StatelessWidget {
                     color: AppColors.success.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
@@ -383,7 +383,7 @@ class _QuestionStatCard extends StatelessWidget {
                         size: 12,
                         color: AppColors.success,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Text(
                         '답변 완료',
                         style: TextStyle(

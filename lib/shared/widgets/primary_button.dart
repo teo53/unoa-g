@@ -67,7 +67,7 @@ class PrimaryButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary600, // WCAG compliant
           foregroundColor: AppColors.onPrimary,
-          disabledBackgroundColor: AppColors.primary600.withOpacity(0.5),
+          disabledBackgroundColor: AppColors.primary600.withValues(alpha: 0.5),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: AppRadius.baseBR,
@@ -234,7 +234,7 @@ class DestructiveButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.danger,
-          side: BorderSide(
+          side: const BorderSide(
             color: AppColors.danger,
             width: 1.5,
           ),
@@ -252,7 +252,7 @@ class DestructiveButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.danger,
         foregroundColor: AppColors.onPrimary,
-        disabledBackgroundColor: AppColors.danger.withOpacity(0.5),
+        disabledBackgroundColor: AppColors.danger.withValues(alpha: 0.5),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.baseBR,
@@ -354,7 +354,7 @@ class BadgeChip extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(

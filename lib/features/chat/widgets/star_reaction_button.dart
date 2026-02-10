@@ -95,7 +95,7 @@ class _StarReactionButtonState extends State<StarReactionButton>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final starColor = AppColors.star;
+    const starColor = AppColors.star;
 
     // 리액션이 0이고 반응하지 않은 경우, 아이콘만 표시 (컴팩트 모드에서는 숨김)
     if (widget.count == 0 && !widget.hasReacted && widget.compact) {

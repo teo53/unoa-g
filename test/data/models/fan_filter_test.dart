@@ -43,7 +43,7 @@ void main() {
   });
 
   group('FanSummary', () {
-    Map<String, dynamic> _createFanSummaryJson({
+    Map<String, dynamic> createFanSummaryJson({
       String userId = 'fan-1',
       String displayName = '하늘덕후',
       String? avatarUrl,
@@ -67,7 +67,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips all fields correctly', () {
-        final json = _createFanSummaryJson(
+        final json = createFanSummaryJson(
           tier: 'VIP',
           isFavorite: true,
           totalDonation: 50000,
@@ -86,25 +86,25 @@ void main() {
       });
 
       test('defaults tier to BASIC when absent', () {
-        final fan = FanSummary.fromJson(_createFanSummaryJson());
+        final fan = FanSummary.fromJson(createFanSummaryJson());
         expect(fan.tier, equals('BASIC'));
       });
     });
 
     group('tierBadge', () {
       test('returns diamond emoji for VIP', () {
-        final fan = FanSummary.fromJson(_createFanSummaryJson(tier: 'VIP'));
+        final fan = FanSummary.fromJson(createFanSummaryJson(tier: 'VIP'));
         expect(fan.tierBadge, equals('💎 VIP'));
       });
 
       test('returns star emoji for STANDARD', () {
         final fan =
-            FanSummary.fromJson(_createFanSummaryJson(tier: 'STANDARD'));
+            FanSummary.fromJson(createFanSummaryJson(tier: 'STANDARD'));
         expect(fan.tierBadge, equals('⭐ STANDARD'));
       });
 
       test('returns BASIC for unknown tier', () {
-        final fan = FanSummary.fromJson(_createFanSummaryJson(tier: 'OTHER'));
+        final fan = FanSummary.fromJson(createFanSummaryJson(tier: 'OTHER'));
         expect(fan.tierBadge, equals('BASIC'));
       });
     });
@@ -112,25 +112,25 @@ void main() {
     group('formattedDuration', () {
       test('returns N일째 for less than 365 days', () {
         final fan =
-            FanSummary.fromJson(_createFanSummaryJson(daysSubscribed: 120));
+            FanSummary.fromJson(createFanSummaryJson(daysSubscribed: 120));
         expect(fan.formattedDuration, equals('120일째'));
       });
 
       test('returns N년째 for 365+ days', () {
         final fan =
-            FanSummary.fromJson(_createFanSummaryJson(daysSubscribed: 730));
+            FanSummary.fromJson(createFanSummaryJson(daysSubscribed: 730));
         expect(fan.formattedDuration, equals('2년째'));
       });
 
       test('returns 365일째 at boundary', () {
         final fan =
-            FanSummary.fromJson(_createFanSummaryJson(daysSubscribed: 364));
+            FanSummary.fromJson(createFanSummaryJson(daysSubscribed: 364));
         expect(fan.formattedDuration, equals('364일째'));
       });
 
       test('returns 1년째 at exactly 365', () {
         final fan =
-            FanSummary.fromJson(_createFanSummaryJson(daysSubscribed: 365));
+            FanSummary.fromJson(createFanSummaryJson(daysSubscribed: 365));
         expect(fan.formattedDuration, equals('1년째'));
       });
     });
@@ -138,7 +138,7 @@ void main() {
     group('copyWith', () {
       test('preserves unchanged values', () {
         final fan = FanSummary.fromJson(
-          _createFanSummaryJson(tier: 'VIP', daysSubscribed: 200),
+          createFanSummaryJson(tier: 'VIP', daysSubscribed: 200),
         );
         final copy = fan.copyWith(isFavorite: true);
 

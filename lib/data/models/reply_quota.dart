@@ -1,6 +1,7 @@
 /// Reply Quota Model
 /// Tracks available reply tokens per user per channel
 /// Fromm/Bubble style: 3 replies per artist broadcast
+library;
 
 class ReplyQuota {
   final String id;

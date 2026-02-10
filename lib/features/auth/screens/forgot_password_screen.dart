@@ -80,8 +80,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'),
+          const SnackBar(
+            content: Text('네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'),
             backgroundColor: AppColors.danger,
           ),
         );
@@ -149,7 +149,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           const SizedBox(height: 32),
 
           // Description
-          Icon(
+          const Icon(
             Icons.lock_reset_outlined,
             size: 64,
             color: AppColors.primary500,
@@ -201,7 +201,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.primary500,
                   width: 2,
                 ),
@@ -279,7 +279,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             color: AppColors.success.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(
+          child: const Icon(
             Icons.mark_email_read_outlined,
             size: 40,
             color: AppColors.success,

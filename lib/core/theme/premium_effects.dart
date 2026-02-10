@@ -14,26 +14,26 @@ class PremiumEffects {
 
   /// Subtle Glow - 기본 과금 요소용 (CTA 버튼, FAB)
   /// 30% opacity, blur 16
-  static BoxShadow get subtleGlow => BoxShadow(
+  static BoxShadow get subtleGlow => const BoxShadow(
     color: AppColors.primaryGlow,
     blurRadius: 16,
     spreadRadius: 0,
-    offset: const Offset(0, 4),
+    offset: Offset(0, 4),
   );
 
   /// Strong Glow - VIP/프리미엄 요소용 (DT Balance Card, VIP Badge)
   /// 50% opacity, blur 24
-  static BoxShadow get strongGlow => BoxShadow(
+  static BoxShadow get strongGlow => const BoxShadow(
     color: AppColors.primaryGlowStrong,
     blurRadius: 24,
     spreadRadius: 2,
-    offset: const Offset(0, 6),
+    offset: Offset(0, 6),
   );
 
   /// Ambient Glow - 전체 둘레 글로우 (호버/포커스 상태)
   /// 20% opacity, blur 20, 사방으로 퍼짐
   static BoxShadow get ambientGlow => BoxShadow(
-    color: AppColors.primaryGlow.withOpacity(0.2),
+    color: AppColors.primaryGlow.withValues(alpha: 0.2),
     blurRadius: 20,
     spreadRadius: 4,
     offset: Offset.zero,
@@ -45,7 +45,7 @@ class PremiumEffects {
 
   /// Card Shadow - 일반 카드용
   static BoxShadow get cardShadow => BoxShadow(
-    color: Colors.black.withOpacity(0.08),
+    color: Colors.black.withValues(alpha: 0.08),
     blurRadius: 16,
     spreadRadius: 0,
     offset: const Offset(0, 4),
@@ -53,7 +53,7 @@ class PremiumEffects {
 
   /// Elevated Shadow - 떠있는 요소용 (FAB, Dialogs)
   static BoxShadow get elevatedShadow => BoxShadow(
-    color: Colors.black.withOpacity(0.12),
+    color: Colors.black.withValues(alpha: 0.12),
     blurRadius: 24,
     spreadRadius: 0,
     offset: const Offset(0, 8),
@@ -92,7 +92,7 @@ class PremiumEffects {
 
   /// Primary Gradient Decoration - CTA 버튼, 배너
   static BoxDecoration get primaryGradientDecoration => BoxDecoration(
-    gradient: LinearGradient(
+    gradient: const LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: AppColors.primaryGradient,
@@ -103,7 +103,7 @@ class PremiumEffects {
 
   /// Premium Gradient Decoration - VIP 카드, DT Balance
   static BoxDecoration get premiumGradientDecoration => BoxDecoration(
-    gradient: LinearGradient(
+    gradient: const LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: AppColors.premiumGradient,
@@ -114,7 +114,7 @@ class PremiumEffects {
 
   /// Subtle Gradient Decoration - 피처드 배너
   static BoxDecoration get subtleGradientDecoration => BoxDecoration(
-    gradient: LinearGradient(
+    gradient: const LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: AppColors.subtleGradient,

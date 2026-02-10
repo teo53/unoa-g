@@ -51,7 +51,7 @@ class _PushPermissionSheet extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [AppColors.primary500, AppColors.primary600],
                   ),
                   borderRadius: BorderRadius.circular(16),

@@ -170,7 +170,7 @@ class SentryService {
   }) async {
     if (!_initialized) {
       debugPrint('[Sentry] Not initialized, logging locally: $exception');
-      return SentryId.empty();
+      return const SentryId.empty();
     }
 
     return await Sentry.captureException(
@@ -198,7 +198,7 @@ class SentryService {
   }) async {
     if (!_initialized) {
       debugPrint('[Sentry] Not initialized, logging locally: $message');
-      return SentryId.empty();
+      return const SentryId.empty();
     }
 
     return await Sentry.captureMessage(
@@ -251,13 +251,13 @@ class SentryService {
     required String comments,
     String? name,
   }) async {
-    if (!_initialized || eventId == SentryId.empty()) return;
+    if (!_initialized || eventId == const SentryId.empty()) return;
 
-    await Sentry.captureUserFeedback(SentryUserFeedback(
-      eventId: eventId,
-      email: email,
-      comments: comments,
+    await Sentry.captureFeedback(SentryFeedback(
+      message: comments,
+      contactEmail: email,
       name: name,
+      associatedEventId: eventId,
     ));
   }
 

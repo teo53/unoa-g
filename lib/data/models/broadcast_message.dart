@@ -1,5 +1,6 @@
 /// Broadcast Chat System - Message Model
 /// Fromm/Bubble style 1:1 chat UX with broadcast delivery
+library;
 
 enum DeliveryScope {
   /// Artist message to all subscribers

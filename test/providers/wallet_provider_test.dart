@@ -88,28 +88,28 @@ void main() {
     test('calculates balance after purchase', () {
       const currentBalance = 500;
       const purchaseAmount = 100;
-      final newBalance = currentBalance + purchaseAmount;
+      const newBalance = currentBalance + purchaseAmount;
       expect(newBalance, equals(600));
     });
 
     test('calculates balance after donation', () {
       const currentBalance = 500;
       const donationAmount = 100;
-      final newBalance = currentBalance - donationAmount;
+      const newBalance = currentBalance - donationAmount;
       expect(newBalance, equals(400));
     });
 
     test('cannot donate more than balance', () {
       const currentBalance = 50;
       const donationAmount = 100;
-      final canDonate = currentBalance >= donationAmount;
+      const canDonate = currentBalance >= donationAmount;
       expect(canDonate, isFalse);
     });
 
     test('can donate when balance is sufficient', () {
       const currentBalance = 100;
       const donationAmount = 100;
-      final canDonate = currentBalance >= donationAmount;
+      const canDonate = currentBalance >= donationAmount;
       expect(canDonate, isTrue);
     });
   });
@@ -138,9 +138,9 @@ void main() {
   group('Package selection', () {
     test('filters active packages', () {
       final packages = [
-        DtPackage(id: '1', name: 'A', dtAmount: 100, priceKrw: 1000, isActive: true),
-        DtPackage(id: '2', name: 'B', dtAmount: 200, priceKrw: 2000, isActive: false),
-        DtPackage(id: '3', name: 'C', dtAmount: 300, priceKrw: 3000, isActive: true),
+        const DtPackage(id: '1', name: 'A', dtAmount: 100, priceKrw: 1000, isActive: true),
+        const DtPackage(id: '2', name: 'B', dtAmount: 200, priceKrw: 2000, isActive: false),
+        const DtPackage(id: '3', name: 'C', dtAmount: 300, priceKrw: 3000, isActive: true),
       ];
 
       final active = packages.where((p) => p.isActive).toList();
@@ -149,9 +149,9 @@ void main() {
 
     test('finds popular package', () {
       final packages = [
-        DtPackage(id: '1', name: 'A', dtAmount: 100, priceKrw: 1000, isPopular: false),
-        DtPackage(id: '2', name: 'B', dtAmount: 200, priceKrw: 2000, isPopular: true),
-        DtPackage(id: '3', name: 'C', dtAmount: 300, priceKrw: 3000, isPopular: false),
+        const DtPackage(id: '1', name: 'A', dtAmount: 100, priceKrw: 1000, isPopular: false),
+        const DtPackage(id: '2', name: 'B', dtAmount: 200, priceKrw: 2000, isPopular: true),
+        const DtPackage(id: '3', name: 'C', dtAmount: 300, priceKrw: 3000, isPopular: false),
       ];
 
       final popular = packages.where((p) => p.isPopular).firstOrNull;
@@ -161,9 +161,9 @@ void main() {
 
     test('sorts packages by price ascending', () {
       final packages = [
-        DtPackage(id: '1', name: 'A', dtAmount: 100, priceKrw: 30000),
-        DtPackage(id: '2', name: 'B', dtAmount: 200, priceKrw: 10000),
-        DtPackage(id: '3', name: 'C', dtAmount: 300, priceKrw: 20000),
+        const DtPackage(id: '1', name: 'A', dtAmount: 100, priceKrw: 30000),
+        const DtPackage(id: '2', name: 'B', dtAmount: 200, priceKrw: 10000),
+        const DtPackage(id: '3', name: 'C', dtAmount: 300, priceKrw: 20000),
       ];
 
       final sorted = List<DtPackage>.from(packages)
@@ -176,9 +176,9 @@ void main() {
 
     test('sorts packages by value (DT per won) descending', () {
       final packages = [
-        DtPackage(id: '1', name: 'A', dtAmount: 100, bonusDt: 0, priceKrw: 10000), // 100/10000 = 0.01
-        DtPackage(id: '2', name: 'B', dtAmount: 200, bonusDt: 50, priceKrw: 20000), // 250/20000 = 0.0125
-        DtPackage(id: '3', name: 'C', dtAmount: 500, bonusDt: 100, priceKrw: 50000), // 600/50000 = 0.012
+        const DtPackage(id: '1', name: 'A', dtAmount: 100, bonusDt: 0, priceKrw: 10000), // 100/10000 = 0.01
+        const DtPackage(id: '2', name: 'B', dtAmount: 200, bonusDt: 50, priceKrw: 20000), // 250/20000 = 0.0125
+        const DtPackage(id: '3', name: 'C', dtAmount: 500, bonusDt: 100, priceKrw: 50000), // 600/50000 = 0.012
       ];
 
       // Calculate DT per won (higher = better value)

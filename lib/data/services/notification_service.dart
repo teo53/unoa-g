@@ -58,7 +58,7 @@ class NotificationService {
         return '$senderName 채널 구독이 갱신되었습니다';
       case NotificationType.subscriptionExpiring:
         final days = expiryDate?.difference(DateTime.now()).inDays ?? 0;
-        return '$senderName 채널 구독이 ${days}일 후 만료됩니다';
+        return '$senderName 채널 구독이 $days일 후 만료됩니다';
       case NotificationType.quotaRefreshed:
         return '오늘의 답장 횟수가 초기화되었습니다';
       case NotificationType.systemAnnouncement:

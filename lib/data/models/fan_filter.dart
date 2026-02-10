@@ -172,7 +172,7 @@ class FanSummary {
   String get formattedDuration {
     if (daysSubscribed >= 365) {
       final years = daysSubscribed ~/ 365;
-      return '${years}년째';
+      return '$years년째';
     }
     return '$daysSubscribed일째';
   }

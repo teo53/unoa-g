@@ -238,7 +238,7 @@ class CardPreviewStep extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.warning_amber_rounded,
                     color: AppColors.warning,
                     size: 20,

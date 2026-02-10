@@ -3,7 +3,7 @@ import 'package:uno_a_flutter/data/models/poll_message.dart';
 
 void main() {
   group('PollMessage', () {
-    Map<String, dynamic> _createPollJson({
+    Map<String, dynamic> createPollJson({
       String id = 'poll-1',
       String messageId = 'msg-1',
       String question = '좋아하는 색은?',
@@ -33,7 +33,7 @@ void main() {
 
     group('fromJson', () {
       test('parses all fields correctly', () {
-        final json = _createPollJson(
+        final json = createPollJson(
           allowMultiple: true,
           isAnonymous: true,
           endsAt: '2025-12-31T23:59:59.000Z',
@@ -50,7 +50,7 @@ void main() {
       });
 
       test('defaults allowMultiple and isAnonymous to false', () {
-        final json = _createPollJson();
+        final json = createPollJson();
         final poll = PollMessage.fromJson(json);
 
         expect(poll.allowMultiple, isFalse);
@@ -58,7 +58,7 @@ void main() {
       });
 
       test('handles null endsAt', () {
-        final json = _createPollJson();
+        final json = createPollJson();
         final poll = PollMessage.fromJson(json);
 
         expect(poll.endsAt, isNull);
@@ -67,7 +67,7 @@ void main() {
 
     group('isEnded', () {
       test('returns true when endsAt is in the past', () {
-        final json = _createPollJson(
+        final json = createPollJson(
           endsAt: '2020-01-01T00:00:00.000Z',
         );
         final poll = PollMessage.fromJson(json);
@@ -75,7 +75,7 @@ void main() {
       });
 
       test('returns false when endsAt is in the future', () {
-        final json = _createPollJson(
+        final json = createPollJson(
           endsAt: '2099-12-31T23:59:59.000Z',
         );
         final poll = PollMessage.fromJson(json);
@@ -83,7 +83,7 @@ void main() {
       });
 
       test('returns false when endsAt is null', () {
-        final json = _createPollJson();
+        final json = createPollJson();
         final poll = PollMessage.fromJson(json);
         expect(poll.isEnded, isFalse);
       });

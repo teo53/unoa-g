@@ -1,5 +1,6 @@
 /// Message Reaction Model
 /// 메시지 리액션 (하트 반응) 데이터 모델
+library;
 
 class MessageReaction {
   final String id;

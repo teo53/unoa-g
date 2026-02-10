@@ -222,7 +222,7 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
     // Check reply window (7 days)
     final donationTime =
         DateTime.parse(donationMessage['created_at'] as String);
-    final replyWindowHours = 168; // 7 days
+    const replyWindowHours = 168; // 7 days
     if (DateTime.now().difference(donationTime).inHours > replyWindowHours) {
       throw StateError('Reply window expired (7 days)');
     }

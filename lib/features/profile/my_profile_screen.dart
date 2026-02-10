@@ -152,7 +152,7 @@ class MyProfileScreen extends ConsumerWidget {
                 // Edit profile link
                 GestureDetector(
                   onTap: () => context.push('/profile/edit'),
-                  child: Text(
+                  child: const Text(
                     '탭하여 프로필 수정',
                     style: TextStyle(
                       fontSize: 13,
@@ -198,7 +198,7 @@ class MyProfileScreen extends ConsumerWidget {
                     _MenuItem(
                       icon: Icons.account_balance_wallet,
                       iconColor: AppColors.primary,
-                      iconBgColor: AppColors.primary.withOpacity(0.1),
+                      iconBgColor: AppColors.primary.withValues(alpha: 0.1),
                       title: 'Wallet / DreamTime (DT)',
                       subtitle: '잔액: ${user.dtBalance} DT',
                       onTap: () => context.push('/wallet'),
@@ -206,7 +206,7 @@ class MyProfileScreen extends ConsumerWidget {
                     _MenuItem(
                       icon: Icons.card_membership,
                       iconColor: Colors.blue,
-                      iconBgColor: Colors.blue.withOpacity(0.1),
+                      iconBgColor: Colors.blue.withValues(alpha: 0.1),
                       title: '구독 관리',
                       subtitle: '${user.subscriptionCount}개 구독 중',
                       onTap: () => context.push('/subscriptions'),
@@ -226,7 +226,7 @@ class MyProfileScreen extends ConsumerWidget {
                         _MenuItem(
                           icon: Icons.dashboard_rounded,
                           iconColor: AppColors.primary,
-                          iconBgColor: AppColors.primary.withOpacity(0.1),
+                          iconBgColor: AppColors.primary.withValues(alpha: 0.1),
                           title: '크리에이터 스튜디오',
                           subtitle: '크리에이터 대시보드로 이동',
                           onTap: () => context.go('/creator/dashboard'),
@@ -245,21 +245,21 @@ class MyProfileScreen extends ConsumerWidget {
                       _MenuItem(
                         icon: Icons.notifications,
                         iconColor: Colors.orange,
-                        iconBgColor: Colors.orange.withOpacity(0.1),
+                        iconBgColor: Colors.orange.withValues(alpha: 0.1),
                         title: '알림 설정',
                         onTap: () => context.push('/settings/notifications'),
                       ),
                       _MenuItem(
                         icon: Icons.security,
                         iconColor: Colors.purple,
-                        iconBgColor: Colors.purple.withOpacity(0.1),
+                        iconBgColor: Colors.purple.withValues(alpha: 0.1),
                         title: '계정 / 보안',
                         onTap: () => context.push('/settings/account'),
                       ),
                       _MenuItem(
                         icon: Icons.headset_mic,
                         iconColor: Colors.green,
-                        iconBgColor: Colors.green.withOpacity(0.1),
+                        iconBgColor: Colors.green.withValues(alpha: 0.1),
                         title: '고객센터',
                         onTap: () => context.push('/help'),
                       ),
@@ -390,14 +390,14 @@ class _GuestProfileView extends StatelessWidget {
                       _MenuItem(
                         icon: Icons.headset_mic,
                         iconColor: Colors.green,
-                        iconBgColor: Colors.green.withOpacity(0.1),
+                        iconBgColor: Colors.green.withValues(alpha: 0.1),
                         title: '고객센터',
                         onTap: () => context.push('/help'),
                       ),
                       _MenuItem(
                         icon: Icons.info_outline,
                         iconColor: Colors.blue,
-                        iconBgColor: Colors.blue.withOpacity(0.1),
+                        iconBgColor: Colors.blue.withValues(alpha: 0.1),
                         title: '앱 정보',
                         onTap: () => context.push('/settings'),
                       ),
@@ -440,7 +440,7 @@ class _StatCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -489,7 +489,7 @@ class _MenuSection extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

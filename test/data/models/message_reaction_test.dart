@@ -3,7 +3,7 @@ import 'package:uno_a_flutter/data/models/message_reaction.dart';
 
 void main() {
   group('MessageReaction', () {
-    Map<String, dynamic> _createReactionJson({
+    Map<String, dynamic> createReactionJson({
       String id = 'reaction-1',
       String messageId = 'msg-1',
       String userId = 'user-1',
@@ -21,7 +21,7 @@ void main() {
 
     group('fromJson / toJson', () {
       test('round-trips all fields correctly', () {
-        final json = _createReactionJson(reactionType: 'heart');
+        final json = createReactionJson(reactionType: 'heart');
         final reaction = MessageReaction.fromJson(json);
         final restored = MessageReaction.fromJson(reaction.toJson());
 
@@ -33,7 +33,7 @@ void main() {
       });
 
       test('defaults reactionType to heart when absent', () {
-        final json = _createReactionJson();
+        final json = createReactionJson();
         final reaction = MessageReaction.fromJson(json);
         expect(reaction.reactionType, equals('heart'));
       });
@@ -42,7 +42,7 @@ void main() {
     group('copyWith', () {
       test('preserves unchanged values', () {
         final original = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         final copy = original.copyWith();
 
@@ -53,7 +53,7 @@ void main() {
 
       test('can update reactionType', () {
         final original = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         final updated = original.copyWith(reactionType: 'fire');
         expect(updated.reactionType, equals('fire'));
@@ -64,27 +64,27 @@ void main() {
     group('equality', () {
       test('reactions with same fields are equal', () {
         final a = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         final b = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         expect(a, equals(b));
       });
 
       test('reactions with different ids are not equal', () {
         final a = MessageReaction.fromJson(
-          _createReactionJson(id: 'r-1', reactionType: 'heart'),
+          createReactionJson(id: 'r-1', reactionType: 'heart'),
         );
         final b = MessageReaction.fromJson(
-          _createReactionJson(id: 'r-2', reactionType: 'heart'),
+          createReactionJson(id: 'r-2', reactionType: 'heart'),
         );
         expect(a, isNot(equals(b)));
       });
 
       test('identical instances are equal', () {
         final reaction = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         expect(identical(reaction, reaction), isTrue);
       });
@@ -93,10 +93,10 @@ void main() {
     group('hashCode', () {
       test('equal reactions produce same hashCode', () {
         final a = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         final b = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         expect(a.hashCode, equals(b.hashCode));
       });
@@ -105,7 +105,7 @@ void main() {
     group('toString', () {
       test('includes key fields', () {
         final reaction = MessageReaction.fromJson(
-          _createReactionJson(reactionType: 'heart'),
+          createReactionJson(reactionType: 'heart'),
         );
         final str = reaction.toString();
         expect(str, contains('reaction-1'));

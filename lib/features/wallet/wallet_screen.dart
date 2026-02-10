@@ -62,7 +62,7 @@ class WalletScreen extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: AppColors.premiumGradient,
@@ -78,7 +78,7 @@ class WalletScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(
@@ -111,7 +111,7 @@ class WalletScreen extends StatelessWidget {
                             'DT',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -256,7 +256,7 @@ class WalletScreen extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () => context.push('/wallet/history'),
-                        child: Text(
+                        child: const Text(
                           '전체보기',
                           style: TextStyle(
                             fontSize: 12,
@@ -393,7 +393,7 @@ class _PackageCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Icon(
+              const Icon(
                 Icons.diamond,
                 size: 16,
                 color: AppColors.primary500,
@@ -414,7 +414,7 @@ class _PackageCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '+$bonus 보너스',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 10,
                 color: AppColors.primary500,
                 fontWeight: FontWeight.w500,
@@ -553,7 +553,7 @@ class _DtExpirationBanner extends StatelessWidget {
               color: AppColors.warning.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.timer_outlined,
               size: 18,
               color: AppColors.warning,
@@ -584,7 +584,7 @@ class _DtExpirationBanner extends StatelessWidget {
                           ? AppColors.textSubDark
                           : AppColors.textSubLight,
                     ),
-                    children: [
+                    children: const [
                       TextSpan(
                         text: '$expiringAmount DT',
                         style: TextStyle(
@@ -592,12 +592,12 @@ class _DtExpirationBanner extends StatelessWidget {
                           color: AppColors.warning,
                         ),
                       ),
-                      const TextSpan(text: '가 '),
+                      TextSpan(text: '가 '),
                       TextSpan(
                         text: '$daysUntilExpiry일 후',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
-                      const TextSpan(text: ' 만료됩니다.\n구매일로부터 5년 경과 시 소멸됩니다.'),
+                      TextSpan(text: ' 만료됩니다.\n구매일로부터 5년 경과 시 소멸됩니다.'),
                     ],
                   ),
                 ),

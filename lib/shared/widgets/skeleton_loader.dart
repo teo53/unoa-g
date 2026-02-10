@@ -266,10 +266,10 @@ class _DefaultLoadingSkeleton extends StatelessWidget {
     return Column(
       children: [
         // Header skeleton
-        Padding(
-          padding: const EdgeInsets.all(16),
+        const Padding(
+          padding: EdgeInsets.all(16),
           child: Row(
-            children: const [
+            children: [
               SkeletonLoader.circle(size: 40),
               SizedBox(width: 12),
               Expanded(

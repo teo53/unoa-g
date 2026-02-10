@@ -228,7 +228,7 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.show_chart_rounded,
                 size: 20,
                 color: AppColors.primary,
@@ -318,7 +318,7 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.mail_rounded,
                 size: 20,
                 color: AppColors.verified,
@@ -374,7 +374,7 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.local_fire_department_rounded,
                 size: 20,
                 color: AppColors.warning,
@@ -415,14 +415,14 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
           color: AppColors.verified.withValues(alpha: 0.3),
         ),
       ),
-      child: Row(
+      child: const Row(
         children: [
           Icon(
             Icons.info_outline,
             size: 20,
             color: AppColors.verified,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
               '데모 모드에서는 샘플 데이터가 표시됩니다.',
@@ -464,7 +464,7 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
+            child: const Text(
               '확인',
               style: TextStyle(color: AppColors.primary),
             ),
@@ -602,7 +602,7 @@ class _StatCard extends StatelessWidget {
                 ),
                 child: Text(
                   change,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.success,

@@ -298,7 +298,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       lifetimeEarnedDt: isCreator ? DemoConfig.demoMonthlyRevenue ~/ 10 : 0,
       lifetimeRefundedDt: 0,
       createdAt: DateTime.now().subtract(
-        Duration(days: DemoConfig.demoSubscriptionDaysAgo),
+        const Duration(days: DemoConfig.demoSubscriptionDaysAgo),
       ),
       updatedAt: DateTime.now(),
     );

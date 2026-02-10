@@ -155,8 +155,8 @@ class _PaymentConsentFormState extends State<PaymentConsentForm> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isDark
-                    ? Colors.white.withOpacity(0.05)
-                    : Colors.grey.withOpacity(0.1),
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.grey.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: RichText(
@@ -310,7 +310,7 @@ class _ConsentCheckbox extends StatelessWidget {
                       if (onViewTerms != null)
                         GestureDetector(
                           onTap: onViewTerms,
-                          child: Text(
+                          child: const Text(
                             '보기',
                             style: TextStyle(
                               fontSize: 12,
