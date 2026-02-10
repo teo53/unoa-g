@@ -160,5 +160,6 @@ class AuthException implements Exception {
   AuthException(this.message, [this.code]);
 
   @override
-  String toString() => 'AuthException: $message${code != null ? ' ($code)' : ''}';
+  String toString() =>
+      'AuthException: $message${code != null ? ' ($code)' : ''}';
 }

@@ -93,12 +93,14 @@ void main() {
 
     group('pricePerDt', () {
       test('calculates price per DT correctly', () {
-        final package = createPackage(dtAmount: 100, bonusDt: 0, priceKrw: 10000);
+        final package =
+            createPackage(dtAmount: 100, bonusDt: 0, priceKrw: 10000);
         expect(package.pricePerDt, equals(100.0));
       });
 
       test('accounts for bonus in calculation', () {
-        final package = createPackage(dtAmount: 100, bonusDt: 25, priceKrw: 10000);
+        final package =
+            createPackage(dtAmount: 100, bonusDt: 25, priceKrw: 10000);
         // 10000 / 125 = 80
         expect(package.pricePerDt, equals(80.0));
       });
@@ -106,12 +108,14 @@ void main() {
 
     group('formattedPricePerDt', () {
       test('formats with suffix', () {
-        final package = createPackage(dtAmount: 100, bonusDt: 0, priceKrw: 10000);
+        final package =
+            createPackage(dtAmount: 100, bonusDt: 0, priceKrw: 10000);
         expect(package.formattedPricePerDt, equals('100원/DT'));
       });
 
       test('rounds to integer', () {
-        final package = createPackage(dtAmount: 100, bonusDt: 20, priceKrw: 10000);
+        final package =
+            createPackage(dtAmount: 100, bonusDt: 20, priceKrw: 10000);
         // 10000 / 120 = 83.33...
         expect(package.formattedPricePerDt, equals('83원/DT'));
       });

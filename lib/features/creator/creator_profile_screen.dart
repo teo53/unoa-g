@@ -228,8 +228,9 @@ class CreatorProfileScreen extends ConsumerWidget {
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: BorderSide(
-                        color:
-                            isDark ? AppColors.borderDark : AppColors.borderLight,
+                        color: isDark
+                            ? AppColors.borderDark
+                            : AppColors.borderLight,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -342,9 +343,7 @@ class CreatorProfileScreen extends ConsumerWidget {
           ),
         ),
         content: Text(
-          isDemoMode
-              ? '데모 모드를 종료하시겠습니까?'
-              : '정말 로그아웃 하시겠습니까?',
+          isDemoMode ? '데모 모드를 종료하시겠습니까?' : '정말 로그아웃 하시겠습니까?',
           style: TextStyle(
             color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
           ),
@@ -488,7 +487,8 @@ class _MenuSection extends StatelessWidget {
               ? null
               : Border(
                   bottom: BorderSide(
-                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    color:
+                        isDark ? AppColors.borderDark : AppColors.borderLight,
                   ),
                 ),
         ),
@@ -628,9 +628,8 @@ class _TappableProfileArea extends StatelessWidget {
                               ),
                             )
                           : Container(
-                              color: isDark
-                                  ? Colors.grey[800]
-                                  : Colors.grey[200],
+                              color:
+                                  isDark ? Colors.grey[800] : Colors.grey[200],
                               child: Icon(
                                 Icons.person,
                                 size: 48,
@@ -726,7 +725,8 @@ class _TappableProfileArea extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,

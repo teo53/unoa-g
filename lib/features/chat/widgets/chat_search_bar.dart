@@ -171,7 +171,9 @@ class _ChatSearchBarState extends State<ChatSearchBar> {
                 Icons.keyboard_arrow_up,
                 size: 22,
                 color: hasMatches && widget.currentMatch > 0
-                    ? (isDark ? AppColors.textMainDark : AppColors.textMainLight)
+                    ? (isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight)
                     : (isDark ? Colors.grey[600] : Colors.grey[300]),
               ),
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -188,12 +190,11 @@ class _ChatSearchBarState extends State<ChatSearchBar> {
               icon: Icon(
                 Icons.keyboard_arrow_down,
                 size: 22,
-                color:
-                    hasMatches && widget.currentMatch < widget.matchCount - 1
-                        ? (isDark
-                            ? AppColors.textMainDark
-                            : AppColors.textMainLight)
-                        : (isDark ? Colors.grey[600] : Colors.grey[300]),
+                color: hasMatches && widget.currentMatch < widget.matchCount - 1
+                    ? (isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight)
+                    : (isDark ? Colors.grey[600] : Colors.grey[300]),
               ),
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               padding: EdgeInsets.zero,

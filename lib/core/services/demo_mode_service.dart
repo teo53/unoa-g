@@ -67,8 +67,8 @@ class DemoModeService {
         displayName: DemoConfig.demoCreatorName,
         avatarUrl: DemoConfig.demoCreatorAvatarUrl,
         bio: DemoConfig.demoCreatorBio,
-        createdAt:
-            DateTime.now().subtract(const Duration(days: DemoConfig.demoAccountCreatedDaysAgo)),
+        createdAt: DateTime.now().subtract(
+            const Duration(days: DemoConfig.demoAccountCreatedDaysAgo)),
       );
 
   /// Get demo fan profile
@@ -103,8 +103,8 @@ class DemoModeService {
 
   /// Get random artist avatar URL
   String getRandomArtistAvatar(int index) {
-    final seed = DemoConfig.artistAvatarSeeds[
-        index % DemoConfig.artistAvatarSeeds.length];
+    final seed = DemoConfig
+        .artistAvatarSeeds[index % DemoConfig.artistAvatarSeeds.length];
     return generateAvatarUrl(seed);
   }
 

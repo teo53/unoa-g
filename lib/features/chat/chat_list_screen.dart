@@ -33,9 +33,8 @@ class ChatListScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               Container(
@@ -52,7 +51,8 @@ class ChatListScreen extends ConsumerWidget {
                       SnackBar(
                         content: const Text('새 메시지 기능 준비 중'),
                         behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
                       ),
                     );
                   },
@@ -157,7 +157,8 @@ class ChatListScreen extends ConsumerWidget {
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.primary600,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           icon: const Icon(Icons.search, size: 18),
           label: const Text('아티스트 둘러보기'),

@@ -38,9 +38,8 @@ class MyProfileScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               IconButton(
@@ -194,25 +193,25 @@ class MyProfileScreen extends ConsumerWidget {
                 SlideFadeAnimation.fromBottom(
                   delay: const Duration(milliseconds: 200),
                   child: _MenuSection(
-                  items: [
-                    _MenuItem(
-                      icon: Icons.account_balance_wallet,
-                      iconColor: AppColors.primary,
-                      iconBgColor: AppColors.primary.withValues(alpha: 0.1),
-                      title: 'Wallet / DreamTime (DT)',
-                      subtitle: '잔액: ${user.dtBalance} DT',
-                      onTap: () => context.push('/wallet'),
-                    ),
-                    _MenuItem(
-                      icon: Icons.card_membership,
-                      iconColor: Colors.blue,
-                      iconBgColor: Colors.blue.withValues(alpha: 0.1),
-                      title: '구독 관리',
-                      subtitle: '${user.subscriptionCount}개 구독 중',
-                      onTap: () => context.push('/subscriptions'),
-                    ),
-                  ],
-                ),
+                    items: [
+                      _MenuItem(
+                        icon: Icons.account_balance_wallet,
+                        iconColor: AppColors.primary,
+                        iconBgColor: AppColors.primary.withValues(alpha: 0.1),
+                        title: 'Wallet / DreamTime (DT)',
+                        subtitle: '잔액: ${user.dtBalance} DT',
+                        onTap: () => context.push('/wallet'),
+                      ),
+                      _MenuItem(
+                        icon: Icons.card_membership,
+                        iconColor: Colors.blue,
+                        iconBgColor: Colors.blue.withValues(alpha: 0.1),
+                        title: '구독 관리',
+                        subtitle: '${user.subscriptionCount}개 구독 중',
+                        onTap: () => context.push('/subscriptions'),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -310,16 +309,16 @@ class _GuestProfileView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               IconButton(
                 onPressed: () => context.push('/settings'),
                 icon: Icon(
                   Icons.settings,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -380,7 +379,8 @@ class _GuestProfileView extends StatelessWidget {
 
                   // Divider
                   Divider(
-                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    color:
+                        isDark ? AppColors.borderDark : AppColors.borderLight,
                   ),
                   const SizedBox(height: 16),
 

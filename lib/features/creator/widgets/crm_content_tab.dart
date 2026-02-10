@@ -53,16 +53,16 @@ class _ContentStatsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.analytics_rounded, color: AppColors.primary, size: 20),
+              const Icon(Icons.analytics_rounded,
+                  color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
               Text(
                 '콘텐츠 성과 요약',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -209,9 +209,8 @@ class _BestMessagesCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -261,7 +260,9 @@ class _MessagePerfTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: rank == 1
                   ? Colors.orange
-                  : (isDark ? AppColors.backgroundDark : AppColors.backgroundLight),
+                  : (isDark
+                      ? AppColors.backgroundDark
+                      : AppColors.backgroundLight),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -379,16 +380,16 @@ class _MessageTypePerformanceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.category_rounded, color: AppColors.verified, size: 20),
+              const Icon(Icons.category_rounded,
+                  color: AppColors.verified, size: 20),
               const SizedBox(width: 8),
               Text(
                 '메시지 유형별 성과',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],

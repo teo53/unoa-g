@@ -89,7 +89,8 @@ class _PrivateCardComposeScreenState
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${composeState.selectedFanCount}명의 팬에게 카드가 전송되었습니다!'),
+            content:
+                Text('${composeState.selectedFanCount}명의 팬에게 카드가 전송되었습니다!'),
             backgroundColor: AppColors.vip,
             duration: const Duration(seconds: 2),
           ),
@@ -131,7 +132,8 @@ class _PrivateCardComposeScreenState
         }
       },
       child: Scaffold(
-        backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+        backgroundColor:
+            isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
         appBar: AppBar(
           backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
           elevation: 0,
@@ -234,7 +236,8 @@ class _PrivateCardComposeScreenState
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      color:
+                          isDark ? AppColors.borderDark : AppColors.borderLight,
                     ),
                   ),
                   child: Center(
@@ -260,7 +263,9 @@ class _PrivateCardComposeScreenState
               onTap: canProceed
                   ? () {
                       if (isLastStep) {
-                        ref.read(privateCardComposeProvider.notifier).sendCard();
+                        ref
+                            .read(privateCardComposeProvider.notifier)
+                            .sendCard();
                       } else {
                         _goToStep(state.currentStep + 1);
                       }

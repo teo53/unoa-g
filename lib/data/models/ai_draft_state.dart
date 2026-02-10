@@ -21,10 +21,10 @@ class ReplySuggestion {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'label': label,
-    'text': text,
-  };
+        'id': id,
+        'label': label,
+        'text': text,
+      };
 }
 
 /// Sealed state machine for the AI draft suggestion UX.

@@ -28,8 +28,7 @@ void main() {
       );
       await tester.pump();
 
-      final widget =
-          tester.widget<SkeletonLoader>(find.byType(SkeletonLoader));
+      final widget = tester.widget<SkeletonLoader>(find.byType(SkeletonLoader));
       expect(widget.isCircle, isTrue);
       expect(widget.width, equals(48));
       expect(widget.height, equals(48));
@@ -45,8 +44,7 @@ void main() {
       );
       await tester.pump();
 
-      final widget =
-          tester.widget<SkeletonLoader>(find.byType(SkeletonLoader));
+      final widget = tester.widget<SkeletonLoader>(find.byType(SkeletonLoader));
       expect(widget.height, equals(14));
       expect(widget.width, equals(120));
       expect(widget.isCircle, isFalse);

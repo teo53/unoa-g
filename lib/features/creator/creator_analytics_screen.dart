@@ -12,7 +12,8 @@ class CreatorAnalyticsScreen extends ConsumerStatefulWidget {
       _CreatorAnalyticsScreenState();
 }
 
-class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen> {
+class _CreatorAnalyticsScreenState
+    extends ConsumerState<CreatorAnalyticsScreen> {
   String _selectedPeriod = '이번 주';
   final List<String> _periods = ['오늘', '이번 주', '이번 달', '전체'];
 
@@ -164,7 +165,9 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
                   fontWeight: FontWeight.w500,
                   color: isSelected
                       ? Colors.white
-                      : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                      : (isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight),
                 ),
               ),
             ),
@@ -239,7 +242,8 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -329,7 +333,8 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -385,7 +390,8 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -441,7 +447,8 @@ class _CreatorAnalyticsScreenState extends ConsumerState<CreatorAnalyticsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        backgroundColor:
+            isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -577,7 +584,8 @@ class _StatCard extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -750,7 +758,9 @@ class _PopularMessageTile extends StatelessWidget {
                   message.content,
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -760,7 +770,8 @@ class _PopularMessageTile extends StatelessWidget {
                   '답장 ${message.replyCount}개 • ${message.time}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    color:
+                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                 ),
               ],

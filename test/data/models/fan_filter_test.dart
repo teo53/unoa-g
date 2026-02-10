@@ -98,8 +98,7 @@ void main() {
       });
 
       test('returns star emoji for STANDARD', () {
-        final fan =
-            FanSummary.fromJson(createFanSummaryJson(tier: 'STANDARD'));
+        final fan = FanSummary.fromJson(createFanSummaryJson(tier: 'STANDARD'));
         expect(fan.tierBadge, equals('⭐ STANDARD'));
       });
 

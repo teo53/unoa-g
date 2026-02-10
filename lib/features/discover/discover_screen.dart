@@ -57,9 +57,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 20),
@@ -111,9 +110,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               IconButton(
@@ -164,14 +162,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
-            children: List.generate(4, (index) => Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: SkeletonLoader(
-                width: 60,
-                height: 32,
-                borderRadius: BorderRadius.circular(20),
-              ),
-            )),
+            children: List.generate(
+                4,
+                (index) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: SkeletonLoader(
+                        width: 60,
+                        height: 32,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    )),
           ),
         ),
 
@@ -262,7 +262,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: _selectedCategory == index
                             ? AppColors.primary600
@@ -271,7 +272,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                         border: _selectedCategory == index
                             ? null
                             : Border.all(
-                                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                                color: isDark
+                                    ? AppColors.borderDark
+                                    : AppColors.borderLight,
                               ),
                       ),
                       child: Text(
@@ -281,7 +284,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           fontWeight: FontWeight.w500,
                           color: _selectedCategory == index
                               ? Colors.white
-                              : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                              : (isDark
+                                  ? AppColors.textSubDark
+                                  : AppColors.textSubLight),
                         ),
                       ),
                     ),
@@ -329,8 +334,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,

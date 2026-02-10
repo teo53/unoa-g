@@ -28,10 +28,12 @@ class BirthdaySettingsScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<BirthdaySettingsScreen> createState() => _BirthdaySettingsScreenState();
+  ConsumerState<BirthdaySettingsScreen> createState() =>
+      _BirthdaySettingsScreenState();
 }
 
-class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen> {
+class _BirthdaySettingsScreenState
+    extends ConsumerState<BirthdaySettingsScreen> {
   late int _selectedMonth;
   late int _selectedDay;
   late bool _isVisible;
@@ -39,8 +41,18 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
   bool _hasChanges = false;
 
   static const _monthNames = [
-    '1월', '2월', '3월', '4월', '5월', '6월',
-    '7월', '8월', '9월', '10월', '11월', '12월',
+    '1월',
+    '2월',
+    '3월',
+    '4월',
+    '5월',
+    '6월',
+    '7월',
+    '8월',
+    '9월',
+    '10월',
+    '11월',
+    '12월',
   ];
 
   static const _daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -128,7 +140,8 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('생일 정보 삭제'),
-        content: const Text('등록된 생일 정보를 삭제하시겠습니까?\n삭제 후에는 아티스트에게 생일 축하 메시지를 받을 수 없습니다.'),
+        content: const Text(
+            '등록된 생일 정보를 삭제하시겠습니까?\n삭제 후에는 아티스트에게 생일 축하 메시지를 받을 수 없습니다.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -240,7 +253,9 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
-                        color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
                       ),
                     ),
                   ),
@@ -273,7 +288,9 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
                         Icon(
                           Icons.shield_outlined,
                           size: 18,
-                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -369,7 +386,9 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
                     '월',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -416,7 +435,9 @@ class _BirthdaySettingsScreenState extends ConsumerState<BirthdaySettingsScreen>
                     '일',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                   const SizedBox(height: 6),

@@ -220,7 +220,8 @@ class _OwnMessageBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // Reaction button (left of time)
-          if (showReactionButton && (message.reactionCount > 0 || message.hasReacted))
+          if (showReactionButton &&
+              (message.reactionCount > 0 || message.hasReacted))
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: StarReactionButton(
@@ -260,7 +261,8 @@ class _OwnMessageBubble extends StatelessWidget {
                 formatTime(message.createdAt),
                 style: TextStyle(
                   fontSize: 10,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -304,8 +306,7 @@ class _OwnMessageBubble extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color:
-                                isDark ? AppColors.star : Colors.amber[800],
+                            color: isDark ? AppColors.star : Colors.amber[800],
                           ),
                         ),
                       ],

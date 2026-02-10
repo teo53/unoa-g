@@ -170,9 +170,9 @@ class BroadcastMessage {
 
   /// Available placeholders for Bubble-style personalization
   static const List<String> placeholders = [
-    '{fanName}',     // Fan's display name
+    '{fanName}', // Fan's display name
     '{subscribeDays}', // Days subscribed
-    '{tier}',        // Subscription tier
+    '{tier}', // Subscription tier
   ];
 
   /// Get personalized content for a specific fan
@@ -201,7 +201,8 @@ class BroadcastMessage {
   bool get isDonation =>
       deliveryScope == DeliveryScope.donationMessage ||
       deliveryScope == DeliveryScope.donationReply;
-  bool get isPublicShare => deliveryScope == DeliveryScope.publicShare || isPublicShared;
+  bool get isPublicShare =>
+      deliveryScope == DeliveryScope.publicShare || isPublicShared;
 
   factory BroadcastMessage.fromJson(Map<String, dynamic> json) {
     return BroadcastMessage(
@@ -244,14 +245,15 @@ class BroadcastMessage {
           : null,
       editHistory: json['edit_history'] != null
           ? (json['edit_history'] as List)
-              .map((e) => MessageEditHistory.fromJson(e as Map<String, dynamic>))
+              .map(
+                  (e) => MessageEditHistory.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
       reactionCount: json['reaction_count'] as int? ?? 0,
       hasReacted: json['has_reacted'] as bool? ?? false,
       reactions: json['reactions'] != null
-          ? (json['reactions'] as Map<String, dynamic>).map(
-              (k, v) => MapEntry(k, List<String>.from(v as List)))
+          ? (json['reactions'] as Map<String, dynamic>)
+              .map((k, v) => MapEntry(k, List<String>.from(v as List)))
           : null,
       isPinned: json['is_pinned'] as bool? ?? false,
       pinnedAt: json['pinned_at'] != null

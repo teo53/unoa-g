@@ -43,11 +43,14 @@ class FanFilterStep extends ConsumerWidget {
                       context: context,
                     );
                     if (filter != null) {
-                      ref.read(privateCardComposeProvider.notifier).selectFilter(filter);
+                      ref
+                          .read(privateCardComposeProvider.notifier)
+                          .selectFilter(filter);
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
                       color: AppColors.vip,
                       borderRadius: BorderRadius.circular(24),
@@ -74,7 +77,9 @@ class FanFilterStep extends ConsumerWidget {
                 if (composeState.selectedFilter != null)
                   GestureDetector(
                     onTap: () {
-                      ref.read(privateCardComposeProvider.notifier).clearFilter();
+                      ref
+                          .read(privateCardComposeProvider.notifier)
+                          .clearFilter();
                     },
                     child: Text(
                       '필터 삭제',
@@ -95,7 +100,8 @@ class FanFilterStep extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.vip.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -137,12 +143,14 @@ class FanFilterStep extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 decoration: BoxDecoration(
                   color: isDark ? Colors.grey[900] : Colors.grey[50],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    color:
+                        isDark ? AppColors.borderDark : AppColors.borderLight,
                   ),
                 ),
                 child: Text(
@@ -174,14 +182,20 @@ class FanFilterStep extends ConsumerWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
-                      if (composeState.selectedFanIds.length == composeState.matchedFans.length) {
-                        ref.read(privateCardComposeProvider.notifier).deselectAllFans();
+                      if (composeState.selectedFanIds.length ==
+                          composeState.matchedFans.length) {
+                        ref
+                            .read(privateCardComposeProvider.notifier)
+                            .deselectAllFans();
                       } else {
-                        ref.read(privateCardComposeProvider.notifier).selectAllMatchedFans();
+                        ref
+                            .read(privateCardComposeProvider.notifier)
+                            .selectAllMatchedFans();
                       }
                     },
                     child: Text(
-                      composeState.selectedFanIds.length == composeState.matchedFans.length
+                      composeState.selectedFanIds.length ==
+                              composeState.matchedFans.length
                           ? '전체 해제'
                           : '전체 선택',
                       style: const TextStyle(
@@ -211,21 +225,28 @@ class FanFilterStep extends ConsumerWidget {
           // Fan list
           if (!composeState.isLoading)
             ...composeState.matchedFans.map((fan) {
-              final isSelected = composeState.selectedFanIds.contains(fan.userId);
+              final isSelected =
+                  composeState.selectedFanIds.contains(fan.userId);
               return _FanListItem(
                 fan: fan,
                 isSelected: isSelected,
                 onToggleSelect: () {
-                  ref.read(privateCardComposeProvider.notifier).toggleFanSelection(fan.userId);
+                  ref
+                      .read(privateCardComposeProvider.notifier)
+                      .toggleFanSelection(fan.userId);
                 },
                 onToggleFavorite: () {
-                  ref.read(privateCardComposeProvider.notifier).toggleFavorite(fan.userId);
+                  ref
+                      .read(privateCardComposeProvider.notifier)
+                      .toggleFavorite(fan.userId);
                 },
               );
             }),
 
           // Empty state
-          if (!composeState.isLoading && composeState.matchedFans.isEmpty && composeState.selectedFilter != null)
+          if (!composeState.isLoading &&
+              composeState.matchedFans.isEmpty &&
+              composeState.selectedFilter != null)
             Padding(
               padding: const EdgeInsets.all(32),
               child: Center(
@@ -345,7 +366,8 @@ class _FanListItem extends StatelessWidget {
                   ? CachedNetworkImageProvider(fan.avatarUrl!)
                   : null,
               child: fan.avatarUrl == null
-                  ? Icon(Icons.person, color: isDark ? Colors.grey[500] : Colors.grey[400])
+                  ? Icon(Icons.person,
+                      color: isDark ? Colors.grey[500] : Colors.grey[400])
                   : null,
             ),
             const SizedBox(width: 12),
@@ -390,8 +412,12 @@ class _FanListItem extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: Icon(
-                    fan.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-                    color: fan.isFavorite ? AppColors.star : (isDark ? Colors.grey[600] : Colors.grey[400]),
+                    fan.isFavorite
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    color: fan.isFavorite
+                        ? AppColors.star
+                        : (isDark ? Colors.grey[600] : Colors.grey[400]),
                     size: 24,
                   ),
                 ),

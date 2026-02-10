@@ -71,9 +71,8 @@ class _PushPermissionSheet extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 12),
@@ -84,9 +83,8 @@ class _PushPermissionSheet extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(height: 20),
@@ -142,9 +140,8 @@ class _PushPermissionSheet extends StatelessWidget {
                   '나중에 할게요',
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ),
@@ -155,9 +152,7 @@ class _PushPermissionSheet extends StatelessWidget {
                 '알림 설정은 언제든지 앱 설정에서 변경할 수 있습니다',
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark
-                      ? AppColors.textMutedDark
-                      : AppColors.textMuted,
+                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
                 ),
               ),
             ],
@@ -209,9 +204,8 @@ class _PushPermissionSheet extends StatelessWidget {
                   description,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],

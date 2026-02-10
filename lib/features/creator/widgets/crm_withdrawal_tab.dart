@@ -43,7 +43,8 @@ class CrmWithdrawalTab extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     side: BorderSide(
-                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      color:
+                          isDark ? AppColors.borderDark : AppColors.borderLight,
                     ),
                   ),
                 ),
@@ -215,9 +216,8 @@ class _WithdrawButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 24),
@@ -234,9 +234,8 @@ class _WithdrawButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 20),
@@ -395,7 +394,8 @@ class _WithdrawalHistoryCard extends StatelessWidget {
                 '총 출금: ${formatNumber(1050000)} DT',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -465,9 +465,8 @@ class _WithdrawalHistoryTile extends StatelessWidget {
                   '${withdrawal.date.year}.${withdrawal.date.month.toString().padLeft(2, '0')}.${withdrawal.date.day.toString().padLeft(2, '0')}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],

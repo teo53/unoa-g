@@ -51,16 +51,20 @@ class YouTubeFancam {
   String get videoUrl => 'https://www.youtube.com/watch?v=$videoId';
 
   /// Get thumbnail URL (default quality)
-  String get thumbnailUrl => 'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+  String get thumbnailUrl =>
+      'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
 
   /// Get high quality thumbnail URL
-  String get thumbnailUrlHQ => 'https://img.youtube.com/vi/$videoId/maxresdefault.jpg';
+  String get thumbnailUrlHQ =>
+      'https://img.youtube.com/vi/$videoId/maxresdefault.jpg';
 
   /// Get medium quality thumbnail URL
-  String get thumbnailUrlMQ => 'https://img.youtube.com/vi/$videoId/mqdefault.jpg';
+  String get thumbnailUrlMQ =>
+      'https://img.youtube.com/vi/$videoId/mqdefault.jpg';
 
   /// Get standard quality thumbnail URL
-  String get thumbnailUrlSD => 'https://img.youtube.com/vi/$videoId/sddefault.jpg';
+  String get thumbnailUrlSD =>
+      'https://img.youtube.com/vi/$videoId/sddefault.jpg';
 
   /// Format view count for display
   String get formattedViewCount {

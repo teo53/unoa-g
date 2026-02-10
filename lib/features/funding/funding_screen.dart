@@ -76,7 +76,9 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
                     height: 40,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      color: isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -84,7 +86,9 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
                         Icon(
                           Icons.search_rounded,
                           size: 20,
-                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                          color: isDark
+                              ? AppColors.iconMutedDark
+                              : AppColors.iconMuted,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -95,7 +99,9 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
                               hintText: '펀딩 검색...',
                               hintStyle: TextStyle(
                                 fontSize: 15,
-                                color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                                color: isDark
+                                    ? AppColors.textMutedDark
+                                    : AppColors.textMuted,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -103,10 +109,13 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
                             ),
                             style: TextStyle(
                               fontSize: 15,
-                              color: isDark ? AppColors.textDark : AppColors.text,
+                              color:
+                                  isDark ? AppColors.textDark : AppColors.text,
                             ),
                             onChanged: (value) {
-                              ref.read(fundingProvider.notifier).setSearchQuery(value);
+                              ref
+                                  .read(fundingProvider.notifier)
+                                  .setSearchQuery(value);
                             },
                           ),
                         ),
@@ -114,12 +123,16 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
                           GestureDetector(
                             onTap: () {
                               _searchController.clear();
-                              ref.read(fundingProvider.notifier).setSearchQuery('');
+                              ref
+                                  .read(fundingProvider.notifier)
+                                  .setSearchQuery('');
                             },
                             child: Icon(
                               Icons.close_rounded,
                               size: 18,
-                              color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                              color: isDark
+                                  ? AppColors.iconMutedDark
+                                  : AppColors.iconMuted,
                             ),
                           ),
                       ],
@@ -136,7 +149,9 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
                   child: Text(
                     '취소',
                     style: TextStyle(
-                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                      color: isDark
+                          ? AppColors.textMutedDark
+                          : AppColors.textMuted,
                     ),
                   ),
                 ),
@@ -156,7 +171,8 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
                 IconButton(
                   icon: Icon(
                     Icons.search_rounded,
-                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    color:
+                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                   onPressed: () {
                     setState(() => _isSearching = true);
@@ -182,7 +198,8 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         labelColor: AppColors.onPrimary,
-        unselectedLabelColor: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+        unselectedLabelColor:
+            isDark ? AppColors.textMutedDark : AppColors.textMuted,
         labelStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -303,7 +320,8 @@ class _CampaignCard extends StatelessWidget {
           children: [
             // Cover image
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: campaign.coverImageUrl != null
@@ -340,7 +358,9 @@ class _CampaignCard extends StatelessWidget {
                       campaign.subtitle!,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -354,9 +374,13 @@ class _CampaignCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: (campaign.fundingPercent / 100).clamp(0.0, 1.0),
-                      backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      backgroundColor: isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        campaign.fundingPercent >= 100 ? AppColors.success : AppColors.primary,
+                        campaign.fundingPercent >= 100
+                            ? AppColors.success
+                            : AppColors.primary,
                       ),
                       minHeight: 6,
                     ),
@@ -402,7 +426,9 @@ class _CampaignCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: daysLeft <= 3
                               ? AppColors.danger100
-                              : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
+                              : (isDark
+                                  ? AppColors.surfaceAltDark
+                                  : AppColors.surfaceAlt),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -412,7 +438,9 @@ class _CampaignCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             color: daysLeft <= 3
                                 ? AppColors.danger
-                                : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
+                                : (isDark
+                                    ? AppColors.textMutedDark
+                                    : AppColors.textMuted),
                           ),
                         ),
                       ),

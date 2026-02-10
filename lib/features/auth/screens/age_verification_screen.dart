@@ -13,8 +13,7 @@ class AgeVerificationScreen extends ConsumerStatefulWidget {
       _AgeVerificationScreenState();
 }
 
-class _AgeVerificationScreenState
-    extends ConsumerState<AgeVerificationScreen> {
+class _AgeVerificationScreenState extends ConsumerState<AgeVerificationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _guardianNameController = TextEditingController();
   final _guardianPhoneController = TextEditingController();

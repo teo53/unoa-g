@@ -143,9 +143,7 @@ class _ExplanationItem extends StatelessWidget {
               text,
               style: TextStyle(
                 fontSize: 14,
-                color: isDark
-                    ? AppColors.textSubDark
-                    : AppColors.textSubLight,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 height: 1.4,
               ),
             ),

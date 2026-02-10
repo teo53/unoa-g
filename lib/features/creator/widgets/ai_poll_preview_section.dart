@@ -75,13 +75,13 @@ class AiPollPreviewSection extends StatelessWidget {
         const SizedBox(height: 12),
         // Preview cards
         ...previews.map((draft) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _PollPreviewCard(
-            draft: draft,
-            isDark: isDark,
-            onTap: onOpenPollSheet,
-          ),
-        )),
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _PollPreviewCard(
+                draft: draft,
+                isDark: isDark,
+                onTap: onOpenPollSheet,
+              ),
+            )),
       ],
     );
   }
@@ -138,9 +138,8 @@ class _PollPreviewCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

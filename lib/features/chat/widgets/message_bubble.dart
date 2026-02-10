@@ -262,9 +262,8 @@ class _FanBubble extends StatelessWidget {
                 _formattedTime,
                 style: TextStyle(
                   fontSize: 10,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -313,9 +312,8 @@ class _FanBubble extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? AppColors.star
-                                  : Colors.amber[800],
+                              color:
+                                  isDark ? AppColors.star : Colors.amber[800],
                             ),
                           ),
                         ],
@@ -411,8 +409,7 @@ class DateSeparator extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color:
-                    isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
               ),
             ),
           ),

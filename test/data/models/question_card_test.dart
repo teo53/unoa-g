@@ -94,8 +94,7 @@ void main() {
       });
 
       test('returns raw value for unknown subdeck', () {
-        final card =
-            QuestionCard.fromJson(createCardJson(subdeck: 'custom'));
+        final card = QuestionCard.fromJson(createCardJson(subdeck: 'custom'));
         expect(card.subdeckDisplayName, equals('custom'));
       });
     });

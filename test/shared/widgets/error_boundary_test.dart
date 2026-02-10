@@ -12,7 +12,8 @@ void main() {
       });
 
       test('generates unique codes on successive calls', () {
-        final codes = List.generate(10, (_) => ErrorDisplay.generateErrorCode());
+        final codes =
+            List.generate(10, (_) => ErrorDisplay.generateErrorCode());
         // At least most should be unique (timestamp-based + random)
         final unique = codes.toSet();
         expect(unique.length, greaterThan(5));

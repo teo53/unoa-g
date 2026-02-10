@@ -117,8 +117,8 @@ class AppColors {
 
   /// Primary Gradient - For CTAs, banners (primary600 based)
   static const List<Color> primaryGradient = [
-    Color(0xFFDE332A),  // primary600
-    Color(0xFFFF6B6B),  // lighter
+    Color(0xFFDE332A), // primary600
+    Color(0xFFFF6B6B), // lighter
   ];
 
   /// Premium Gradient - For VIP, DT cards
@@ -150,7 +150,10 @@ class AppColors {
   static const Color cardWarmPink = Color(0xFFFFB6C8);
 
   /// Private Card Gradient - For card borders and decorative elements
-  static const List<Color> privateCardGradient = [cardGradientStart, cardGradientEnd];
+  static const List<Color> privateCardGradient = [
+    cardGradientStart,
+    cardGradientEnd
+  ];
 
   /// Private Card Label Gradient - For the "private card" badge
   static const List<Color> privateCardLabelGradient = [vip, cardAccentPink];
@@ -249,12 +252,12 @@ class ArtistThemeColors {
 
   /// 프리셋 색상 목록 (index 0-5)
   static const List<Color> presets = [
-    AppColors.primary,     // 0: 기본 (레드)
-    Color(0xFFE91E63),     // 1: 핑크
-    Color(0xFF2196F3),     // 2: 블루
-    Color(0xFF9C27B0),     // 3: 퍼플
-    Color(0xFF009688),     // 4: 틸
-    Color(0xFFFF9800),     // 5: 오렌지
+    AppColors.primary, // 0: 기본 (레드)
+    Color(0xFFE91E63), // 1: 핑크
+    Color(0xFF2196F3), // 2: 블루
+    Color(0xFF9C27B0), // 3: 퍼플
+    Color(0xFF009688), // 4: 틸
+    Color(0xFFFF9800), // 5: 오렌지
   ];
 
   /// 프리셋 색상 이름 (한국어)
@@ -276,9 +279,7 @@ class ArtistThemeColors {
   static Color fromIndexDark(int index) {
     final base = fromIndex(index);
     final hsl = HSLColor.fromColor(base);
-    return hsl
-        .withLightness((hsl.lightness - 0.08).clamp(0.0, 1.0))
-        .toColor();
+    return hsl.withLightness((hsl.lightness - 0.08).clamp(0.0, 1.0)).toColor();
   }
 
   /// 프리셋 개수

@@ -120,8 +120,8 @@ class _MessageEditDialogState extends State<MessageEditDialog> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final characterCount = _controller.text.length;
-    final isOverLimit = widget.maxCharacters != null &&
-        characterCount > widget.maxCharacters!;
+    final isOverLimit =
+        widget.maxCharacters != null && characterCount > widget.maxCharacters!;
 
     return AlertDialog(
       backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
@@ -167,7 +167,8 @@ class _MessageEditDialogState extends State<MessageEditDialog> {
                       _remainingTimeText,
                       style: TextStyle(
                         fontSize: 13,
-                        color: _canEdit ? AppColors.primary500 : AppColors.danger,
+                        color:
+                            _canEdit ? AppColors.primary500 : AppColors.danger,
                       ),
                     ),
                   ),
@@ -197,7 +198,8 @@ class _MessageEditDialogState extends State<MessageEditDialog> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: isOverLimit ? AppColors.danger : AppColors.primary500,
+                    color:
+                        isOverLimit ? AppColors.danger : AppColors.primary500,
                     width: 2,
                   ),
                 ),

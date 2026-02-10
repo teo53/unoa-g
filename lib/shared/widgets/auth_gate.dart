@@ -102,9 +102,8 @@ class AuthGate {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
                 const SizedBox(height: 24),

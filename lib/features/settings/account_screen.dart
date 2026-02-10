@@ -270,7 +270,8 @@ class AccountScreen extends ConsumerWidget {
                                         ),
                                         child: Row(
                                           children: [
-                                            const Icon(Icons.warning_amber_rounded,
+                                            const Icon(
+                                                Icons.warning_amber_rounded,
                                                 color: AppColors.warning,
                                                 size: 20),
                                             const SizedBox(width: 8),

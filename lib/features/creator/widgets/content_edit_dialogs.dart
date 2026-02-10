@@ -57,9 +57,8 @@ void showDropEditDialog(
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 20),
@@ -205,8 +204,7 @@ void showEventEditDialog(
 }) {
   final isEdit = event != null;
   final titleController = TextEditingController(text: event?.title ?? '');
-  final locationController =
-      TextEditingController(text: event?.location ?? '');
+  final locationController = TextEditingController(text: event?.location ?? '');
   final descController = TextEditingController(text: event?.description ?? '');
   final ticketUrlController =
       TextEditingController(text: event?.ticketUrl ?? '');
@@ -241,9 +239,8 @@ void showEventEditDialog(
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 20),
@@ -324,8 +321,7 @@ void showEventEditDialog(
                       context: context,
                       initialDate: selectedDate,
                       firstDate: DateTime.now(),
-                      lastDate:
-                          DateTime.now().add(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
                     );
                     if (picked != null) {
                       setModalState(() => selectedDate = picked);
@@ -360,19 +356,15 @@ void showEventEditDialog(
                   FilterChip(
                     label: const Text('OFFLINE'),
                     selected: isOffline,
-                    onSelected: (v) =>
-                        setModalState(() => isOffline = true),
-                    selectedColor:
-                        Colors.purple.withValues(alpha: 0.2),
+                    onSelected: (v) => setModalState(() => isOffline = true),
+                    selectedColor: Colors.purple.withValues(alpha: 0.2),
                   ),
                   const SizedBox(width: 8),
                   FilterChip(
                     label: const Text('ONLINE'),
                     selected: !isOffline,
-                    onSelected: (v) =>
-                        setModalState(() => isOffline = false),
-                    selectedColor:
-                        Colors.green.withValues(alpha: 0.2),
+                    onSelected: (v) => setModalState(() => isOffline = false),
+                    selectedColor: Colors.green.withValues(alpha: 0.2),
                   ),
                 ],
               ),
@@ -430,9 +422,7 @@ void showFancamEditDialog(
 }) {
   final isEdit = fancam != null;
   final urlController = TextEditingController(
-    text: fancam != null
-        ? 'https://youtube.com/watch?v=${fancam.videoId}'
-        : '',
+    text: fancam != null ? 'https://youtube.com/watch?v=${fancam.videoId}' : '',
   );
   String fetchedTitle = fancam?.title ?? '';
   bool isLoading = false;
@@ -558,8 +548,9 @@ void showFancamEditDialog(
                     '제목 (자동)',
                     style: TextStyle(
                       fontSize: 12,
-                      color:
-                          isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -596,9 +587,7 @@ void showFancamEditDialog(
                         if (videoId == null) return;
                         final newFancam = CreatorFancam(
                           id: fancam?.id ??
-                              DateTime.now()
-                                  .millisecondsSinceEpoch
-                                  .toString(),
+                              DateTime.now().millisecondsSinceEpoch.toString(),
                           videoId: videoId,
                           title: fetchedTitle,
                           isPinned: fancam?.isPinned ?? false,
@@ -673,31 +662,31 @@ void showSocialLinksEditDialog(
               ),
             ),
             const SizedBox(height: 20),
-            _socialField(igController, 'Instagram', 'https://instagram.com/...', isDark),
+            _socialField(
+                igController, 'Instagram', 'https://instagram.com/...', isDark),
             const SizedBox(height: 12),
-            _socialField(ytController, 'YouTube', 'https://youtube.com/@...', isDark),
+            _socialField(
+                ytController, 'YouTube', 'https://youtube.com/@...', isDark),
             const SizedBox(height: 12),
-            _socialField(ttController, 'TikTok', 'https://tiktok.com/@...', isDark),
+            _socialField(
+                ttController, 'TikTok', 'https://tiktok.com/@...', isDark),
             const SizedBox(height: 12),
-            _socialField(twController, 'X (Twitter)', 'https://x.com/...', isDark),
+            _socialField(
+                twController, 'X (Twitter)', 'https://x.com/...', isDark),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
                   onSave(SocialLinks(
-                    instagram: igController.text.isNotEmpty
-                        ? igController.text
-                        : null,
-                    youtube: ytController.text.isNotEmpty
-                        ? ytController.text
-                        : null,
-                    tiktok: ttController.text.isNotEmpty
-                        ? ttController.text
-                        : null,
-                    twitter: twController.text.isNotEmpty
-                        ? twController.text
-                        : null,
+                    instagram:
+                        igController.text.isNotEmpty ? igController.text : null,
+                    youtube:
+                        ytController.text.isNotEmpty ? ytController.text : null,
+                    tiktok:
+                        ttController.text.isNotEmpty ? ttController.text : null,
+                    twitter:
+                        twController.text.isNotEmpty ? twController.text : null,
                   ));
                   Navigator.pop(context);
                 },

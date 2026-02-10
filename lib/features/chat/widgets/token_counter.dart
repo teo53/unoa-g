@@ -221,7 +221,8 @@ class CharacterLimitIndicator extends StatelessWidget {
       '$currentLength / $maxLength',
       style: TextStyle(
         fontSize: 11,
-        fontWeight: isOverLimit || isNearLimit ? FontWeight.w600 : FontWeight.w400,
+        fontWeight:
+            isOverLimit || isNearLimit ? FontWeight.w600 : FontWeight.w400,
         color: textColor,
       ),
     );

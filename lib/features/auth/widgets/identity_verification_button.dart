@@ -12,7 +12,7 @@ class IdentityVerificationButton extends StatefulWidget {
   final VoidCallback? onVerificationComplete;
   final ValueChanged<IdentityVerificationResult>? onVerificationResult;
   final bool isVerified;
-  final String? maskedPhone;  // Only last 4 digits: ***-****-1234
+  final String? maskedPhone; // Only last 4 digits: ***-****-1234
   final bool enabled;
 
   const IdentityVerificationButton({
@@ -151,9 +151,9 @@ class _IdentityVerificationButtonState
                 const IdentityVerificationResult(
                   success: true,
                   impUid: 'test_imp_uid_12345',
-                  maskedPhone: '***-****-5678',  // Only last 4 digits
-                  isAdult: true,                  // 19+ check
-                  isAtLeast14: true,             // 14+ check
+                  maskedPhone: '***-****-5678', // Only last 4 digits
+                  isAdult: true, // 19+ check
+                  isAtLeast14: true, // 14+ check
                 ),
               );
             },

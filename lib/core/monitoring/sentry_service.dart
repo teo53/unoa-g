@@ -11,15 +11,15 @@ class SentryService {
 
   /// Sentry DSN (환경변수 또는 빌드 설정에서 가져옴)
   static String? get _dsn => const String.fromEnvironment(
-    'SENTRY_DSN',
-    defaultValue: '',
-  );
+        'SENTRY_DSN',
+        defaultValue: '',
+      );
 
   /// 현재 환경
   static String get _environment => const String.fromEnvironment(
-    'ENVIRONMENT',
-    defaultValue: 'development',
-  );
+        'ENVIRONMENT',
+        defaultValue: 'development',
+      );
 
   /// Sentry 초기화
   static Future<void> initialize() async {
@@ -42,7 +42,8 @@ class SentryService {
 
         // 디버그 모드에서 더 많은 정보 수집
         options.debug = kDebugMode;
-        options.diagnosticLevel = kDebugMode ? SentryLevel.debug : SentryLevel.warning;
+        options.diagnosticLevel =
+            kDebugMode ? SentryLevel.debug : SentryLevel.warning;
 
         // 스크린샷 및 뷰 계층 첨부 (에러 발생 시)
         options.attachScreenshot = true;

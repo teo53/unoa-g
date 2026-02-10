@@ -90,7 +90,8 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                     color: isDark ? Colors.grey[900] : Colors.grey[50],
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      color:
+                          isDark ? AppColors.borderDark : AppColors.borderLight,
                     ),
                   ),
                   child: Column(
@@ -100,7 +101,9 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                         maxLines: 6,
                         maxLength: maxChars,
                         onChanged: (text) {
-                          ref.read(privateCardComposeProvider.notifier).updateCardText(text);
+                          ref
+                              .read(privateCardComposeProvider.notifier)
+                              .updateCardText(text);
                         },
                         style: TextStyle(
                           fontSize: 15,
@@ -128,11 +131,12 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: composeState.cardText.length > maxChars * 0.9
-                                  ? AppColors.primary
-                                  : isDark
-                                      ? Colors.grey[500]
-                                      : Colors.grey[400],
+                              color:
+                                  composeState.cardText.length > maxChars * 0.9
+                                      ? AppColors.primary
+                                      : isDark
+                                          ? Colors.grey[500]
+                                          : Colors.grey[400],
                             ),
                           ),
                         ),
@@ -140,7 +144,6 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
@@ -300,7 +303,9 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                 right: 4,
                 child: GestureDetector(
                   onTap: () {
-                    ref.read(privateCardComposeProvider.notifier).removeMedia(entry.key);
+                    ref
+                        .read(privateCardComposeProvider.notifier)
+                        .removeMedia(entry.key);
                   },
                   child: Container(
                     width: 20,
@@ -309,7 +314,8 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
                       color: AppColors.danger,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, color: Colors.white, size: 14),
+                    child:
+                        const Icon(Icons.close, color: Colors.white, size: 14),
                   ),
                 ),
               ),
@@ -321,4 +327,3 @@ class _CardEditorStepState extends ConsumerState<CardEditorStep> {
     );
   }
 }
-

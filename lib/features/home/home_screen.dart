@@ -118,8 +118,9 @@ class _LoggedInHomeScreen extends StatelessWidget {
                         delay: Duration(milliseconds: 50 * index),
                         child: Padding(
                           padding: EdgeInsets.only(
-                            right:
-                                index < MockData.trendingArtists.length - 1 ? 16 : 0,
+                            right: index < MockData.trendingArtists.length - 1
+                                ? 16
+                                : 0,
                           ),
                           child: TrendingArtistCard(
                             artist: artist,
@@ -143,7 +144,8 @@ class _LoggedInHomeScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
-                    children: MockData.subscribedArtists.asMap().entries.map((entry) {
+                    children:
+                        MockData.subscribedArtists.asMap().entries.map((entry) {
                       final index = entry.key;
                       final artist = entry.value;
                       return FadeInAnimation(
@@ -154,7 +156,8 @@ class _LoggedInHomeScreen extends StatelessWidget {
                             artist: artist,
                             hasNewMessage: artist.id == 'artist_1',
                             onTap: () => context.push('/chat/${artist.id}'),
-                            onMessageTap: () => context.push('/chat/${artist.id}'),
+                            onMessageTap: () =>
+                                context.push('/chat/${artist.id}'),
                           ),
                         ),
                       );
@@ -243,8 +246,9 @@ class _GuestHomeScreen extends StatelessWidget {
                         delay: Duration(milliseconds: 50 * index),
                         child: Padding(
                           padding: EdgeInsets.only(
-                            right:
-                                index < MockData.trendingArtists.length - 1 ? 16 : 0,
+                            right: index < MockData.trendingArtists.length - 1
+                                ? 16
+                                : 0,
                           ),
                           child: TrendingArtistCard(
                             artist: artist,
@@ -345,9 +349,7 @@ class _GuestHeroSection extends StatelessWidget {
           colors: [
             AppColors.primary.withValues(alpha: 0.10),
             AppColors.primary.withValues(alpha: 0.04),
-            isDark
-                ? AppColors.surfaceDark
-                : AppColors.surfaceLight,
+            isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -392,9 +394,7 @@ class _GuestHeroSection extends StatelessWidget {
               fontSize: 26,
               fontWeight: FontWeight.w800,
               height: 1.3,
-              color: isDark
-                  ? AppColors.textMainDark
-                  : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
               letterSpacing: -0.5,
             ),
           ),
@@ -407,9 +407,7 @@ class _GuestHeroSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: isDark
-                  ? AppColors.textSubDark
-                  : AppColors.textSubLight,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
           const SizedBox(height: 24),
@@ -551,9 +549,8 @@ class _FeatureCard extends StatelessWidget {
                   description,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                     height: 1.4,
                   ),
                 ),
@@ -578,9 +575,7 @@ class _GuestBottomCTA extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.surfaceDark
-            : Colors.grey.shade50,
+        color: isDark ? AppColors.surfaceDark : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isDark ? AppColors.borderDark : AppColors.borderLight,
@@ -593,9 +588,7 @@ class _GuestBottomCTA extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: isDark
-                  ? AppColors.textMainDark
-                  : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
           const SizedBox(height: 6),
@@ -603,9 +596,7 @@ class _GuestBottomCTA extends StatelessWidget {
             '가입하고 좋아하는 아티스트를 구독하세요',
             style: TextStyle(
               fontSize: 13,
-              color: isDark
-                  ? AppColors.textSubDark
-                  : AppColors.textSubLight,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
           const SizedBox(height: 16),

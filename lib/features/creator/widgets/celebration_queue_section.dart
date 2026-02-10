@@ -128,14 +128,11 @@ class _CelebrationQueueSectionState extends State<CelebrationQueueSection> {
 
             // 2. Update celebration_events status
             if (event.id.isNotEmpty) {
-              await Supabase.instance.client
-                  .from('celebration_events')
-                  .update({
-                    'status': 'sent',
-                    'sent_at': DateTime.now().toUtc().toIso8601String(),
-                    'message_id': msgResponse['id'],
-                  })
-                  .eq('id', event.id);
+              await Supabase.instance.client.from('celebration_events').update({
+                'status': 'sent',
+                'sent_at': DateTime.now().toUtc().toIso8601String(),
+                'message_id': msgResponse['id'],
+              }).eq('id', event.id);
             }
           } catch (e) {
             if (mounted) {
@@ -185,7 +182,8 @@ class _CelebrationQueueSectionState extends State<CelebrationQueueSection> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const Spacer(),
@@ -210,13 +208,13 @@ class _CelebrationQueueSectionState extends State<CelebrationQueueSection> {
 
         // Event cards
         ...pendingEvents.map((event) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _CelebrationEventCard(
-            event: event,
-            isDark: isDark,
-            onTap: () => _onEventTap(event),
-          ),
-        )),
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _CelebrationEventCard(
+                event: event,
+                isDark: isDark,
+                onTap: () => _onEventTap(event),
+              ),
+            )),
       ],
     );
   }
@@ -364,7 +362,8 @@ class _CelebrationEventCard extends StatelessWidget {
             // Action
             if (isSent)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                   borderRadius: BorderRadius.circular(8),
@@ -374,15 +373,15 @@ class _CelebrationEventCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               )
             else
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.primary600,
                   borderRadius: BorderRadius.circular(8),

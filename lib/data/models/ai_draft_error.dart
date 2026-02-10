@@ -72,7 +72,9 @@ class AiDraftError {
     }
 
     // Parse failure
-    if (msg.contains('파싱') || msg.contains('parse') || msg.contains('FormatException')) {
+    if (msg.contains('파싱') ||
+        msg.contains('parse') ||
+        msg.contains('FormatException')) {
       return AiDraftError(
         code: AiDraftErrorCode.parseFail,
         userMessage: 'AI 응답을 처리할 수 없어요',
@@ -82,7 +84,9 @@ class AiDraftError {
     }
 
     // Network
-    if (msg.contains('SocketException') || msg.contains('network') || msg.contains('연결')) {
+    if (msg.contains('SocketException') ||
+        msg.contains('network') ||
+        msg.contains('연결')) {
       return AiDraftError(
         code: AiDraftErrorCode.networkError,
         userMessage: '인터넷 연결을 확인해주세요',

@@ -15,7 +15,8 @@ class CreateCampaignScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CreateCampaignScreen> createState() => _CreateCampaignScreenState();
+  ConsumerState<CreateCampaignScreen> createState() =>
+      _CreateCampaignScreenState();
 }
 
 class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
@@ -81,16 +82,16 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
   }
 
   void _loadCampaignData() {
-    final campaign = ref.read(fundingProvider.notifier).getCampaignById(widget.campaignId!);
+    final campaign =
+        ref.read(fundingProvider.notifier).getCampaignById(widget.campaignId!);
 
     if (campaign != null) {
       setState(() {
         _titleController.text = campaign.title;
         _subtitleController.text = campaign.subtitle ?? '';
         _descriptionController.text = campaign.description ?? '';
-        _goalAmountController.text = campaign.goalAmountKrw > 0
-            ? campaign.goalAmountKrw.toString()
-            : '';
+        _goalAmountController.text =
+            campaign.goalAmountKrw > 0 ? campaign.goalAmountKrw.toString() : '';
         _selectedCategory = campaign.category;
         _startDate = campaign.startAt;
         _endDate = campaign.endAt;
@@ -149,7 +150,8 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary600,
                     foregroundColor: AppColors.onPrimary,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -165,9 +167,7 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                           ),
                         )
                       : Text(
-                          isLastStep
-                              ? (_isEditing ? '수정 완료' : '펀딩 등록')
-                              : '다음',
+                          isLastStep ? (_isEditing ? '수정 완료' : '펀딩 등록') : '다음',
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -179,13 +179,16 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                   TextButton(
                     onPressed: details.onStepCancel,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                     ),
                     child: Text(
                       '이전',
                       style: TextStyle(
                         fontSize: 15,
-                        color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                     ),
                   ),
@@ -309,11 +312,14 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.primary100
-                        : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
+                        : (isDark
+                            ? AppColors.surfaceAltDark
+                            : AppColors.surfaceAlt),
                     borderRadius: BorderRadius.circular(18),
                     border: isSelected
                         ? Border.all(color: AppColors.primary600, width: 1.5)
@@ -323,7 +329,8 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                     artist,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
                       color: isSelected
                           ? AppColors.primary600
                           : (isDark ? AppColors.textDark : AppColors.text),
@@ -371,7 +378,8 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
         const SizedBox(height: 8),
         TextFormField(
           controller: _descriptionController,
-          decoration: _inputDecoration(isDark, '펀딩에 대한 자세한 설명을 입력해주세요').copyWith(
+          decoration:
+              _inputDecoration(isDark, '펀딩에 대한 자세한 설명을 입력해주세요').copyWith(
             alignLabelWithHint: true,
           ),
           maxLines: 8,
@@ -540,7 +548,8 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                     Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _buildImagePlaceholder(isDark, placeholder),
+                      errorBuilder: (_, __, ___) =>
+                          _buildImagePlaceholder(isDark, placeholder),
                     ),
                     Positioned(
                       top: 8,
@@ -558,7 +567,8 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.close, size: 16, color: Colors.white),
+                              child: const Icon(Icons.close,
+                                  size: 16, color: Colors.white),
                             ),
                           ),
                         ),
@@ -603,8 +613,7 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
           final url = entry.value;
           return _buildDetailImageTile(isDark, url, idx);
         }),
-        if (_detailImages.length < 5)
-          _buildAddImageTile(isDark),
+        if (_detailImages.length < 5) _buildAddImageTile(isDark),
       ],
     );
   }
@@ -744,7 +753,9 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                   size: 20,
                   color: date != null
                       ? AppColors.primary600
-                      : (isDark ? AppColors.iconMutedDark : AppColors.iconMuted),
+                      : (isDark
+                          ? AppColors.iconMutedDark
+                          : AppColors.iconMuted),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -755,7 +766,9 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                     fontSize: 15,
                     color: date != null
                         ? (isDark ? AppColors.textDark : AppColors.text)
-                        : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
+                        : (isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted),
                   ),
                 ),
                 const Spacer(),
@@ -773,7 +786,9 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
                     child: Icon(
                       Icons.close_rounded,
                       size: 18,
-                      color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                      color: isDark
+                          ? AppColors.iconMutedDark
+                          : AppColors.iconMuted,
                     ),
                   ),
               ],
@@ -794,9 +809,8 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
         ? (_startDate ?? now)
         : (_endDate ?? now.add(const Duration(days: 30)));
 
-    final firstDate = isStart
-        ? now
-        : (_startDate ?? now).add(const Duration(days: 7));
+    final firstDate =
+        isStart ? now : (_startDate ?? now).add(const Duration(days: 7));
 
     final lastDate = isStart
         ? now.add(const Duration(days: 365))
@@ -816,8 +830,8 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: AppColors.primary600,
-            ),
+                  primary: AppColors.primary600,
+                ),
           ),
           child: child!,
         );
@@ -905,26 +919,26 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
 
     try {
       await ref.read(fundingProvider.notifier).saveDraft(
-        existingCampaignId: widget.campaignId,
-        title: _titleController.text.isNotEmpty
-            ? _titleController.text
-            : '제목 없음 (임시저장)',
-        subtitle: _subtitleController.text.isNotEmpty
-            ? _subtitleController.text
-            : null,
-        description: _descriptionController.text.isNotEmpty
-            ? _descriptionController.text
-            : null,
-        category: _selectedCategory,
-        coverImageUrl: _coverImageUrl,
-        goalAmountKrw: int.tryParse(_goalAmountController.text) ?? 0,
-        startAt: _startDate,
-        endAt: _endDate,
-        targetArtist: _targetArtistController.text.isNotEmpty
-            ? _targetArtistController.text
-            : null,
-        detailImages: _detailImages.isNotEmpty ? _detailImages : null,
-      );
+            existingCampaignId: widget.campaignId,
+            title: _titleController.text.isNotEmpty
+                ? _titleController.text
+                : '제목 없음 (임시저장)',
+            subtitle: _subtitleController.text.isNotEmpty
+                ? _subtitleController.text
+                : null,
+            description: _descriptionController.text.isNotEmpty
+                ? _descriptionController.text
+                : null,
+            category: _selectedCategory,
+            coverImageUrl: _coverImageUrl,
+            goalAmountKrw: int.tryParse(_goalAmountController.text) ?? 0,
+            startAt: _startDate,
+            endAt: _endDate,
+            targetArtist: _targetArtistController.text.isNotEmpty
+                ? _targetArtistController.text
+                : null,
+            detailImages: _detailImages.isNotEmpty ? _detailImages : null,
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -988,22 +1002,22 @@ class _CreateCampaignScreenState extends ConsumerState<CreateCampaignScreen> {
 
     try {
       await ref.read(fundingProvider.notifier).submitCampaign(
-        existingCampaignId: widget.campaignId,
-        title: _titleController.text,
-        subtitle: _subtitleController.text.isNotEmpty
-            ? _subtitleController.text
-            : null,
-        description: _descriptionController.text,
-        category: _selectedCategory,
-        coverImageUrl: _coverImageUrl,
-        goalAmountKrw: amount,
-        startAt: _startDate,
-        endAt: _endDate!,
-        targetArtist: _targetArtistController.text.isNotEmpty
-            ? _targetArtistController.text
-            : null,
-        detailImages: _detailImages.isNotEmpty ? _detailImages : null,
-      );
+            existingCampaignId: widget.campaignId,
+            title: _titleController.text,
+            subtitle: _subtitleController.text.isNotEmpty
+                ? _subtitleController.text
+                : null,
+            description: _descriptionController.text,
+            category: _selectedCategory,
+            coverImageUrl: _coverImageUrl,
+            goalAmountKrw: amount,
+            startAt: _startDate,
+            endAt: _endDate!,
+            targetArtist: _targetArtistController.text.isNotEmpty
+                ? _targetArtistController.text
+                : null,
+            detailImages: _detailImages.isNotEmpty ? _detailImages : null,
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

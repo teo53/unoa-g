@@ -215,7 +215,8 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ),
@@ -627,9 +628,8 @@ class _MediaPreviewConfirmationState extends State<MediaPreviewConfirmation> {
       senderId: 'artist',
       senderType: 'artist',
       deliveryScope: DeliveryScope.broadcast,
-      content: _captionController.text.isNotEmpty
-          ? _captionController.text
-          : null,
+      content:
+          _captionController.text.isNotEmpty ? _captionController.text : null,
       messageType: _getBroadcastMessageType(),
       mediaUrl: widget.mediaPath,
       createdAt: DateTime.now(),

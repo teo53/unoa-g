@@ -125,7 +125,8 @@ class ModerationPolicyScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.shield_outlined, color: AppColors.primary600, size: 24),
+              Icon(Icons.shield_outlined,
+                  color: AppColors.primary600, size: 24),
               SizedBox(width: 8),
               Text(
                 '안전한 커뮤니티를 위해',
@@ -177,17 +178,21 @@ class ModerationPolicyScreen extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                item,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                ),
-              ),
-            )).toList(),
+            children: items
+                .map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        item,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                        ),
+                      ),
+                    ))
+                .toList(),
           ),
         ),
       ],

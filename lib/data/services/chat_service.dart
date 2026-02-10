@@ -29,8 +29,8 @@ class ChatSendResult {
   static ChatSendResult quotaExceeded() =>
       ChatSendResult.error('QUOTA_EXCEEDED', '일일 답장 횟수를 초과했습니다.');
 
-  static ChatSendResult characterLimitExceeded(int limit) => ChatSendResult.error(
-      'CHARACTER_LIMIT', '메시지는 $limit자를 초과할 수 없습니다.');
+  static ChatSendResult characterLimitExceeded(int limit) =>
+      ChatSendResult.error('CHARACTER_LIMIT', '메시지는 $limit자를 초과할 수 없습니다.');
 
   static ChatSendResult subscriptionExpired() =>
       ChatSendResult.error('SUBSCRIPTION_EXPIRED', '구독이 만료되었습니다.');

@@ -73,8 +73,9 @@ class ChatThreadData {
     this.themeColorIndex = 0,
   });
 
-  String get displayName =>
-      artistEnglishName != null ? '$artistName ($artistEnglishName)' : artistName;
+  String get displayName => artistEnglishName != null
+      ? '$artistName ($artistEnglishName)'
+      : artistName;
 
   String get formattedTime {
     if (lastMessageAt == null) return '';
@@ -245,8 +246,10 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
         threads.add(ChatThreadData(
           channelId: channel['id'] as String,
           artistId: channel['artist_id'] as String,
-          artistName: artistProfile?['display_name'] as String? ?? channel['name'] as String,
-          avatarUrl: artistProfile?['avatar_url'] as String? ?? channel['avatar_url'] as String?,
+          artistName: artistProfile?['display_name'] as String? ??
+              channel['name'] as String,
+          avatarUrl: artistProfile?['avatar_url'] as String? ??
+              channel['avatar_url'] as String?,
           lastMessage: messagesResponse?['content'] as String?,
           lastMessageAt: messagesResponse?['created_at'] != null
               ? DateTime.parse(messagesResponse!['created_at'] as String)
@@ -305,10 +308,8 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
     if (userId == null) return;
 
     // Listen for new messages to update the list
-    _subscriptionsSubscription = client
-        .from('messages')
-        .stream(primaryKey: ['id'])
-        .listen((data) {
+    _subscriptionsSubscription =
+        client.from('messages').stream(primaryKey: ['id']).listen((data) {
       // Refresh the list when new messages arrive
       // In a production app, you'd want to be smarter about this
       // and only update the affected thread

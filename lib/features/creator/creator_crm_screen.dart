@@ -37,7 +37,8 @@ class _CreatorCRMScreenState extends ConsumerState<CreatorCRMScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: Column(
         children: [
           // Header
@@ -98,9 +99,8 @@ class _CreatorCRMScreenState extends ConsumerState<CreatorCRMScreen>
                   '크리에이터 CRM',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -160,7 +160,8 @@ class _CreatorCRMScreenState extends ConsumerState<CreatorCRMScreen>
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 16),
@@ -242,9 +243,8 @@ class _InfoItem extends StatelessWidget {
                   description,
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],

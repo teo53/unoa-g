@@ -164,22 +164,24 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
               onPressed: () => context.pop(),
               icon: Icon(
                 Icons.close,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           Expanded(
             child: Text(
               widget.showBackButton ? '메시지 보내기' : '브로드캐스트',
-              textAlign: widget.showBackButton ? TextAlign.center : TextAlign.left,
+              textAlign:
+                  widget.showBackButton ? TextAlign.center : TextAlign.left,
               style: TextStyle(
                 fontSize: widget.showBackButton ? 18 : 24,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ),
-          if (widget.showBackButton)
-            const SizedBox(width: 48), // Balance
+          if (widget.showBackButton) const SizedBox(width: 48), // Balance
         ],
       ),
     );
@@ -220,9 +222,8 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
                   '메시지를 보내면 구독자들에게 답장 토큰 3개가 지급됩니다',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -448,7 +449,8 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(width: 8),
@@ -665,7 +667,9 @@ class _TypeChip extends StatelessWidget {
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected
                     ? Colors.white
-                    : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+                    : (isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight),
               ),
             ),
           ],

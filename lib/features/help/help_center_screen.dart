@@ -302,8 +302,7 @@ class _FaqCategory extends StatelessWidget {
           children: questions
               .map(
                 (q) => ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 24),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                   title: Text(
                     q,
                     style: TextStyle(

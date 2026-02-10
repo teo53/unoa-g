@@ -150,7 +150,8 @@ class FanReplyTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
 
@@ -162,9 +163,7 @@ class FanReplyTile extends StatelessWidget {
               children: [
                 // Highlight button
                 _ActionButton(
-                  icon: message.isHighlighted
-                      ? Icons.star
-                      : Icons.star_outline,
+                  icon: message.isHighlighted ? Icons.star : Icons.star_outline,
                   label: message.isHighlighted ? '하이라이트 해제' : '하이라이트',
                   isActive: message.isHighlighted,
                   activeColor: AppColors.warning,

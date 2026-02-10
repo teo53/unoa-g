@@ -47,7 +47,8 @@ class SkeletonLoader extends StatefulWidget {
     BorderRadius? borderRadius,
     this.margin,
   })  : isCircle = false,
-        borderRadius = borderRadius ?? const BorderRadius.all(Radius.circular(12));
+        borderRadius =
+            borderRadius ?? const BorderRadius.all(Radius.circular(12));
 
   @override
   State<SkeletonLoader> createState() => _SkeletonLoaderState();
@@ -91,10 +92,12 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
           decoration: BoxDecoration(
             color: isDark
                 ? AppColors.surfaceAltDark.withValues(alpha: _animation.value)
-                : AppColors.surfaceAlt.withValues(alpha: _animation.value + 0.3),
+                : AppColors.surfaceAlt
+                    .withValues(alpha: _animation.value + 0.3),
             shape: widget.isCircle ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius:
-                widget.isCircle ? null : (widget.borderRadius ?? BorderRadius.circular(8)),
+            borderRadius: widget.isCircle
+                ? null
+                : (widget.borderRadius ?? BorderRadius.circular(8)),
           ),
         );
       },

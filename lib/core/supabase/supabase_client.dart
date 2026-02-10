@@ -70,10 +70,8 @@ extension SupabaseClientExtension on SupabaseClient {
     final userId = auth.currentUser?.id;
     if (userId == null) return false;
 
-    final response = await from('user_profiles')
-        .select('role')
-        .eq('id', userId)
-        .single();
+    final response =
+        await from('user_profiles').select('role').eq('id', userId).single();
 
     return response['role'] == role;
   }

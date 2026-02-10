@@ -92,7 +92,6 @@ class NotificationsScreen extends StatelessWidget {
                   type: NotificationType.system,
                   onTap: () => context.push('/wallet'),
                 ),
-
                 const _DateHeader(title: '어제'),
                 _NotificationItem(
                   avatarUrl:
@@ -114,7 +113,6 @@ class NotificationsScreen extends StatelessWidget {
                   type: NotificationType.post,
                   onTap: () => context.push('/artist/4'),
                 ),
-
                 const _DateHeader(title: '이번 주'),
                 _NotificationItem(
                   avatarUrl: '',
@@ -293,8 +291,7 @@ class _NotificationItem extends StatelessWidget {
           break;
         default:
           iconData = Icons.notifications;
-          iconColor =
-              isDark ? AppColors.textSubDark : AppColors.textSubLight;
+          iconColor = isDark ? AppColors.textSubDark : AppColors.textSubLight;
           bgColor = isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt;
       }
 

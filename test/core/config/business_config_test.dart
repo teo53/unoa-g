@@ -71,7 +71,8 @@ void main() {
         expect(BusinessConfig.creatorPayoutPercent, equals(80.0));
       });
 
-      test('platformCommissionPercent plus creatorPayoutPercent equals 100', () {
+      test('platformCommissionPercent plus creatorPayoutPercent equals 100',
+          () {
         expect(
           BusinessConfig.platformCommissionPercent +
               BusinessConfig.creatorPayoutPercent,

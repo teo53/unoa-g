@@ -158,7 +158,9 @@ class _PledgeCard extends StatelessWidget {
                     '후원 금액',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                      color: isDark
+                          ? AppColors.textMutedDark
+                          : AppColors.textMuted,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -180,7 +182,9 @@ class _PledgeCard extends StatelessWidget {
                     '후원일',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                      color: isDark
+                          ? AppColors.textMutedDark
+                          : AppColors.textMuted,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -197,7 +201,8 @@ class _PledgeCard extends StatelessWidget {
           ),
 
           // Support message
-          if (pledge.supportMessage != null && pledge.supportMessage!.isNotEmpty) ...[
+          if (pledge.supportMessage != null &&
+              pledge.supportMessage!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
@@ -212,7 +217,8 @@ class _PledgeCard extends StatelessWidget {
                   Icon(
                     Icons.chat_bubble_outline_rounded,
                     size: 14,
-                    color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                    color:
+                        isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -220,7 +226,9 @@ class _PledgeCard extends StatelessWidget {
                       pledge.supportMessage!,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                         height: 1.4,
                       ),
                     ),

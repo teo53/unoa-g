@@ -11,6 +11,7 @@ export 'user.dart' show UserAuthProfile, UserDisplayProfile, UserBase;
 // Legacy alias for UI display profile
 // @deprecated Use UserDisplayProfile instead
 import 'user.dart';
+
 typedef UserProfile = UserDisplayProfile;
 
 /// Transaction Model for wallet history
@@ -45,10 +46,12 @@ class Transaction {
       id: json['id'] as String,
       description: json['description'] as String? ?? '',
       amount: json['amount'] as int? ?? json['amount_dt'] as int? ?? 0,
-      timestamp: DateTime.parse(json['timestamp'] as String? ?? json['created_at'] as String),
-      type: (json['type'] as String? ?? json['entry_type'] as String?) == 'credit'
-          ? TransactionType.credit
-          : TransactionType.debit,
+      timestamp: DateTime.parse(
+          json['timestamp'] as String? ?? json['created_at'] as String),
+      type:
+          (json['type'] as String? ?? json['entry_type'] as String?) == 'credit'
+              ? TransactionType.credit
+              : TransactionType.debit,
       status: TransactionStatus.fromString(json['status'] as String?),
     );
   }
@@ -72,11 +75,11 @@ enum TransactionType {
 
 /// Transaction status for timeline display
 enum TransactionStatus {
-  pending('대기중', 0xFFF59E0B),       // Orange
-  processing('처리중', 0xFF3B82F6),    // Blue
-  completed('완료', 0xFF10B981),        // Green
-  failed('실패', 0xFFEF4444),           // Red
-  refunded('환불됨', 0xFF8B5CF6);       // Purple
+  pending('대기중', 0xFFF59E0B), // Orange
+  processing('처리중', 0xFF3B82F6), // Blue
+  completed('완료', 0xFF10B981), // Green
+  failed('실패', 0xFFEF4444), // Red
+  refunded('환불됨', 0xFF8B5CF6); // Purple
 
   final String label;
   final int colorValue;

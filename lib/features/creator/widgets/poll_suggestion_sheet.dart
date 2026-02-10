@@ -130,8 +130,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
 
       if (response.status != 200) {
         final errorMsg = response.data is Map
-            ? (response.data as Map)['error']?.toString() ??
-                '투표 제안을 불러올 수 없어요'
+            ? (response.data as Map)['error']?.toString() ?? '투표 제안을 불러올 수 없어요'
             : '투표 제안을 불러올 수 없어요';
         throw Exception(errorMsg);
       }
@@ -178,9 +177,8 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
 
   bool get _isCustomPollValid {
     if (_questionController.text.trim().isEmpty) return false;
-    final filledOptions = _optionControllers
-        .where((c) => c.text.trim().isNotEmpty)
-        .toList();
+    final filledOptions =
+        _optionControllers.where((c) => c.text.trim().isNotEmpty).toList();
     return filledOptions.length >= 2;
   }
 
@@ -293,7 +291,8 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          const Icon(Icons.poll_outlined, size: 24, color: AppColors.primary500),
+          const Icon(Icons.poll_outlined,
+              size: 24, color: AppColors.primary500),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -313,9 +312,8 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
                   '팬들과 대화를 시작해보세요',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -354,8 +352,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
         indicatorSize: TabBarIndicatorSize.tab,
         indicatorPadding: const EdgeInsets.all(3),
         dividerColor: Colors.transparent,
-        labelColor:
-            isDark ? AppColors.textMainDark : AppColors.textMainLight,
+        labelColor: isDark ? AppColors.textMainDark : AppColors.textMainLight,
         unselectedLabelColor:
             isDark ? AppColors.textSubDark : AppColors.textSubLight,
         labelStyle: const TextStyle(
@@ -410,8 +407,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
               '투표 아이디어를 생성하고 있어요...',
               style: TextStyle(
                 fontSize: 14,
-                color:
-                    isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
               ),
             ),
           ],
@@ -427,17 +423,15 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
           children: [
             Icon(Icons.cloud_off_outlined,
                 size: 40,
-                color:
-                    isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
             const SizedBox(height: 12),
             Text(
               '투표 제안을 불러올 수 없어요',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 12),
@@ -473,9 +467,8 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ),
@@ -492,8 +485,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.refresh,
-                        size: 14, color: AppColors.primary500),
+                    Icon(Icons.refresh, size: 14, color: AppColors.primary500),
                     SizedBox(width: 3),
                     Text(
                       '다시 생성',
@@ -548,8 +540,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color:
-                  isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
           const SizedBox(height: 8),
@@ -598,8 +589,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color:
-                  isDark ? AppColors.textSubDark : AppColors.textSubLight,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
           const SizedBox(height: 8),
@@ -609,22 +599,17 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
             onChanged: (_) => setState(() {}),
             style: TextStyle(
               fontSize: 14,
-              color: isDark
-                  ? AppColors.textMainDark
-                  : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
             decoration: InputDecoration(
               hintText: '예: 여름 vs 겨울 어느 쪽이 더 좋아요?',
               hintStyle: TextStyle(
                 fontSize: 13,
-                color: isDark
-                    ? AppColors.textSubDark
-                    : AppColors.textSubLight,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
               ),
               filled: true,
-              fillColor: isDark
-                  ? AppColors.surfaceAltDark
-                  : AppColors.surfaceAlt,
+              fillColor:
+                  isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -635,9 +620,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
               ),
               counterStyle: TextStyle(
                 fontSize: 10,
-                color: isDark
-                    ? AppColors.textSubDark
-                    : AppColors.textSubLight,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
               ),
             ),
           ),
@@ -652,9 +635,8 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(width: 6),
@@ -662,9 +644,8 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
                 '(최소 2개, 최대 4개)',
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -794,15 +775,13 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
         minLines: 1,
         style: TextStyle(
           fontSize: 14,
-          color:
-              isDark ? AppColors.textMainDark : AppColors.textMainLight,
+          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
         ),
         decoration: InputDecoration(
           hintText: '한마디 코멘트 추가 (선택)...',
           hintStyle: TextStyle(
             fontSize: 13,
-            color:
-                isDark ? AppColors.textSubDark : AppColors.textSubLight,
+            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
           ),
           border: InputBorder.none,
           isDense: true,
@@ -828,12 +807,10 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary600,
             foregroundColor: Colors.white,
-            disabledBackgroundColor: isDark
-                ? AppColors.surfaceAltDark
-                : Colors.grey[300],
-            disabledForegroundColor: isDark
-                ? AppColors.textSubDark
-                : Colors.grey[500],
+            disabledBackgroundColor:
+                isDark ? AppColors.surfaceAltDark : Colors.grey[300],
+            disabledForegroundColor:
+                isDark ? AppColors.textSubDark : Colors.grey[500],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -881,8 +858,7 @@ class _PollDraftCard extends StatelessWidget {
               : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color:
-                isSelected ? AppColors.primary500 : Colors.transparent,
+            color: isSelected ? AppColors.primary500 : Colors.transparent,
             width: 1.5,
           ),
         ),
@@ -891,8 +867,7 @@ class _PollDraftCard extends StatelessWidget {
           children: [
             // Category badge
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: AppColors.primary500.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
@@ -913,9 +888,8 @@ class _PollDraftCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 8),
@@ -925,11 +899,10 @@ class _PollDraftCard extends StatelessWidget {
               runSpacing: 4,
               children: draft.options.map((opt) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color:
-                        isDark ? Colors.grey[800] : Colors.grey[200],
+                    color: isDark ? Colors.grey[800] : Colors.grey[200],
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(

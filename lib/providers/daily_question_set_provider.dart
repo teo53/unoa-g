@@ -8,7 +8,8 @@ import 'auth_provider.dart';
 
 /// Provider for question cards repository
 /// Uses isDemoModeProvider to determine mock vs real implementation
-final questionCardsRepositoryProvider = Provider<IQuestionCardsRepository>((ref) {
+final questionCardsRepositoryProvider =
+    Provider<IQuestionCardsRepository>((ref) {
   final isDemoMode = ref.watch(isDemoModeProvider);
   if (isDemoMode) {
     return MockQuestionCardsRepository();
@@ -147,7 +148,8 @@ class TodaysQuestionStatsError extends TodaysQuestionStatsState {
 }
 
 /// Notifier for creator's today question stats
-class TodaysQuestionStatsNotifier extends StateNotifier<TodaysQuestionStatsState> {
+class TodaysQuestionStatsNotifier
+    extends StateNotifier<TodaysQuestionStatsState> {
   final IQuestionCardsRepository _repository;
   final String channelId;
 
@@ -167,7 +169,8 @@ class TodaysQuestionStatsNotifier extends StateNotifier<TodaysQuestionStatsState
   }
 
   /// Mark a question as answered
-  Future<bool> markAnswered(String cardId, String messageId, {String? setId}) async {
+  Future<bool> markAnswered(String cardId, String messageId,
+      {String? setId}) async {
     try {
       final success = await _repository.markAnswered(
         channelId: channelId,

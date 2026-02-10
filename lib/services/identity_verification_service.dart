@@ -8,8 +8,8 @@ class IdentityVerificationResult {
   final bool success;
   final String? impUid;
   final String? maskedPhone; // Only last 4 digits visible: ***-****-1234
-  final bool? isAdult;       // 19+ check result
-  final bool? isAtLeast14;   // 14+ check result
+  final bool? isAdult; // 19+ check result
+  final bool? isAtLeast14; // 14+ check result
   final String? errorCode;
   final String? errorMessage;
 
@@ -102,7 +102,8 @@ class IdentityVerificationService {
     bool popup = true,
   }) {
     return {
-      'merchant_uid': merchantUid ?? 'mid_${DateTime.now().millisecondsSinceEpoch}',
+      'merchant_uid':
+          merchantUid ?? 'mid_${DateTime.now().millisecondsSinceEpoch}',
       'company': 'UNO A',
       'carrier': '', // 통신사 선택 화면 표시
       'name': '', // 이름 입력 화면 표시

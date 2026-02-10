@@ -59,9 +59,9 @@ class CreatorDrop {
   /// 가격 포맷팅 (예: ₩12,000)
   String get formattedPrice {
     final formatted = priceKrw.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
     return '₩$formatted';
   }
 }
@@ -168,7 +168,8 @@ class CreatorFancam {
   }
 
   /// YouTube 썸네일 URL
-  String get thumbnailUrl => 'https://img.youtube.com/vi/$videoId/mqdefault.jpg';
+  String get thumbnailUrl =>
+      'https://img.youtube.com/vi/$videoId/mqdefault.jpg';
 
   /// YouTube 영상 URL
   String get videoUrl => 'https://www.youtube.com/watch?v=$videoId';

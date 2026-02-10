@@ -174,8 +174,7 @@ class StatusBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor =
-        isDark ? AppColors.textMainDark : AppColors.textMainLight;
+    final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),

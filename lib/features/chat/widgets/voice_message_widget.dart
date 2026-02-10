@@ -183,17 +183,23 @@ class _VoiceMessageWidgetState extends State<VoiceMessageWidget> {
                       overlayRadius: 12,
                     ),
                     activeTrackColor: primaryColor,
-                    inactiveTrackColor: isDark ? Colors.grey[600] : Colors.grey[400],
+                    inactiveTrackColor:
+                        isDark ? Colors.grey[600] : Colors.grey[400],
                     thumbColor: primaryColor,
                   ),
                   child: Slider(
-                    value: displayDuration != null && displayDuration.inMilliseconds > 0
-                        ? (_currentPosition.inMilliseconds / displayDuration.inMilliseconds).clamp(0.0, 1.0)
+                    value: displayDuration != null &&
+                            displayDuration.inMilliseconds > 0
+                        ? (_currentPosition.inMilliseconds /
+                                displayDuration.inMilliseconds)
+                            .clamp(0.0, 1.0)
                         : 0,
                     onChanged: displayDuration != null
                         ? (value) {
                             final newPosition = Duration(
-                              milliseconds: (displayDuration.inMilliseconds * value).round(),
+                              milliseconds:
+                                  (displayDuration.inMilliseconds * value)
+                                      .round(),
                             );
                             _player.seek(newPosition);
                           }
@@ -360,7 +366,8 @@ class _VoiceRecordButtonState extends State<VoiceRecordButton>
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.5 + _pulseController.value * 0.5),
+                  color: Colors.red
+                      .withValues(alpha: 0.5 + _pulseController.value * 0.5),
                   shape: BoxShape.circle,
                 ),
               );
@@ -424,7 +431,8 @@ class _AmplitudePainter extends CustomPainter {
 
     for (var i = 0; i < barCount; i++) {
       // Create varying heights based on amplitude
-      final heightFactor = (1 - (i - barCount ~/ 2).abs() / (barCount / 2)) * amplitude;
+      final heightFactor =
+          (1 - (i - barCount ~/ 2).abs() / (barCount / 2)) * amplitude;
       final barHeight = size.height * 0.3 + size.height * 0.7 * heightFactor;
       final x = i * barWidth * 2 + barWidth / 2;
       final y1 = (size.height - barHeight) / 2;

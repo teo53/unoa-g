@@ -13,8 +13,10 @@ class CampaignBackersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final campaign = ref.watch(fundingProvider.notifier).getCampaignById(campaignId);
-    final backers = ref.watch(fundingProvider.notifier).getBackersForCampaign(campaignId);
+    final campaign =
+        ref.watch(fundingProvider.notifier).getCampaignById(campaignId);
+    final backers =
+        ref.watch(fundingProvider.notifier).getBackersForCampaign(campaignId);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
@@ -210,12 +212,14 @@ class _BackerCard extends StatelessWidget {
           // Avatar
           CircleAvatar(
             radius: 20,
-            backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+            backgroundColor:
+                isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
             child: backer.isAnonymous
                 ? Icon(
                     Icons.person_outline_rounded,
                     size: 20,
-                    color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                    color:
+                        isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
                   )
                 : Text(
                     backer.displayName.characters.first,
@@ -256,7 +260,9 @@ class _BackerCard extends StatelessWidget {
                       Icon(
                         Icons.chat_bubble_outline_rounded,
                         size: 12,
-                        color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                        color: isDark
+                            ? AppColors.iconMutedDark
+                            : AppColors.iconMuted,
                       ),
                     ],
                   ],
@@ -294,10 +300,14 @@ class _BackerCard extends StatelessWidget {
 
   String _rankEmoji(int rank) {
     switch (rank) {
-      case 1: return '🥇';
-      case 2: return '🥈';
-      case 3: return '🥉';
-      default: return '$rank';
+      case 1:
+        return '🥇';
+      case 2:
+        return '🥈';
+      case 3:
+        return '🥉';
+      default:
+        return '$rank';
     }
   }
 

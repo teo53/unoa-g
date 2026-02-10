@@ -35,14 +35,14 @@ class PollDraft {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'channel_id': channelId,
-    'category': category,
-    'question': question,
-    'options': options.map((o) => o.toJson()).toList(),
-    'status': status,
-    'created_at': createdAt.toIso8601String(),
-  };
+        'id': id,
+        'channel_id': channelId,
+        'category': category,
+        'question': question,
+        'options': options.map((o) => o.toJson()).toList(),
+        'status': status,
+        'created_at': createdAt.toIso8601String(),
+      };
 
   /// Korean label for the category.
   String get categoryLabel {

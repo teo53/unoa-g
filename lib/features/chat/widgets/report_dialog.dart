@@ -131,7 +131,8 @@ class _ReportDialogState extends State<ReportDialog> {
               '신고 사유를 선택해주세요',
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 12),
@@ -155,9 +156,8 @@ class _ReportDialogState extends State<ReportDialog> {
               decoration: InputDecoration(
                 hintText: '추가 설명 (선택사항)',
                 hintStyle: TextStyle(
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -165,9 +165,8 @@ class _ReportDialogState extends State<ReportDialog> {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: isDark
-                        ? AppColors.borderDark
-                        : AppColors.borderLight,
+                    color:
+                        isDark ? AppColors.borderDark : AppColors.borderLight,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(

@@ -201,9 +201,8 @@ class PrivateCardListView extends ConsumerWidget {
     bool isDark,
   ) {
     // Get demo fans who are favorites
-    final favoriteFans = DemoConfig.demoFans
-        .where((f) => f['isFavorite'] == true)
-        .toList();
+    final favoriteFans =
+        DemoConfig.demoFans.where((f) => f['isFavorite'] == true).toList();
 
     if (favoriteFans.isEmpty) return const SizedBox.shrink();
 
@@ -463,7 +462,9 @@ class _SentCardTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              card.status == PrivateCardStatus.sent ? '\uc804\uc1a1\uc644\ub8cc' : '\uc804\uc1a1\uc911',
+              card.status == PrivateCardStatus.sent
+                  ? '\uc804\uc1a1\uc644\ub8cc'
+                  : '\uc804\uc1a1\uc911',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,

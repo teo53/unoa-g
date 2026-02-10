@@ -160,7 +160,8 @@ class _TotalEarningsCard extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
@@ -293,9 +294,8 @@ class _RevenueBreakdownCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -319,9 +319,8 @@ class _RevenueBreakdownCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               Text(
@@ -329,9 +328,8 @@ class _RevenueBreakdownCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -419,9 +417,8 @@ class _RevenueProgressBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: item.percentage,
-              backgroundColor: isDark
-                  ? AppColors.backgroundDark
-                  : AppColors.backgroundLight,
+              backgroundColor:
+                  isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
               valueColor: AlwaysStoppedAnimation(item.color),
               minHeight: 8,
             ),
@@ -474,9 +471,8 @@ class _MonthlyRevenueChart extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -498,7 +494,8 @@ class _MonthlyRevenueChart extends StatelessWidget {
                         formatCompact(item.value),
                         style: TextStyle(
                           fontSize: 10,
-                          fontWeight: isLast ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight:
+                              isLast ? FontWeight.w600 : FontWeight.w400,
                           color: isLast
                               ? AppColors.primary
                               : (isDark
@@ -567,8 +564,10 @@ class _RecentTransactionsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final transactions = [
       _Transaction('후원', '하늘덕후', 500, DateTime.now()),
-      _Transaction('구독', '별빛팬', 4900, DateTime.now().subtract(const Duration(hours: 2))),
-      _Transaction('후원', '응원봇', 300, DateTime.now().subtract(const Duration(days: 1))),
+      _Transaction(
+          '구독', '별빛팬', 4900, DateTime.now().subtract(const Duration(hours: 2))),
+      _Transaction(
+          '후원', '응원봇', 300, DateTime.now().subtract(const Duration(days: 1))),
     ];
 
     return Container(
@@ -694,9 +693,8 @@ class _TransactionTile extends StatelessWidget {
                   transaction.type,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -717,9 +715,7 @@ class _TransactionTile extends StatelessWidget {
                 _formatTime(transaction.time),
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark
-                      ? AppColors.textMutedDark
-                      : AppColors.textMuted,
+                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
                 ),
               ),
             ],

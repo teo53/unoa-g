@@ -43,18 +43,22 @@ class TrendingArtistCard extends StatelessWidget {
             // Image with 4:5 aspect ratio
             Expanded(
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(15)),
                 child: Stack(
                   children: [
                     SizedBox(
                       width: double.infinity,
                       child: artist.avatarUrl.isEmpty
                           ? Container(
-                              color: isDark ? Colors.grey[800] : Colors.grey[200],
+                              color:
+                                  isDark ? Colors.grey[800] : Colors.grey[200],
                               child: Center(
                                 child: Icon(
                                   Icons.person_rounded,
-                                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                  color: isDark
+                                      ? Colors.grey[600]
+                                      : Colors.grey[400],
                                   size: 48,
                                 ),
                               ),
@@ -63,14 +67,20 @@ class TrendingArtistCard extends StatelessWidget {
                               imageUrl: artist.avatarUrl,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
-                                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                color: isDark
+                                    ? Colors.grey[800]
+                                    : Colors.grey[200],
                               ),
                               errorWidget: (context, url, error) => Container(
-                                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                                color: isDark
+                                    ? Colors.grey[800]
+                                    : Colors.grey[200],
                                 child: Center(
                                   child: Icon(
                                     Icons.person_rounded,
-                                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                    color: isDark
+                                        ? Colors.grey[600]
+                                        : Colors.grey[400],
                                     size: 48,
                                   ),
                                 ),

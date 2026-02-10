@@ -35,13 +35,13 @@ class CelebrationTemplate {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'channel_id': channelId,
-    'event_type': eventType,
-    'template_text': templateText,
-    'is_default': isDefault,
-    'sort_order': sortOrder,
-  };
+        'id': id,
+        'channel_id': channelId,
+        'event_type': eventType,
+        'template_text': templateText,
+        'is_default': isDefault,
+        'sort_order': sortOrder,
+      };
 
   /// Whether this is a system-default template.
   bool get isSystemDefault => channelId == null;

@@ -159,7 +159,8 @@ class _TodaysVotedQuestionSectionState
             final isFirst = index == 0 && stats.totalVotes > 0;
 
             return Padding(
-              padding: EdgeInsets.only(bottom: index < stats.cards.length - 1 ? 12 : 0),
+              padding: EdgeInsets.only(
+                  bottom: index < stats.cards.length - 1 ? 12 : 0),
               child: _QuestionStatCard(
                 card: card,
                 rank: index + 1,
@@ -319,7 +320,9 @@ class _QuestionStatCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isWinner
                       ? AppColors.star
-                      : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
+                      : (isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
@@ -361,7 +364,8 @@ class _QuestionStatCard extends StatelessWidget {
                 _getSubdeckName(card.subdeck),
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
 
@@ -370,7 +374,8 @@ class _QuestionStatCard extends StatelessWidget {
               // Status / Action
               if (card.isAnswered)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.success.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
@@ -402,7 +407,8 @@ class _QuestionStatCard extends StatelessWidget {
                   label: const Text('답변하기'),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary600,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -456,7 +462,9 @@ class _QuestionStatCard extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: isWinner
                       ? AppColors.star
-                      : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                      : (isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight),
                 ),
               ),
             ],

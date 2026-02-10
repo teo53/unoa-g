@@ -120,19 +120,21 @@ class WalletScreen extends StatelessWidget {
                               Expanded(
                                 child: GlowWrapper.cta(
                                   child: ElevatedButton(
-                                    onPressed: () => context.push('/wallet/charge'),
+                                    onPressed: () =>
+                                        context.push('/wallet/charge'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,
                                       foregroundColor: AppColors.primary600,
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
                                     child: const Text(
                                       '충전하기',
-                                      style: TextStyle(fontWeight: FontWeight.w700),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w700),
                                     ),
                                   ),
                                 ),
@@ -140,19 +142,21 @@ class WalletScreen extends StatelessWidget {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: OutlinedButton(
-                                  onPressed: () => context.push('/wallet/history'),
+                                  onPressed: () =>
+                                      context.push('/wallet/history'),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: Colors.white,
                                     side: const BorderSide(color: Colors.white),
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                   child: const Text(
                                     '사용내역',
-                                    style: TextStyle(fontWeight: FontWeight.w500),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w500),
                                   ),
                                 ),
                               ),
@@ -169,7 +173,9 @@ class WalletScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      color: isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -177,7 +183,9 @@ class WalletScreen extends StatelessWidget {
                         Icon(
                           Icons.info_outline,
                           size: 16,
-                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -186,7 +194,9 @@ class WalletScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               height: 1.4,
-                              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                              color: isDark
+                                  ? AppColors.textSubDark
+                                  : AppColors.textSubLight,
                             ),
                           ),
                         ),
@@ -469,9 +479,7 @@ class _TransactionTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isCredit
-                  ? AppColors.success100
-                  : AppColors.danger100,
+              color: isCredit ? AppColors.success100 : AppColors.danger100,
               shape: BoxShape.circle,
             ),
             child: Icon(

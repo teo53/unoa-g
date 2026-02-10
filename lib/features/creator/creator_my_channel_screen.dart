@@ -481,7 +481,8 @@ class _MessageBubble extends StatelessWidget {
                       bottomRight: Radius.circular(18),
                     ),
                     border: Border.all(
-                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      color:
+                          isDark ? AppColors.borderDark : AppColors.borderLight,
                     ),
                   ),
                   child: Text(
@@ -511,8 +512,9 @@ class _MessageBubble extends StatelessWidget {
                     Icon(
                       Icons.visibility_outlined,
                       size: 12,
-                      color:
-                          isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                      color: isDark
+                          ? AppColors.textMutedDark
+                          : AppColors.textMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
