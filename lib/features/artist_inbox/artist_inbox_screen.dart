@@ -113,18 +113,21 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
               onPressed: () => context.pop(),
               icon: Icon(
                 Icons.arrow_back_ios_new,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 size: 20,
               ),
             ),
           Expanded(
             child: Text(
               '팬 메시지',
-              textAlign: widget.showBackButton ? TextAlign.center : TextAlign.left,
+              textAlign:
+                  widget.showBackButton ? TextAlign.center : TextAlign.left,
               style: TextStyle(
                 fontSize: widget.showBackButton ? 18 : 24,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ),
@@ -240,8 +243,9 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                       onPressed: () => Navigator.pop(context),
                       icon: Icon(
                         Icons.close,
-                        color:
-                            isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
                       ),
                     ),
                   ],
@@ -295,7 +299,8 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                         : AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      color:
+                          isDark ? AppColors.borderDark : AppColors.borderLight,
                     ),
                   ),
                   child: TextField(
@@ -305,14 +310,16 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                     decoration: InputDecoration(
                       hintText: '답장을 입력하세요...',
                       hintStyle: TextStyle(
-                        color:
-                            isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                       border: InputBorder.none,
                       counterStyle: TextStyle(
                         fontSize: 11,
-                        color:
-                            isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
                       ),
                     ),
                     style: TextStyle(

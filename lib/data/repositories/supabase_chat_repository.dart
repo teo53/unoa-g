@@ -77,9 +77,7 @@ class SupabaseChatRepository implements IChatRepository {
     String? beforeId,
   }) async {
     // Build base query with filters before transforms
-    var baseQuery = _supabase
-        .from('messages')
-        .select('''
+    var baseQuery = _supabase.from('messages').select('''
           *,
           user_profiles!sender_id (
             display_name,
@@ -89,8 +87,7 @@ class SupabaseChatRepository implements IChatRepository {
             tier,
             started_at
           )
-        ''')
-        .eq('channel_id', channelId);
+        ''').eq('channel_id', channelId);
 
     // Apply cursor pagination filter if needed (must be before order/limit)
     if (beforeId != null) {
@@ -106,9 +103,8 @@ class SupabaseChatRepository implements IChatRepository {
     }
 
     // Apply transforms after all filters
-    final response = await baseQuery
-        .order('created_at', ascending: false)
-        .limit(limit);
+    final response =
+        await baseQuery.order('created_at', ascending: false).limit(limit);
 
     return response
         .where((row) => _isMessageVisibleToFan(row))
@@ -126,9 +122,8 @@ class SupabaseChatRepository implements IChatRepository {
         ? DateTime.parse(subscription!['started_at'] as String)
         : null;
 
-    final daysSubscribed = startedAt != null
-        ? DateTime.now().difference(startedAt).inDays
-        : null;
+    final daysSubscribed =
+        startedAt != null ? DateTime.now().difference(startedAt).inDays : null;
 
     return BroadcastMessage.fromJson({
       ...row,
@@ -158,14 +153,18 @@ class SupabaseChatRepository implements IChatRepository {
 
     // Start a pseudo-transaction
     // 1. Insert message
-    final response = await _supabase.from('messages').insert({
-      'channel_id': channelId,
-      'sender_id': _currentUserId,
-      'sender_type': 'fan',
-      'delivery_scope': 'direct_reply',
-      'content': content,
-      'message_type': 'text',
-    }).select().single();
+    final response = await _supabase
+        .from('messages')
+        .insert({
+          'channel_id': channelId,
+          'sender_id': _currentUserId,
+          'sender_type': 'fan',
+          'delivery_scope': 'direct_reply',
+          'content': content,
+          'message_type': 'text',
+        })
+        .select()
+        .single();
 
     // 2. Decrement quota
     if (quota.tokensAvailable > 0) {
@@ -197,24 +196,29 @@ class SupabaseChatRepository implements IChatRepository {
     // Donation messages have 100 char limit
     const donationCharLimit = 100;
     if (content.length > donationCharLimit) {
-      throw StateError('Donation message exceeds $donationCharLimit characters');
+      throw StateError(
+          'Donation message exceeds $donationCharLimit characters');
     }
 
     // Get channel to find creator
     final channel = await getChannel(channelId);
     if (channel == null) throw StateError('Channel not found');
 
-    final response = await _supabase.from('messages').insert({
-      'channel_id': channelId,
-      'sender_id': _currentUserId,
-      'sender_type': 'fan',
-      'delivery_scope': 'donation_message',
-      'content': content,
-      'message_type': 'text',
-      'donation_id': donationId,
-      'donation_amount': donationAmount,
-      'target_user_id': channel.artistId, // Target is the artist
-    }).select().single();
+    final response = await _supabase
+        .from('messages')
+        .insert({
+          'channel_id': channelId,
+          'sender_id': _currentUserId,
+          'sender_type': 'fan',
+          'delivery_scope': 'donation_message',
+          'content': content,
+          'message_type': 'text',
+          'donation_id': donationId,
+          'donation_amount': donationAmount,
+          'target_user_id': channel.artistId, // Target is the artist
+        })
+        .select()
+        .single();
 
     return BroadcastMessage.fromJson(response);
   }
@@ -250,7 +254,8 @@ class SupabaseChatRepository implements IChatRepository {
         .eq('user_id', _currentUserId)
         .map((rows) {
           // Filter by channel_id in Dart
-          final filtered = rows.where((row) => row['channel_id'] == channelId).toList();
+          final filtered =
+              rows.where((row) => row['channel_id'] == channelId).toList();
           if (filtered.isEmpty) {
             return ReplyQuota.empty(_currentUserId, channelId);
           }
@@ -314,16 +319,12 @@ class SupabaseChatRepository implements IChatRepository {
 
   @override
   Future<Channel?> getChannel(String channelId) async {
-    final response = await _supabase
-        .from('channels')
-        .select('''
+    final response = await _supabase.from('channels').select('''
           *,
           subscriptions!left (
             id
           )
-        ''')
-        .eq('id', channelId)
-        .maybeSingle();
+        ''').eq('id', channelId).maybeSingle();
 
     if (response == null) return null;
 
@@ -339,16 +340,12 @@ class SupabaseChatRepository implements IChatRepository {
 
   @override
   Future<List<Channel>> getSubscribedChannels() async {
-    final response = await _supabase
-        .from('subscriptions')
-        .select('''
+    final response = await _supabase.from('subscriptions').select('''
           channel_id,
           channels!inner (
             *
           )
-        ''')
-        .eq('user_id', _currentUserId)
-        .eq('is_active', true);
+        ''').eq('user_id', _currentUserId).eq('is_active', true);
 
     return response.map((row) {
       final channelData = row['channels'] as Map<String, dynamic>;
@@ -377,29 +374,32 @@ class SupabaseChatRepository implements IChatRepository {
         .from('messages')
         .select('id')
         .eq('channel_id', channelId)
-        .not('id', 'in',
-          _supabase
-              .from('message_delivery')
-              .select('message_id')
-              .eq('user_id', _currentUserId)
-              .eq('is_read', true)
-        );
+        .not(
+            'id',
+            'in',
+            _supabase
+                .from('message_delivery')
+                .select('message_id')
+                .eq('user_id', _currentUserId)
+                .eq('is_read', true));
 
     if (unreadMessages.isEmpty) return;
 
     // Create read receipts for all unread messages
     final now = DateTime.now().toIso8601String();
-    final deliveries = unreadMessages.map((msg) => {
-      'message_id': msg['id'],
-      'user_id': _currentUserId,
-      'is_read': true,
-      'read_at': now,
-    }).toList();
+    final deliveries = unreadMessages
+        .map((msg) => {
+              'message_id': msg['id'],
+              'user_id': _currentUserId,
+              'is_read': true,
+              'read_at': now,
+            })
+        .toList();
 
     await _supabase.from('message_delivery').upsert(
-      deliveries,
-      onConflict: 'message_id,user_id',
-    );
+          deliveries,
+          onConflict: 'message_id,user_id',
+        );
   }
 
   /// Get unread count for a channel

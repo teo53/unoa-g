@@ -123,8 +123,7 @@ void main() {
         'user_id': userId,
         'channel_id': channelId,
         'tier': tier,
-        'started_at':
-            startedAt ?? DateTime.now().toIso8601String(),
+        'started_at': startedAt ?? DateTime.now().toIso8601String(),
         if (expiresAt != null) 'expires_at': expiresAt,
         if (isActive != null) 'is_active': isActive,
         if (autoRenew != null) 'auto_renew': autoRenew,
@@ -163,8 +162,7 @@ void main() {
 
     group('daysSubscribed', () {
       test('returns positive days for past start date', () {
-        final pastDate =
-            DateTime.now().subtract(const Duration(days: 30));
+        final pastDate = DateTime.now().subtract(const Duration(days: 30));
         final sub = Subscription.fromJson(
           createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );
@@ -184,8 +182,7 @@ void main() {
       });
 
       test('returns N일째 for days < 30', () {
-        final pastDate =
-            DateTime.now().subtract(const Duration(days: 15));
+        final pastDate = DateTime.now().subtract(const Duration(days: 15));
         final sub = Subscription.fromJson(
           createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );
@@ -193,8 +190,7 @@ void main() {
       });
 
       test('returns N개월째 for 30-364 days', () {
-        final pastDate =
-            DateTime.now().subtract(const Duration(days: 90));
+        final pastDate = DateTime.now().subtract(const Duration(days: 90));
         final sub = Subscription.fromJson(
           createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );
@@ -202,8 +198,7 @@ void main() {
       });
 
       test('returns N년째 for 365+ days', () {
-        final pastDate =
-            DateTime.now().subtract(const Duration(days: 400));
+        final pastDate = DateTime.now().subtract(const Duration(days: 400));
         final sub = Subscription.fromJson(
           createSubscriptionJson(startedAt: pastDate.toIso8601String()),
         );

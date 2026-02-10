@@ -199,11 +199,12 @@ class DtPackage {
         (match) => '${match[1]},',
       )} DT';
 
-  String? get formattedBonus =>
-      bonusDt > 0 ? '+${bonusDt.toString().replaceAllMapped(
+  String? get formattedBonus => bonusDt > 0
+      ? '+${bonusDt.toString().replaceAllMapped(
             RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
             (match) => '${match[1]},',
-          )} 보너스' : null;
+          )} 보너스'
+      : null;
 }
 
 /// Wallet state
@@ -363,9 +364,26 @@ class WalletNotifier extends StateNotifier<WalletState> {
     const demoPackages = [
       DtPackage(id: 'dt_10', name: '10 DT', dtAmount: 10, priceKrw: 1000),
       DtPackage(id: 'dt_50', name: '50 DT', dtAmount: 50, priceKrw: 5000),
-      DtPackage(id: 'dt_100', name: '100 DT', dtAmount: 100, bonusDt: 5, priceKrw: 10000),
-      DtPackage(id: 'dt_500', name: '500 DT', dtAmount: 500, bonusDt: 50, priceKrw: 50000, badgeText: '인기'),
-      DtPackage(id: 'dt_1000', name: '1,000 DT', dtAmount: 1000, bonusDt: 150, priceKrw: 100000, badgeText: 'BEST'),
+      DtPackage(
+          id: 'dt_100',
+          name: '100 DT',
+          dtAmount: 100,
+          bonusDt: 5,
+          priceKrw: 10000),
+      DtPackage(
+          id: 'dt_500',
+          name: '500 DT',
+          dtAmount: 500,
+          bonusDt: 50,
+          priceKrw: 50000,
+          badgeText: '인기'),
+      DtPackage(
+          id: 'dt_1000',
+          name: '1,000 DT',
+          dtAmount: 1000,
+          bonusDt: 150,
+          priceKrw: 100000,
+          badgeText: 'BEST'),
     ];
 
     state = WalletLoaded(
@@ -459,9 +477,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
       if (walletResponse == null) {
         // Create wallet if doesn't exist
-        final newWallet = await client.from('wallets').insert({
-          'user_id': user.id,
-        }).select().single();
+        final newWallet = await client
+            .from('wallets')
+            .insert({
+              'user_id': user.id,
+            })
+            .select()
+            .single();
 
         state = WalletLoaded(
           wallet: Wallet.fromJson(newWallet),
@@ -520,14 +542,20 @@ class WalletNotifier extends StateNotifier<WalletState> {
           .eq('is_active', true)
           .order('display_order');
 
-      return (response as List).map((json) => DtPackage.fromJson(json)).toList();
+      return (response as List)
+          .map((json) => DtPackage.fromJson(json))
+          .toList();
     } catch (e) {
       // Return default packages if loading fails
       return const [
         DtPackage(id: 'dt_10', name: '10 DT', dtAmount: 10, priceKrw: 1000),
         DtPackage(id: 'dt_50', name: '50 DT', dtAmount: 50, priceKrw: 5000),
         DtPackage(
-            id: 'dt_100', name: '100 DT', dtAmount: 100, bonusDt: 5, priceKrw: 10000),
+            id: 'dt_100',
+            name: '100 DT',
+            dtAmount: 100,
+            bonusDt: 5,
+            priceKrw: 10000),
         DtPackage(
             id: 'dt_500',
             name: '500 DT',
@@ -658,16 +686,20 @@ class WalletNotifier extends StateNotifier<WalletState> {
           'donation:${wallet.id}:$channelId:${DateTime.now().millisecondsSinceEpoch}';
 
       // Create donation record
-      final donation = await client.from('dt_donations').insert({
-        'from_user_id': user.id,
-        'to_channel_id': channelId,
-        'to_creator_id': creatorId,
-        'amount_dt': amountDt,
-        'message_id': messageId,
-        'is_anonymous': isAnonymous,
-        'creator_share_dt': creatorShare,
-        'platform_fee_dt': platformFee,
-      }).select().single();
+      final donation = await client
+          .from('dt_donations')
+          .insert({
+            'from_user_id': user.id,
+            'to_channel_id': channelId,
+            'to_creator_id': creatorId,
+            'amount_dt': amountDt,
+            'message_id': messageId,
+            'is_anonymous': isAnonymous,
+            'creator_share_dt': creatorShare,
+            'platform_fee_dt': platformFee,
+          })
+          .select()
+          .single();
 
       // Create ledger entry
       await client.from('ledger_entries').insert({
@@ -705,7 +737,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
 }
 
 /// Wallet provider
-final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((ref) {
+final walletProvider =
+    StateNotifierProvider<WalletNotifier, WalletState>((ref) {
   return WalletNotifier(ref);
 });
 

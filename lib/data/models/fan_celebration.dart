@@ -51,15 +51,15 @@ class FanCelebration {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'user_id': userId,
-    'channel_id': channelId,
-    'birth_month': birthMonth,
-    'birth_day': birthDay,
-    'birthday_visible': birthdayVisible,
-    'visibility_consent_at': visibilityConsentAt?.toIso8601String(),
-    'subscription_started_at': subscriptionStartedAt.toIso8601String(),
-  };
+        'id': id,
+        'user_id': userId,
+        'channel_id': channelId,
+        'birth_month': birthMonth,
+        'birth_day': birthDay,
+        'birthday_visible': birthdayVisible,
+        'visibility_consent_at': visibilityConsentAt?.toIso8601String(),
+        'subscription_started_at': subscriptionStartedAt.toIso8601String(),
+      };
 
   /// Whether the fan has registered a birthday.
   bool get hasBirthday => birthMonth != null && birthDay != null;

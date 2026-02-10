@@ -210,31 +210,152 @@ class DemoConfig {
   // ============================================================
 
   /// Generate card template URL
-  static String cardTemplateUrl(String seed, {int width = 400, int height = 600}) =>
+  static String cardTemplateUrl(String seed,
+          {int width = 400, int height = 600}) =>
       '$avatarBaseUrl/$seed/$width/$height';
 
   /// Demo card templates
   static const List<Map<String, String>> demoCardTemplates = [
-    {'id': 'template_hearts', 'name': '핑크 하트', 'category': 'hearts', 'seed': 'card-hearts'},
-    {'id': 'template_flowers', 'name': '봄 꽃', 'category': 'flowers', 'seed': 'card-flowers'},
-    {'id': 'template_stars', 'name': '별빛 밤', 'category': 'stars', 'seed': 'card-stars'},
-    {'id': 'template_birthday', 'name': '생일 축하', 'category': 'birthday', 'seed': 'card-birthday'},
-    {'id': 'template_thanks', 'name': '감사 카드', 'category': 'thanks', 'seed': 'card-thanks'},
-    {'id': 'template_season', 'name': '사계절', 'category': 'season', 'seed': 'card-season'},
+    {
+      'id': 'template_hearts',
+      'name': '핑크 하트',
+      'category': 'hearts',
+      'seed': 'card-hearts'
+    },
+    {
+      'id': 'template_flowers',
+      'name': '봄 꽃',
+      'category': 'flowers',
+      'seed': 'card-flowers'
+    },
+    {
+      'id': 'template_stars',
+      'name': '별빛 밤',
+      'category': 'stars',
+      'seed': 'card-stars'
+    },
+    {
+      'id': 'template_birthday',
+      'name': '생일 축하',
+      'category': 'birthday',
+      'seed': 'card-birthday'
+    },
+    {
+      'id': 'template_thanks',
+      'name': '감사 카드',
+      'category': 'thanks',
+      'seed': 'card-thanks'
+    },
+    {
+      'id': 'template_season',
+      'name': '사계절',
+      'category': 'season',
+      'seed': 'card-season'
+    },
   ];
 
   /// Demo fan data for private card recipient selection
   static const List<Map<String, dynamic>> demoFans = [
-    {'id': 'fan_001', 'name': '하늘덕후', 'tier': 'VIP', 'days': 365, 'isFavorite': true, 'donation': 50000, 'replies': 120, 'seed': 'fan1'},
-    {'id': 'fan_002', 'name': '별빛팬', 'tier': 'STANDARD', 'days': 120, 'isFavorite': false, 'donation': 8000, 'replies': 45, 'seed': 'fan2'},
-    {'id': 'fan_003', 'name': '달빛소녀', 'tier': 'VIP', 'days': 250, 'isFavorite': true, 'donation': 35000, 'replies': 89, 'seed': 'fan3'},
-    {'id': 'fan_004', 'name': '응원봇', 'tier': 'VIP', 'days': 180, 'isFavorite': false, 'donation': 25000, 'replies': 67, 'seed': 'user1'},
-    {'id': 'fan_005', 'name': '팬클럽회장', 'tier': 'VIP', 'days': 730, 'isFavorite': true, 'donation': 150000, 'replies': 200, 'seed': 'user2'},
-    {'id': 'fan_006', 'name': '새싹팬', 'tier': 'BASIC', 'days': 7, 'isFavorite': false, 'donation': 0, 'replies': 3, 'seed': 'user3'},
-    {'id': 'fan_007', 'name': '조용한팬', 'tier': 'STANDARD', 'days': 400, 'isFavorite': false, 'donation': 12000, 'replies': 15, 'seed': 'fan-quiet'},
-    {'id': 'fan_008', 'name': '음악사랑', 'tier': 'BASIC', 'days': 100, 'isFavorite': false, 'donation': 3000, 'replies': 28, 'seed': 'fan-music'},
-    {'id': 'fan_009', 'name': '행복한팬', 'tier': 'STANDARD', 'days': 500, 'isFavorite': true, 'donation': 18000, 'replies': 55, 'seed': 'fan-happy'},
-    {'id': 'fan_010', 'name': '열정팬', 'tier': 'VIP', 'days': 90, 'isFavorite': false, 'donation': 45000, 'replies': 95, 'seed': 'fan-passion'},
+    {
+      'id': 'fan_001',
+      'name': '하늘덕후',
+      'tier': 'VIP',
+      'days': 365,
+      'isFavorite': true,
+      'donation': 50000,
+      'replies': 120,
+      'seed': 'fan1'
+    },
+    {
+      'id': 'fan_002',
+      'name': '별빛팬',
+      'tier': 'STANDARD',
+      'days': 120,
+      'isFavorite': false,
+      'donation': 8000,
+      'replies': 45,
+      'seed': 'fan2'
+    },
+    {
+      'id': 'fan_003',
+      'name': '달빛소녀',
+      'tier': 'VIP',
+      'days': 250,
+      'isFavorite': true,
+      'donation': 35000,
+      'replies': 89,
+      'seed': 'fan3'
+    },
+    {
+      'id': 'fan_004',
+      'name': '응원봇',
+      'tier': 'VIP',
+      'days': 180,
+      'isFavorite': false,
+      'donation': 25000,
+      'replies': 67,
+      'seed': 'user1'
+    },
+    {
+      'id': 'fan_005',
+      'name': '팬클럽회장',
+      'tier': 'VIP',
+      'days': 730,
+      'isFavorite': true,
+      'donation': 150000,
+      'replies': 200,
+      'seed': 'user2'
+    },
+    {
+      'id': 'fan_006',
+      'name': '새싹팬',
+      'tier': 'BASIC',
+      'days': 7,
+      'isFavorite': false,
+      'donation': 0,
+      'replies': 3,
+      'seed': 'user3'
+    },
+    {
+      'id': 'fan_007',
+      'name': '조용한팬',
+      'tier': 'STANDARD',
+      'days': 400,
+      'isFavorite': false,
+      'donation': 12000,
+      'replies': 15,
+      'seed': 'fan-quiet'
+    },
+    {
+      'id': 'fan_008',
+      'name': '음악사랑',
+      'tier': 'BASIC',
+      'days': 100,
+      'isFavorite': false,
+      'donation': 3000,
+      'replies': 28,
+      'seed': 'fan-music'
+    },
+    {
+      'id': 'fan_009',
+      'name': '행복한팬',
+      'tier': 'STANDARD',
+      'days': 500,
+      'isFavorite': true,
+      'donation': 18000,
+      'replies': 55,
+      'seed': 'fan-happy'
+    },
+    {
+      'id': 'fan_010',
+      'name': '열정팬',
+      'tier': 'VIP',
+      'days': 90,
+      'isFavorite': false,
+      'donation': 45000,
+      'replies': 95,
+      'seed': 'fan-passion'
+    },
   ];
 
   // ============================================================

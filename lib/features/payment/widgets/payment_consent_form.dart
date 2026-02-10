@@ -46,7 +46,8 @@ enum PaymentConsentItem {
   final String description;
   final bool required;
 
-  const PaymentConsentItem(this.id, this.title, this.description, this.required);
+  const PaymentConsentItem(
+      this.id, this.title, this.description, this.required);
 }
 
 /// Payment consent form widget for checkout screen
@@ -98,7 +99,8 @@ class _PaymentConsentFormState extends State<PaymentConsentForm> {
   void _toggleItem(PaymentConsentItem item, bool? value) {
     setState(() {
       _consents[item] = value ?? false;
-      _allChecked = PaymentConsentItem.values.every((i) => _consents[i] == true);
+      _allChecked =
+          PaymentConsentItem.values.every((i) => _consents[i] == true);
     });
     widget.onAllConsentChanged(_allRequiredConsented);
   }
@@ -163,7 +165,8 @@ class _PaymentConsentFormState extends State<PaymentConsentForm> {
                 text: TextSpan(
                   style: TextStyle(
                     fontSize: 11,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                   children: [
                     const TextSpan(text: '* 필수 항목에 동의하지 않으면 결제를 진행할 수 없습니다.\n'),
@@ -222,7 +225,8 @@ class _AllAgreeCheckbox extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ],
@@ -326,7 +330,9 @@ class _ConsentCheckbox extends StatelessWidget {
                     item.description,
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                 ],

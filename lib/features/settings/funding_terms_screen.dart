@@ -61,13 +61,15 @@ class FundingTermsScreen extends StatelessWidget {
                   _buildChapterTitle(isDark, '제1장 총칙'),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제1조 (목적)'),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '본 약관은 주식회사 언도어엔터테인먼트(이하 "회사")가 운영하는 UNO A 펀딩 서비스를 이용함에 있어 '
                     '회사와 이용자 간의 권리, 의무 및 기타 필요한 사항을 규정함을 목적으로 합니다.',
                   ),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제2조 (정의)'),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '1. \'펀딩\'이라 함은 크리에이터의 특정 프로젝트에 대한 자금조달을 위해 후원자로부터 펀딩금을 모집하고, '
                     '성공 시 리워드를 제공하는 보상형 크라우드 펀딩 서비스를 의미합니다.\n'
                     '2. \'크리에이터\'라 함은 펀딩을 개설하여 자금을 모집하는 회원을 의미합니다.\n'
@@ -83,14 +85,16 @@ class FundingTermsScreen extends StatelessWidget {
                   _buildChapterTitle(isDark, '제2장 펀딩 서비스'),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제3조 (회사의 의무)'),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '① 회사는 펀딩 및 리워드에 관한 세부 내용을 서비스에 게시합니다.\n'
                     '② 회사는 펀딩 중개 플랫폼으로서 크리에이터와 후원자 간의 거래를 중개하며, 리워드 제공의 최종 책임은 크리에이터에게 있습니다.\n'
                     '③ 회사는 펀딩 개설, 운영과 관련하여 관련 법규를 준수합니다.',
                   ),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제4조 (크리에이터의 의무)'),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '① 크리에이터는 펀딩 정보를 정확하고 성실하게 작성해야 합니다.\n'
                     '② 크리에이터는 펀딩 성공 시 약속한 리워드를 성실히 제공해야 합니다.\n'
                     '③ 크리에이터는 리워드 제공이 불가능하거나 지연될 경우, 후원자에게 즉시 통지해야 합니다.\n'
@@ -98,7 +102,8 @@ class FundingTermsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제5조 (후원자의 의무)'),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '① 후원자는 본인의 판단에 따라 펀딩 참여 여부를 결정합니다.\n'
                     '② 후원자는 펀딩 참여 전 목적, 기간, 목표금액, 리워드 내용을 충분히 확인해야 합니다.\n'
                     '③ 펀딩기간 종료 후에는 임의로 취소하거나 반환을 요청할 수 없습니다. (단, 제8조 해당 시 예외)',
@@ -110,20 +115,23 @@ class FundingTermsScreen extends StatelessWidget {
                   _buildChapterTitle(isDark, '제3장 결제 및 환불'),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제6조 (결제)'),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '① 펀딩은 원화(KRW)로 결제합니다. (DT 결제 미지원)\n'
                     '② 결제 수단: 신용/체크카드, 계좌이체, 간편결제(카카오페이, 네이버페이 등)\n'
                     '③ 펀딩기간 종료 전 결제 취소 또는 환불 요청이 가능합니다.',
                   ),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제7조 (펀딩 종료 및 후속 조치)'),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '① 펀딩 성공: 목표금액 이상 모집 시, 크리에이터가 리워드를 제공합니다.\n'
                     '② 펀딩 실패: 목표금액 미달 시, 종료일로부터 20영업일 이내 자동 환불 처리됩니다.',
                   ),
                   const SizedBox(height: 16),
                   _buildSectionTitle(isDark, '제8조 (환불 사유)'),
-                  _buildInfoBox(isDark,
+                  _buildInfoBox(
+                    isDark,
                     '다음 사유에 해당하는 경우 환불됩니다:\n\n'
                     '1. 목표금액 미달로 펀딩 실패\n'
                     '2. 리워드 제작에 법적 문제 발생\n'
@@ -138,7 +146,8 @@ class FundingTermsScreen extends StatelessWidget {
                   // Chapter 4
                   _buildChapterTitle(isDark, '제4장 책임 및 면책'),
                   const SizedBox(height: 16),
-                  _buildParagraph(isDark,
+                  _buildParagraph(
+                    isDark,
                     '① 회사: 펀딩 중개 플랫폼으로서 안전한 거래 진행을 위해 노력합니다. 리워드의 품질, 배송 등 최종 책임은 크리에이터에게 있습니다.\n'
                     '② 크리에이터: 펀딩 정보의 정확성과 리워드 제공에 대한 책임을 집니다.\n'
                     '③ 후원자: 본인의 판단에 따라 펀딩에 참여하며, 충분한 정보 확인 후 결제해야 합니다.',

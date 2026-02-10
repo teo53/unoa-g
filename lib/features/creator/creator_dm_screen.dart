@@ -97,7 +97,8 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
             itemCount: _filteredMessages.length,
             itemBuilder: (context, index) {
               final message = _filteredMessages[index];
-              final prevMessage = index > 0 ? _filteredMessages[index - 1] : null;
+              final prevMessage =
+                  index > 0 ? _filteredMessages[index - 1] : null;
               final showDate = _shouldShowDate(message, prevMessage);
 
               return Column(
@@ -150,7 +151,8 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
               icon: Icon(
                 Icons.arrow_back_ios_new,
                 size: 20,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
 
@@ -187,7 +189,8 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                   '${_mockFans.length}명의 팬',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -240,7 +243,9 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                     '${selectedFan.subscribeDays}일째 구독 중',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                 ],
@@ -402,7 +407,8 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                 '0/50',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -417,7 +423,8 @@ class _CreatorDMScreenState extends ConsumerState<CreatorDMScreen> {
                 onPressed: () {},
                 icon: Icon(
                   Icons.add_photo_alternate_outlined,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
@@ -710,9 +717,8 @@ class _MessageBubble extends StatelessWidget {
                 _formatTime(message.timestamp),
                 style: TextStyle(
                   fontSize: 10,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -750,7 +756,8 @@ class _MessageBubble extends StatelessWidget {
   }
 
   String _formatTime(DateTime time) {
-    final hour = time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
+    final hour =
+        time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
     final period = time.hour >= 12 ? '오후' : '오전';
     final minute = time.minute.toString().padLeft(2, '0');
     return '$period $hour:$minute';

@@ -8,21 +8,81 @@ class AppTheme {
 
   static TextTheme _buildTextTheme(Color color) {
     return TextTheme(
-      displayLarge: TextStyle(fontFamily: fontFamily, fontSize: 32, fontWeight: FontWeight.w900, color: color),
-      displayMedium: TextStyle(fontFamily: fontFamily, fontSize: 28, fontWeight: FontWeight.w700, color: color),
-      displaySmall: TextStyle(fontFamily: fontFamily, fontSize: 24, fontWeight: FontWeight.w700, color: color),
-      headlineLarge: TextStyle(fontFamily: fontFamily, fontSize: 24, fontWeight: FontWeight.w700, color: color),
-      headlineMedium: TextStyle(fontFamily: fontFamily, fontSize: 20, fontWeight: FontWeight.w700, color: color),
-      headlineSmall: TextStyle(fontFamily: fontFamily, fontSize: 18, fontWeight: FontWeight.w700, color: color),
-      titleLarge: TextStyle(fontFamily: fontFamily, fontSize: 18, fontWeight: FontWeight.w600, color: color),
-      titleMedium: TextStyle(fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.w600, color: color),
-      titleSmall: TextStyle(fontFamily: fontFamily, fontSize: 14, fontWeight: FontWeight.w600, color: color),
-      bodyLarge: TextStyle(fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.w400, color: color),
-      bodyMedium: TextStyle(fontFamily: fontFamily, fontSize: 15, fontWeight: FontWeight.w400, color: color),
-      bodySmall: TextStyle(fontFamily: fontFamily, fontSize: 14, fontWeight: FontWeight.w400, color: color),
-      labelLarge: TextStyle(fontFamily: fontFamily, fontSize: 14, fontWeight: FontWeight.w500, color: color),
-      labelMedium: TextStyle(fontFamily: fontFamily, fontSize: 12, fontWeight: FontWeight.w500, color: color),
-      labelSmall: TextStyle(fontFamily: fontFamily, fontSize: 11, fontWeight: FontWeight.w500, color: color),
+      displayLarge: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 32,
+          fontWeight: FontWeight.w900,
+          color: color),
+      displayMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          color: color),
+      displaySmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: color),
+      headlineLarge: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: color),
+      headlineMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: color),
+      headlineSmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: color),
+      titleLarge: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: color),
+      titleMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: color),
+      titleSmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: color),
+      bodyLarge: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          color: color),
+      bodyMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 15,
+          fontWeight: FontWeight.w400,
+          color: color),
+      bodySmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: color),
+      labelLarge: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: color),
+      labelMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: color),
+      labelSmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: color),
     );
   }
 
@@ -74,7 +134,8 @@ class AppTheme {
           borderRadius: AppRadius.lgBR,
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         hintStyle: TextStyle(
           fontFamily: fontFamily,
           color: Colors.grey[400],
@@ -149,7 +210,8 @@ class AppTheme {
           borderRadius: AppRadius.lgBR,
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         hintStyle: TextStyle(
           fontFamily: fontFamily,
           color: Colors.grey[500],

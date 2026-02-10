@@ -30,7 +30,9 @@ class SettlementHistoryScreen extends ConsumerWidget {
                   onTap: () => context.pop(),
                   child: Icon(
                     Icons.arrow_back_ios_new,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 const Expanded(
@@ -49,7 +51,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
                   onTap: () => context.push('/settings/tax'),
                   child: Icon(
                     Icons.settings_outlined,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -66,12 +69,19 @@ class SettlementHistoryScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline, size: 48, color: AppColors.danger),
+                    const Icon(Icons.error_outline,
+                        size: 48, color: AppColors.danger),
                     const SizedBox(height: 12),
-                    Text(state.error!, style: TextStyle(color: isDark ? AppColors.textSubDark : AppColors.textSubLight)),
+                    Text(state.error!,
+                        style: TextStyle(
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight)),
                     const SizedBox(height: 16),
                     TextButton(
-                      onPressed: () => ref.read(settlementProvider.notifier).loadSettlements(),
+                      onPressed: () => ref
+                          .read(settlementProvider.notifier)
+                          .loadSettlements(),
                       child: const Text('다시 시도'),
                     ),
                   ],
@@ -93,7 +103,9 @@ class SettlementHistoryScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -101,8 +113,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
                   if (state.settlements.isEmpty)
                     _buildEmptyState(isDark)
                   else
-                    ...state.settlements.map((s) =>
-                      Padding(
+                    ...state.settlements.map(
+                      (s) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: _buildSettlementCard(isDark, s),
                       ),
@@ -151,9 +163,12 @@ class SettlementHistoryScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildSummaryItem('총 수익', '${_formatKrw(state.summary.totalRevenue)}원'),
-              _buildSummaryItem('수수료', '-${_formatKrw(state.summary.totalFee)}원'),
-              _buildSummaryItem('세금', '-${_formatKrw(state.summary.totalTax)}원'),
+              _buildSummaryItem(
+                  '총 수익', '${_formatKrw(state.summary.totalRevenue)}원'),
+              _buildSummaryItem(
+                  '수수료', '-${_formatKrw(state.summary.totalFee)}원'),
+              _buildSummaryItem(
+                  '세금', '-${_formatKrw(state.summary.totalTax)}원'),
             ],
           ),
           if (state.summary.pendingAmount > 0) ...[
@@ -167,7 +182,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.access_time, size: 14, color: Colors.white70),
+                  const Icon(Icons.access_time,
+                      size: 14, color: Colors.white70),
                   const SizedBox(width: 6),
                   Text(
                     '정산 대기: ${_formatKrw(state.summary.pendingAmount)}원',
@@ -194,7 +210,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white),
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ],
       ),
@@ -223,7 +240,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               Container(
@@ -251,7 +269,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
               isDark,
               icon: Icons.chat_bubble_outline,
               label: 'DT 수익 (메시징)',
-              sublabel: '팁 ${settlement.dtTipsCount}건 + 카드 ${settlement.dtCardsCount}건 + 답글 ${settlement.dtRepliesCount}건',
+              sublabel:
+                  '팁 ${settlement.dtTipsCount}건 + 카드 ${settlement.dtCardsCount}건 + 답글 ${settlement.dtRepliesCount}건',
               amount: settlement.dtRevenueKrw,
             ),
             const SizedBox(height: 8),
@@ -263,7 +282,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
               isDark,
               icon: Icons.favorite_outline,
               label: 'KRW 수익 (펀딩)',
-              sublabel: '캠페인 ${settlement.fundingCampaignsCount}개 / 후원 ${settlement.fundingPledgesCount}건',
+              sublabel:
+                  '캠페인 ${settlement.fundingCampaignsCount}개 / 후원 ${settlement.fundingPledgesCount}건',
               amount: settlement.fundingRevenueKrw,
             ),
             const SizedBox(height: 8),
@@ -273,22 +293,30 @@ class SettlementHistoryScreen extends ConsumerWidget {
           const SizedBox(height: 8),
 
           // Breakdown
-          _buildBreakdownRow(isDark, '총 수익', settlement.totalRevenueKrw, isBold: true),
+          _buildBreakdownRow(isDark, '총 수익', settlement.totalRevenueKrw,
+              isBold: true),
           const SizedBox(height: 4),
-          _buildBreakdownRow(isDark, '플랫폼 수수료 (${settlement.platformFeeRate.toStringAsFixed(0)}%)', -settlement.platformFeeKrw),
+          _buildBreakdownRow(
+              isDark,
+              '플랫폼 수수료 (${settlement.platformFeeRate.toStringAsFixed(0)}%)',
+              -settlement.platformFeeKrw),
           const SizedBox(height: 4),
-          _buildBreakdownRow(isDark, '원천징수세 (${settlement.taxRate.toStringAsFixed(1)}%)', -settlement.withholdingTaxKrw),
+          _buildBreakdownRow(
+              isDark,
+              '원천징수세 (${settlement.taxRate.toStringAsFixed(1)}%)',
+              -settlement.withholdingTaxKrw),
           const SizedBox(height: 8),
           Divider(color: isDark ? AppColors.borderDark : AppColors.borderLight),
           const SizedBox(height: 8),
           _buildBreakdownRow(isDark, '순 지급액', settlement.netPayoutKrw,
-            isBold: true, color: AppColors.success),
+              isBold: true, color: AppColors.success),
         ],
       ),
     );
   }
 
-  Widget _buildRevenueRow(bool isDark, {
+  Widget _buildRevenueRow(
+    bool isDark, {
     required IconData icon,
     required String label,
     required String sublabel,
@@ -296,7 +324,9 @@ class SettlementHistoryScreen extends ConsumerWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+        Icon(icon,
+            size: 18,
+            color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -307,14 +337,16 @@ class SettlementHistoryScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               Text(
                 sublabel,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -332,7 +364,10 @@ class SettlementHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBreakdownRow(bool isDark, String label, int amount, {
+  Widget _buildBreakdownRow(
+    bool isDark,
+    String label,
+    int amount, {
     bool isBold = false,
     Color? color,
   }) {
@@ -353,7 +388,12 @@ class SettlementHistoryScreen extends ConsumerWidget {
           style: TextStyle(
             fontSize: isBold ? 15 : 13,
             fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
-            color: color ?? (isNegative ? AppColors.danger : (isDark ? AppColors.textMainDark : AppColors.textMainLight)),
+            color: color ??
+                (isNegative
+                    ? AppColors.danger
+                    : (isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight)),
           ),
         ),
       ],

@@ -54,18 +54,14 @@ class PollMessage {
     );
   }
 
-  bool get isEnded =>
-      endsAt != null && DateTime.now().isAfter(endsAt!);
+  bool get isEnded => endsAt != null && DateTime.now().isAfter(endsAt!);
 
-  bool get hasVoted =>
-      myVoteOptionIds != null && myVoteOptionIds!.isNotEmpty;
+  bool get hasVoted => myVoteOptionIds != null && myVoteOptionIds!.isNotEmpty;
 
-  bool get canShowResults =>
-      showResultsBeforeEnd || isEnded || hasVoted;
+  bool get canShowResults => showResultsBeforeEnd || isEnded || hasVoted;
 
   /// Get vote count for a specific option.
-  int voteCountFor(String optionId) =>
-      voteCounts?[optionId] ?? 0;
+  int voteCountFor(String optionId) => voteCounts?[optionId] ?? 0;
 
   /// Get percentage for a specific option (0.0-1.0).
   double percentageFor(String optionId) {

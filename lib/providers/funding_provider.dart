@@ -125,8 +125,12 @@ class Campaign {
       currentAmountKrw: currentAmount,
       fundingPercent: percent,
       backerCount: (json['backer_count'] as num?)?.toInt() ?? 0,
-      startAt: json['start_at'] != null ? DateTime.tryParse(json['start_at'] as String) : null,
-      endAt: json['end_at'] != null ? DateTime.tryParse(json['end_at'] as String) : null,
+      startAt: json['start_at'] != null
+          ? DateTime.tryParse(json['start_at'] as String)
+          : null,
+      endAt: json['end_at'] != null
+          ? DateTime.tryParse(json['end_at'] as String)
+          : null,
       targetArtist: json['target_artist'] as String?,
       detailImages: json['detail_images'] != null
           ? List<String>.from(json['detail_images'] as List)
@@ -169,7 +173,9 @@ class Campaign {
     return diff < 0 ? 0 : diff;
   }
 
-  bool get isEnded => (endAt != null && endAt!.isBefore(DateTime.now())) || status == CampaignStatus.completed;
+  bool get isEnded =>
+      (endAt != null && endAt!.isBefore(DateTime.now())) ||
+      status == CampaignStatus.completed;
   bool get isActive => status == CampaignStatus.active && !isEnded;
   bool get isDraft => status == CampaignStatus.draft;
   bool get isSuccessful => fundingPercent >= 100;
@@ -273,8 +279,7 @@ class RewardTier {
     };
   }
 
-  bool get isSoldOut =>
-      totalQuantity != null && (remainingQuantity ?? 0) <= 0;
+  bool get isSoldOut => totalQuantity != null && (remainingQuantity ?? 0) <= 0;
 }
 
 /// Pledge model
@@ -394,35 +399,40 @@ class FundingState {
   List<Campaign> _applySearch(List<Campaign> campaigns) {
     if (searchQuery.isEmpty) return campaigns;
     final q = searchQuery.toLowerCase();
-    return campaigns.where((c) =>
-        c.title.toLowerCase().contains(q) ||
-        (c.subtitle?.toLowerCase().contains(q) ?? false) ||
-        (c.category?.toLowerCase().contains(q) ?? false)).toList();
+    return campaigns
+        .where((c) =>
+            c.title.toLowerCase().contains(q) ||
+            (c.subtitle?.toLowerCase().contains(q) ?? false) ||
+            (c.category?.toLowerCase().contains(q) ?? false))
+        .toList();
   }
 
   /// Explore campaigns (all active, not mine)
-  List<Campaign> get exploreCampaigns =>
-      _applySearch(allCampaigns.where((c) => c.status == CampaignStatus.active).toList());
+  List<Campaign> get exploreCampaigns => _applySearch(
+      allCampaigns.where((c) => c.status == CampaignStatus.active).toList());
 
   /// My active campaigns (includes paused - they show in 진행중 tab)
-  List<Campaign> get myActiveCampaigns =>
-      myCampaigns.where((c) =>
+  List<Campaign> get myActiveCampaigns => myCampaigns
+      .where((c) =>
           c.status == CampaignStatus.active ||
-          c.status == CampaignStatus.paused).toList();
+          c.status == CampaignStatus.paused)
+      .toList();
 
   /// My draft campaigns
   List<Campaign> get myDraftCampaigns =>
       myCampaigns.where((c) => c.status == CampaignStatus.draft).toList();
 
   /// My ended campaigns
-  List<Campaign> get myEndedCampaigns =>
-      myCampaigns.where((c) =>
+  List<Campaign> get myEndedCampaigns => myCampaigns
+      .where((c) =>
           c.status == CampaignStatus.completed ||
-          c.status == CampaignStatus.cancelled).toList();
+          c.status == CampaignStatus.cancelled)
+      .toList();
 
   /// Ending soon campaigns (3 days or less)
-  List<Campaign> get endingSoonCampaigns =>
-      exploreCampaigns.where((c) => c.daysLeft <= 3 && c.daysLeft >= 0).toList();
+  List<Campaign> get endingSoonCampaigns => exploreCampaigns
+      .where((c) => c.daysLeft <= 3 && c.daysLeft >= 0)
+      .toList();
 
   /// Popular campaigns (sorted by backer count)
   List<Campaign> get popularCampaigns {
@@ -440,8 +450,7 @@ class FundingState {
 
   /// Summary stats for creator dashboard
   int get totalActiveCampaigns => myActiveCampaigns.length;
-  int get totalBackers =>
-      myCampaigns.fold(0, (sum, c) => sum + c.backerCount);
+  int get totalBackers => myCampaigns.fold(0, (sum, c) => sum + c.backerCount);
   int get totalRaisedKrw =>
       myCampaigns.fold(0, (sum, c) => sum + c.currentAmountKrw);
 
@@ -709,9 +718,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
           .order('end_at', ascending: true)
           .limit(50);
 
-      final allCampaigns = (allResponse as List)
-          .map((json) => Campaign.fromJson(json))
-          .toList();
+      final allCampaigns =
+          (allResponse as List).map((json) => Campaign.fromJson(json)).toList();
 
       // Load my campaigns if creator
       List<Campaign> myCampaigns = [];
@@ -847,20 +855,24 @@ class FundingNotifier extends StateNotifier<FundingState> {
     final userId = client.auth.currentUser?.id;
     if (userId == null) throw Exception('Not authenticated');
 
-    final response = await client.from('funding_campaigns').insert({
-      'creator_id': userId,
-      'title': title,
-      'subtitle': subtitle,
-      'description_md': description,
-      'category': category,
-      'cover_image_url': coverImageUrl,
-      'status': 'draft',
-      'goal_amount_krw': goalAmountKrw,
-      'start_at': startAt?.toIso8601String(),
-      'end_at': endAt?.toIso8601String(),
-      'target_artist': targetArtist,
-      'detail_images': detailImages,
-    }).select().single();
+    final response = await client
+        .from('funding_campaigns')
+        .insert({
+          'creator_id': userId,
+          'title': title,
+          'subtitle': subtitle,
+          'description_md': description,
+          'category': category,
+          'cover_image_url': coverImageUrl,
+          'status': 'draft',
+          'goal_amount_krw': goalAmountKrw,
+          'start_at': startAt?.toIso8601String(),
+          'end_at': endAt?.toIso8601String(),
+          'target_artist': targetArtist,
+          'detail_images': detailImages,
+        })
+        .select()
+        .single();
 
     final newCampaign = Campaign.fromJson(response);
     state = state.copyWith(
@@ -870,7 +882,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
   }
 
   /// Update an existing campaign
-  Future<void> updateCampaign(String campaignId, {
+  Future<void> updateCampaign(
+    String campaignId, {
     String? title,
     String? subtitle,
     String? description,
@@ -923,9 +936,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
     if (targetArtist != null) updates['target_artist'] = targetArtist;
     if (detailImages != null) updates['detail_images'] = detailImages;
 
-    await client.from('funding_campaigns')
-        .update(updates)
-        .eq('id', campaignId);
+    await client.from('funding_campaigns').update(updates).eq('id', campaignId);
 
     await _loadRealData();
   }
@@ -1046,9 +1057,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
       final updatedAll = state.allCampaigns.map((c) {
         if (c.id == campaignId) {
           final newAmount = c.currentAmountKrw + amountKrw;
-          final newPercent = c.goalAmountKrw > 0
-              ? (newAmount / c.goalAmountKrw * 100)
-              : 0.0;
+          final newPercent =
+              c.goalAmountKrw > 0 ? (newAmount / c.goalAmountKrw * 100) : 0.0;
           return c.copyWith(
             currentAmountKrw: newAmount,
             fundingPercent: newPercent,
@@ -1211,9 +1221,21 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
     final now = DateTime.now();
     final demoNames = [
-      '하늘별', '달빛소녀', '봄바람', '꿈나래', '은하수',
-      '민트초코', '해바라기', '별빛가루', '달콤이', '뮤직러버',
-      '핑크빛', '코코넛밀크', '블루오션', '스타라이트', '체리블라썸',
+      '하늘별',
+      '달빛소녀',
+      '봄바람',
+      '꿈나래',
+      '은하수',
+      '민트초코',
+      '해바라기',
+      '별빛가루',
+      '달콤이',
+      '뮤직러버',
+      '핑크빛',
+      '코코넛밀크',
+      '블루오션',
+      '스타라이트',
+      '체리블라썸',
     ];
     final tiers = getTiersForCampaign(campaignId);
     final messages = [
@@ -1251,8 +1273,12 @@ class FundingNotifier extends StateNotifier<FundingState> {
     final campaign = getCampaignById(campaignId);
     if (campaign == null) {
       return const CampaignStats(
-        totalBackers: 0, totalRaisedKrw: 0, fundingPercent: 0,
-        daysLeft: 0, avgPledgeKrw: 0, tierDistribution: {},
+        totalBackers: 0,
+        totalRaisedKrw: 0,
+        fundingPercent: 0,
+        daysLeft: 0,
+        avgPledgeKrw: 0,
+        tierDistribution: {},
         dailyData: [],
       );
     }
@@ -1267,15 +1293,16 @@ class FundingNotifier extends StateNotifier<FundingState> {
     final totalDays = campaign.startAt != null
         ? now.difference(campaign.startAt!).inDays.clamp(1, 30)
         : 14;
-    final dailyAvg = campaign.backerCount > 0
-        ? campaign.currentAmountKrw ~/ totalDays
-        : 0;
+    final dailyAvg =
+        campaign.backerCount > 0 ? campaign.currentAmountKrw ~/ totalDays : 0;
 
     final dailyData = List.generate(totalDays.clamp(1, 14), (i) {
       final day = now.subtract(Duration(days: totalDays - 1 - i));
       final variance = (i * 17 + 7) % 11 - 5; // pseudo-random variance
-      final amount = (dailyAvg + dailyAvg * variance ~/ 10).clamp(0, dailyAvg * 3);
-      final backers = (campaign.backerCount ~/ totalDays + variance).clamp(1, 100);
+      final amount =
+          (dailyAvg + dailyAvg * variance ~/ 10).clamp(0, dailyAvg * 3);
+      final backers =
+          (campaign.backerCount ~/ totalDays + variance).clamp(1, 100);
       return DailyFundingData(
         date: day,
         amount: amount,

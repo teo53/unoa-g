@@ -63,7 +63,8 @@ class ErrorDisplay extends StatelessWidget {
   /// Generates a unique error reference code for customer support
   /// Format: ERR-{timestamp_base36}-{random3digits}
   static String generateErrorCode() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36).toUpperCase();
+    final timestamp =
+        DateTime.now().millisecondsSinceEpoch.toRadixString(36).toUpperCase();
     final random = Random().nextInt(999).toString().padLeft(3, '0');
     return 'ERR-$timestamp-$random';
   }
@@ -159,7 +160,8 @@ class ErrorDisplay extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -215,7 +217,9 @@ class ErrorDisplay extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'monospace',
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -232,7 +236,9 @@ class ErrorDisplay extends StatelessWidget {
                     child: Icon(
                       Icons.copy,
                       size: 16,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                 ],
@@ -303,7 +309,8 @@ class _CompactErrorDisplay extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ),
@@ -416,9 +423,7 @@ class EmptyState extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.surfaceAltDark
-                    : AppColors.surfaceAlt,
+                color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -433,7 +438,8 @@ class EmptyState extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -443,7 +449,8 @@ class EmptyState extends StatelessWidget {
                 message!,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 textAlign: TextAlign.center,
               ),

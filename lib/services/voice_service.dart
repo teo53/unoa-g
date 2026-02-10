@@ -151,7 +151,8 @@ class VoiceRecordingService {
 
   /// Stop recording and return the result
   Future<VoiceRecordingResult?> stopRecording() async {
-    if (_state != VoiceRecordingState.recording && _state != VoiceRecordingState.paused) {
+    if (_state != VoiceRecordingState.recording &&
+        _state != VoiceRecordingState.paused) {
       return null;
     }
 

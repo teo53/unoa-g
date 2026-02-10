@@ -67,10 +67,12 @@ class _DailyQuestionCardsPanelState
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: List.generate(3, (i) => const Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: SkeletonLoader.card(width: 200, height: 120),
-              )),
+              children: List.generate(
+                  3,
+                  (i) => const Padding(
+                        padding: EdgeInsets.only(right: 12),
+                        child: SkeletonLoader.card(width: 200, height: 120),
+                      )),
             ),
           ),
         ],
@@ -105,11 +107,11 @@ class _DailyQuestionCardsPanelState
     );
   }
 
-  Widget _buildContent(DailyQuestionSet set, bool isDark, {String? votingCardId}) {
+  Widget _buildContent(DailyQuestionSet set, bool isDark,
+      {String? votingCardId}) {
     final title = set.hasVoted ? '투표 결과' : '오늘의 질문';
-    final subtitle = set.hasVoted
-        ? '${set.totalVotes}명 참여'
-        : '${set.totalVotes}명 참여';
+    final subtitle =
+        set.hasVoted ? '${set.totalVotes}명 참여' : '${set.totalVotes}명 참여';
 
     return Column(
       children: [
@@ -121,15 +123,21 @@ class _DailyQuestionCardsPanelState
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
             decoration: BoxDecoration(
               color: isDark
-                  ? (widget.accentColor ?? AppColors.primary500).withValues(alpha: 0.06)
-                  : (widget.accentColor ?? AppColors.primary500).withValues(alpha: 0.04),
+                  ? (widget.accentColor ?? AppColors.primary500)
+                      .withValues(alpha: 0.06)
+                  : (widget.accentColor ?? AppColors.primary500)
+                      .withValues(alpha: 0.04),
             ),
             child: Row(
               children: [
                 Icon(
-                  set.hasVoted ? Icons.how_to_vote_outlined : Icons.quiz_outlined,
+                  set.hasVoted
+                      ? Icons.how_to_vote_outlined
+                      : Icons.quiz_outlined,
                   size: 18,
-                  color: set.hasVoted ? AppColors.star : (widget.accentColor ?? AppColors.primary500),
+                  color: set.hasVoted
+                      ? AppColors.star
+                      : (widget.accentColor ?? AppColors.primary500),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -137,7 +145,9 @@ class _DailyQuestionCardsPanelState
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -145,13 +155,15 @@ class _DailyQuestionCardsPanelState
                   subtitle,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
                 const Spacer(),
                 if (set.hasVoted)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
                       color: AppColors.success.withValues(alpha: 0.15),
@@ -170,7 +182,8 @@ class _DailyQuestionCardsPanelState
                   _isExpanded ? '접기' : '펼치기',
                   style: TextStyle(
                     fontSize: 11,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
                 AnimatedRotation(
@@ -189,7 +202,8 @@ class _DailyQuestionCardsPanelState
 
         // Expandable content
         AnimatedCrossFade(
-          firstChild: _buildInnerContent(set, isDark, votingCardId: votingCardId),
+          firstChild:
+              _buildInnerContent(set, isDark, votingCardId: votingCardId),
           secondChild: const SizedBox.shrink(),
           crossFadeState: _isExpanded
               ? CrossFadeState.showFirst
@@ -207,7 +221,8 @@ class _DailyQuestionCardsPanelState
     );
   }
 
-  Widget _buildInnerContent(DailyQuestionSet set, bool isDark, {String? votingCardId}) {
+  Widget _buildInnerContent(DailyQuestionSet set, bool isDark,
+      {String? votingCardId}) {
     if (set.hasVoted) {
       return _VotedResultView(
         set: set,
@@ -604,7 +619,8 @@ class _VoteConfirmationSheet extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _LevelBadge(level: card.level, accentColor: accentColor),
+                          _LevelBadge(
+                              level: card.level, accentColor: accentColor),
                           const SizedBox(width: 8),
                           Text(
                             card.subdeckDisplayName,
@@ -638,9 +654,8 @@ class _VoteConfirmationSheet extends StatelessWidget {
                   '투표 후에는 변경할 수 없어요',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],

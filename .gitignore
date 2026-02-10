@@ -44,6 +44,7 @@ app.*.map.json
 **/node_modules/
 **/.next/
 test_output*.txt
+analyze_output.txt
 
 # Firebase CLI cache
 .firebase/

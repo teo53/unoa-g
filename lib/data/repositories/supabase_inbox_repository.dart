@@ -125,15 +125,19 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
     await _verifyChannelOwnership(channelId);
 
     // Insert broadcast message
-    final response = await _supabase.from('messages').insert({
-      'channel_id': channelId,
-      'sender_id': _currentUserId,
-      'sender_type': 'artist',
-      'delivery_scope': 'broadcast',
-      'content': content,
-      'message_type': _messageTypeToString(messageType),
-      'media_url': mediaUrl,
-    }).select().single();
+    final response = await _supabase
+        .from('messages')
+        .insert({
+          'channel_id': channelId,
+          'sender_id': _currentUserId,
+          'sender_type': 'artist',
+          'delivery_scope': 'broadcast',
+          'content': content,
+          'message_type': _messageTypeToString(messageType),
+          'media_url': mediaUrl,
+        })
+        .select()
+        .single();
 
     final message = BroadcastMessage.fromJson(response);
 
@@ -228,16 +232,20 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
     }
 
     // Insert donation reply
-    final response = await _supabase.from('messages').insert({
-      'channel_id': channelId,
-      'sender_id': _currentUserId,
-      'sender_type': 'artist',
-      'delivery_scope': 'donation_reply',
-      'content': content,
-      'message_type': 'text',
-      'reply_to_message_id': donationMessageId,
-      'target_user_id': fanUserId,
-    }).select().single();
+    final response = await _supabase
+        .from('messages')
+        .insert({
+          'channel_id': channelId,
+          'sender_id': _currentUserId,
+          'sender_type': 'artist',
+          'delivery_scope': 'donation_reply',
+          'content': content,
+          'message_type': 'text',
+          'reply_to_message_id': donationMessageId,
+          'target_user_id': fanUserId,
+        })
+        .select()
+        .single();
 
     return BroadcastMessage.fromJson(response);
   }
@@ -270,11 +278,8 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
 
   /// Edit a broadcast message (within 24 hours)
   Future<void> editMessage(String messageId, String newContent) async {
-    final message = await _supabase
-        .from('messages')
-        .select()
-        .eq('id', messageId)
-        .single();
+    final message =
+        await _supabase.from('messages').select().eq('id', messageId).single();
 
     // Verify ownership
     await _verifyChannelOwnership(message['channel_id'] as String);
@@ -394,8 +399,8 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
         .from('messages')
         .select('id, delivery_scope, is_highlighted')
         .eq('channel_id', channelId)
-        .inFilter('delivery_scope', ['direct_reply', 'donation_message'])
-        .isFilter('deleted_at', null);
+        .inFilter('delivery_scope',
+            ['direct_reply', 'donation_message']).isFilter('deleted_at', null);
 
     // Get subscriber count
     final subscribers = await _supabase
@@ -405,9 +410,8 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
         .eq('is_active', true);
 
     final totalMessages = messages.length;
-    final donationMessages = messages
-        .where((m) => m['delivery_scope'] == 'donation_message')
-        .length;
+    final donationMessages =
+        messages.where((m) => m['delivery_scope'] == 'donation_message').length;
     final highlightedMessages =
         messages.where((m) => m['is_highlighted'] == true).length;
 
@@ -455,17 +459,21 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
       throw StateError('Scheduled time must be in the future');
     }
 
-    final response = await _supabase.from('messages').insert({
-      'channel_id': channelId,
-      'sender_id': _currentUserId,
-      'sender_type': 'artist',
-      'delivery_scope': 'broadcast',
-      'content': content,
-      'message_type': _messageTypeToString(messageType),
-      'media_url': mediaUrl,
-      'scheduled_at': scheduledAt.toIso8601String(),
-      'scheduled_status': 'pending',
-    }).select().single();
+    final response = await _supabase
+        .from('messages')
+        .insert({
+          'channel_id': channelId,
+          'sender_id': _currentUserId,
+          'sender_type': 'artist',
+          'delivery_scope': 'broadcast',
+          'content': content,
+          'message_type': _messageTypeToString(messageType),
+          'media_url': mediaUrl,
+          'scheduled_at': scheduledAt.toIso8601String(),
+          'scheduled_status': 'pending',
+        })
+        .select()
+        .single();
 
     return BroadcastMessage.fromJson(response);
   }

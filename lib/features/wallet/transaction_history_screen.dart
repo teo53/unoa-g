@@ -202,93 +202,97 @@ class _TransactionList extends StatelessWidget {
                   return Column(
                     children: [
                       InkWell(
-                        onTap: () => _showRefundDialog(context, txn, isCredit, isDark),
+                        onTap: () =>
+                            _showRefundDialog(context, txn, isCredit, isDark),
                         child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: isCredit
-                                    ? AppColors.success100
-                                    : AppColors.danger100,
-                                shape: BoxShape.circle,
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: isCredit
+                                      ? AppColors.success100
+                                      : AppColors.danger100,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isCredit ? Icons.add : Icons.remove,
+                                  color: isCredit
+                                      ? AppColors.success
+                                      : AppColors.danger,
+                                  size: 20,
+                                ),
                               ),
-                              child: Icon(
-                                isCredit ? Icons.add : Icons.remove,
-                                color: isCredit
-                                    ? AppColors.success
-                                    : AppColors.danger,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    txn.description,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: isDark
-                                          ? AppColors.textMainDark
-                                          : AppColors.textMainLight,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        txn.formattedDate.split(' ').last,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: isDark
-                                              ? AppColors.textSubDark
-                                              : AppColors.textSubLight,
-                                        ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      txn.description,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: isDark
+                                            ? AppColors.textMainDark
+                                            : AppColors.textMainLight,
                                       ),
-                                      const SizedBox(width: 8),
-                                      // Status Badge
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Color(txn.status.colorValue).withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          txn.status.label,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          txn.formattedDate.split(' ').last,
                                           style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(txn.status.colorValue),
+                                            fontSize: 12,
+                                            color: isDark
+                                                ? AppColors.textSubDark
+                                                : AppColors.textSubLight,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        const SizedBox(width: 8),
+                                        // Status Badge
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Color(txn.status.colorValue)
+                                                .withValues(alpha: 0.15),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            txn.status.label,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  Color(txn.status.colorValue),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Text(
-                              txn.formattedAmount,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: isCredit
-                                    ? AppColors.success
-                                    : AppColors.danger,
+                              Text(
+                                txn.formattedAmount,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: isCredit
+                                      ? AppColors.success
+                                      : AppColors.danger,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                       ), // Close InkWell
                       if (i < txns.length - 1)
                         Divider(
@@ -310,7 +314,8 @@ class _TransactionList extends StatelessWidget {
     );
   }
 
-  void _showRefundDialog(BuildContext context, Transaction txn, bool isCredit, bool isDark) {
+  void _showRefundDialog(
+      BuildContext context, Transaction txn, bool isCredit, bool isDark) {
     // Only credit transactions (charges) can be refunded
     if (!isCredit) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -320,8 +325,10 @@ class _TransactionList extends StatelessWidget {
     }
 
     // Check 7-day refund window
-    final daysSinceTransaction = DateTime.now().difference(txn.timestamp).inDays;
-    final canRefund = daysSinceTransaction <= 7 && txn.status == TransactionStatus.completed;
+    final daysSinceTransaction =
+        DateTime.now().difference(txn.timestamp).inDays;
+    final canRefund =
+        daysSinceTransaction <= 7 && txn.status == TransactionStatus.completed;
 
     showModalBottomSheet(
       context: context,
@@ -339,7 +346,8 @@ class _TransactionList extends StatelessWidget {
               children: [
                 Icon(
                   Icons.receipt_long,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -347,7 +355,9 @@ class _TransactionList extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
               ],
@@ -367,14 +377,17 @@ class _TransactionList extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: AppColors.warning, size: 20),
+                    const Icon(Icons.info_outline,
+                        color: AppColors.warning, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         '충전 후 7일 이내에만 환불이 가능합니다.\n환불 시 보너스 DT는 회수됩니다.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
                         ),
                       ),
                     ),
@@ -397,7 +410,8 @@ class _TransactionList extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('환불 요청', style: TextStyle(fontWeight: FontWeight.w600)),
+                  child: const Text('환불 요청',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
                 ),
               ),
             ] else ...[
@@ -418,7 +432,9 @@ class _TransactionList extends StatelessWidget {
                             : '이미 처리된 거래는 환불할 수 없습니다.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
                         ),
                       ),
                     ),
@@ -458,7 +474,8 @@ class _TransactionList extends StatelessWidget {
                 ),
               );
             },
-            child: const Text('환불 요청', style: TextStyle(color: AppColors.danger)),
+            child:
+                const Text('환불 요청', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),

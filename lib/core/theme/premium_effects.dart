@@ -15,29 +15,29 @@ class PremiumEffects {
   /// Subtle Glow - 기본 과금 요소용 (CTA 버튼, FAB)
   /// 30% opacity, blur 16
   static BoxShadow get subtleGlow => const BoxShadow(
-    color: AppColors.primaryGlow,
-    blurRadius: 16,
-    spreadRadius: 0,
-    offset: Offset(0, 4),
-  );
+        color: AppColors.primaryGlow,
+        blurRadius: 16,
+        spreadRadius: 0,
+        offset: Offset(0, 4),
+      );
 
   /// Strong Glow - VIP/프리미엄 요소용 (DT Balance Card, VIP Badge)
   /// 50% opacity, blur 24
   static BoxShadow get strongGlow => const BoxShadow(
-    color: AppColors.primaryGlowStrong,
-    blurRadius: 24,
-    spreadRadius: 2,
-    offset: Offset(0, 6),
-  );
+        color: AppColors.primaryGlowStrong,
+        blurRadius: 24,
+        spreadRadius: 2,
+        offset: Offset(0, 6),
+      );
 
   /// Ambient Glow - 전체 둘레 글로우 (호버/포커스 상태)
   /// 20% opacity, blur 20, 사방으로 퍼짐
   static BoxShadow get ambientGlow => BoxShadow(
-    color: AppColors.primaryGlow.withValues(alpha: 0.2),
-    blurRadius: 20,
-    spreadRadius: 4,
-    offset: Offset.zero,
-  );
+        color: AppColors.primaryGlow.withValues(alpha: 0.2),
+        blurRadius: 20,
+        spreadRadius: 4,
+        offset: Offset.zero,
+      );
 
   // ═══════════════════════════════════════════════════════════════
   // SHADOW PRESETS
@@ -45,19 +45,19 @@ class PremiumEffects {
 
   /// Card Shadow - 일반 카드용
   static BoxShadow get cardShadow => BoxShadow(
-    color: Colors.black.withValues(alpha: 0.08),
-    blurRadius: 16,
-    spreadRadius: 0,
-    offset: const Offset(0, 4),
-  );
+        color: Colors.black.withValues(alpha: 0.08),
+        blurRadius: 16,
+        spreadRadius: 0,
+        offset: const Offset(0, 4),
+      );
 
   /// Elevated Shadow - 떠있는 요소용 (FAB, Dialogs)
   static BoxShadow get elevatedShadow => BoxShadow(
-    color: Colors.black.withValues(alpha: 0.12),
-    blurRadius: 24,
-    spreadRadius: 0,
-    offset: const Offset(0, 8),
-  );
+        color: Colors.black.withValues(alpha: 0.12),
+        blurRadius: 24,
+        spreadRadius: 0,
+        offset: const Offset(0, 8),
+      );
 
   // ═══════════════════════════════════════════════════════════════
   // COMBINED SHADOW LISTS
@@ -65,26 +65,26 @@ class PremiumEffects {
 
   /// Primary CTA Shadow - subtleGlow + cardShadow
   static List<BoxShadow> get primaryCtaShadows => [
-    subtleGlow,
-    cardShadow,
-  ];
+        subtleGlow,
+        cardShadow,
+      ];
 
   /// Premium Card Shadow - strongGlow + elevatedShadow
   static List<BoxShadow> get premiumCardShadows => [
-    strongGlow,
-    elevatedShadow,
-  ];
+        strongGlow,
+        elevatedShadow,
+      ];
 
   /// VIP Badge Shadow - strongGlow only
   static List<BoxShadow> get vipBadgeShadows => [
-    strongGlow,
-  ];
+        strongGlow,
+      ];
 
   /// FAB Shadow - subtleGlow + elevatedShadow
   static List<BoxShadow> get fabShadows => [
-    subtleGlow,
-    elevatedShadow,
-  ];
+        subtleGlow,
+        elevatedShadow,
+      ];
 
   // ═══════════════════════════════════════════════════════════════
   // GRADIENT DECORATIONS
@@ -92,35 +92,35 @@ class PremiumEffects {
 
   /// Primary Gradient Decoration - CTA 버튼, 배너
   static BoxDecoration get primaryGradientDecoration => BoxDecoration(
-    gradient: const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: AppColors.primaryGradient,
-    ),
-    borderRadius: AppRadius.baseBR,
-    boxShadow: primaryCtaShadows,
-  );
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: AppColors.primaryGradient,
+        ),
+        borderRadius: AppRadius.baseBR,
+        boxShadow: primaryCtaShadows,
+      );
 
   /// Premium Gradient Decoration - VIP 카드, DT Balance
   static BoxDecoration get premiumGradientDecoration => BoxDecoration(
-    gradient: const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: AppColors.premiumGradient,
-    ),
-    borderRadius: AppRadius.lgBR,
-    boxShadow: premiumCardShadows,
-  );
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: AppColors.premiumGradient,
+        ),
+        borderRadius: AppRadius.lgBR,
+        boxShadow: premiumCardShadows,
+      );
 
   /// Subtle Gradient Decoration - 피처드 배너
   static BoxDecoration get subtleGradientDecoration => BoxDecoration(
-    gradient: const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: AppColors.subtleGradient,
-    ),
-    borderRadius: AppRadius.baseBR,
-  );
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: AppColors.subtleGradient,
+        ),
+        borderRadius: AppRadius.baseBR,
+      );
 
   // ═══════════════════════════════════════════════════════════════
   // BUTTON DECORATIONS
@@ -130,44 +130,48 @@ class PremiumEffects {
   static BoxDecoration primaryButtonDecoration({
     double borderRadius = 12,
     bool withGlow = false,
-  }) => BoxDecoration(
-    color: AppColors.primary600,
-    borderRadius: BorderRadius.circular(borderRadius),
-    boxShadow: withGlow ? primaryCtaShadows : null,
-  );
+  }) =>
+      BoxDecoration(
+        color: AppColors.primary600,
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: withGlow ? primaryCtaShadows : null,
+      );
 
   /// Secondary Button - 투명 배경 + 테두리
   static BoxDecoration secondaryButtonDecoration({
     double borderRadius = 12,
     bool isDark = false,
-  }) => BoxDecoration(
-    color: isDark ? AppColors.surfaceDark : AppColors.surface,
-    borderRadius: BorderRadius.circular(borderRadius),
-    border: Border.all(
-      color: isDark ? AppColors.borderDark : AppColors.border,
-    ),
-  );
+  }) =>
+      BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.border,
+        ),
+      );
 
   /// Destructive Button - Danger 색상 사용
   static BoxDecoration destructiveButtonDecoration({
     double borderRadius = 12,
-  }) => BoxDecoration(
-    color: AppColors.danger,
-    borderRadius: BorderRadius.circular(borderRadius),
-  );
+  }) =>
+      BoxDecoration(
+        color: AppColors.danger,
+        borderRadius: BorderRadius.circular(borderRadius),
+      );
 
   /// Destructive Outline Button
   static BoxDecoration destructiveOutlineDecoration({
     double borderRadius = 12,
     bool isDark = false,
-  }) => BoxDecoration(
-    color: Colors.transparent,
-    borderRadius: BorderRadius.circular(borderRadius),
-    border: Border.all(
-      color: AppColors.danger,
-      width: 1.5,
-    ),
-  );
+  }) =>
+      BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: AppColors.danger,
+          width: 1.5,
+        ),
+      );
 
   // ═══════════════════════════════════════════════════════════════
   // HELPER METHODS

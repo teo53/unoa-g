@@ -83,16 +83,16 @@ class FeePolicyScreen extends StatelessWidget {
                   _buildSectionTitle(isDark, '제2조 크리에이터 수수료'),
                   const SizedBox(height: 12),
                   _buildFeeTable(isDark, [
-                    _FeeRow('플랫폼 수수료',
+                    _FeeRow(
+                        '플랫폼 수수료',
                         '${BusinessConfig.platformCommissionPercent.toInt()}%',
                         '크리에이터 수익에서 차감'),
-                    _FeeRow('크리에이터 정산',
+                    _FeeRow(
+                        '크리에이터 정산',
                         '${BusinessConfig.creatorPayoutPercent.toInt()}%',
                         '수익의 ${BusinessConfig.creatorPayoutPercent.toInt()}% 지급'),
-                    const _FeeRow('원천징수세', '3.3%',
-                        '기타소득세 3% + 지방소득세 0.3%'),
-                    const _FeeRow('최소 정산금액', '₩10,000',
-                        '미만 시 익월 이월'),
+                    const _FeeRow('원천징수세', '3.3%', '기타소득세 3% + 지방소득세 0.3%'),
+                    const _FeeRow('최소 정산금액', '₩10,000', '미만 시 익월 이월'),
                   ]),
 
                   const SizedBox(height: 24),

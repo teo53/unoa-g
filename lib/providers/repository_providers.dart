@@ -62,7 +62,8 @@ abstract class IWalletRepository {
 class FeatureFlags {
   static bool get useMockRepositories {
     // Check environment variable or compile-time constant
-    const useMock = bool.fromEnvironment('USE_MOCK_REPOSITORIES', defaultValue: false);
+    const useMock =
+        bool.fromEnvironment('USE_MOCK_REPOSITORIES', defaultValue: false);
     return useMock;
   }
 

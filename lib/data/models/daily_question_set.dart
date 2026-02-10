@@ -64,7 +64,9 @@ class DailyQuestionSet {
   /// Create from JSON (Supabase RPC response)
   factory DailyQuestionSet.fromJson(Map<String, dynamic> json) {
     final cardsJson = json['cards'] as List<dynamic>? ?? [];
-    final cards = cardsJson.map((c) => QuestionCard.fromJson(c as Map<String, dynamic>)).toList();
+    final cards = cardsJson
+        .map((c) => QuestionCard.fromJson(c as Map<String, dynamic>))
+        .toList();
 
     // Parse kst_date - can be String or DateTime
     DateTime kstDate;
@@ -119,7 +121,8 @@ class DailyQuestionSet {
   }
 
   /// Update vote counts from vote response
-  DailyQuestionSet updateVoteCounts(Map<String, int> voteCounts, String? newUserVote, int newTotalVotes) {
+  DailyQuestionSet updateVoteCounts(
+      Map<String, int> voteCounts, String? newUserVote, int newTotalVotes) {
     final updatedCards = cards.map((card) {
       final newCount = voteCounts[card.id] ?? card.voteCount;
       return card.copyWith(voteCount: newCount);
@@ -211,7 +214,9 @@ class TodaysQuestionStats {
     }
 
     final cardsJson = json['cards'] as List<dynamic>? ?? [];
-    final cards = cardsJson.map((c) => QuestionCardStat.fromJson(c as Map<String, dynamic>)).toList();
+    final cards = cardsJson
+        .map((c) => QuestionCardStat.fromJson(c as Map<String, dynamic>))
+        .toList();
 
     // Parse kst_date
     DateTime? kstDate;

@@ -27,12 +27,14 @@ void main() {
       expect(true, isTrue); // Placeholder
     });
 
-    testWidgets('ChatBubble should render message correctly', (WidgetTester tester) async {
+    testWidgets('ChatBubble should render message correctly',
+        (WidgetTester tester) async {
       // TODO: Test ChatBubble widget with broadcast and reply messages
       expect(true, isTrue); // Placeholder
     });
 
-    testWidgets('ReplyInput should show character limit', (WidgetTester tester) async {
+    testWidgets('ReplyInput should show character limit',
+        (WidgetTester tester) async {
       // TODO: Test ReplyInput widget shows remaining characters
       expect(true, isTrue); // Placeholder
     });

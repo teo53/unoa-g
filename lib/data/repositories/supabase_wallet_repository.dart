@@ -346,12 +346,16 @@ class SupabaseWalletRepository {
 
     if (response == null) {
       // Create wallet if doesn't exist
-      final newWallet = await _supabase.from('wallets').insert({
-        'user_id': _currentUserId,
-        'balance_dt': 0,
-        'lifetime_purchased_dt': 0,
-        'lifetime_spent_dt': 0,
-      }).select().single();
+      final newWallet = await _supabase
+          .from('wallets')
+          .insert({
+            'user_id': _currentUserId,
+            'balance_dt': 0,
+            'lifetime_purchased_dt': 0,
+            'lifetime_spent_dt': 0,
+          })
+          .select()
+          .single();
       return Wallet.fromJson(newWallet);
     }
 
@@ -535,16 +539,20 @@ class SupabaseWalletRepository {
         'donation:${wallet.id}:$channelId:${DateTime.now().millisecondsSinceEpoch}';
 
     // Create donation record
-    final donation = await _supabase.from('dt_donations').insert({
-      'from_user_id': _currentUserId,
-      'to_channel_id': channelId,
-      'to_creator_id': creatorId,
-      'amount_dt': amountDt,
-      'message_id': messageId,
-      'is_anonymous': isAnonymous,
-      'creator_share_dt': creatorShare,
-      'platform_fee_dt': platformFee,
-    }).select().single();
+    final donation = await _supabase
+        .from('dt_donations')
+        .insert({
+          'from_user_id': _currentUserId,
+          'to_channel_id': channelId,
+          'to_creator_id': creatorId,
+          'amount_dt': amountDt,
+          'message_id': messageId,
+          'is_anonymous': isAnonymous,
+          'creator_share_dt': creatorShare,
+          'platform_fee_dt': platformFee,
+        })
+        .select()
+        .single();
 
     // Create ledger entry
     await _supabase.from('ledger_entries').insert({
@@ -595,9 +603,7 @@ class SupabaseWalletRepository {
     int offset = 0,
     DateTime? since,
   }) async {
-    var query = _supabase
-        .from('dt_donations')
-        .select('''
+    var query = _supabase.from('dt_donations').select('''
           *,
           user_profiles!from_user_id (
             display_name,
@@ -606,8 +612,7 @@ class SupabaseWalletRepository {
           messages!message_id (
             content
           )
-        ''')
-        .eq('to_creator_id', _currentUserId);
+        ''').eq('to_creator_id', _currentUserId);
 
     if (since != null) {
       query = query.gte('created_at', since.toIso8601String());
@@ -657,11 +662,15 @@ class SupabaseWalletRepository {
         'private_card:${wallet.id}:$cardId:${DateTime.now().millisecondsSinceEpoch}';
 
     // Create purchase record
-    final purchase = await _supabase.from('private_card_purchases').insert({
-      'card_id': cardId,
-      'user_id': _currentUserId,
-      'price_paid_dt': priceDt,
-    }).select().single();
+    final purchase = await _supabase
+        .from('private_card_purchases')
+        .insert({
+          'card_id': cardId,
+          'user_id': _currentUserId,
+          'price_paid_dt': priceDt,
+        })
+        .select()
+        .single();
 
     // Create ledger entry
     await _supabase.from('ledger_entries').insert({

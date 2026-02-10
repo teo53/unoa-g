@@ -96,8 +96,10 @@ class Settlement {
       dtTotalGross: (json['dt_total_gross'] as num?)?.toInt() ?? 0,
       dtToKrwRate: (json['dt_to_krw_rate'] as num?)?.toDouble() ?? 100.0,
       dtRevenueKrw: (json['dt_revenue_krw'] as num?)?.toInt() ?? 0,
-      fundingCampaignsCount: (json['funding_campaigns_count'] as num?)?.toInt() ?? 0,
-      fundingPledgesCount: (json['funding_pledges_count'] as num?)?.toInt() ?? 0,
+      fundingCampaignsCount:
+          (json['funding_campaigns_count'] as num?)?.toInt() ?? 0,
+      fundingPledgesCount:
+          (json['funding_pledges_count'] as num?)?.toInt() ?? 0,
       fundingRevenueKrw: (json['funding_revenue_krw'] as num?)?.toInt() ?? 0,
       totalRevenueKrw: (json['total_revenue_krw'] as num?)?.toInt() ?? 0,
       platformFeeRate: (json['platform_fee_rate'] as num?)?.toDouble() ?? 20.0,
@@ -229,8 +231,10 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
         id: 'demo_settlement_1',
         payoutId: 'demo_payout_1',
         creatorId: DemoConfig.demoCreatorId,
-        periodStart: '${now.year}-${(now.month - 1).toString().padLeft(2, '0')}-01',
-        periodEnd: '${now.year}-${(now.month - 1).toString().padLeft(2, '0')}-${DateTime(now.year, now.month, 0).day}',
+        periodStart:
+            '${now.year}-${(now.month - 1).toString().padLeft(2, '0')}-01',
+        periodEnd:
+            '${now.year}-${(now.month - 1).toString().padLeft(2, '0')}-${DateTime(now.year, now.month, 0).day}',
         dtTipsCount: 45,
         dtTipsGross: 3500,
         dtCardsCount: 12,
@@ -263,8 +267,10 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
         id: 'demo_settlement_2',
         payoutId: 'demo_payout_2',
         creatorId: DemoConfig.demoCreatorId,
-        periodStart: '${now.year}-${(now.month - 2).toString().padLeft(2, '0')}-01',
-        periodEnd: '${now.year}-${(now.month - 2).toString().padLeft(2, '0')}-${DateTime(now.year, now.month - 1, 0).day}',
+        periodStart:
+            '${now.year}-${(now.month - 2).toString().padLeft(2, '0')}-01',
+        periodEnd:
+            '${now.year}-${(now.month - 2).toString().padLeft(2, '0')}-${DateTime(now.year, now.month - 1, 0).day}',
         dtTipsCount: 38,
         dtTipsGross: 2800,
         dtCardsCount: 8,
@@ -336,7 +342,8 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
           .eq('creator_id', userId)
           .maybeSingle();
 
-      final incomeType = (payoutSettings?['income_type'] as String?) ?? 'business_income';
+      final incomeType =
+          (payoutSettings?['income_type'] as String?) ?? 'business_income';
 
       // 요약 계산
       final summary = SettlementSummary(

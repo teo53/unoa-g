@@ -100,7 +100,8 @@ class MockChatRepository implements IChatRepository {
     );
 
     // Get the simulated fan name for personalization demo
-    const demoFanName = '별빛팬'; // In real app, this would be the current user's display name
+    const demoFanName =
+        '별빛팬'; // In real app, this would be the current user's display name
 
     // Create mock messages for channel_1
     _messages['channel_1'] = [
@@ -112,7 +113,8 @@ class MockChatRepository implements IChatRepository {
         senderType: 'artist',
         deliveryScope: DeliveryScope.broadcast,
         content: '$demoFanName님! 새 2D 아바타 공개! 어때요? 🎨',
-        templateContent: '{fanName}님! 새 2D 아바타 공개! 어때요? 🎨', // Bubble-style placeholder
+        templateContent:
+            '{fanName}님! 새 2D 아바타 공개! 어때요? 🎨', // Bubble-style placeholder
         messageType: BroadcastMessageType.image,
         mediaUrl: 'https://picsum.photos/seed/vtuber_art/800/600',
         mediaMetadata: {
@@ -132,7 +134,8 @@ class MockChatRepository implements IChatRepository {
         deliveryScope: DeliveryScope.broadcast,
         content: '오늘 방송 하이라이트 클립이에요! 🎬',
         messageType: BroadcastMessageType.video,
-        mediaUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        mediaUrl:
+            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         mediaMetadata: {
           'thumbnail_url': 'https://picsum.photos/seed/stream_clip/400/300',
           'duration': 15,
@@ -152,7 +155,8 @@ class MockChatRepository implements IChatRepository {
         deliveryScope: DeliveryScope.broadcast,
         content: '',
         messageType: BroadcastMessageType.voice,
-        mediaUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        mediaUrl:
+            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
         mediaMetadata: {
           'duration': 45,
         },
@@ -306,7 +310,8 @@ class MockChatRepository implements IChatRepository {
     // Check character limit
     final charLimit = await getCharacterLimit(channelId);
     if (content.length > charLimit) {
-      throw Exception('Message too long. Maximum $charLimit characters allowed.');
+      throw Exception(
+          'Message too long. Maximum $charLimit characters allowed.');
     }
 
     // Create message
@@ -344,7 +349,8 @@ class MockChatRepository implements IChatRepository {
 
     // Donation messages have 100 char limit
     if (content.length > 100) {
-      throw Exception('Donation message too long. Maximum 100 characters allowed.');
+      throw Exception(
+          'Donation message too long. Maximum 100 characters allowed.');
     }
 
     final message = BroadcastMessage(

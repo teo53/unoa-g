@@ -51,7 +51,9 @@ class PollMessageCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
               ),
@@ -92,13 +94,15 @@ class PollMessageCard extends StatelessWidget {
                 '${poll.totalVotes}명 참여',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               if (poll.isEnded) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: isDark ? Colors.grey[700] : Colors.grey[300],
                     borderRadius: BorderRadius.circular(4),
@@ -108,7 +112,9 @@ class PollMessageCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                 ),
@@ -198,7 +204,9 @@ class _PollOptionButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: isMyVote ? FontWeight.w600 : FontWeight.w400,
-                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -211,7 +219,9 @@ class _PollOptionButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                 ],

@@ -64,8 +64,9 @@ class ChatThread {
     this.messages = const [],
   });
 
-  String get artistDisplayName =>
-      artistEnglishName != null ? '$artistName ($artistEnglishName)' : artistName;
+  String get artistDisplayName => artistEnglishName != null
+      ? '$artistName ($artistEnglishName)'
+      : artistName;
 
   String get formattedTime {
     final now = DateTime.now();

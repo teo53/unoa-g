@@ -16,7 +16,8 @@ class FundingTierSelectScreen extends StatefulWidget {
   });
 
   @override
-  State<FundingTierSelectScreen> createState() => _FundingTierSelectScreenState();
+  State<FundingTierSelectScreen> createState() =>
+      _FundingTierSelectScreenState();
 }
 
 class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
@@ -98,12 +99,15 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+                        color:
+                            isDark ? AppColors.surfaceDark : AppColors.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
                               ? AppColors.primary
-                              : (isDark ? AppColors.borderDark : AppColors.border),
+                              : (isDark
+                                  ? AppColors.borderDark
+                                  : AppColors.border),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -121,7 +125,9 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                 border: Border.all(
                                   color: isSelected
                                       ? AppColors.primary
-                                      : (isDark ? AppColors.borderDark : AppColors.border),
+                                      : (isDark
+                                          ? AppColors.borderDark
+                                          : AppColors.border),
                                   width: 2,
                                 ),
                               ),
@@ -167,7 +173,8 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: AppColors.danger100,
-                                            borderRadius: BorderRadius.circular(4),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                           ),
                                           child: const Text(
                                             '품절',
@@ -205,11 +212,13 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                                       '${tier['remaining_quantity']}개 남음',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: (tier['remaining_quantity'] ?? 0) <= 5
-                                            ? AppColors.danger
-                                            : (isDark
-                                                ? AppColors.textMutedDark
-                                                : AppColors.textMuted),
+                                        color:
+                                            (tier['remaining_quantity'] ?? 0) <=
+                                                    5
+                                                ? AppColors.danger
+                                                : (isDark
+                                                    ? AppColors.textMutedDark
+                                                    : AppColors.textMuted),
                                       ),
                                     ),
                                   ],
@@ -254,7 +263,9 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                       '총 후원금액',
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                     ),
                     Text(
@@ -273,19 +284,20 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (_selectedTierId == null || _selectedTier == null)
-                        ? null
-                        : () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FundingCheckoutScreen(
-                                  campaign: widget.campaign,
-                                  tier: _selectedTier!,
-                                ),
-                              ),
-                            );
-                          },
+                    onPressed:
+                        (_selectedTierId == null || _selectedTier == null)
+                            ? null
+                            : () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => FundingCheckoutScreen(
+                                      campaign: widget.campaign,
+                                      tier: _selectedTier!,
+                                    ),
+                                  ),
+                                );
+                              },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary600,
                       foregroundColor: AppColors.onPrimary,

@@ -238,7 +238,9 @@ class StoryAvatar extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
                 color: hasNewStory
-                    ? (isDark ? AppColors.textMainDark : AppColors.textMainLight)
+                    ? (isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight)
                     : (isDark ? Colors.grey[400] : Colors.grey[500]),
               ),
               maxLines: 1,

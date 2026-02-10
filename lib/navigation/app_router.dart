@@ -85,7 +85,8 @@ class AppRoutes {
   static const String editCampaign = '/creator/funding/edit/:campaignId';
   static const String creatorContent = '/creator/content';
   static const String creatorPrivateCard = '/creator/private-card';
-  static const String creatorPrivateCardCompose = '/creator/private-card/compose';
+  static const String creatorPrivateCardCompose =
+      '/creator/private-card/compose';
   static const String birthdaySettings = '/settings/birthday';
   static const String settingsTerms = '/settings/terms';
   static const String settingsPrivacy = '/settings/privacy';
@@ -102,8 +103,10 @@ class AppRoutes {
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _creatorShellNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _shellNavigatorKey =
+    GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _creatorShellNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -560,19 +563,19 @@ class CreatorShell extends StatelessWidget {
   void _navigateToTab(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go('/creator/dashboard');  // 대시보드 - CRM 통합
+        context.go('/creator/dashboard'); // 대시보드 - CRM 통합
         break;
       case 1:
-        context.go('/creator/chat');  // 채팅 - 내 채널 + 프라이빗 카드 + 구독
+        context.go('/creator/chat'); // 채팅 - 내 채널 + 프라이빗 카드 + 구독
         break;
       case 2:
-        context.go('/creator/funding');  // 펀딩 - 내 캠페인 + 탐색
+        context.go('/creator/funding'); // 펀딩 - 내 캠페인 + 탐색
         break;
       case 3:
-        context.go('/creator/discover');  // 탐색 - 아티스트 탐색
+        context.go('/creator/discover'); // 탐색 - 아티스트 탐색
         break;
       case 4:
-        context.go('/creator/profile');  // 프로필
+        context.go('/creator/profile'); // 프로필
         break;
     }
   }

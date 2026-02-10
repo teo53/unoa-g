@@ -13,8 +13,10 @@ class CampaignStatsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final campaign = ref.watch(fundingProvider.notifier).getCampaignById(campaignId);
-    final stats = ref.watch(fundingProvider.notifier).getStatsForCampaign(campaignId);
+    final campaign =
+        ref.watch(fundingProvider.notifier).getCampaignById(campaignId);
+    final stats =
+        ref.watch(fundingProvider.notifier).getStatsForCampaign(campaignId);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
@@ -143,7 +145,8 @@ class CampaignStatsScreen extends ConsumerWidget {
                   '평균 후원금',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    color:
+                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                 ),
                 Text(
@@ -163,9 +166,12 @@ class CampaignStatsScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
             value: (stats.fundingPercent / 100).clamp(0.0, 1.0),
-            backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+            backgroundColor:
+                isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
             valueColor: AlwaysStoppedAnimation<Color>(
-              stats.fundingPercent >= 100 ? AppColors.success : AppColors.primary,
+              stats.fundingPercent >= 100
+                  ? AppColors.success
+                  : AppColors.primary,
             ),
             minHeight: 12,
           ),
@@ -186,7 +192,9 @@ class CampaignStatsScreen extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: stats.daysLeft <= 3 ? AppColors.danger : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
+                color: stats.daysLeft <= 3
+                    ? AppColors.danger
+                    : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
               ),
             ),
           ],
@@ -206,10 +214,16 @@ class CampaignStatsScreen extends ConsumerWidget {
     }
 
     final total = stats.tierDistribution.values.fold(0, (a, b) => a + b);
-    final colors = [AppColors.primary, AppColors.success, AppColors.warning, AppColors.danger];
+    final colors = [
+      AppColors.primary,
+      AppColors.success,
+      AppColors.warning,
+      AppColors.danger
+    ];
 
     return Column(
-      children: stats.tierDistribution.entries.toList().asMap().entries.map((entry) {
+      children:
+          stats.tierDistribution.entries.toList().asMap().entries.map((entry) {
         final idx = entry.key;
         final tierName = entry.value.key;
         final count = entry.value.value;
@@ -236,7 +250,9 @@ class CampaignStatsScreen extends ConsumerWidget {
                     '$count명 (${(pct * 100).toStringAsFixed(0)}%)',
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                      color: isDark
+                          ? AppColors.textMutedDark
+                          : AppColors.textMuted,
                     ),
                   ),
                 ],
@@ -246,7 +262,8 @@ class CampaignStatsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(3),
                 child: LinearProgressIndicator(
                   value: pct,
-                  backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                  backgroundColor:
+                      isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                   minHeight: 8,
                 ),
@@ -268,7 +285,8 @@ class CampaignStatsScreen extends ConsumerWidget {
       );
     }
 
-    final maxAmount = stats.dailyData.map((d) => d.amount).reduce((a, b) => a > b ? a : b);
+    final maxAmount =
+        stats.dailyData.map((d) => d.amount).reduce((a, b) => a > b ? a : b);
 
     return Column(
       children: [
@@ -283,7 +301,8 @@ class CampaignStatsScreen extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 1),
                   child: Tooltip(
-                    message: '${d.date.month}/${d.date.day}: ${_formatNumber(d.amount)}원',
+                    message:
+                        '${d.date.month}/${d.date.day}: ${_formatNumber(d.amount)}원',
                     child: Container(
                       height: (pct * 100).clamp(4.0, 120.0),
                       decoration: BoxDecoration(

@@ -298,9 +298,8 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                   '참고용 초안 \u2022 AI가 만들었습니다',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -392,13 +391,12 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
             children: [
               Expanded(
                 child: Text(
-                  isAi
-                      ? '참고용 AI 초안 (탭하여 편집창에 넣기)'
-                      : '추천 템플릿 (탭하여 편집창에 넣기)',
+                  isAi ? '참고용 AI 초안 (탭하여 편집창에 넣기)' : '추천 템플릿 (탭하여 편집창에 넣기)',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ),
@@ -485,7 +483,8 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -497,7 +496,8 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: ReplyTemplates.categories.map((category) {
-              final templates = ReplyTemplates.getByCategoryAsSuggestions(category);
+              final templates =
+                  ReplyTemplates.getByCategoryAsSuggestions(category);
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -508,24 +508,26 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                        color: isDark
+                            ? AppColors.textMainDark
+                            : AppColors.textMainLight,
                       ),
                     ),
                   ),
                   ...templates.map((t) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: _SuggestionCard(
-                      suggestion: t,
-                      isDark: isDark,
-                      isSelected: _selectedId == t.id,
-                      onTap: () {
-                        setState(() => _selectedId = t.id);
-                        _fillEditField(t.text);
-                      },
-                      onCopy: () => _copyToClipboard(t.text),
-                      onEdit: () => _editFocusNode.requestFocus(),
-                    ),
-                  )),
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: _SuggestionCard(
+                          suggestion: t,
+                          isDark: isDark,
+                          isSelected: _selectedId == t.id,
+                          onTap: () {
+                            setState(() => _selectedId = t.id);
+                            _fillEditField(t.text);
+                          },
+                          onCopy: () => _copyToClipboard(t.text),
+                          onEdit: () => _editFocusNode.requestFocus(),
+                        ),
+                      )),
                 ],
               );
             }).toList(),
@@ -559,17 +561,15 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
               minLines: 1,
               style: TextStyle(
                 fontSize: 15,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
               decoration: InputDecoration(
                 hintText: '직접 입력하거나 위 초안을 탭하세요...',
                 hintStyle: TextStyle(
                   fontSize: 14,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -658,14 +658,16 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, size: 18, color: AppColors.warning),
+              const Icon(Icons.info_outline,
+                  size: 18, color: AppColors.warning),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   '${state.error.userMessage} — 대신 추천 템플릿을 보여드릴게요',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ),
@@ -697,7 +699,8 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
         const SizedBox(height: 8),
         // Show template suggestions
         Flexible(
-          child: _buildSuggestionList(isDark, state.templateSuggestions, isAi: false),
+          child: _buildSuggestionList(isDark, state.templateSuggestions,
+              isAi: false),
         ),
       ],
     );
@@ -917,7 +920,8 @@ class _SuggestionCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.primary500.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
@@ -939,7 +943,8 @@ class _SuggestionCard extends StatelessWidget {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.edit_outlined, size: 13, color: AppColors.primary600),
+                          Icon(Icons.edit_outlined,
+                              size: 13, color: AppColors.primary600),
                           SizedBox(width: 3),
                           Text(
                             '편집',
@@ -981,7 +986,8 @@ class _SuggestionCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             if (isSelected) ...[

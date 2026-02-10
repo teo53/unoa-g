@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../core/supabase/supabase_client.dart';
@@ -35,7 +34,9 @@ class FcmService {
 
     try {
       if (kIsWeb) {
-        debugPrint('[FCM] Web platform - FCM not supported yet');
+        if (kDebugMode) {
+          debugPrint('[FCM] Web platform - FCM not supported yet');
+        }
         return;
       }
 
@@ -85,9 +86,13 @@ class FcmService {
       // setupMessageHandlers();
 
       _initialized = true;
-      debugPrint('[FCM] Service initialized (template mode)');
+      if (kDebugMode) {
+        debugPrint('[FCM] Service initialized (template mode)');
+      }
     } catch (e) {
-      debugPrint('[FCM] Initialization error: $e');
+      if (kDebugMode) {
+        debugPrint('[FCM] Initialization error: $e');
+      }
     }
   }
 
@@ -96,7 +101,9 @@ class FcmService {
     try {
       final user = SupabaseConfig.client.auth.currentUser;
       if (user == null) {
-        assert(() { debugPrint('[FCM] No authenticated user, skipping token save'); return true; }());
+        if (kDebugMode) {
+          debugPrint('[FCM] No authenticated user, skipping token save');
+        }
         return;
       }
 
@@ -108,9 +115,13 @@ class FcmService {
         'updated_at': DateTime.now().toIso8601String(),
       }, onConflict: 'user_id, token');
 
-      assert(() { debugPrint('[FCM] Token saved to server'); return true; }());
+      if (kDebugMode) {
+        debugPrint('[FCM] Token saved to server');
+      }
     } catch (e) {
-      assert(() { debugPrint('[FCM] Error saving token: ${e.runtimeType}'); return true; }());
+      if (kDebugMode) {
+        debugPrint('[FCM] Error saving token: ${e.runtimeType}');
+      }
     }
   }
 
@@ -128,9 +139,13 @@ class FcmService {
           .eq('user_id', user.id)
           .eq('token', _token!);
 
-      assert(() { debugPrint('[FCM] Token removed from server'); return true; }());
+      if (kDebugMode) {
+        debugPrint('[FCM] Token removed from server');
+      }
     } catch (e) {
-      assert(() { debugPrint('[FCM] Error removing token: ${e.runtimeType}'); return true; }());
+      if (kDebugMode) {
+        debugPrint('[FCM] Error removing token: ${e.runtimeType}');
+      }
     }
   }
 
@@ -158,16 +173,22 @@ class FcmService {
     //   }
     // });
 
-    debugPrint('[FCM] Message handlers setup (template mode)');
+    if (kDebugMode) {
+      debugPrint('[FCM] Message handlers setup (template mode)');
+    }
   }
 
   /// Subscribe to a topic (e.g., channel notifications)
   Future<void> subscribeToTopic(String topic) async {
     try {
       // await FirebaseMessaging.instance.subscribeToTopic(topic);
-      debugPrint('[FCM] Subscribed to topic: $topic');
+      if (kDebugMode) {
+        debugPrint('[FCM] Subscribed to topic: $topic');
+      }
     } catch (e) {
-      debugPrint('[FCM] Error subscribing to topic: $e');
+      if (kDebugMode) {
+        debugPrint('[FCM] Error subscribing to topic: $e');
+      }
     }
   }
 
@@ -175,9 +196,13 @@ class FcmService {
   Future<void> unsubscribeFromTopic(String topic) async {
     try {
       // await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
-      debugPrint('[FCM] Unsubscribed from topic: $topic');
+      if (kDebugMode) {
+        debugPrint('[FCM] Unsubscribed from topic: $topic');
+      }
     } catch (e) {
-      debugPrint('[FCM] Error unsubscribing from topic: $e');
+      if (kDebugMode) {
+        debugPrint('[FCM] Error unsubscribing from topic: $e');
+      }
     }
   }
 

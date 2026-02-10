@@ -135,8 +135,9 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color:
-                          isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      color: isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -181,7 +182,8 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+              color:
+                  isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
               border: Border(
                 top: BorderSide(
                   color: isDark ? AppColors.borderDark : AppColors.borderLight,
@@ -238,10 +240,9 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                               ? '${MockData.dtPackages[_selectedPackageIndex!].formattedPrice} 결제하기'
                               : '패키지를 선택하세요'),
                       isLoading: _isProcessing,
-                      onPressed:
-                          _selectedPackageIndex != null && !_isProcessing
-                              ? () => _processPayment(context)
-                              : null,
+                      onPressed: _selectedPackageIndex != null && !_isProcessing
+                          ? () => _processPayment(context)
+                          : null,
                     ),
                   ),
                 ],

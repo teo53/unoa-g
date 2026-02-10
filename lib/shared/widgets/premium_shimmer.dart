@@ -46,7 +46,7 @@ class PremiumShimmer extends StatefulWidget {
     this.enabled = true,
     this.borderRadius,
   }) : assert(intensity >= 0.01 && intensity <= 0.05,
-           'Intensity should be between 0.01 and 0.05');
+            'Intensity should be between 0.01 and 0.05');
 
   /// Factory for DT Balance Card
   factory PremiumShimmer.balance({
@@ -166,7 +166,8 @@ class _PremiumShimmerState extends State<PremiumShimmer>
 
     final baseColor = widget.baseColor ?? AppColors.primaryShimmer;
     final highlightColor = widget.highlightColor ??
-        Colors.white.withValues(alpha: widget.intensity * 4); // Scale for visibility
+        Colors.white
+            .withValues(alpha: widget.intensity * 4); // Scale for visibility
 
     return ClipRRect(
       borderRadius: widget.borderRadius ?? BorderRadius.zero,

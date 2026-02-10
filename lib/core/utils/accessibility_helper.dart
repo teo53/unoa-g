@@ -93,7 +93,8 @@ class SemanticTextField extends StatelessWidget {
 /// Screen reader announcement helper
 class ScreenReaderAnnouncement {
   /// Announce a message to screen readers
-  static void announce(BuildContext context, String message, {bool assertive = false}) {
+  static void announce(BuildContext context, String message,
+      {bool assertive = false}) {
     SemanticsService.sendAnnouncement(
       View.of(context),
       message,
@@ -243,7 +244,8 @@ class SkipToContentLink extends StatelessWidget {
 /// Extension for easier semantic wrapping
 extension SemanticExtensions on Widget {
   /// Wrap with button semantics
-  Widget withButtonSemantics(String label, {String? hint, bool enabled = true}) {
+  Widget withButtonSemantics(String label,
+      {String? hint, bool enabled = true}) {
     return Semantics(
       button: true,
       enabled: enabled,

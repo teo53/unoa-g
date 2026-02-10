@@ -57,7 +57,8 @@ class PrivateCardComposeState {
       currentStep: currentStep ?? this.currentStep,
       cardText: cardText ?? this.cardText,
       selectedTemplateId: selectedTemplateId ?? this.selectedTemplateId,
-      selectedTemplateImageUrl: selectedTemplateImageUrl ?? this.selectedTemplateImageUrl,
+      selectedTemplateImageUrl:
+          selectedTemplateImageUrl ?? this.selectedTemplateImageUrl,
       attachedMediaUrls: attachedMediaUrls ?? this.attachedMediaUrls,
       selectedFilter: selectedFilter ?? this.selectedFilter,
       matchedFans: matchedFans ?? this.matchedFans,
@@ -107,10 +108,12 @@ class PrivateCardHistoryState {
 }
 
 /// Notifier for private card compose flow
-class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> {
+class PrivateCardComposeNotifier
+    extends StateNotifier<PrivateCardComposeState> {
   final Ref _ref;
 
-  PrivateCardComposeNotifier(this._ref) : super(const PrivateCardComposeState()) {
+  PrivateCardComposeNotifier(this._ref)
+      : super(const PrivateCardComposeState()) {
     _loadFavorites();
   }
 
@@ -231,9 +234,10 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
       if (currentUserId == null) return;
 
       final isFavorite = state.matchedFans
-          .where((f) => f.userId == userId)
-          .firstOrNull
-          ?.isFavorite ?? false;
+              .where((f) => f.userId == userId)
+              .firstOrNull
+              ?.isFavorite ??
+          false;
 
       if (isFavorite) {
         await supabase.from('fan_favorites').upsert({
@@ -242,7 +246,8 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
           'created_at': DateTime.now().toIso8601String(),
         });
       } else {
-        await supabase.from('fan_favorites')
+        await supabase
+            .from('fan_favorites')
             .delete()
             .eq('creator_id', currentUserId)
             .eq('fan_id', userId);
@@ -302,7 +307,8 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
         break;
       case FanFilterType.topDonors30Days:
         filtered = List<FanSummary>.from(allFans)
-          ..sort((a, b) => (b.totalDonation ?? 0).compareTo(a.totalDonation ?? 0));
+          ..sort(
+              (a, b) => (b.totalDonation ?? 0).compareTo(a.totalDonation ?? 0));
         filtered = filtered.take(5).toList();
         break;
       case FanFilterType.topRepliers30Days:
@@ -315,10 +321,14 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
         filtered = allFans.where((f) => (f.replyCount ?? 0) > 50).toList();
         break;
       case FanFilterType.hundredDayMembers:
-        filtered = allFans.where((f) => f.daysSubscribed >= 95 && f.daysSubscribed <= 105).toList();
+        filtered = allFans
+            .where((f) => f.daysSubscribed >= 95 && f.daysSubscribed <= 105)
+            .toList();
         // If none match exactly, show fans near 100 days
         if (filtered.isEmpty) {
-          filtered = allFans.where((f) => f.daysSubscribed >= 90 && f.daysSubscribed <= 110).toList();
+          filtered = allFans
+              .where((f) => f.daysSubscribed >= 90 && f.daysSubscribed <= 110)
+              .toList();
         }
         break;
       case FanFilterType.vipSubscribers:
@@ -359,7 +369,8 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
     final updatedFavorites = <FanSummary>[];
 
     for (final fan in allFans) {
-      final matchedVersion = matchedFans.where((m) => m.userId == fan.userId).firstOrNull;
+      final matchedVersion =
+          matchedFans.where((m) => m.userId == fan.userId).firstOrNull;
       if (matchedVersion != null) {
         if (matchedVersion.isFavorite) updatedFavorites.add(matchedVersion);
       } else {
@@ -419,10 +430,12 @@ class PrivateCardComposeNotifier extends StateNotifier<PrivateCardComposeState> 
 }
 
 /// Notifier for sent card history
-class PrivateCardHistoryNotifier extends StateNotifier<PrivateCardHistoryState> {
+class PrivateCardHistoryNotifier
+    extends StateNotifier<PrivateCardHistoryState> {
   final Ref _ref;
 
-  PrivateCardHistoryNotifier(this._ref) : super(const PrivateCardHistoryState()) {
+  PrivateCardHistoryNotifier(this._ref)
+      : super(const PrivateCardHistoryState()) {
     _loadHistory();
   }
 
@@ -526,8 +539,8 @@ class PrivateCardHistoryNotifier extends StateNotifier<PrivateCardHistoryState> 
 // Providers
 // ============================================================
 
-final privateCardComposeProvider =
-    StateNotifierProvider.autoDispose<PrivateCardComposeNotifier, PrivateCardComposeState>(
+final privateCardComposeProvider = StateNotifierProvider.autoDispose<
+    PrivateCardComposeNotifier, PrivateCardComposeState>(
   (ref) => PrivateCardComposeNotifier(ref),
 );
 
@@ -543,7 +556,8 @@ final cardTemplatesProvider = Provider<List<PrivateCardTemplate>>((ref) {
       id: data['id']!,
       name: data['name']!,
       category: data['category']!,
-      thumbnailUrl: DemoConfig.cardTemplateUrl(data['seed']!, width: 200, height: 300),
+      thumbnailUrl:
+          DemoConfig.cardTemplateUrl(data['seed']!, width: 200, height: 300),
       fullImageUrl: DemoConfig.cardTemplateUrl(data['seed']!),
     );
   }).toList();

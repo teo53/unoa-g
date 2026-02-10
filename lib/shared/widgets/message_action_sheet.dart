@@ -115,10 +115,12 @@ class MessageActionSheet extends StatelessWidget {
             // Message preview (truncated)
             if (message.content != null && message.content!.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: isDark ? Colors.grey[850] : const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(12),
@@ -170,7 +172,8 @@ class MessageActionSheet extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: reactions.map((reaction) {
-          final hasReacted = currentReactions[reaction.emoji]?.isNotEmpty == true;
+          final hasReacted =
+              currentReactions[reaction.emoji]?.isNotEmpty == true;
 
           return GestureDetector(
             onTap: () {
@@ -193,7 +196,9 @@ class MessageActionSheet extends StatelessWidget {
                             : const Color(0xFFF0F0F0),
                     shape: BoxShape.circle,
                     border: hasReacted
-                        ? Border.all(color: reaction.color.withValues(alpha: 0.4), width: 1.5)
+                        ? Border.all(
+                            color: reaction.color.withValues(alpha: 0.4),
+                            width: 1.5)
                         : null,
                   ),
                   child: Icon(
@@ -231,7 +236,9 @@ class MessageActionSheet extends StatelessWidget {
     final actions = <_ActionItem>[];
 
     // Copy (always available for text messages)
-    if (message.content != null && message.content!.isNotEmpty && message.deletedAt == null) {
+    if (message.content != null &&
+        message.content!.isNotEmpty &&
+        message.deletedAt == null) {
       actions.add(_ActionItem(
         icon: Icons.copy_rounded,
         label: '복사',
@@ -257,7 +264,8 @@ class MessageActionSheet extends StatelessWidget {
     // Pin as announcement (creator only)
     if (canPin && message.deletedAt == null) {
       actions.add(_ActionItem(
-        icon: message.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+        icon:
+            message.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
         label: message.isPinned ? '공지 해제' : '공지 등록',
         onTap: () {
           Navigator.pop(context);
@@ -354,7 +362,8 @@ class MessageReactionsBar extends StatelessWidget {
       child: Wrap(
         spacing: 4,
         runSpacing: 4,
-        children: reactions!.entries.where((e) => e.value.isNotEmpty).map((entry) {
+        children:
+            reactions!.entries.where((e) => e.value.isNotEmpty).map((entry) {
           final emoji = entry.key;
           final count = entry.value.length;
           final matchingReaction = MessageActionSheet.reactions.where(

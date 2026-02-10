@@ -80,7 +80,8 @@ void main() {
 
     group('afterReply', () {
       test('decrements token when tokens available', () {
-        final quota = createQuota(tokensAvailable: 3, tokensUsed: 0, fallbackAvailable: true);
+        final quota = createQuota(
+            tokensAvailable: 3, tokensUsed: 0, fallbackAvailable: true);
         final afterReply = quota.afterReply();
 
         expect(afterReply.tokensAvailable, equals(2));

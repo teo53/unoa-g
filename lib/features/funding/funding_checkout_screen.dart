@@ -40,9 +40,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
 
   // KRW 결제: DT 지갑이 아니라 원화 결제
   int get _totalAmount =>
-      widget.tier['price_krw'] as int? ??
-      widget.tier['price_dt'] as int? ??
-      0;
+      widget.tier['price_krw'] as int? ?? widget.tier['price_dt'] as int? ?? 0;
 
   @override
   void initState() {
@@ -630,7 +628,8 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: AppColors.primary, size: 20),
+              const Icon(Icons.check_circle,
+                  color: AppColors.primary, size: 20),
           ],
         ),
       ),

@@ -61,7 +61,9 @@ class ChatState {
       hasMoreMessages: hasMoreMessages ?? this.hasMoreMessages,
       onlineUsers: onlineUsers ?? this.onlineUsers,
       typingUsers: typingUsers ?? this.typingUsers,
-      replyingToMessage: clearReplyingTo ? null : (replyingToMessage ?? this.replyingToMessage),
+      replyingToMessage: clearReplyingTo
+          ? null
+          : (replyingToMessage ?? this.replyingToMessage),
     );
   }
 
@@ -84,7 +86,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   StreamSubscription? _quotaSubscription;
   StreamSubscription? _presenceSubscription;
 
-  ChatNotifier(this.channelId, this._ref) : super(ChatState(channelId: channelId)) {
+  ChatNotifier(this.channelId, this._ref)
+      : super(ChatState(channelId: channelId)) {
     _initialize();
   }
 
@@ -112,11 +115,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
 
       // Load channel info
-      final channelResponse = await client
-          .from('channels')
-          .select()
-          .eq('id', channelId)
-          .single();
+      final channelResponse =
+          await client.from('channels').select().eq('id', channelId).single();
       final channel = Channel.fromJson(channelResponse);
 
       // Load subscription
@@ -147,11 +147,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
 
       // Load initial messages
-      final messagesResponse = await client
-          .rpc('get_user_chat_thread', params: {
-            'p_channel_id': channelId,
-            'p_limit': 50,
-          });
+      final messagesResponse =
+          await client.rpc('get_user_chat_thread', params: {
+        'p_channel_id': channelId,
+        'p_limit': 50,
+      });
 
       final messages = _parseMessages(messagesResponse)
           .reversed
@@ -209,9 +209,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
       userId: 'demo_user_001',
       channelId: channelId,
       tier: demoThread.tier,
-      startedAt: DateTime.now().subtract(Duration(days: demoThread.daysSubscribed)),
+      startedAt:
+          DateTime.now().subtract(Duration(days: demoThread.daysSubscribed)),
       isActive: true,
-      createdAt: DateTime.now().subtract(Duration(days: demoThread.daysSubscribed)),
+      createdAt:
+          DateTime.now().subtract(Duration(days: demoThread.daysSubscribed)),
       updatedAt: DateTime.now(),
     );
 
@@ -258,8 +260,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
       senderId: thread.artistId,
       senderType: 'artist',
       deliveryScope: DeliveryScope.broadcast,
-      content: '$fanName님, 안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
-      templateContent: '{fanName}님, 안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
+      content:
+          '$fanName님, 안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
+      templateContent:
+          '{fanName}님, 안녕하세요! ${thread.artistName}입니다. 제 채팅방에 오신 것을 환영해요! 💕',
       createdAt: now.subtract(const Duration(days: 7)),
       senderName: thread.artistName,
       senderAvatarUrl: thread.avatarUrl,
@@ -406,8 +410,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
       senderId: thread.artistId,
       senderType: 'artist',
       deliveryScope: DeliveryScope.privateCard,
-      content: '$fanName님, 항상 응원해주셔서 정말 감사해요! 덕분에 매일 힘을 얻고 있답니다. 앞으로도 함께해주실 거죠? 사랑해요 💕',
-      templateContent: '항상 응원해주셔서 정말 감사해요! 덕분에 매일 힘을 얻고 있답니다. 앞으로도 함께해주실 거죠? 사랑해요 💕',
+      content:
+          '$fanName님, 항상 응원해주셔서 정말 감사해요! 덕분에 매일 힘을 얻고 있답니다. 앞으로도 함께해주실 거죠? 사랑해요 💕',
+      templateContent:
+          '항상 응원해주셔서 정말 감사해요! 덕분에 매일 힘을 얻고 있답니다. 앞으로도 함께해주실 거죠? 사랑해요 💕',
       messageType: BroadcastMessageType.text,
       mediaUrl: DemoConfig.cardTemplateUrl('card-hearts'),
       mediaMetadata: {
@@ -436,15 +442,15 @@ class ChatNotifier extends StateNotifier<ChatState> {
         .eq('channel_id', channelId)
         .order('created_at')
         .listen((data) {
-      // Filter and transform messages
-      // Note: In production, use the view or RPC for proper filtering
-      final newMessages = data
-          .map((json) => BroadcastMessage.fromJson(json))
-          .where((msg) => msg.deletedAt == null)
-          .toList();
+          // Filter and transform messages
+          // Note: In production, use the view or RPC for proper filtering
+          final newMessages = data
+              .map((json) => BroadcastMessage.fromJson(json))
+              .where((msg) => msg.deletedAt == null)
+              .toList();
 
-      state = state.copyWith(messages: newMessages);
-    });
+          state = state.copyWith(messages: newMessages);
+        });
   }
 
   void _subscribeToQuota() {
@@ -461,11 +467,12 @@ class ChatNotifier extends StateNotifier<ChatState> {
         .stream(primaryKey: ['id'])
         .eq('channel_id', channelId)
         .listen((data) {
-      final userQuota = data.where((row) => row['user_id'] == userId).toList();
-      if (userQuota.isNotEmpty) {
-        state = state.copyWith(quota: ReplyQuota.fromJson(userQuota.first));
-      }
-    });
+          final userQuota =
+              data.where((row) => row['user_id'] == userId).toList();
+          if (userQuota.isNotEmpty) {
+            state = state.copyWith(quota: ReplyQuota.fromJson(userQuota.first));
+          }
+        });
   }
 
   void _subscribeToPresence() {
@@ -548,9 +555,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         'p_before_id': oldestMessage.id,
       });
 
-      final olderMessages = _parseMessages(response)
-          .reversed
-          .toList();
+      final olderMessages = _parseMessages(response).reversed.toList();
 
       // Reset retry count on success
       _paginationRetryCount = 0;
@@ -562,7 +567,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
     } catch (e, stackTrace) {
       _paginationRetryCount++;
-      debugPrint('[ChatNotifier] Pagination error (attempt $_paginationRetryCount): $e');
+      debugPrint(
+          '[ChatNotifier] Pagination error (attempt $_paginationRetryCount): $e');
       if (kDebugMode) {
         debugPrint(stackTrace.toString());
       }
@@ -581,7 +587,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   List<BroadcastMessage> _parseMessages(dynamic response) {
     if (response == null) return [];
     if (response is! List) {
-      debugPrint('[ChatNotifier] Unexpected response type: ${response.runtimeType}');
+      debugPrint(
+          '[ChatNotifier] Unexpected response type: ${response.runtimeType}');
       return [];
     }
 
@@ -703,7 +710,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       '사랑해요~ 🥰',
     ];
 
-    final randomReply = demoReplies[DateTime.now().millisecond % demoReplies.length];
+    final randomReply =
+        demoReplies[DateTime.now().millisecond % demoReplies.length];
 
     final artistReply = BroadcastMessage(
       id: 'demo_msg_artist_${DateTime.now().millisecondsSinceEpoch}',
@@ -733,9 +741,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final userId = _ref.read(currentUserProvider)?.id ?? 'demo_user';
 
     final message = state.messages.cast<BroadcastMessage?>().firstWhere(
-      (m) => m?.id == messageId,
-      orElse: () => null,
-    );
+          (m) => m?.id == messageId,
+          orElse: () => null,
+        );
     if (message == null) return false;
 
     final reactions = Map<String, List<String>>.from(
@@ -751,9 +759,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
       reactions[emoji]!.add(userId);
     }
 
-    _updateMessageInState(messageId, (m) => m.copyWith(
-      reactions: reactions,
-    ));
+    _updateMessageInState(
+        messageId,
+        (m) => m.copyWith(
+              reactions: reactions,
+            ));
 
     return true;
   }
@@ -761,9 +771,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
   /// Pin/unpin a message as announcement
   Future<bool> togglePinMessage(String messageId) async {
     final message = state.messages.cast<BroadcastMessage?>().firstWhere(
-      (m) => m?.id == messageId,
-      orElse: () => null,
-    );
+          (m) => m?.id == messageId,
+          orElse: () => null,
+        );
     if (message == null) return false;
 
     final newPinned = !message.isPinned;
@@ -774,16 +784,19 @@ class ChatNotifier extends StateNotifier<ChatState> {
       if (pinnedCount >= 3) return false;
     }
 
-    _updateMessageInState(messageId, (m) => m.copyWith(
-      isPinned: newPinned,
-      pinnedAt: newPinned ? DateTime.now() : null,
-    ));
+    _updateMessageInState(
+        messageId,
+        (m) => m.copyWith(
+              isPinned: newPinned,
+              pinnedAt: newPinned ? DateTime.now() : null,
+            ));
 
     return true;
   }
 
   /// Helper to update a single message in state
-  void _updateMessageInState(String messageId, BroadcastMessage Function(BroadcastMessage) updater) {
+  void _updateMessageInState(
+      String messageId, BroadcastMessage Function(BroadcastMessage) updater) {
     state = state.copyWith(
       messages: state.messages.map((m) {
         if (m.id == messageId) return updater(m);
@@ -949,12 +962,16 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
 
       // Update the message
-      await client.from('messages').update({
-        'content': newContent,
-        'is_edited': true,
-        'last_edited_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', messageId).eq('sender_id', userId);
+      await client
+          .from('messages')
+          .update({
+            'content': newContent,
+            'is_edited': true,
+            'last_edited_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', messageId)
+          .eq('sender_id', userId);
 
       // Update local state
       final updatedMessages = state.messages.map((m) {
@@ -1023,10 +1040,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
 
       // Soft delete the message
-      await client.from('messages').update({
-        'deleted_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', messageId).eq('sender_id', userId);
+      await client
+          .from('messages')
+          .update({
+            'deleted_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', messageId)
+          .eq('sender_id', userId);
 
       // Update local state
       final updatedMessages = state.messages.map((m) {
@@ -1077,7 +1098,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
 }
 
 /// Chat provider family (one per channel)
-final chatProvider = StateNotifierProvider.family<ChatNotifier, ChatState, String>(
+final chatProvider =
+    StateNotifierProvider.family<ChatNotifier, ChatState, String>(
   (ref, channelId) => ChatNotifier(channelId, ref),
 );
 

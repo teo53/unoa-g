@@ -102,8 +102,8 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
       if (mounted) {
         setState(() {
           _templates = (response as List<dynamic>)
-              .map((t) => CelebrationTemplate.fromJson(
-                  t as Map<String, dynamic>))
+              .map((t) =>
+                  CelebrationTemplate.fromJson(t as Map<String, dynamic>))
               .toList();
           _isLoading = false;
         });
@@ -237,9 +237,8 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
                   '사용 가능한 템플릿이 없습니다',
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ),
@@ -288,9 +287,8 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
                       : '구독 ${widget.event.payload.dayCount}일 기념 메시지',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -323,10 +321,14 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
               decoration: BoxDecoration(
                 color: _isDirectWrite
                     ? AppColors.primary500.withValues(alpha: 0.08)
-                    : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
+                    : (isDark
+                        ? AppColors.surfaceAltDark
+                        : AppColors.surfaceAlt),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: _isDirectWrite ? AppColors.primary500 : Colors.transparent,
+                  color: _isDirectWrite
+                      ? AppColors.primary500
+                      : Colors.transparent,
                   width: 1.5,
                 ),
               ),
@@ -337,7 +339,9 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
                     size: 20,
                     color: _isDirectWrite
                         ? AppColors.primary500
-                        : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                        : (isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -361,7 +365,8 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
         }
 
         final template = _templates![index - 1];
-        final isSelected = !_isDirectWrite && _selectedTemplate?.id == template.id;
+        final isSelected =
+            !_isDirectWrite && _selectedTemplate?.id == template.id;
         final rendered = _renderTemplate(template.templateText);
 
         return GestureDetector(
@@ -375,8 +380,7 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
                   : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color:
-                    isSelected ? AppColors.primary500 : Colors.transparent,
+                color: isSelected ? AppColors.primary500 : Colors.transparent,
                 width: 1.5,
               ),
             ),
@@ -429,9 +433,8 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const Spacer(),
@@ -469,22 +472,19 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
               autofocus: _isDirectWrite,
               style: TextStyle(
                 fontSize: 14,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
-                hintText: _isDirectWrite
-                    ? '축하 메시지를 직접 작성하세요...'
-                    : '메시지를 수정하세요...',
+                hintText:
+                    _isDirectWrite ? '축하 메시지를 직접 작성하세요...' : '메시지를 수정하세요...',
                 hintStyle: TextStyle(
                   fontSize: 13,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             )
@@ -494,9 +494,8 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           // Modification status indicator
@@ -562,9 +561,7 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
                 )
               : const Icon(Icons.send_rounded, size: 18),
           label: Text(
-            _isSending
-                ? '전송 중...'
-                : '${widget.event.payload.nickname}님에게 보내기',
+            _isSending ? '전송 중...' : '${widget.event.payload.nickname}님에게 보내기',
           ),
         ),
       ),

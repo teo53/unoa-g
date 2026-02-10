@@ -166,7 +166,8 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
   }
 
   void updateEvent(CreatorEvent event) {
-    final updated = state.events.map((e) => e.id == event.id ? event : e).toList();
+    final updated =
+        state.events.map((e) => e.id == event.id ? event : e).toList();
     state = state.copyWith(events: updated, hasChanges: true);
   }
 
@@ -187,7 +188,8 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
   }
 
   void updateFancam(CreatorFancam fancam) {
-    final updated = state.fancams.map((f) => f.id == fancam.id ? fancam : f).toList();
+    final updated =
+        state.fancams.map((f) => f.id == fancam.id ? fancam : f).toList();
     state = state.copyWith(fancams: updated, hasChanges: true);
   }
 
@@ -216,7 +218,9 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
   }
 
   void updateHighlight(CreatorHighlight highlight) {
-    final updated = state.highlights.map((h) => h.id == highlight.id ? highlight : h).toList();
+    final updated = state.highlights
+        .map((h) => h.id == highlight.id ? highlight : h)
+        .toList();
     state = state.copyWith(highlights: updated, hasChanges: true);
   }
 
@@ -270,27 +274,31 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
 
         // 드롭 저장
         await supabase.from('creator_drops').upsert(
-          state.drops.map((d) => {
-            'id': d.id,
-            'creator_id': userId,
-            'name': d.name,
-            'price_krw': d.priceKrw,
-            'is_new': d.isNew,
-            'is_sold_out': d.isSoldOut,
-          }).toList(),
-        );
+              state.drops
+                  .map((d) => {
+                        'id': d.id,
+                        'creator_id': userId,
+                        'name': d.name,
+                        'price_krw': d.priceKrw,
+                        'is_new': d.isNew,
+                        'is_sold_out': d.isSoldOut,
+                      })
+                  .toList(),
+            );
 
         // 이벤트 저장
         await supabase.from('creator_events').upsert(
-          state.events.map((e) => {
-            'id': e.id,
-            'creator_id': userId,
-            'title': e.title,
-            'location': e.location,
-            'date': e.date.toIso8601String(),
-            'is_offline': e.isOffline,
-          }).toList(),
-        );
+              state.events
+                  .map((e) => {
+                        'id': e.id,
+                        'creator_id': userId,
+                        'title': e.title,
+                        'location': e.location,
+                        'date': e.date.toIso8601String(),
+                        'is_offline': e.isOffline,
+                      })
+                  .toList(),
+            );
       } catch (e) {
         debugPrint('Content save failed: $e');
         rethrow;

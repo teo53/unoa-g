@@ -152,9 +152,7 @@ class _StarReactionButtonState extends State<StarReactionButton>
                 return Transform.scale(
                   scale: widget.hasReacted ? _pulseAnimation.value : 1.0,
                   child: Icon(
-                    widget.hasReacted
-                        ? Icons.favorite
-                        : Icons.favorite_outline,
+                    widget.hasReacted ? Icons.favorite : Icons.favorite_outline,
                     color: widget.hasReacted
                         ? starColor
                         : (isDark

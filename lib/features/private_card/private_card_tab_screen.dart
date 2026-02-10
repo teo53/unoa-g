@@ -18,7 +18,8 @@ class PrivateCardTabScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -224,9 +225,8 @@ class PrivateCardTabScreen extends ConsumerWidget {
     bool isDark,
   ) {
     // Get demo fans who are favorites
-    final favoriteFans = DemoConfig.demoFans
-        .where((f) => f['isFavorite'] == true)
-        .toList();
+    final favoriteFans =
+        DemoConfig.demoFans.where((f) => f['isFavorite'] == true).toList();
 
     if (favoriteFans.isEmpty) return const SizedBox.shrink();
 
@@ -401,7 +401,8 @@ class _SentCardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final preview = card.templateContent ?? '';
-    final shortPreview = preview.length > 60 ? '${preview.substring(0, 60)}...' : preview;
+    final shortPreview =
+        preview.length > 60 ? '${preview.substring(0, 60)}...' : preview;
 
     return Container(
       padding: const EdgeInsets.all(16),

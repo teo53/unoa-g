@@ -58,16 +58,16 @@ class _SubscriberStatsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.people_rounded, color: AppColors.primary, size: 20),
+              const Icon(Icons.people_rounded,
+                  color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
               Text(
                 '구독자 현황',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -196,19 +196,33 @@ class _TierBreakdownCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          _TierRow(tier: 'VIP', count: 125, percentage: 10, color: Colors.amber, isDark: isDark),
+          _TierRow(
+              tier: 'VIP',
+              count: 125,
+              percentage: 10,
+              color: Colors.amber,
+              isDark: isDark),
           const SizedBox(height: 12),
-          _TierRow(tier: 'STANDARD', count: 625, percentage: 50, color: AppColors.primary, isDark: isDark),
+          _TierRow(
+              tier: 'STANDARD',
+              count: 625,
+              percentage: 50,
+              color: AppColors.primary,
+              isDark: isDark),
           const SizedBox(height: 12),
-          _TierRow(tier: 'BASIC', count: 500, percentage: 40, color: Colors.grey, isDark: isDark),
+          _TierRow(
+              tier: 'BASIC',
+              count: 500,
+              percentage: 40,
+              color: Colors.grey,
+              isDark: isDark),
         ],
       ),
     );
@@ -330,9 +344,8 @@ class _TopDonorsCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -449,9 +462,8 @@ class _DonorTile extends StatelessWidget {
                   '${donor.subscribeDays}일째 구독 중',
                   style: TextStyle(
                     fontSize: 11,
-                    color: isDark
-                        ? AppColors.textMutedDark
-                        : AppColors.textMuted,
+                    color:
+                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                 ),
               ],
@@ -492,16 +504,16 @@ class _EngagementCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.insights_rounded, color: AppColors.verified, size: 20),
+              const Icon(Icons.insights_rounded,
+                  color: AppColors.verified, size: 20),
               const SizedBox(width: 8),
               Text(
                 '참여도 지표',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -592,18 +604,15 @@ class _EngagementStat extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark
-                      ? AppColors.textMutedDark
-                      : AppColors.textMuted,
+                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
                 ),
               ),
             ],

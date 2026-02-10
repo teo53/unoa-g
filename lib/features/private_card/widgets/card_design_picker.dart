@@ -46,9 +46,9 @@ class CardDesignPicker extends ConsumerWidget {
                 isSelected: isSelected,
                 onTap: () {
                   ref.read(privateCardComposeProvider.notifier).selectTemplate(
-                    template.id,
-                    template.fullImageUrl,
-                  );
+                        template.id,
+                        template.fullImageUrl,
+                      );
                 },
               );
             },

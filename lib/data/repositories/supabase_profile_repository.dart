@@ -209,8 +209,8 @@ class CreatorSettings {
       roomType: json['room_type'] as String? ?? 'limited',
       fanDailyLimit: json['fan_daily_limit'] as int? ?? 3,
       paidReplyPriceDt: json['paid_reply_price_dt'] as int? ?? 10,
-      welcomeMessage: json['welcome_message'] as String? ??
-          '안녕하세요! 제 채널에 오신 것을 환영합니다.',
+      welcomeMessage:
+          json['welcome_message'] as String? ?? '안녕하세요! 제 채널에 오신 것을 환영합니다.',
       welcomeMediaUrl: json['welcome_media_url'] as String?,
       autoWelcomeEnabled: json['auto_welcome_enabled'] as bool? ?? true,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -323,8 +323,7 @@ class SupabaseProfileRepository {
         .from('user-content')
         .uploadBinary(path, imageBytes as dynamic);
 
-    final url =
-        _supabase.storage.from('user-content').getPublicUrl(path);
+    final url = _supabase.storage.from('user-content').getPublicUrl(path);
 
     await updateProfile(avatarUrl: url);
 
@@ -372,12 +371,16 @@ class SupabaseProfileRepository {
     }).eq('id', _currentUserId);
 
     // Create creator profile
-    final response = await _supabase.from('creator_profiles').insert({
-      'user_id': _currentUserId,
-      'stage_name': stageName,
-      'categories': categories,
-      'social_links': socialLinks,
-    }).select().single();
+    final response = await _supabase
+        .from('creator_profiles')
+        .insert({
+          'user_id': _currentUserId,
+          'stage_name': stageName,
+          'categories': categories,
+          'social_links': socialLinks,
+        })
+        .select()
+        .single();
 
     final profile = CreatorProfile.fromJson(response);
 
@@ -548,16 +551,13 @@ class SupabaseProfileRepository {
 
   /// Get all managers for current creator
   Future<List<Map<String, dynamic>>> getManagers() async {
-    final response = await _supabase
-        .from('creator_managers')
-        .select('''
+    final response = await _supabase.from('creator_managers').select('''
           *,
           user_profiles!manager_id (
             display_name,
             avatar_url
           )
-        ''')
-        .eq('creator_id', _currentUserId);
+        ''').eq('creator_id', _currentUserId);
 
     return List<Map<String, dynamic>>.from(response);
   }

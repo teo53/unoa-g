@@ -28,7 +28,8 @@ void main() {
       expect(true, true);
     });
 
-    test('fan should not be able to send message when quota exhausted', () async {
+    test('fan should not be able to send message when quota exhausted',
+        () async {
       // Arrange
       // - Fan has 0 remaining replies
 

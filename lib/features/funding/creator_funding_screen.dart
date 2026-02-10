@@ -566,7 +566,8 @@ class _CreatorCampaignList extends ConsumerWidget {
             ),
             if (campaign.status == CampaignStatus.draft)
               ListTile(
-                leading: const Icon(Icons.publish_outlined, color: AppColors.primary),
+                leading: const Icon(Icons.publish_outlined,
+                    color: AppColors.primary),
                 title: const Text(
                   '펀딩 시작하기',
                   style: TextStyle(color: AppColors.primary),
@@ -881,8 +882,9 @@ class _CreatorCampaignCard extends StatelessWidget {
                       '펀딩 정보를 입력해주세요',
                       style: TextStyle(
                         fontSize: 13,
-                        color:
-                            isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                     ),
                   ],
@@ -1229,8 +1231,7 @@ class _ExploreCampaignCard extends StatelessWidget {
                     ? Image.network(
                         campaign.coverImageUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            _buildPlaceholder(isDark),
+                        errorBuilder: (_, __, ___) => _buildPlaceholder(isDark),
                       )
                     : _buildPlaceholder(isDark),
               ),
@@ -1260,8 +1261,9 @@ class _ExploreCampaignCard extends StatelessWidget {
                       campaign.subtitle!,
                       style: TextStyle(
                         fontSize: 13,
-                        color:
-                            isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

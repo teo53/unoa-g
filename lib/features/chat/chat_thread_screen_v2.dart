@@ -121,8 +121,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final chatState = ref.watch(chatProvider(widget.channelId));
     final isCreator = ref.watch(isCreatorProvider);
-    final accentColor = ref.watch(
-        artistThemeColorByChannelProvider(widget.channelId));
+    final accentColor =
+        ref.watch(artistThemeColorByChannelProvider(widget.channelId));
 
     // Start fade animation when data is loaded
     if (!chatState.isLoading && _fadeController.value == 0) {
@@ -160,7 +160,9 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () {
-                  ref.read(chatProvider(widget.channelId).notifier).loadInitialData();
+                  ref
+                      .read(chatProvider(widget.channelId).notifier)
+                      .loadInitialData();
                 },
                 child: const Text('다시 시도'),
               ),
@@ -197,7 +199,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
 
             // Messages list
             Expanded(
-              child: _buildMessagesList(context, chatState, isDark, accentColor: accentColor),
+              child: _buildMessagesList(context, chatState, isDark,
+                  accentColor: accentColor),
             ),
 
             // Input bar
@@ -246,97 +249,104 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
           // Artist Info (tappable → artist profile)
           Expanded(
             child: GestureDetector(
-              onTap: () => context.push('/artist/${channel?.artistId ?? widget.channelId}'),
+              onTap: () => context
+                  .push('/artist/${channel?.artistId ?? widget.channelId}'),
               behavior: HitTestBehavior.opaque,
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Stack(
-                  children: [
-                    ClipOval(
-                      child: channel?.avatarUrl != null
-                          ? CachedNetworkImage(
-                              imageUrl: channel!.avatarUrl!,
-                              width: 32,
-                              height: 32,
-                              fit: BoxFit.cover,
-                              placeholder: (_, __) => Container(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Stack(
+                    children: [
+                      ClipOval(
+                        child: channel?.avatarUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: channel!.avatarUrl!,
                                 width: 32,
                                 height: 32,
-                                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                                fit: BoxFit.cover,
+                                placeholder: (_, __) => Container(
+                                  width: 32,
+                                  height: 32,
+                                  color: isDark
+                                      ? Colors.grey[700]
+                                      : Colors.grey[300],
+                                ),
+                              )
+                            : Container(
+                                width: 32,
+                                height: 32,
+                                color: isDark
+                                    ? Colors.grey[700]
+                                    : Colors.grey[300],
+                                child: const Icon(Icons.person, size: 20),
                               ),
-                            )
-                          : Container(
-                              width: 32,
-                              height: 32,
-                              color: isDark ? Colors.grey[700] : Colors.grey[300],
-                              child: const Icon(Icons.person, size: 20),
-                            ),
-                    ),
-                    // Online indicator
-                    if (chatState.onlineUsers.containsKey(channel?.artistId))
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: AppColors.online,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isDark
-                                  ? AppColors.backgroundDark
-                                  : Colors.white,
-                              width: 2,
+                      ),
+                      // Online indicator
+                      if (chatState.onlineUsers.containsKey(channel?.artistId))
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: AppColors.online,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isDark
+                                    ? AppColors.backgroundDark
+                                    : Colors.white,
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  channel?.name ?? '채널',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: isDark
-                        ? AppColors.textMainDark
-                        : AppColors.textMainLight,
+                    ],
                   ),
-                ),
-                const SizedBox(width: 4),
-                // Subscription tier badge
-                if (chatState.subscription != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: _getTierColors(chatState.subscription!.tier),
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      chatState.subscription!.tier,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF92400E),
-                      ),
+                  const SizedBox(width: 8),
+                  Text(
+                    channel?.name ?? '채널',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
                     ),
                   ),
-              ],
-            ),
+                  const SizedBox(width: 4),
+                  // Subscription tier badge
+                  if (chatState.subscription != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: _getTierColors(chatState.subscription!.tier),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        chatState.subscription!.tier,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF92400E),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
 
           // Search button
           IconButton(
-            onPressed: () => setState(() { _isSearchActive = true; }),
+            onPressed: () => setState(() {
+              _isSearchActive = true;
+            }),
             icon: Icon(
               Icons.search,
               size: 22,
@@ -435,7 +445,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
         final isOwnMessage = message.senderId == currentUserId;
 
         // Private card messages get special bubble
-        final isPrivateCard = message.deliveryScope == DeliveryScope.privateCard;
+        final isPrivateCard =
+            message.deliveryScope == DeliveryScope.privateCard;
 
         return Column(
           children: [
@@ -559,7 +570,11 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       if (query.isNotEmpty) {
         final messages = ref.read(chatProvider(widget.channelId)).messages;
         for (int i = 0; i < messages.length; i++) {
-          if (messages[i].content?.toLowerCase().contains(query.toLowerCase()) ?? false) {
+          if (messages[i]
+                  .content
+                  ?.toLowerCase()
+                  .contains(query.toLowerCase()) ??
+              false) {
             _searchMatchIndices.add(i);
           }
         }
@@ -637,7 +652,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       message: message,
       maxCharacters: 300, // Based on subscription, can be dynamic
       onEdit: (newContent) async {
-        await ref.read(chatProvider(widget.channelId).notifier)
+        await ref
+            .read(chatProvider(widget.channelId).notifier)
             .editMessage(message.id, newContent);
       },
     );
@@ -646,8 +662,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
   /// Handle delete message
   void _handleDeleteMessage(BroadcastMessage message) {
     // The delete confirmation is already shown in MessageActionsSheet
-    ref.read(chatProvider(widget.channelId).notifier)
-        .deleteMessage(message.id);
+    ref.read(chatProvider(widget.channelId).notifier).deleteMessage(message.id);
   }
 
   /// Handle report message
@@ -818,7 +833,8 @@ class MessageBubbleV2 extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        mainAxisAlignment: isOwnMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isOwnMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isOwnMessage) ...[
             if (showAvatar)
@@ -864,8 +880,7 @@ class MessageBubbleV2 extends StatelessWidget {
               ],
             ),
           ),
-          if (isOwnMessage)
-            const SizedBox(width: 60),
+          if (isOwnMessage) const SizedBox(width: 60),
         ],
       ),
     );
@@ -1204,13 +1219,15 @@ class MessageBubbleV2 extends StatelessWidget {
                     bottom: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        _formatDuration(message.mediaMetadata!['duration'] as int),
+                        _formatDuration(
+                            message.mediaMetadata!['duration'] as int),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -1285,13 +1302,14 @@ class _ReplyQuoteBubble extends StatelessWidget {
 
     final previewText = repliedTo.deletedAt != null
         ? '삭제된 메시지'
-        : repliedTo.content ?? (repliedTo.messageType == BroadcastMessageType.image
-            ? '📷 사진'
-            : repliedTo.messageType == BroadcastMessageType.video
-                ? '🎬 동영상'
-                : repliedTo.messageType == BroadcastMessageType.voice
-                    ? '🎤 음성 메시지'
-                    : '메시지');
+        : repliedTo.content ??
+            (repliedTo.messageType == BroadcastMessageType.image
+                ? '📷 사진'
+                : repliedTo.messageType == BroadcastMessageType.video
+                    ? '🎬 동영상'
+                    : repliedTo.messageType == BroadcastMessageType.voice
+                        ? '🎤 음성 메시지'
+                        : '메시지');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1360,7 +1378,8 @@ class _ChatSkeleton extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(8, 8, 16, 12),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+            color:
+                isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
           ),
           child: Row(
             children: [
@@ -1440,7 +1459,8 @@ class _ChatSkeleton extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: Row(
             children: [
-              _SkeletonBox(width: 24, height: 24, isCircle: true, isDark: isDark),
+              _SkeletonBox(
+                  width: 24, height: 24, isCircle: true, isDark: isDark),
               const SizedBox(width: 12),
               Expanded(
                 child: _SkeletonBox(
@@ -1450,7 +1470,8 @@ class _ChatSkeleton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              _SkeletonBox(width: 40, height: 40, isCircle: true, isDark: isDark),
+              _SkeletonBox(
+                  width: 40, height: 40, isCircle: true, isDark: isDark),
             ],
           ),
         ),

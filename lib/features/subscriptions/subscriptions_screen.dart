@@ -251,9 +251,7 @@ class SubscriptionsScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.surfaceAltDark
-                    : AppColors.surfaceAlt,
+                color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -292,9 +290,7 @@ class SubscriptionsScreen extends StatelessWidget {
               '결제일 최소 24시간 전에 해제해야 다음 결제가 방지됩니다.',
               style: TextStyle(
                 fontSize: 12,
-                color: isDark
-                    ? AppColors.textMutedDark
-                    : AppColors.textMuted,
+                color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
               ),
             ),
           ],
@@ -378,8 +374,7 @@ class _SubscriptionCard extends StatelessWidget {
         children: [
           InkWell(
             onTap: onTap,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -389,13 +384,11 @@ class _SubscriptionCard extends StatelessWidget {
                         ? Container(
                             width: 56,
                             height: 56,
-                            color:
-                                isDark ? Colors.grey[800] : Colors.grey[200],
+                            color: isDark ? Colors.grey[800] : Colors.grey[200],
                             child: Icon(
                               Icons.person,
-                              color: isDark
-                                  ? Colors.grey[600]
-                                  : Colors.grey[400],
+                              color:
+                                  isDark ? Colors.grey[600] : Colors.grey[400],
                             ),
                           )
                         : CachedNetworkImage(

@@ -5,7 +5,8 @@ class CelebrationEvent {
   final String id;
   final String channelId;
   final String fanCelebrationId;
-  final String eventType; // birthday, milestone_50, milestone_100, milestone_365
+  final String
+      eventType; // birthday, milestone_50, milestone_100, milestone_365
   final DateTime dueDate;
   final String status; // pending, sent, skipped, expired
   final CelebrationPayload payload;
@@ -56,15 +57,15 @@ class CelebrationEvent {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'channel_id': channelId,
-    'fan_celebration_id': fanCelebrationId,
-    'event_type': eventType,
-    'due_date': dueDate.toIso8601String().split('T').first,
-    'status': status,
-    'payload': payload.toJson(),
-    'message_id': messageId,
-  };
+        'id': id,
+        'channel_id': channelId,
+        'fan_celebration_id': fanCelebrationId,
+        'event_type': eventType,
+        'due_date': dueDate.toIso8601String().split('T').first,
+        'status': status,
+        'payload': payload.toJson(),
+        'message_id': messageId,
+      };
 
   /// Whether this event is a birthday.
   bool get isBirthday => eventType == 'birthday';
@@ -129,9 +130,9 @@ class CelebrationPayload {
   }
 
   Map<String, dynamic> toJson() => {
-    'nickname': nickname,
-    if (userId != null) 'user_id': userId,
-    if (dayCount != null) 'day_count': dayCount,
-    'tier': tier,
-  };
+        'nickname': nickname,
+        if (userId != null) 'user_id': userId,
+        if (dayCount != null) 'day_count': dayCount,
+        'tier': tier,
+      };
 }

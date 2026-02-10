@@ -43,7 +43,9 @@ class SectionHeader extends StatelessWidget {
           else if (trailing != null)
             GestureDetector(
               onTap: onTrailingTap,
-              behavior: hasAction ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
+              behavior: hasAction
+                  ? HitTestBehavior.opaque
+                  : HitTestBehavior.deferToChild,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                 child: Text(

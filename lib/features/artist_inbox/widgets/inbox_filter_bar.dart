@@ -94,9 +94,7 @@ class _FilterChip extends StatelessWidget {
               Icon(
                 Icons.diamond,
                 size: 14,
-                color: isSelected
-                    ? Colors.white
-                    : AppColors.primary500,
+                color: isSelected ? Colors.white : AppColors.primary500,
               ),
               const SizedBox(width: 4),
             ],
@@ -107,7 +105,9 @@ class _FilterChip extends StatelessWidget {
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected
                     ? Colors.white
-                    : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+                    : (isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight),
               ),
             ),
           ],

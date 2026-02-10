@@ -23,7 +23,8 @@ class RealtimeConnecting extends RealtimeState {
 /// Successfully connected to realtime channels
 class RealtimeConnected extends RealtimeState {
   final Set<String> subscribedChannels;
-  final Map<String, Map<String, bool>> onlineUsers; // channelId -> userId -> isOnline
+  final Map<String, Map<String, bool>>
+      onlineUsers; // channelId -> userId -> isOnline
   final Map<String, Set<String>> typingUsers; // channelId -> Set<userId>
 
   const RealtimeConnected({
@@ -234,7 +235,8 @@ class RealtimeNotifier extends StateNotifier<RealtimeState> {
   }
 
   /// Update online users for a channel
-  void _updateOnlineUsers(String channelId, Map<String, UserPresence> presences) {
+  void _updateOnlineUsers(
+      String channelId, Map<String, UserPresence> presences) {
     if (state is! RealtimeConnected) return;
 
     final current = state as RealtimeConnected;
@@ -306,7 +308,8 @@ final channelTypingUsersProvider = Provider.family<Set<String>, String>(
 );
 
 /// Check if a specific user is online in a channel
-final isUserOnlineProvider = Provider.family<bool, ({String channelId, String userId})>(
+final isUserOnlineProvider =
+    Provider.family<bool, ({String channelId, String userId})>(
   (ref, params) {
     final onlineUsers = ref.watch(channelOnlineUsersProvider(params.channelId));
     return onlineUsers[params.userId] ?? false;

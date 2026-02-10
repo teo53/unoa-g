@@ -19,19 +19,18 @@ class StatusTimeline extends StatelessWidget {
     String? completedAt,
   }) {
     final statusIndex = {
-      'requested': 0,
-      'processing': 1,
-      'completed': 2,
-    }[currentStatus] ?? 0;
+          'requested': 0,
+          'processing': 1,
+          'completed': 2,
+        }[currentStatus] ??
+        0;
 
     return StatusTimeline(
       steps: [
         StatusTimelineStep(
           title: '환불 요청',
           subtitle: requestedAt,
-          status: statusIndex >= 0
-              ? StepStatus.completed
-              : StepStatus.pending,
+          status: statusIndex >= 0 ? StepStatus.completed : StepStatus.pending,
         ),
         StatusTimelineStep(
           title: '처리 중',
@@ -42,10 +41,9 @@ class StatusTimeline extends StatelessWidget {
         ),
         StatusTimelineStep(
           title: '환불 완료',
-          subtitle: completedAt ?? (statusIndex >= 2 ? '영업일 기준 3-5일 이내 입금' : null),
-          status: statusIndex >= 2
-              ? StepStatus.completed
-              : StepStatus.pending,
+          subtitle:
+              completedAt ?? (statusIndex >= 2 ? '영업일 기준 3-5일 이내 입금' : null),
+          status: statusIndex >= 2 ? StepStatus.completed : StepStatus.pending,
         ),
       ],
     );
@@ -71,9 +69,7 @@ class StatusTimeline extends StatelessWidget {
         StatusTimelineStep(
           title: '정산 산출',
           subtitle: calculatedAt,
-          status: statusIndex >= 0
-              ? StepStatus.completed
-              : StepStatus.pending,
+          status: statusIndex >= 0 ? StepStatus.completed : StepStatus.pending,
         ),
         StatusTimelineStep(
           title: '승인 대기',
@@ -92,9 +88,7 @@ class StatusTimeline extends StatelessWidget {
         StatusTimelineStep(
           title: '정산 완료',
           subtitle: paidAt,
-          status: statusIndex >= 3
-              ? StepStatus.completed
-              : StepStatus.pending,
+          status: statusIndex >= 3 ? StepStatus.completed : StepStatus.pending,
         ),
       ],
     );
@@ -131,9 +125,7 @@ class StatusTimeline extends StatelessWidget {
           title: isResolved
               ? (currentStatus == 'won' ? '승소 (DT 복원)' : '패소 (DT 차감)')
               : '결과 대기',
-          status: isResolved
-              ? StepStatus.completed
-              : StepStatus.pending,
+          status: isResolved ? StepStatus.completed : StepStatus.pending,
           isSuccess: currentStatus == 'won',
           isError: currentStatus == 'lost',
         ),
@@ -164,7 +156,9 @@ class StatusTimeline extends StatelessWidget {
                     height: 32,
                     color: step.status == StepStatus.completed
                         ? (step.isError ? AppColors.danger : AppColors.success)
-                        : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                        : (isDark
+                            ? AppColors.borderDark
+                            : AppColors.borderLight),
                   ),
               ],
             ),

@@ -16,18 +16,21 @@ class FundingDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<FundingDetailScreen> createState() => _FundingDetailScreenState();
+  ConsumerState<FundingDetailScreen> createState() =>
+      _FundingDetailScreenState();
 }
 
 class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final campaign = ref.watch(fundingProvider.notifier).getCampaignById(widget.campaignId);
+    final campaign =
+        ref.watch(fundingProvider.notifier).getCampaignById(widget.campaignId);
 
     if (campaign == null) {
       return Scaffold(
-        backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
+        backgroundColor:
+            isDark ? AppColors.backgroundDark : AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -68,7 +71,9 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
       );
     }
 
-    final tiers = ref.read(fundingProvider.notifier).getTiersForCampaign(widget.campaignId);
+    final tiers = ref
+        .read(fundingProvider.notifier)
+        .getTiersForCampaign(widget.campaignId);
     final fundingPercent = campaign.fundingPercent;
     final daysLeft = campaign.daysLeft;
     final isEnded = campaign.isEnded;
@@ -93,7 +98,9 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                       fit: BoxFit.cover,
                     )
                   : Container(
-                      color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      color: isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt,
                     ),
             ),
           ),
@@ -154,7 +161,9 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                           campaign.subtitle!,
                           style: TextStyle(
                             fontSize: 15,
-                            color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -162,7 +171,8 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                       const SizedBox(height: 24),
 
                       // Stats card
-                      _buildStatsCard(isDark, campaign, fundingPercent, daysLeft),
+                      _buildStatsCard(
+                          isDark, campaign, fundingPercent, daysLeft),
 
                       const SizedBox(height: 24),
 
@@ -246,7 +256,9 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                           daysLeft > 0 ? 'D-$daysLeft' : '마감',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -313,7 +325,8 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: (fundingPercent / 100).clamp(0.0, 1.0),
-              backgroundColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+              backgroundColor:
+                  isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
               valueColor: AlwaysStoppedAnimation<Color>(
                 fundingPercent >= 100 ? AppColors.success : AppColors.primary,
               ),
@@ -382,7 +395,8 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: valueColor ?? (isDark ? AppColors.textDark : AppColors.text),
+              color:
+                  valueColor ?? (isDark ? AppColors.textDark : AppColors.text),
             ),
           ),
         ],
@@ -485,7 +499,9 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                     Icon(
                       Icons.inventory_2_outlined,
                       size: 16,
-                      color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                      color: isDark
+                          ? AppColors.iconMutedDark
+                          : AppColors.iconMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -496,23 +512,27 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                         fontSize: 13,
                         color: tier.isSoldOut
                             ? AppColors.danger
-                            : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
+                            : (isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMuted),
                       ),
                     ),
                     const SizedBox(width: 16),
                   ],
-
                   Icon(
                     Icons.people_outline_rounded,
                     size: 16,
-                    color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                    color:
+                        isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${tier.pledgeCount}명 후원',
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                      color: isDark
+                          ? AppColors.textMutedDark
+                          : AppColors.textMuted,
                     ),
                   ),
                 ],

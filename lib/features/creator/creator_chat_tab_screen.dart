@@ -198,7 +198,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         isFromCreator: true,
         timestamp: DateTime.now(),
         readCount: isReply && _isReplyDirect ? 1 : 0,
-        totalSubscribers: isReply && _isReplyDirect ? 1 : DemoConfig.demoSubscriberCount,
+        totalSubscribers:
+            isReply && _isReplyDirect ? 1 : DemoConfig.demoSubscriberCount,
         isDirectReplyMessage: isReply ? _isReplyDirect : false,
         replyToFanId: _replyingTo?.fanId,
         replyToFanName: _replyingTo?.fanName,
@@ -321,9 +322,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                       : message.content,
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -474,9 +474,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               '편집된 메시지는 "편집됨"으로 표시됩니다',
               style: TextStyle(
                 fontSize: 12,
-                color: isDark
-                    ? AppColors.textSubDark
-                    : AppColors.textSubLight,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
               ),
             ),
           ],
@@ -516,7 +514,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, _GroupChatMessage message) {
+  void _showDeleteConfirmation(
+      BuildContext context, _GroupChatMessage message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -570,7 +569,10 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
       ),
       builder: (context) => Padding(
         padding: EdgeInsets.fromLTRB(
-          20, 20, 20, MediaQuery.of(context).padding.bottom + 20,
+          20,
+          20,
+          20,
+          MediaQuery.of(context).padding.bottom + 20,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -578,7 +580,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
             // 헤더
             Row(
               children: [
-                const Icon(Icons.reply_rounded, color: AppColors.primary, size: 24),
+                const Icon(Icons.reply_rounded,
+                    color: AppColors.primary, size: 24),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -586,13 +589,16 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
                     ),
                   ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                  icon: Icon(Icons.close,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600]),
                 ),
               ],
             ),
@@ -603,7 +609,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? Colors.grey[800]!.withValues(alpha: 0.5) : Colors.grey[100],
+                color: isDark
+                    ? Colors.grey[800]!.withValues(alpha: 0.5)
+                    : Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
@@ -612,16 +620,22 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               child: Row(
                 children: [
                   Container(
-                    width: 24, height: 24,
+                    width: 24,
+                    height: 24,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isDark ? Colors.grey[700] : Colors.grey[300],
                     ),
                     child: Center(
                       child: Text(
-                        originalMessage.fanName.isNotEmpty ? originalMessage.fanName[0] : '?',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                        originalMessage.fanName.isNotEmpty
+                            ? originalMessage.fanName[0]
+                            : '?',
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                isDark ? Colors.grey[400] : Colors.grey[600]),
                       ),
                     ),
                   ),
@@ -633,17 +647,25 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                         Row(
                           children: [
                             Text(originalMessage.fanName,
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.textSubDark : AppColors.textSubLight)),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark
+                                        ? AppColors.textSubDark
+                                        : AppColors.textSubLight)),
                             const SizedBox(width: 6),
                             _TierBadge(tier: originalMessage.fanTier),
                           ],
                         ),
                         const SizedBox(height: 4),
                         Text(originalMessage.content,
-                          style: TextStyle(fontSize: 13,
-                            color: isDark ? AppColors.textMainDark : AppColors.textMainLight),
-                          maxLines: 2, overflow: TextOverflow.ellipsis),
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: isDark
+                                    ? AppColors.textMainDark
+                                    : AppColors.textMainLight),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
                       ],
                     ),
                   ),
@@ -671,7 +693,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                       backgroundColor: Colors.purple,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ),
@@ -692,7 +715,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ),
@@ -715,7 +739,10 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
       _currentSearchMatchIndex = -1;
       if (query.isNotEmpty) {
         for (int i = 0; i < _messages.length; i++) {
-          if (_messages[i].content.toLowerCase().contains(query.toLowerCase())) {
+          if (_messages[i]
+              .content
+              .toLowerCase()
+              .contains(query.toLowerCase())) {
             _searchMatchIndices.add(i);
           }
         }
@@ -763,7 +790,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   // =========================================================================
 
   void _handleMediaAction(String actionName) {
-    setState(() { _isMediaMenuOpen = false; });
+    setState(() {
+      _isMediaMenuOpen = false;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$actionName 기능은 백엔드 연동 후 활성화됩니다'),
@@ -772,7 +801,6 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -825,16 +853,21 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 const Spacer(),
                 // 검색 버튼
                 IconButton(
-                  onPressed: () => setState(() { _isSearchActive = true; }),
+                  onPressed: () => setState(() {
+                    _isSearchActive = true;
+                  }),
                   icon: Icon(
                     Icons.search,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                   tooltip: '메시지 검색',
                 ),
@@ -846,7 +879,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ),
                   icon: Icon(
                     Icons.perm_media_outlined,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                   tooltip: '미디어 모아보기',
                 ),
@@ -857,7 +891,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     children: [
                       Icon(
                         Icons.notifications_outlined,
-                        color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
                       ),
                       Positioned(
                         right: 0,
@@ -948,7 +984,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(top: 2),
-                    child: Icon(Icons.campaign_rounded, size: 18, color: AppColors.primary),
+                    child: Icon(Icons.campaign_rounded,
+                        size: 18, color: AppColors.primary),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -987,7 +1024,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     onTap: () => setState(() => _isBannerDismissed = true),
                     child: const Padding(
                       padding: EdgeInsets.all(4),
-                      child: Icon(Icons.close, size: 16, color: AppColors.primary),
+                      child:
+                          Icon(Icons.close, size: 16, color: AppColors.primary),
                     ),
                   ),
                 ],
@@ -1104,8 +1142,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           // 답장 미리보기 바
-          if (_replyingTo != null)
-            _buildReplyPreviewBar(isDark),
+          if (_replyingTo != null) _buildReplyPreviewBar(isDark),
 
           // 미디어 메뉴 (확장 시)
           if (_isMediaMenuOpen)
@@ -1165,7 +1202,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                                 isFromCreator: true,
                                 timestamp: DateTime.now(),
                                 readCount: 0,
-                                totalSubscribers: DemoConfig.demoSubscriberCount,
+                                totalSubscribers:
+                                    DemoConfig.demoSubscriberCount,
                                 messageType: 'poll',
                                 pollData: draft,
                               ));
@@ -1173,7 +1211,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                             _scrollToBottom();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('투표가 전송되었습니다: ${draft.question}')),
+                                SnackBar(
+                                    content:
+                                        Text('투표가 전송되었습니다: ${draft.question}')),
                               );
                             }
                             return;
@@ -1186,9 +1226,13 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                               params: {
                                 'p_channel_id': 'channel_1',
                                 'p_question': draft.question,
-                                'p_options': draft.options.map((o) => o.toJson()).toList(),
+                                'p_options': draft.options
+                                    .map((o) => o.toJson())
+                                    .toList(),
                                 'p_comment': comment,
-                                'p_draft_id': draft.id.startsWith('draft_') ? null : draft.id,
+                                'p_draft_id': draft.id.startsWith('draft_')
+                                    ? null
+                                    : draft.id,
                               },
                             );
                             if (context.mounted) {
@@ -1219,7 +1263,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
             children: [
               // + 버튼 (미디어 메뉴 토글)
               IconButton(
-                onPressed: () => setState(() { _isMediaMenuOpen = !_isMediaMenuOpen; }),
+                onPressed: () => setState(() {
+                  _isMediaMenuOpen = !_isMediaMenuOpen;
+                }),
                 icon: AnimatedRotation(
                   turns: _isMediaMenuOpen ? 0.125 : 0,
                   duration: const Duration(milliseconds: 200),
@@ -1227,7 +1273,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     Icons.add,
                     color: _isMediaMenuOpen
                         ? AppColors.primary
-                        : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                        : (isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight),
                     size: 26,
                   ),
                 ),
@@ -1342,7 +1390,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
             ),
           ),
           GestureDetector(
-            onTap: () => setState(() { _replyingTo = null; }),
+            onTap: () => setState(() {
+              _replyingTo = null;
+            }),
             child: Padding(
               padding: const EdgeInsets.all(4),
               child: Icon(
@@ -1577,166 +1627,168 @@ class _GroupChatBubble extends StatelessWidget {
           children: [
             // Avatar
             Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isDark ? Colors.grey[800] : Colors.grey[200],
-              border: Border.all(
-                color: _getTierColor(message.fanTier).withValues(alpha: 0.5),
-                width: 2,
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                border: Border.all(
+                  color: _getTierColor(message.fanTier).withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
-            ),
-            child: Center(
-              child: Text(
-                message.fanName.isNotEmpty ? message.fanName[0] : '?',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+              child: Center(
+                child: Text(
+                  message.fanName.isNotEmpty ? message.fanName[0] : '?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 10),
+            const SizedBox(width: 10),
 
-          // Bubble content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Fan name + tier + donation badge
-                Row(
-                  children: [
-                    Text(
-                      message.fanName,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? AppColors.textSubDark
-                            : AppColors.textSubLight,
+            // Bubble content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Fan name + tier + donation badge
+                  Row(
+                    children: [
+                      Text(
+                        message.fanName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    _TierBadge(tier: message.fanTier),
-                    if (message.donationAmount != null) ...[
                       const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.pink.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.diamond_rounded,
-                              size: 10,
-                              color: Colors.pink,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              '${message.donationAmount}',
-                              style: const TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
+                      _TierBadge(tier: message.fanTier),
+                      if (message.donationAmount != null) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.pink.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.diamond_rounded,
+                                size: 10,
                                 color: Colors.pink,
                               ),
+                              const SizedBox(width: 2),
+                              Text(
+                                '${message.donationAmount}',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.pink,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Message bubble with heart button
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Bubble
+                      Flexible(
+                        child: Container(
+                          constraints: const BoxConstraints(maxWidth: 240),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.surfaceDark
+                                : AppColors.surfaceLight,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(4),
+                              topRight: Radius.circular(18),
+                              bottomLeft: Radius.circular(18),
+                              bottomRight: Radius.circular(18),
                             ),
-                          ],
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.borderDark
+                                  : AppColors.borderLight,
+                            ),
+                          ),
+                          child: Text(
+                            message.content,
+                            style: TextStyle(
+                              fontSize: 15,
+                              height: 1.4,
+                              color: isDark
+                                  ? AppColors.textMainDark
+                                  : AppColors.textMainLight,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+
+                      // Heart button
+                      GestureDetector(
+                        onTap: onHeartTap,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: isHearted
+                                ? AppColors.primary.withValues(alpha: 0.1)
+                                : Colors.transparent,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isHearted ? Icons.favorite : Icons.favorite_border,
+                            size: 16,
+                            color: isHearted
+                                ? AppColors.primary
+                                : (isDark
+                                    ? Colors.grey[600]
+                                    : Colors.grey[400]),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+
+                      // Time
+                      Text(
+                        _formatTime(message.timestamp),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isDark
+                              ? AppColors.textMutedDark
+                              : AppColors.textMuted,
                         ),
                       ),
                     ],
-                  ],
-                ),
-                const SizedBox(height: 4),
-
-                // Message bubble with heart button
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // Bubble
-                    Flexible(
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 240),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.surfaceDark
-                              : AppColors.surfaceLight,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(4),
-                            topRight: Radius.circular(18),
-                            bottomLeft: Radius.circular(18),
-                            bottomRight: Radius.circular(18),
-                          ),
-                          border: Border.all(
-                            color: isDark
-                                ? AppColors.borderDark
-                                : AppColors.borderLight,
-                          ),
-                        ),
-                        child: Text(
-                          message.content,
-                          style: TextStyle(
-                            fontSize: 15,
-                            height: 1.4,
-                            color: isDark
-                                ? AppColors.textMainDark
-                                : AppColors.textMainLight,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-
-                    // Heart button
-                    GestureDetector(
-                      onTap: onHeartTap,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: isHearted
-                              ? AppColors.primary.withValues(alpha: 0.1)
-                              : Colors.transparent,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isHearted ? Icons.favorite : Icons.favorite_border,
-                          size: 16,
-                          color: isHearted
-                              ? AppColors.primary
-                              : (isDark ? Colors.grey[600] : Colors.grey[400]),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-
-                    // Time
-                    Text(
-                      _formatTime(message.timestamp),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isDark
-                            ? AppColors.textMutedDark
-                            : AppColors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -1760,7 +1812,9 @@ class _GroupChatBubble extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.block, size: 16, color: isDark ? Colors.grey[500] : Colors.grey[500]),
+                  Icon(Icons.block,
+                      size: 16,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500]),
                   const SizedBox(width: 6),
                   Text(
                     '삭제된 메시지입니다',
@@ -1779,7 +1833,8 @@ class _GroupChatBubble extends StatelessWidget {
     }
 
     // 읽은 수 계산
-    final hasReadStats = message.readCount != null && message.totalSubscribers != null;
+    final hasReadStats =
+        message.readCount != null && message.totalSubscribers != null;
     final readCount = message.readCount ?? 0;
     final totalSubscribers = message.totalSubscribers ?? 0;
     final isDirectReply = message.isDirectReplyMessage;
@@ -1787,230 +1842,235 @@ class _GroupChatBubble extends StatelessWidget {
     return GestureDetector(
       onLongPress: onLongPress,
       child: Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Time + 읽은 수 표시
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 편집됨 표시
-              if (message.isEdited)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
-                  child: Text(
-                    '편집됨',
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontStyle: FontStyle.italic,
-                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
-                    ),
-                  ),
-                ),
-              // 1:1 답장 표시 또는 읽은 팬 수 표시
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    isDirectReply ? Icons.person : Icons.done_all,
-                    size: 14,
-                    color: isDirectReply ? Colors.purple : AppColors.primary,
-                  ),
-                  const SizedBox(width: 3),
-                  if (isDirectReply)
-                    Text(
-                      '→ ${message.replyToFanName}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.purple,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  else if (hasReadStats)
-                    Text(
-                      '$readCount / ${_formatNumber(totalSubscribers)}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  else
-                    const Text(
-                      '전체',
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // Time + 읽은 수 표시
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 편집됨 표시
+                if (message.isEdited)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: Text(
+                      '편집됨',
                       style: TextStyle(
                         fontSize: 9,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
+                        fontStyle: FontStyle.italic,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                     ),
-                ],
-              ),
-              if (hasReadStats && !isDirectReply) ...[
-                const SizedBox(height: 2),
-                // 퍼센티지 바
-                Container(
-                  width: 50,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
                   ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: totalSubscribers > 0 ? readCount / totalSubscribers : 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(2),
+                // 1:1 답장 표시 또는 읽은 팬 수 표시
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isDirectReply ? Icons.person : Icons.done_all,
+                      size: 14,
+                      color: isDirectReply ? Colors.purple : AppColors.primary,
+                    ),
+                    const SizedBox(width: 3),
+                    if (isDirectReply)
+                      Text(
+                        '→ ${message.replyToFanName}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.purple,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    else if (hasReadStats)
+                      Text(
+                        '$readCount / ${_formatNumber(totalSubscribers)}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    else
+                      const Text(
+                        '전체',
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
+                ),
+                if (hasReadStats && !isDirectReply) ...[
+                  const SizedBox(height: 2),
+                  // 퍼센티지 바
+                  Container(
+                    width: 50,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: totalSubscribers > 0
+                          ? readCount / totalSubscribers
+                          : 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
+                  ),
+                ],
+                const SizedBox(height: 3),
+                Text(
+                  _formatTime(message.timestamp),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color:
+                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                 ),
               ],
-              const SizedBox(height: 3),
-              Text(
-                _formatTime(message.timestamp),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+            ),
+            const SizedBox(width: 8),
+
+            // Bubble (1:1 답장은 보라색, 일반은 핑크/빨강)
+            Container(
+              constraints: const BoxConstraints(maxWidth: 240),
+              decoration: BoxDecoration(
+                color: isDirectReply ? Colors.purple : AppColors.primary,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(4),
+                  bottomLeft: Radius.circular(18),
+                  bottomRight: Radius.circular(18),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(width: 8),
-
-          // Bubble (1:1 답장은 보라색, 일반은 핑크/빨강)
-          Container(
-            constraints: const BoxConstraints(maxWidth: 240),
-            decoration: BoxDecoration(
-              color: isDirectReply ? Colors.purple : AppColors.primary,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(4),
-                bottomLeft: Radius.circular(18),
-                bottomRight: Radius.circular(18),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 메시지 타입 배지 (1:1 답장 / 전체)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(10, 6, 10, 0),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isDirectReply
-                            ? Icons.person
-                            : Icons.campaign_outlined,
-                        size: 12,
-                        color: Colors.white.withValues(alpha: 0.9),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        isDirectReply ? '1:1 답장' : '전체',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 메시지 타입 배지 (1:1 답장 / 전체)
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 6, 10, 0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isDirectReply
+                              ? Icons.person
+                              : Icons.campaign_outlined,
+                          size: 12,
                           color: Colors.white.withValues(alpha: 0.9),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                // 1:1 답장인 경우 원본 메시지 인용
-                if (isDirectReply && message.replyToContent != null) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(18),
-                        topRight: Radius.circular(4),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.reply_rounded,
-                              size: 12,
-                              color: Colors.white.withValues(alpha: 0.8),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${message.replyToFanName}님에게 답장',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withValues(alpha: 0.9),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
+                        const SizedBox(width: 4),
                         Text(
-                          message.replyToContent!,
+                          isDirectReply ? '1:1 답장' : '전체',
                           style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  // 답장 내용
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
-                    child: Text(
-                      message.content,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        height: 1.4,
-                        color: Colors.white,
+                  // 1:1 답장인 경우 원본 메시지 인용
+                  if (isDirectReply && message.replyToContent != null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(18),
+                          topRight: Radius.circular(4),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.reply_rounded,
+                                size: 12,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${message.replyToFanName}님에게 답장',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            message.replyToContent!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ] else
-                  // 일반 메시지
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    child: Text(
-                      message.content,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        height: 1.4,
-                        color: Colors.white,
+                    // 답장 내용
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+                      child: Text(
+                        message.content,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          height: 1.4,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                  ] else
+                    // 일반 메시지
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        message.content,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          height: 1.4,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 

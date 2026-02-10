@@ -170,15 +170,17 @@ class _ChatInputBarState extends State<ChatInputBar> {
             children: [
               // Add/Attachment Button
               IconButton(
-                onPressed: widget.onAttachmentPressed ?? () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('첨부 기능은 준비 중입니다'),
-                      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.text,
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
-                },
+                onPressed: widget.onAttachmentPressed ??
+                    () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('첨부 기능은 준비 중입니다'),
+                          backgroundColor:
+                              isDark ? AppColors.surfaceDark : AppColors.text,
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
                 icon: Icon(
                   Icons.add,
                   color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
@@ -192,9 +194,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
               // DT Gift/Donation Button
               IconButton(
-                onPressed: widget.onDtGiftPressed ?? () {
-                  _showDtGiftSheet(context, isDark);
-                },
+                onPressed: widget.onDtGiftPressed ??
+                    () {
+                      _showDtGiftSheet(context, isDark);
+                    },
                 icon: const Icon(
                   Icons.diamond,
                   color: AppColors.primary500,
@@ -210,7 +213,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                    color: isDark
+                        ? AppColors.surfaceAltDark
+                        : AppColors.surfaceAlt,
                     borderRadius: BorderRadius.circular(24),
                     border: _isOverLimit
                         ? Border.all(color: AppColors.error, width: 1.5)
@@ -227,7 +232,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       hintText: widget.hintText,
                       hintStyle: TextStyle(
                         fontSize: 14,
-                        color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
@@ -235,18 +242,23 @@ class _ChatInputBarState extends State<ChatInputBar> {
                         vertical: 10,
                       ),
                       suffixIcon: IconButton(
-                        onPressed: widget.onEmojiPressed ?? () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('이모지 기능은 준비 중입니다'),
-                              backgroundColor: isDark ? AppColors.surfaceDark : AppColors.text,
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
+                        onPressed: widget.onEmojiPressed ??
+                            () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('이모지 기능은 준비 중입니다'),
+                                  backgroundColor: isDark
+                                      ? AppColors.surfaceDark
+                                      : AppColors.text,
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            },
                         icon: Icon(
                           Icons.sentiment_satisfied_alt,
-                          color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
+                          color: isDark
+                              ? AppColors.iconMutedDark
+                              : AppColors.iconMuted,
                           size: 20,
                         ),
                       ),
@@ -255,7 +267,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       fontSize: 14,
                       color: _isOverLimit
                           ? AppColors.error
-                          : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+                          : (isDark
+                              ? AppColors.textMainDark
+                              : AppColors.textMainLight),
                     ),
                   ),
                 ),
@@ -271,7 +285,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 decoration: BoxDecoration(
                   color: _canSend
                       ? AppColors.primary600
-                      : (isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt),
+                      : (isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt),
                   shape: BoxShape.circle,
                   boxShadow: _canSend ? [PremiumEffects.subtleGlow] : null,
                 ),
@@ -281,7 +297,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     Icons.arrow_upward,
                     color: _canSend
                         ? Colors.white
-                        : (isDark ? AppColors.iconMutedDark : AppColors.iconMuted),
+                        : (isDark
+                            ? AppColors.iconMutedDark
+                            : AppColors.iconMuted),
                     size: 20,
                   ),
                   padding: EdgeInsets.zero,
@@ -364,7 +382,8 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
                     Icons.close,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -376,7 +395,9 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                color: isDark
+                    ? AppColors.backgroundDark
+                    : AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -386,17 +407,22 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                     '내 잔액: ',
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
-                  const Icon(Icons.diamond, size: 14, color: AppColors.primary500),
+                  const Icon(Icons.diamond,
+                      size: 14, color: AppColors.primary500),
                   const SizedBox(width: 4),
                   Text(
                     '1,250 DT',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
                     ),
                   ),
                 ],
@@ -411,7 +437,8 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 12),
@@ -436,12 +463,16 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primary100
-                          : (isDark ? AppColors.backgroundDark : AppColors.backgroundLight),
+                          : (isDark
+                              ? AppColors.backgroundDark
+                              : AppColors.backgroundLight),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
                             ? AppColors.primary500
-                            : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                            : (isDark
+                                ? AppColors.borderDark
+                                : AppColors.borderLight),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -453,17 +484,22 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                           size: 16,
                           color: isSelected
                               ? AppColors.primary600
-                              : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                              : (isDark
+                                  ? AppColors.textSubDark
+                                  : AppColors.textSubLight),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '$amount',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
                             color: isSelected
                                 ? AppColors.primary600
-                                : (isDark ? AppColors.textMainDark : AppColors.textMainLight),
+                                : (isDark
+                                    ? AppColors.textMainDark
+                                    : AppColors.textMainLight),
                           ),
                         ),
                       ],
@@ -481,7 +517,8 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 8),
@@ -489,7 +526,9 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                color: isDark
+                    ? AppColors.backgroundDark
+                    : AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isDark ? AppColors.borderDark : AppColors.borderLight,
@@ -503,17 +542,20 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                   hintText: '아티스트에게 전할 메시지를 입력하세요',
                   hintStyle: TextStyle(
                     fontSize: 14,
-                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    color:
+                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                   border: InputBorder.none,
                   counterStyle: TextStyle(
                     fontSize: 11,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ),
@@ -544,7 +586,8 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                   '익명으로 후원하기',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -559,7 +602,8 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                 onPressed: _isSending ? null : _sendDonation,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary600,
-                  disabledBackgroundColor: isDark ? Colors.grey[800] : Colors.grey[300],
+                  disabledBackgroundColor:
+                      isDark ? Colors.grey[800] : Colors.grey[300],
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -571,13 +615,15 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.diamond, color: Colors.white, size: 18),
+                          const Icon(Icons.diamond,
+                              color: Colors.white, size: 18),
                           const SizedBox(width: 8),
                           Text(
                             '$_selectedAmount DT 후원하기',

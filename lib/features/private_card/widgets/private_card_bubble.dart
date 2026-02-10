@@ -17,7 +17,8 @@ class PrivateCardBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardImageUrl = message.mediaMetadata?['card_image_url'] as String? ?? message.mediaUrl;
+    final cardImageUrl =
+        message.mediaMetadata?['card_image_url'] as String? ?? message.mediaUrl;
     final artistName = message.senderName ?? '아티스트';
 
     return Padding(
@@ -57,7 +58,8 @@ class PrivateCardBubble extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [AppColors.vip, AppColors.cardAccentPink],
@@ -98,7 +100,8 @@ class PrivateCardBubble extends StatelessWidget {
                             placeholder: (_, __) => Container(
                               color: AppColors.cardGradientEnd,
                               child: const Center(
-                                child: Icon(Icons.favorite, color: Colors.white, size: 32),
+                                child: Icon(Icons.favorite,
+                                    color: Colors.white, size: 32),
                               ),
                             ),
                             errorWidget: (_, __, ___) => Container(
@@ -106,11 +109,15 @@ class PrivateCardBubble extends StatelessWidget {
                                 gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: [AppColors.cardWarmPink, AppColors.cardGradientEnd],
+                                  colors: [
+                                    AppColors.cardWarmPink,
+                                    AppColors.cardGradientEnd
+                                  ],
                                 ),
                               ),
                               child: const Center(
-                                child: Icon(Icons.favorite, color: Colors.white, size: 32),
+                                child: Icon(Icons.favorite,
+                                    color: Colors.white, size: 32),
                               ),
                             ),
                           ),

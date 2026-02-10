@@ -834,9 +834,7 @@ class _EmailVerificationDialogState extends State<_EmailVerificationDialog> {
           TextButton(
             onPressed: _resendCooldown > 0 ? null : _handleResend,
             child: Text(
-              _resendCooldown > 0
-                  ? '재전송 가능 ($_resendCooldown초)'
-                  : '인증 메일 재전송',
+              _resendCooldown > 0 ? '재전송 가능 ($_resendCooldown초)' : '인증 메일 재전송',
             ),
           ),
         ],

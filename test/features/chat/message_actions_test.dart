@@ -364,7 +364,8 @@ void main() {
   });
 
   group('Deleted Message Display', () {
-    testWidgets('deleted message shows placeholder', (WidgetTester tester) async {
+    testWidgets('deleted message shows placeholder',
+        (WidgetTester tester) async {
       final deletedMessage = BroadcastMessage(
         id: 'msg_deleted',
         channelId: 'channel_1',
@@ -381,7 +382,8 @@ void main() {
       expect(deletedMessage.deletedAt, isNotNull);
     });
 
-    testWidgets('edited message has isEdited flag', (WidgetTester tester) async {
+    testWidgets('edited message has isEdited flag',
+        (WidgetTester tester) async {
       final editedMessage = BroadcastMessage(
         id: 'msg_edited',
         channelId: 'channel_1',

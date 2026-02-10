@@ -852,7 +852,8 @@ class _CreatorProfileEditScreenState
               setState(() => _drops.removeWhere((d) => d.id == drop.id));
               _onFieldChanged();
             }),
-            icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+            icon: const Icon(Icons.delete_outline,
+                size: 20, color: AppColors.danger),
           ),
         ],
       ),
@@ -964,7 +965,8 @@ class _CreatorProfileEditScreenState
               setState(() => _events.removeWhere((e) => e.id == event.id));
               _onFieldChanged();
             }),
-            icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+            icon: const Icon(Icons.delete_outline,
+                size: 20, color: AppColors.danger),
           ),
         ],
       ),
@@ -1095,7 +1097,8 @@ class _CreatorProfileEditScreenState
               setState(() => _fancams.removeWhere((f) => f.id == fancam.id));
               _onFieldChanged();
             }),
-            icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+            icon: const Icon(Icons.delete_outline,
+                size: 20, color: AppColors.danger),
           ),
         ],
       ),

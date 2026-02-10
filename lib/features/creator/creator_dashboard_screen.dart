@@ -131,7 +131,8 @@ class _CreatorDashboardScreenState
                         fanMessagePreview: card.cardText,
                         onInsert: (text) {
                           if (context.mounted) {
-                            context.go('/creator/chat', extra: {'prefillText': text});
+                            context.go('/creator/chat',
+                                extra: {'prefillText': text});
                           }
                         },
                       );
@@ -144,26 +145,29 @@ class _CreatorDashboardScreenState
                     '비즈니스',
                     isDark,
                     trailing: _showBusinessSection ? '접기' : '펼치기',
-                    onMore: () => setState(() =>
-                        _showBusinessSection = !_showBusinessSection),
+                    onMore: () => setState(
+                        () => _showBusinessSection = !_showBusinessSection),
                   ),
                   const SizedBox(height: 12),
 
                   if (_showBusinessSection) ...[
                     // 6. Fan Insights
-                    _buildSectionTitle('팬 인사이트', isDark, onMore: () => context.push('/creator/crm')),
+                    _buildSectionTitle('팬 인사이트', isDark,
+                        onMore: () => context.push('/creator/crm')),
                     const SizedBox(height: 12),
                     _buildFanInsights(isDark),
                     const SizedBox(height: 24),
 
                     // 7. Revenue Summary
-                    _buildSectionTitle('수익 현황', isDark, onMore: () => context.push('/creator/crm')),
+                    _buildSectionTitle('수익 현황', isDark,
+                        onMore: () => context.push('/creator/crm')),
                     const SizedBox(height: 12),
                     _buildRevenueSummaryCard(isDark, isDemoMode),
                     const SizedBox(height: 20),
 
                     // 8. Revenue Chart
-                    _buildSectionTitle('월별 수익 추이', isDark, onMore: () => context.push('/creator/crm')),
+                    _buildSectionTitle('월별 수익 추이', isDark,
+                        onMore: () => context.push('/creator/crm')),
                     const SizedBox(height: 12),
                     _buildRevenueChart(isDark),
                     const SizedBox(height: 24),
@@ -234,7 +238,8 @@ class _CreatorDashboardScreenState
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 4),
@@ -242,7 +247,8 @@ class _CreatorDashboardScreenState
                 '안녕하세요, $name님!',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -253,7 +259,8 @@ class _CreatorDashboardScreenState
                 onPressed: () => context.push('/settings'),
                 icon: Icon(
                   Icons.settings_outlined,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   size: 26,
                 ),
               ),
@@ -263,7 +270,9 @@ class _CreatorDashboardScreenState
                   children: [
                     Icon(
                       Icons.notifications_outlined,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                       size: 26,
                     ),
                     if ((_stats?.unreadMessages ?? 0) > 0)
@@ -325,7 +334,8 @@ class _CreatorDashboardScreenState
             children: [
               if (isDemoMode)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -341,7 +351,8 @@ class _CreatorDashboardScreenState
                 ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: AppRadius.baseBR,
@@ -514,7 +525,9 @@ class _CreatorDashboardScreenState
                             fontWeight: FontWeight.w600,
                             color: isLast
                                 ? AppColors.primary
-                                : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                                : (isDark
+                                    ? AppColors.textSubDark
+                                    : AppColors.textSubLight),
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -525,8 +538,12 @@ class _CreatorDashboardScreenState
                               colors: isLast
                                   ? [AppColors.primary, AppColors.primary600]
                                   : [
-                                      (isDark ? Colors.grey[600]! : Colors.grey[300]!),
-                                      (isDark ? Colors.grey[700]! : Colors.grey[400]!),
+                                      (isDark
+                                          ? Colors.grey[600]!
+                                          : Colors.grey[300]!),
+                                      (isDark
+                                          ? Colors.grey[700]!
+                                          : Colors.grey[400]!),
                                     ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -539,7 +556,9 @@ class _CreatorDashboardScreenState
                           item.label,
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
                           ),
                         ),
                       ],
@@ -608,9 +627,8 @@ class _CreatorDashboardScreenState
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.backgroundDark
-                  : AppColors.backgroundLight,
+              color:
+                  isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
               borderRadius: AppRadius.baseBR,
             ),
             child: Row(
@@ -625,7 +643,8 @@ class _CreatorDashboardScreenState
                   '총 구독자',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
                 const Spacer(),
@@ -634,12 +653,15 @@ class _CreatorDashboardScreenState
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -989,7 +1011,8 @@ class _QuickActionCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,

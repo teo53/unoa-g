@@ -226,7 +226,14 @@ class BusinessConfig {
 
   /// Allowed media types for private card attachments
   static const List<String> privateCardMediaTypes = [
-    'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'm4a', 'mp3',
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'mp4',
+    'mov',
+    'm4a',
+    'mp3',
   ];
 
   /// Maximum media attachments per private card

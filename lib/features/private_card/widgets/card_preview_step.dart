@@ -76,10 +76,14 @@ class CardPreviewStep extends ConsumerWidget {
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [AppColors.vip, AppColors.cardAccentPink],
+                                colors: [
+                                  AppColors.vip,
+                                  AppColors.cardAccentPink
+                                ],
                               ),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -119,13 +123,15 @@ class CardPreviewStep extends ConsumerWidget {
                               placeholder: (_, __) => Container(
                                 color: AppColors.cardGradientEnd,
                                 child: const Center(
-                                  child: Icon(Icons.favorite, color: Colors.white, size: 40),
+                                  child: Icon(Icons.favorite,
+                                      color: Colors.white, size: 40),
                                 ),
                               ),
                               errorWidget: (_, __, ___) => Container(
                                 color: AppColors.cardGradientEnd,
                                 child: const Center(
-                                  child: Icon(Icons.favorite, color: Colors.white, size: 40),
+                                  child: Icon(Icons.favorite,
+                                      color: Colors.white, size: 40),
                                 ),
                               ),
                             ),

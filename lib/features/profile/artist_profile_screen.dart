@@ -205,8 +205,10 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.report_outlined, color: AppColors.danger),
-              title: const Text('신고하기', style: TextStyle(color: AppColors.danger)),
+              leading:
+                  const Icon(Icons.report_outlined, color: AppColors.danger),
+              title:
+                  const Text('신고하기', style: TextStyle(color: AppColors.danger)),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -469,7 +471,8 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                               icon: Icons.chat_bubble_outline,
                               label: 'DM',
                               themeColor: _artistThemeColor,
-                              onTap: () => context.push('/chat/${widget.artistId}'),
+                              onTap: () =>
+                                  context.push('/chat/${widget.artistId}'),
                             ),
                             _ActionButton(
                               icon: Icons.card_giftcard,
@@ -563,7 +566,8 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
                                 value: true,
                                 onChanged: (v) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('랭킹 알림 설정 준비 중')),
+                                    const SnackBar(
+                                        content: Text('랭킹 알림 설정 준비 중')),
                                   );
                                 },
                                 activeThumbColor: AppColors.primary500,
@@ -1099,7 +1103,9 @@ class _DropItem extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: isSoldOut
-                        ? (isDark ? AppColors.textSubDark : AppColors.textSubLight)
+                        ? (isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight)
                         : AppColors.primary500,
                   ),
                 ),
@@ -1168,7 +1174,8 @@ class _EventCard extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: isOffline ? Colors.grey[600] : AppColors.primary600,
+                        color:
+                            isOffline ? Colors.grey[600] : AppColors.primary600,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -1208,9 +1215,8 @@ class _EventCard extends StatelessWidget {
                   location,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -1358,7 +1364,8 @@ class _FeedPost extends StatelessWidget {
                 onPressed: () {},
                 icon: Icon(
                   Icons.more_horiz,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -1415,7 +1422,8 @@ class _FeedPost extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(width: 20),
@@ -1429,7 +1437,8 @@ class _FeedPost extends StatelessWidget {
                 _formatCount(comments),
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
@@ -1496,8 +1505,9 @@ class _FeedComposeSheetState extends State<_FeedComposeSheet> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color:
-                        isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 IconButton(
@@ -1517,8 +1527,9 @@ class _FeedComposeSheetState extends State<_FeedComposeSheet> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color:
-                    isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+                color: isDark
+                    ? AppColors.backgroundDark
+                    : AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark ? AppColors.borderDark : AppColors.borderLight,
@@ -1681,7 +1692,8 @@ class _AnnouncementPost extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.primary600,
                   borderRadius: BorderRadius.circular(8),
@@ -1707,7 +1719,8 @@ class _AnnouncementPost extends StatelessWidget {
                 time,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const Spacer(),
@@ -1747,7 +1760,8 @@ class _AnnouncementPost extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(width: 20),
@@ -1761,7 +1775,8 @@ class _AnnouncementPost extends StatelessWidget {
                 _formatCount(comments),
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const Spacer(),
@@ -1942,7 +1957,8 @@ class _OtaLetterPost extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(width: 20),
@@ -1956,7 +1972,8 @@ class _OtaLetterPost extends StatelessWidget {
                 _formatCount(comments),
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const Spacer(),
@@ -2205,9 +2222,8 @@ class _FancamCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

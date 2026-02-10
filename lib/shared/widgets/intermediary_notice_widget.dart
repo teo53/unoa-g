@@ -8,8 +8,7 @@ import 'package:flutter/material.dart';
 class IntermediaryNoticeWidget extends StatelessWidget {
   const IntermediaryNoticeWidget({super.key});
 
-  static const String noticeText =
-      '[UNO A]는 크라우드펀딩 거래의 통신판매중개자로서 '
+  static const String noticeText = '[UNO A]는 크라우드펀딩 거래의 통신판매중개자로서 '
       '당사자가 아니며, 해당 거래에 대한 책임은 각 크리에이터에게 있습니다.';
 
   @override

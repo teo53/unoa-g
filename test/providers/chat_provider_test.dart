@@ -103,9 +103,11 @@ void main() {
       test('sorts messages by createdAt descending (newest first)', () {
         final now = DateTime.now();
         final messages = [
-          createMessage(id: '1', createdAt: now.subtract(const Duration(hours: 2))),
+          createMessage(
+              id: '1', createdAt: now.subtract(const Duration(hours: 2))),
           createMessage(id: '2', createdAt: now),
-          createMessage(id: '3', createdAt: now.subtract(const Duration(hours: 1))),
+          createMessage(
+              id: '3', createdAt: now.subtract(const Duration(hours: 1))),
         ];
 
         final sorted = List<BroadcastMessage>.from(messages)
@@ -119,9 +121,11 @@ void main() {
       test('sorts messages by createdAt ascending (oldest first)', () {
         final now = DateTime.now();
         final messages = [
-          createMessage(id: '1', createdAt: now.subtract(const Duration(hours: 2))),
+          createMessage(
+              id: '1', createdAt: now.subtract(const Duration(hours: 2))),
           createMessage(id: '2', createdAt: now),
-          createMessage(id: '3', createdAt: now.subtract(const Duration(hours: 1))),
+          createMessage(
+              id: '3', createdAt: now.subtract(const Duration(hours: 1))),
         ];
 
         final sorted = List<BroadcastMessage>.from(messages)

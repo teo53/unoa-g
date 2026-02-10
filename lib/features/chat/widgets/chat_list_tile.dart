@@ -50,7 +50,8 @@ class ChatListTile extends StatelessWidget {
                             color: isDark ? Colors.grey[800] : Colors.grey[200],
                             child: Icon(
                               Icons.person_rounded,
-                              color: isDark ? Colors.grey[600] : Colors.grey[400],
+                              color:
+                                  isDark ? Colors.grey[600] : Colors.grey[400],
                               size: 28,
                             ),
                           )
@@ -62,15 +63,19 @@ class ChatListTile extends StatelessWidget {
                             placeholder: (context, url) => Container(
                               width: 52,
                               height: 52,
-                              color: isDark ? Colors.grey[800] : Colors.grey[200],
+                              color:
+                                  isDark ? Colors.grey[800] : Colors.grey[200],
                             ),
                             errorWidget: (context, url, error) => Container(
                               width: 52,
                               height: 52,
-                              color: isDark ? Colors.grey[800] : Colors.grey[200],
+                              color:
+                                  isDark ? Colors.grey[800] : Colors.grey[200],
                               child: Icon(
                                 Icons.person_rounded,
-                                color: isDark ? Colors.grey[600] : Colors.grey[400],
+                                color: isDark
+                                    ? Colors.grey[600]
+                                    : Colors.grey[400],
                                 size: 28,
                               ),
                             ),

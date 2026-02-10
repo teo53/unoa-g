@@ -76,7 +76,9 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                   onTap: () => context.pop(),
                   child: Icon(
                     Icons.arrow_back_ios_new,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 const Expanded(
@@ -117,7 +119,8 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.info_outline, size: 20, color: AppColors.verified),
+                        const Icon(Icons.info_outline,
+                            size: 20, color: AppColors.verified),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -126,7 +129,9 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               height: 1.5,
-                              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                              color: isDark
+                                  ? AppColors.textSubDark
+                                  : AppColors.textSubLight,
                             ),
                           ),
                         ),
@@ -141,7 +146,9 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -162,7 +169,6 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                           isRecommended: true,
                         ),
                         const SizedBox(height: 12),
-
                         _buildIncomeTypeOption(
                           isDark,
                           title: '기타소득',
@@ -172,7 +178,6 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                           value: 'other_income',
                         ),
                         const SizedBox(height: 12),
-
                         _buildIncomeTypeOption(
                           isDark,
                           title: '세금계산서 발행',
@@ -201,10 +206,14 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                        color: isDark
+                            ? AppColors.surfaceDark
+                            : AppColors.surfaceLight,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                          color: isDark
+                              ? AppColors.borderDark
+                              : AppColors.borderLight,
                         ),
                       ),
                       child: Row(
@@ -220,7 +229,9 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                               '현재 적용 세율: ${_getIncomeTypeLabel(currentType)}',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                                color: isDark
+                                    ? AppColors.textSubDark
+                                    : AppColors.textSubLight,
                               ),
                             ),
                           ),
@@ -234,9 +245,10 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: (_isSaving || _selectedIncomeType == currentType)
-                          ? null
-                          : _saveIncomeType,
+                      onPressed:
+                          (_isSaving || _selectedIncomeType == currentType)
+                              ? null
+                              : _saveIncomeType,
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                         backgroundColor: AppColors.primary600,
@@ -319,13 +331,16 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                          color: isDark
+                              ? AppColors.textMainDark
+                              : AppColors.textMainLight,
                         ),
                       ),
                       if (isRecommended) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
@@ -347,7 +362,9 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -358,11 +375,14 @@ class _TaxSettingsScreenState extends ConsumerState<TaxSettingsScreen> {
                         description,
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: isDark
                               ? AppColors.surfaceAltDark

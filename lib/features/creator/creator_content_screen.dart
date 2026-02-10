@@ -29,10 +29,12 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     final contentState = ref.watch(creatorContentProvider);
     final profile = ref.watch(currentProfileProvider);
     final creatorName = profile?.displayName ?? DemoConfig.demoCreatorName;
-    final themeColor = ArtistThemeColors.fromIndex(profile?.themeColorIndex ?? 0);
+    final themeColor =
+        ArtistThemeColors.fromIndex(profile?.themeColorIndex ?? 0);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: Column(
         children: [
           // 편집 모드 배너
@@ -48,9 +50,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   _EditableSection(
                     label: '커버',
                     onEdit: () {
-                      _showProfileEditDialog(isDark, creatorName, profile?.bio, themeColor);
+                      _showProfileEditDialog(
+                          isDark, creatorName, profile?.bio, themeColor);
                     },
-                    child: _buildCoverSection(isDark, creatorName, themeColor, profile),
+                    child: _buildCoverSection(
+                        isDark, creatorName, themeColor, profile),
                   ),
 
                   // 2. 하이라이트
@@ -59,7 +63,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                     onEdit: () {
                       _showHighlightEditDialog(isDark, themeColor);
                     },
-                    child: _buildHighlightsSection(isDark, themeColor, contentState.highlights),
+                    child: _buildHighlightsSection(
+                        isDark, themeColor, contentState.highlights),
                   ),
 
                   // 3. 소셜 링크
@@ -77,7 +82,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildSocialLinksSection(isDark, contentState.socialLinks, themeColor),
+                    child: _buildSocialLinksSection(
+                        isDark, contentState.socialLinks, themeColor),
                   ),
 
                   // 4. 액션 버튼 (잠금)
@@ -110,7 +116,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildFancamsSection(isDark, contentState.fancams, themeColor),
+                    child: _buildFancamsSection(
+                        isDark, contentState.fancams, themeColor),
                   ),
 
                   // 7. 드롭
@@ -131,7 +138,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildDropsSection(isDark, contentState.drops, themeColor),
+                    child: _buildDropsSection(
+                        isDark, contentState.drops, themeColor),
                   ),
 
                   // 8. 이벤트
@@ -152,7 +160,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                         },
                       );
                     },
-                    child: _buildEventsSection(isDark, contentState.events, themeColor),
+                    child: _buildEventsSection(
+                        isDark, contentState.events, themeColor),
                   ),
 
                   // 9. 탭바 + 피드 (잠금)
@@ -257,9 +266,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   child: Text(
                     '저장',
                     style: TextStyle(
-                      color: hasChanges
-                          ? AppColors.primary600
-                          : Colors.white60,
+                      color: hasChanges ? AppColors.primary600 : Colors.white60,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -275,7 +282,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
 
   // ===== 섹션 빌더 (팬 프로필 레이아웃 복제) =====
 
-  Widget _buildCoverSection(bool isDark, String creatorName, Color themeColor, UserProfile? profile) {
+  Widget _buildCoverSection(
+      bool isDark, String creatorName, Color themeColor, UserProfile? profile) {
     return Container(
       height: 280,
       width: double.infinity,
@@ -315,9 +323,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
             top: 8,
             left: 8,
             child: GestureDetector(
-              onTap: () => _showThemeColorDialog(isDark, profile?.themeColorIndex ?? 0),
+              onTap: () =>
+                  _showThemeColorDialog(isDark, profile?.themeColorIndex ?? 0),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.black38,
                   borderRadius: BorderRadius.circular(20),
@@ -335,7 +345,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Text('테마', style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600)),
+                    const Text('테마',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -352,18 +366,24 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                     CircleAvatar(
                       radius: 48,
                       backgroundColor: Colors.white24,
-                      child: profile?.avatarUrl != null && profile!.avatarUrl!.isNotEmpty
+                      child: profile?.avatarUrl != null &&
+                              profile!.avatarUrl!.isNotEmpty
                           ? ClipOval(
                               child: CachedNetworkImage(
                                 imageUrl: profile.avatarUrl!,
                                 width: 96,
                                 height: 96,
                                 fit: BoxFit.cover,
-                                placeholder: (_, __) => const Icon(Icons.person, size: 48, color: Colors.white60),
-                                errorWidget: (_, __, ___) => const Icon(Icons.person, size: 48, color: Colors.white60),
+                                placeholder: (_, __) => const Icon(Icons.person,
+                                    size: 48, color: Colors.white60),
+                                errorWidget: (_, __, ___) => const Icon(
+                                    Icons.person,
+                                    size: 48,
+                                    color: Colors.white60),
                               ),
                             )
-                          : const Icon(Icons.person, size: 48, color: Colors.white60),
+                          : const Icon(Icons.person,
+                              size: 48, color: Colors.white60),
                     ),
                     Positioned(
                       bottom: 0,
@@ -374,7 +394,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.camera_alt, size: 16, color: themeColor),
+                        child:
+                            Icon(Icons.camera_alt, size: 16, color: themeColor),
                       ),
                     ),
                   ],
@@ -391,7 +412,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
-                  onTap: () => _showProfileEditDialog(isDark, creatorName, profile?.bio, themeColor),
+                  onTap: () => _showProfileEditDialog(
+                      isDark, creatorName, profile?.bio, themeColor),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -408,9 +430,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.verified, size: 22, color: AppColors.verified),
+                          const Icon(Icons.verified,
+                              size: 22, color: AppColors.verified),
                           const SizedBox(width: 6),
-                          const Icon(Icons.edit, size: 14, color: Colors.white70),
+                          const Icon(Icons.edit,
+                              size: 14, color: Colors.white70),
                         ],
                       ),
                       if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
@@ -441,7 +465,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    _buildBadge('주간랭킹: 1위 +2', Icons.trending_up, isDark, themeColor),
+                    _buildBadge(
+                        '주간랭킹: 1위 +2', Icons.trending_up, isDark, themeColor),
                     const SizedBox(width: 8),
                     _buildBadge('팬 52만', Icons.people, isDark, themeColor),
                   ],
@@ -454,7 +479,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildBadge(String text, IconData icon, bool isDark, Color themeColor) {
+  Widget _buildBadge(
+      String text, IconData icon, bool isDark, Color themeColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -479,9 +505,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildHighlightsSection(bool isDark, Color themeColor, List<CreatorHighlight> highlights) {
+  Widget _buildHighlightsSection(
+      bool isDark, Color themeColor, List<CreatorHighlight> highlights) {
     if (highlights.isEmpty) {
-      return _emptyPlaceholder('하이라이트를 추가하세요', Icons.auto_awesome_outlined, isDark);
+      return _emptyPlaceholder(
+          '하이라이트를 추가하세요', Icons.auto_awesome_outlined, isDark);
     }
 
     return Container(
@@ -510,7 +538,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                     ),
                     color: isDark ? AppColors.surfaceDark : Colors.white,
                   ),
-                  child: Icon(h.icon, size: 24,
+                  child: Icon(h.icon,
+                      size: 24,
                       color: isDark ? Colors.grey[400] : Colors.grey[600]),
                 ),
                 const SizedBox(height: 6),
@@ -529,7 +558,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildSocialLinksSection(bool isDark, SocialLinks links, Color themeColor) {
+  Widget _buildSocialLinksSection(
+      bool isDark, SocialLinks links, Color themeColor) {
     if (!links.hasAnyLink) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -610,7 +640,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _actionButton(Icons.chat_bubble_outline, 'DM', false, isDark, themeColor),
+          _actionButton(
+              Icons.chat_bubble_outline, 'DM', false, isDark, themeColor),
           _actionButton(Icons.card_giftcard, '드롭', false, isDark, themeColor),
           _actionButton(Icons.groups, '이벤트', true, isDark, themeColor),
         ],
@@ -618,7 +649,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _actionButton(IconData icon, String label, bool isPrimary, bool isDark, Color themeColor) {
+  Widget _actionButton(IconData icon, String label, bool isPrimary, bool isDark,
+      Color themeColor) {
     return Column(
       children: [
         Container(
@@ -675,8 +707,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               shape: BoxShape.circle,
               color: themeColor.withValues(alpha: 0.1),
             ),
-            child: Icon(Icons.emoji_events_outlined,
-                color: themeColor, size: 20),
+            child:
+                Icon(Icons.emoji_events_outlined, color: themeColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -706,7 +738,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildFancamsSection(bool isDark, List<CreatorFancam> fancams, Color themeColor) {
+  Widget _buildFancamsSection(
+      bool isDark, List<CreatorFancam> fancams, Color themeColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -721,7 +754,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: fancams.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (_, i) => _buildFancamCard(fancams[i], isDark, themeColor),
+              itemBuilder: (_, i) =>
+                  _buildFancamCard(fancams[i], isDark, themeColor),
             ),
           ),
         const SizedBox(height: 16),
@@ -812,8 +846,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                     ),
                     child: Text(
                       fancam.formattedViewCount,
-                      style:
-                          const TextStyle(fontSize: 10, color: Colors.white),
+                      style: const TextStyle(fontSize: 10, color: Colors.white),
                     ),
                   ),
                 ),
@@ -839,7 +872,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildDropsSection(bool isDark, List<CreatorDrop> drops, Color themeColor) {
+  Widget _buildDropsSection(
+      bool isDark, List<CreatorDrop> drops, Color themeColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -854,7 +888,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: drops.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (_, i) => _buildDropCard(drops[i], isDark, themeColor),
+              itemBuilder: (_, i) =>
+                  _buildDropCard(drops[i], isDark, themeColor),
             ),
           ),
         const SizedBox(height: 16),
@@ -899,7 +934,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                             fit: BoxFit.cover,
                           ),
                         )
-                      : Icon(Icons.checkroom, size: 40,
+                      : Icon(Icons.checkroom,
+                          size: 40,
                           color: isDark ? Colors.grey[600] : Colors.grey[400]),
                 ),
                 if (drop.isSoldOut)
@@ -963,9 +999,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: drop.isSoldOut
-                      ? Colors.grey
-                      : themeColor,
+                  color: drop.isSoldOut ? Colors.grey : themeColor,
                 ),
               ),
             ),
@@ -975,7 +1009,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _buildEventsSection(bool isDark, List<CreatorEvent> events, Color themeColor) {
+  Widget _buildEventsSection(
+      bool isDark, List<CreatorEvent> events, Color themeColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1047,9 +1082,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: event.isOffline
-                                ? Colors.grey[600]
-                                : themeColor,
+                            color:
+                                event.isOffline ? Colors.grey[600] : themeColor,
                           ),
                         ),
                       ),
@@ -1150,7 +1184,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
     );
   }
 
-  Widget _tabPreview(String label, bool isActive, bool isDark, Color themeColor) {
+  Widget _tabPreview(
+      String label, bool isActive, bool isDark, Color themeColor) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1180,7 +1215,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
 
   // ===== 공통 헬퍼 =====
 
-  Widget _sectionHeader(String title, String count, bool isDark, Color themeColor) {
+  Widget _sectionHeader(
+      String title, String count, bool isDark, Color themeColor) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       child: Row(
@@ -1222,8 +1258,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, size: 32,
-              color: isDark ? Colors.grey[600] : Colors.grey[400]),
+          Icon(icon,
+              size: 32, color: isDark ? Colors.grey[600] : Colors.grey[400]),
           const SizedBox(height: 8),
           Text(
             message,
@@ -1239,7 +1275,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
 
   // ===== 프로필 편집 다이얼로그 =====
 
-  void _showProfileEditDialog(bool isDark, String currentName, String? currentBio, Color themeColor) {
+  void _showProfileEditDialog(
+      bool isDark, String currentName, String? currentBio, Color themeColor) {
     final nameController = TextEditingController(text: currentName);
     final bioController = TextEditingController(text: currentBio ?? '');
 
@@ -1266,7 +1303,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(height: 20),
@@ -1298,9 +1336,11 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                 onPressed: () {
                   if (nameController.text.isNotEmpty) {
                     ref.read(authProvider.notifier).updateDemoProfile(
-                      displayName: nameController.text,
-                      bio: bioController.text.isNotEmpty ? bioController.text : null,
-                    );
+                          displayName: nameController.text,
+                          bio: bioController.text.isNotEmpty
+                              ? bioController.text
+                              : null,
+                        );
                     Navigator.pop(context);
                   }
                 },
@@ -1313,7 +1353,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                 ),
                 child: const Text(
                   '저장',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -1346,7 +1387,9 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -1354,7 +1397,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   '선택한 색상은 팬이 보는 프로필에 적용됩니다.',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -1365,7 +1409,9 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                     return GestureDetector(
                       onTap: () {
                         setModalState(() => selected = i);
-                        ref.read(authProvider.notifier).updateDemoProfile(themeColorIndex: i);
+                        ref
+                            .read(authProvider.notifier)
+                            .updateDemoProfile(themeColorIndex: i);
                         Navigator.pop(context);
                       },
                       child: Column(
@@ -1377,11 +1423,15 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                               shape: BoxShape.circle,
                               color: ArtistThemeColors.presets[i],
                               border: isSelected
-                                  ? Border.all(color: isDark ? Colors.white : Colors.black, width: 3)
+                                  ? Border.all(
+                                      color:
+                                          isDark ? Colors.white : Colors.black,
+                                      width: 3)
                                   : null,
                             ),
                             child: isSelected
-                                ? const Icon(Icons.check, color: Colors.white, size: 24)
+                                ? const Icon(Icons.check,
+                                    color: Colors.white, size: 24)
                                 : null,
                           ),
                           const SizedBox(height: 6),
@@ -1389,10 +1439,14 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                             ArtistThemeColors.names[i],
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
                               color: isSelected
                                   ? ArtistThemeColors.presets[i]
-                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                                  : (isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600]),
                             ),
                           ),
                         ],
@@ -1424,7 +1478,9 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
           final currentHighlights = ref.read(creatorContentProvider).highlights;
           return Padding(
             padding: EdgeInsets.only(
-              left: 20, right: 20, top: 20,
+              left: 20,
+              right: 20,
+              top: 20,
               bottom: MediaQuery.of(context).viewInsets.bottom + 20,
             ),
             child: Column(
@@ -1439,7 +1495,9 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                        color: isDark
+                            ? AppColors.textMainDark
+                            : AppColors.textMainLight,
                       ),
                     ),
                     TextButton.icon(
@@ -1467,55 +1525,66 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   )
                 else
                   ...currentHighlights.map((h) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: h.hasRing ? themeColor : Colors.grey,
-                          width: h.hasRing ? 2 : 1,
-                        ),
-                      ),
-                      child: Icon(h.icon, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                    ),
-                    title: Text(
-                      h.label,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : AppColors.text,
-                      ),
-                    ),
-                    subtitle: Text(
-                      h.hasRing ? '링 활성' : '링 비활성',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            h.hasRing ? Icons.circle : Icons.circle_outlined,
-                            color: h.hasRing ? themeColor : Colors.grey,
-                            size: 20,
+                        contentPadding: EdgeInsets.zero,
+                        leading: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: h.hasRing ? themeColor : Colors.grey,
+                              width: h.hasRing ? 2 : 1,
+                            ),
                           ),
-                          onPressed: () {
-                            ref.read(creatorContentProvider.notifier).toggleHighlightRing(h.id);
-                            setModalState(() {});
-                          },
-                          tooltip: '링 토글',
+                          child: Icon(h.icon,
+                              size: 20,
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600]),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                          onPressed: () {
-                            ref.read(creatorContentProvider.notifier).deleteHighlight(h.id);
-                            setModalState(() {});
-                          },
+                        title: Text(
+                          h.label,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white : AppColors.text,
+                          ),
                         ),
-                      ],
-                    ),
-                  )),
+                        subtitle: Text(
+                          h.hasRing ? '링 활성' : '링 비활성',
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                h.hasRing
+                                    ? Icons.circle
+                                    : Icons.circle_outlined,
+                                color: h.hasRing ? themeColor : Colors.grey,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                ref
+                                    .read(creatorContentProvider.notifier)
+                                    .toggleHighlightRing(h.id);
+                                setModalState(() {});
+                              },
+                              tooltip: '링 토글',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline,
+                                  color: Colors.red, size: 20),
+                              onPressed: () {
+                                ref
+                                    .read(creatorContentProvider.notifier)
+                                    .deleteHighlight(h.id);
+                                setModalState(() {});
+                              },
+                            ),
+                          ],
+                        ),
+                      )),
                 const SizedBox(height: 8),
               ],
             ),
@@ -1549,7 +1618,9 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
           padding: EdgeInsets.only(
-            left: 20, right: 20, top: 20,
+            left: 20,
+            right: 20,
+            top: 20,
             bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
           child: Column(
@@ -1561,7 +1632,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 16),
@@ -1576,10 +1648,12 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('아이콘 선택', style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w600,
-                color: isDark ? Colors.grey[300] : Colors.grey[700],
-              )),
+              Text('아이콘 선택',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  )),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -1592,16 +1666,24 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                       height: 48,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: isSelected ? themeColor.withValues(alpha: 0.15) : Colors.transparent,
+                        color: isSelected
+                            ? themeColor.withValues(alpha: 0.15)
+                            : Colors.transparent,
                         border: Border.all(
-                          color: isSelected ? themeColor : (isDark ? Colors.grey[600]! : Colors.grey[300]!),
+                          color: isSelected
+                              ? themeColor
+                              : (isDark
+                                  ? Colors.grey[600]!
+                                  : Colors.grey[300]!),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
                       child: Icon(
                         iconOptions[i].value,
                         size: 22,
-                        color: isSelected ? themeColor : (isDark ? Colors.grey[400] : Colors.grey[500]),
+                        color: isSelected
+                            ? themeColor
+                            : (isDark ? Colors.grey[400] : Colors.grey[500]),
                       ),
                     ),
                   );
@@ -1613,15 +1695,16 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (labelController.text.isNotEmpty) {
-                      final id = DateTime.now().millisecondsSinceEpoch.toString();
+                      final id =
+                          DateTime.now().millisecondsSinceEpoch.toString();
                       ref.read(creatorContentProvider.notifier).addHighlight(
-                        CreatorHighlight(
-                          id: id,
-                          label: labelController.text,
-                          icon: iconOptions[selectedIconIndex].value,
-                          hasRing: true,
-                        ),
-                      );
+                            CreatorHighlight(
+                              id: id,
+                              label: labelController.text,
+                              icon: iconOptions[selectedIconIndex].value,
+                              hasRing: true,
+                            ),
+                          );
                       Navigator.pop(context);
                     }
                   },
@@ -1634,7 +1717,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
                   ),
                   child: const Text(
                     '추가',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -1649,7 +1733,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
 
   Future<void> _pickAvatar() async {
     final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
+    final image = await picker.pickImage(
+        source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
     if (image != null) {
       // In demo mode, use the local path as avatar URL
       ref.read(authProvider.notifier).updateDemoProfile(avatarUrl: image.path);
@@ -1669,7 +1754,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
         title: '직캠 관리',
         items: fancams,
         itemTitle: (f) => f.title,
-        itemSubtitle: (f) => f.isPinned ? '\u{1F4CC} 고정됨' : f.formattedViewCount,
+        itemSubtitle: (f) =>
+            f.isPinned ? '\u{1F4CC} 고정됨' : f.formattedViewCount,
         onEdit: (f) {
           Navigator.pop(context);
           showFancamEditDialog(context, isDark, fancam: f, onSave: (updated) {
@@ -1677,8 +1763,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
           });
         },
         onDelete: (f) {
-          showDeleteConfirmDialog(context,
-              itemType: '직캠', itemName: f.title, onConfirm: () {
+          showDeleteConfirmDialog(context, itemType: '직캠', itemName: f.title,
+              onConfirm: () {
             ref.read(creatorContentProvider.notifier).deleteFancam(f.id);
           });
         },
@@ -1710,8 +1796,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
           });
         },
         onDelete: (d) {
-          showDeleteConfirmDialog(context,
-              itemType: '드롭', itemName: d.name, onConfirm: () {
+          showDeleteConfirmDialog(context, itemType: '드롭', itemName: d.name,
+              onConfirm: () {
             ref.read(creatorContentProvider.notifier).deleteDrop(d.id);
           });
         },
@@ -1739,8 +1825,8 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
           });
         },
         onDelete: (e) {
-          showDeleteConfirmDialog(context,
-              itemType: '이벤트', itemName: e.title, onConfirm: () {
+          showDeleteConfirmDialog(context, itemType: '이벤트', itemName: e.title,
+              onConfirm: () {
             ref.read(creatorContentProvider.notifier).deleteEvent(e.id);
           });
         },
@@ -1904,7 +1990,8 @@ class _LockedSection extends StatelessWidget {
                 color: Colors.grey.withValues(alpha: 0.7),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.lock_outline, size: 14, color: Colors.white),
+              child:
+                  const Icon(Icons.lock_outline, size: 14, color: Colors.white),
             ),
           ),
         ),
@@ -2004,4 +2091,3 @@ class _ManageListSheet<T> extends StatelessWidget {
     );
   }
 }
-

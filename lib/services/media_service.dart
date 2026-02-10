@@ -129,7 +129,8 @@ class MediaService {
     try {
       final video = await _picker.pickVideo(
         source: source,
-        maxDuration: maxDuration ?? const Duration(seconds: maxVideoDurationSeconds),
+        maxDuration:
+            maxDuration ?? const Duration(seconds: maxVideoDurationSeconds),
       );
       return video;
     } catch (e) {
@@ -165,7 +166,8 @@ class MediaService {
       if (durationSeconds > maxVideoDurationSeconds) {
         return VideoValidationResult(
           isValid: false,
-          errorMessage: '동영상 길이가 $maxVideoDurationSeconds초를 초과합니다. (현재: $durationSeconds초)',
+          errorMessage:
+              '동영상 길이가 $maxVideoDurationSeconds초를 초과합니다. (현재: $durationSeconds초)',
           durationSeconds: durationSeconds,
           fileSizeBytes: fileSizeBytes,
         );
@@ -195,7 +197,8 @@ class MediaService {
   }
 
   /// Compress an image and return both main and thumbnail versions
-  Future<({Uint8List main, Uint8List thumb, int width, int height})?> compressImageWithThumbnail(
+  Future<({Uint8List main, Uint8List thumb, int width, int height})?>
+      compressImageWithThumbnail(
     XFile file,
   ) async {
     try {
@@ -276,7 +279,8 @@ class MediaService {
 
       final fileId = _uuid.v4();
       final mainPath = 'channels/$channelId/media/$userId/${fileId}_main.webp';
-      final thumbPath = 'channels/$channelId/media/$userId/${fileId}_thumb.webp';
+      final thumbPath =
+          'channels/$channelId/media/$userId/${fileId}_thumb.webp';
 
       // Upload main image
       await SupabaseConfig.client.storage

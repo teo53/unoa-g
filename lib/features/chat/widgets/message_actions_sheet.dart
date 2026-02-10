@@ -298,9 +298,7 @@ class MessageActionsSheet extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.grey[850]
-                    : Colors.grey[100],
+                color: isDark ? Colors.grey[850] : Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -309,9 +307,8 @@ class MessageActionsSheet extends StatelessWidget {
                     : message.content!,
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark
-                      ? AppColors.textSubDark
-                      : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

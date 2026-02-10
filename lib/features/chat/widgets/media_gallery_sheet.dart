@@ -77,7 +77,8 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+            color:
+                isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(20),
             ),
@@ -214,7 +215,8 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ),
@@ -297,12 +299,14 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ),
             // Video list
-            ...monthVideos.map((video) => _buildVideoItem(context, isDark, video)),
+            ...monthVideos
+                .map((video) => _buildVideoItem(context, isDark, video)),
           ],
         );
       },
@@ -411,8 +415,9 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
                     _formatDate(video.createdAt),
                     style: TextStyle(
                       fontSize: 12,
-                      color:
-                          isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                 ],
@@ -458,7 +463,8 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ),
