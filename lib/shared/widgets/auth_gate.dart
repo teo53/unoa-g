@@ -124,31 +124,6 @@ class AuthGate {
                     },
                   ),
                 ),
-                const SizedBox(height: 8),
-
-                // Demo mode
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(sheetContext);
-                      try {
-                        final container =
-                            ProviderScope.containerOf(context);
-                        container
-                            .read(authProvider.notifier)
-                            .enterDemoModeAsFan();
-                      } catch (_) {}
-                    },
-                    child: Text(
-                      '데모로 체험하기',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
 
                 // Dismiss
                 SizedBox(

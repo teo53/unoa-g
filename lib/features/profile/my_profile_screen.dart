@@ -334,18 +334,11 @@ class _GuestProfileView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // App logo
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.chat_bubble_rounded,
-                      size: 40,
-                      color: AppColors.primary,
-                    ),
+                  Image.asset(
+                    isDark
+                        ? 'assets/images/logo_white.png'
+                        : 'assets/images/logo.png',
+                    height: 48,
                   ),
                   const SizedBox(height: 24),
 
@@ -380,29 +373,6 @@ class _GuestProfileView extends StatelessWidget {
                     child: PrimaryButton(
                       label: '로그인',
                       onPressed: () => context.push('/login?next=/profile'),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Demo CTA
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: () {
-                        try {
-                          final container = ProviderScope.containerOf(context);
-                          container
-                              .read(authProvider.notifier)
-                              .enterDemoModeAsFan();
-                        } catch (_) {}
-                      },
-                      child: Text(
-                        '데모로 체험하기',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                     ),
                   ),
 

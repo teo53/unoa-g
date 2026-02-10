@@ -86,36 +86,6 @@ class AppConfig {
       const bool.fromEnvironment('VERBOSE_LOGGING', defaultValue: false);
 
   // ============================================================
-  // API Configuration
-  // ============================================================
-
-  /// Anthropic Claude API Key (프로덕션 전용, 빌드 시 주입)
-  /// 데모 모드에서는 사용하지 않음 (예시 답변 모드로 동작)
-  /// 빌드 시 --dart-define=ANTHROPIC_API_KEY=sk-ant-... 으로 주입
-  static const String anthropicApiKey = String.fromEnvironment(
-    'ANTHROPIC_API_KEY',
-    defaultValue: '',
-  );
-
-  /// Claude 모델 ID
-  static const String claudeModel = String.fromEnvironment(
-    'CLAUDE_MODEL',
-    defaultValue: 'claude-sonnet-4-5-20250929',
-  );
-
-  /// API request timeout in seconds
-  static const int apiTimeoutSeconds = int.fromEnvironment(
-    'API_TIMEOUT',
-    defaultValue: 30,
-  );
-
-  /// Maximum retry attempts for failed API calls
-  static const int maxRetryAttempts = int.fromEnvironment(
-    'MAX_RETRY_ATTEMPTS',
-    defaultValue: 3,
-  );
-
-  // ============================================================
   // App Info
   // ============================================================
 

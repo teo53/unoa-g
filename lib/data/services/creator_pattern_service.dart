@@ -1,10 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-
-import '../../core/config/app_config.dart';
-
 /// 크리에이터의 채팅 패턴을 분석하고 학습하는 서비스
 ///
 /// 크리에이터의 과거 답변 메시지들에서 톤/스타일/길이/자주 사용하는 표현 등을
@@ -153,7 +146,8 @@ class CreatorPatternService {
     }
 
     final buffer = StringBuffer();
-    buffer.writeln('[크리에이터 답변 패턴 분석 (${analysis.totalMessagesAnalyzed}개 메시지 기반)]');
+    buffer.writeln(
+        '[크리에이터 답변 패턴 분석 (${analysis.totalMessagesAnalyzed}개 메시지 기반)]');
     buffer.writeln('- 주요 톤: ${analysis.dominantTone}');
     buffer.writeln('- 평균 답변 길이: 약 ${analysis.averageLength}자');
 
@@ -177,61 +171,12 @@ class CreatorPatternService {
     return buffer.toString();
   }
 
-  /// Claude API로 고급 패턴 분석 요청 (선택적)
-  Future<String?> analyzeWithClaude({
-    required List<CreatorMessage> messages,
-  }) async {
-    if (AppConfig.anthropicApiKey.isEmpty || messages.length < 5) {
-      return null;
-    }
-
-    final messageTexts = messages
-        .take(20)
-        .map((m) => '- "${m.content}"')
-        .join('\n');
-
-    try {
-      final response = await http.post(
-        Uri.parse('https://api.anthropic.com/v1/messages'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': AppConfig.anthropicApiKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: jsonEncode({
-          'model': 'claude-haiku-4-5-20251001',
-          'max_tokens': 512,
-          'messages': [
-            {
-              'role': 'user',
-              'content': '다음은 한 K-pop 크리에이터가 팬들에게 보낸 메시지들입니다.\n\n'
-                  '$messageTexts\n\n'
-                  '이 크리에이터의 메시지 스타일을 3줄 이내로 간결하게 분석해주세요.\n'
-                  '포함할 내용: 톤(존댓말/반말/혼합), 이모지 사용 빈도, '
-                  '특징적인 말버릇이나 표현, 답변 스타일.\n'
-                  '분석 결과만 출력하세요.',
-            },
-          ],
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final contentList = data['content'] as List<dynamic>;
-        return contentList.first['text'] as String;
-      }
-    } catch (e) {
-      debugPrint('Claude pattern analysis error: $e');
-    }
-
-    return null;
-  }
-
   /// 텍스트에서 자주 사용하는 구문 추출 (단어 + 바이그램)
   void _extractPhrases(String text, Map<String, int> phrases) {
     // 이모지 및 특수문자 제거 후 구문 추출
     final cleaned = text.replaceAll(RegExp(r'[^\w가-힣\s]'), '');
-    final words = cleaned.split(RegExp(r'\s+'))
+    final words = cleaned
+        .split(RegExp(r'\s+'))
         .where((w) => w.trim().isNotEmpty)
         .toList();
 

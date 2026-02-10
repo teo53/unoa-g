@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,17 +30,35 @@ class FundingCheckoutScreen extends StatefulWidget {
 class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
   final _supabase = Supabase.instance.client;
   final _messageController = TextEditingController();
+  late final TapGestureRecognizer _termsRecognizer;
+  late final TapGestureRecognizer _refundRecognizer;
 
   bool _isAnonymous = false;
   bool _agreeTerms = false;
   bool _isLoading = false;
-  String _selectedPaymentMethod = 'card'; // card, bank_transfer, virtual_account
+  String _selectedPaymentMethod =
+      'card'; // card, bank_transfer, virtual_account
 
   // KRW 결제: DT 지갑이 아니라 원화 결제
-  int get _totalAmount => (widget.tier['price_krw'] as int? ?? widget.tier['price_dt'] as int? ?? 0) + widget.extraSupport;
+  int get _totalAmount =>
+      (widget.tier['price_krw'] as int? ??
+          widget.tier['price_dt'] as int? ??
+          0) +
+      widget.extraSupport;
+
+  @override
+  void initState() {
+    super.initState();
+    _termsRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push('/terms');
+    _refundRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push('/refund-policy');
+  }
 
   @override
   void dispose() {
+    _termsRecognizer.dispose();
+    _refundRecognizer.dispose();
     _messageController.dispose();
     super.dispose();
   }
@@ -70,8 +89,10 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       if (userId == null) throw Exception('로그인이 필요합니다');
 
       // 주문번호 생성 (가맹점 고유)
-      final orderId = 'FUND_${widget.campaign['id']}_${DateTime.now().millisecondsSinceEpoch}';
-      final idempotencyKey = 'pledge:${userId}_${widget.campaign['id']}_${widget.tier['id'] ?? 'no_tier'}_${DateTime.now().millisecondsSinceEpoch}';
+      final orderId =
+          'FUND_${widget.campaign['id']}_${DateTime.now().millisecondsSinceEpoch}';
+      final idempotencyKey =
+          'pledge:${userId}_${widget.campaign['id']}_${widget.tier['id'] ?? 'no_tier'}_${DateTime.now().millisecondsSinceEpoch}';
 
       // TODO: 프로덕션에서는 PortOne SDK 호출
       // IMP.request_pay({
@@ -135,8 +156,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       if (errorStr.contains('Payment verification failed') ||
           errorStr.contains('결제 검증')) {
         errorMessage = '결제 검증에 실패했습니다. 다시 시도해주세요.';
-      } else if (errorStr.contains('sold out') ||
-          errorStr.contains('품절')) {
+      } else if (errorStr.contains('sold out') || errorStr.contains('품절')) {
         errorMessage = '선택한 리워드가 품절되었습니다';
       } else if (errorStr.contains('Campaign is not active')) {
         errorMessage = '캠페인이 진행 중이 아닙니다';
@@ -228,7 +248,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                          color: isDark
+                              ? AppColors.surfaceAltDark
+                              : AppColors.surfaceAlt,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -252,7 +274,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                                 '* 표시된 수수료는 정산 시 적용됩니다',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                                  color: isDark
+                                      ? AppColors.textMutedDark
+                                      : AppColors.textMuted,
                                 ),
                               ),
                             ),
@@ -311,18 +335,22 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                     decoration: InputDecoration(
                       hintText: '아티스트에게 응원 메시지를 남겨주세요',
                       hintStyle: TextStyle(
-                        color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: isDark ? AppColors.borderDark : AppColors.border,
+                          color:
+                              isDark ? AppColors.borderDark : AppColors.border,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: isDark ? AppColors.borderDark : AppColors.border,
+                          color:
+                              isDark ? AppColors.borderDark : AppColors.border,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -330,7 +358,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                         borderSide: BorderSide(color: AppColors.primary),
                       ),
                       filled: true,
-                      fillColor: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                      fillColor: isDark
+                          ? AppColors.surfaceAltDark
+                          : AppColors.surfaceAlt,
                     ),
                     style: TextStyle(
                       color: isDark ? AppColors.textDark : AppColors.text,
@@ -355,7 +385,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: isDark ? AppColors.textDark : AppColors.text,
+                                color: isDark
+                                    ? AppColors.textDark
+                                    : AppColors.text,
                               ),
                             ),
                             Text(
@@ -413,6 +445,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                           child: Text.rich(
                             TextSpan(
                               text: '펀딩 이용약관',
+                              recognizer: _termsRecognizer,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: AppColors.primary,
@@ -421,6 +454,7 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                               children: [
                                 TextSpan(
                                   text: ' 및 ',
+                                  recognizer: null,
                                   style: TextStyle(
                                     color: isDark
                                         ? AppColors.textMutedDark
@@ -430,8 +464,10 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                                 ),
                                 TextSpan(
                                   text: '환불 정책',
+                                  recognizer: _refundRecognizer,
                                   style: TextStyle(
                                     color: AppColors.primary,
+                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                                 TextSpan(
@@ -467,14 +503,17 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 16, color: AppColors.verified),
+                      Icon(Icons.info_outline,
+                          size: 16, color: AppColors.verified),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           '펀딩 결제는 원화(KRW)로 진행되며, DT 잔액과는 별개입니다.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMuted,
                           ),
                         ),
                       ),
@@ -504,15 +543,12 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (_isLoading || !_agreeTerms)
-                    ? null
-                    : _submitPledge,
+                onPressed: (_isLoading || !_agreeTerms) ? null : _submitPledge,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary600,
                   foregroundColor: AppColors.onPrimary,
-                  disabledBackgroundColor: isDark
-                      ? AppColors.surfaceAltDark
-                      : AppColors.surfaceAlt,
+                  disabledBackgroundColor:
+                      isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -525,7 +561,8 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Text(
@@ -572,7 +609,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.primary : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
+              color: isSelected
+                  ? AppColors.primary
+                  : (isDark ? AppColors.textMutedDark : AppColors.textMuted),
               size: 24,
             ),
             const SizedBox(width: 12),
@@ -592,7 +631,9 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                      color: isDark
+                          ? AppColors.textMutedDark
+                          : AppColors.textMuted,
                     ),
                   ),
                 ],

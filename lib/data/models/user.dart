@@ -38,6 +38,7 @@ class UserAuthProfile implements UserBase {
   final String? youtubeLink;
   final String? tiktokLink;
   final String? twitterLink;
+  final bool showBirthday;
 
   const UserAuthProfile({
     required this.id,
@@ -55,6 +56,7 @@ class UserAuthProfile implements UserBase {
     this.youtubeLink,
     this.tiktokLink,
     this.twitterLink,
+    this.showBirthday = false,
   });
 
   factory UserAuthProfile.fromJson(Map<String, dynamic> json) {
@@ -78,6 +80,7 @@ class UserAuthProfile implements UserBase {
       youtubeLink: json['youtube_link'] as String?,
       tiktokLink: json['tiktok_link'] as String?,
       twitterLink: json['twitter_link'] as String?,
+      showBirthday: json['show_birthday'] as bool? ?? false,
     );
   }
 
@@ -98,6 +101,7 @@ class UserAuthProfile implements UserBase {
       'youtube_link': youtubeLink,
       'tiktok_link': tiktokLink,
       'twitter_link': twitterLink,
+      'show_birthday': showBirthday,
     };
   }
 
@@ -135,6 +139,7 @@ class UserAuthProfile implements UserBase {
     Object? youtubeLink = _sentinel,
     Object? tiktokLink = _sentinel,
     Object? twitterLink = _sentinel,
+    bool? showBirthday,
   }) {
     return UserAuthProfile(
       id: id,
@@ -154,12 +159,12 @@ class UserAuthProfile implements UserBase {
       youtubeLink: youtubeLink == _sentinel
           ? this.youtubeLink
           : (youtubeLink as String?),
-      tiktokLink: tiktokLink == _sentinel
-          ? this.tiktokLink
-          : (tiktokLink as String?),
+      tiktokLink:
+          tiktokLink == _sentinel ? this.tiktokLink : (tiktokLink as String?),
       twitterLink: twitterLink == _sentinel
           ? this.twitterLink
           : (twitterLink as String?),
+      showBirthday: showBirthday ?? this.showBirthday,
     );
   }
 }
@@ -194,7 +199,8 @@ class UserDisplayProfile implements UserBase {
   });
 
   @override
-  String? get displayName => englishName != null ? '$name ($englishName)' : name;
+  String? get displayName =>
+      englishName != null ? '$name ($englishName)' : name;
 
   String get formattedBalance => '$dtBalance DT';
 
@@ -211,7 +217,8 @@ class UserDisplayProfile implements UserBase {
   factory UserDisplayProfile.fromJson(Map<String, dynamic> json) {
     return UserDisplayProfile(
       id: json['id'] as String,
-      name: json['display_name'] as String? ?? json['name'] as String? ?? 'User',
+      name:
+          json['display_name'] as String? ?? json['name'] as String? ?? 'User',
       englishName: json['english_name'] as String?,
       username: json['username'] as String? ?? '',
       avatarUrl: json['avatar_url'] as String?,

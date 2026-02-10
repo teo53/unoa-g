@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/config/app_config.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -111,19 +112,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo
-                Icon(
-                  Icons.chat_bubble_rounded,
-                  size: 64,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(height: 16),
-
-                // Title
-                Text(
-                  'UNO A',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Image.asset(
+                    theme.brightness == Brightness.dark
+                        ? 'assets/images/logo_white.png'
+                        : 'assets/images/logo.png',
+                    height: 48,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -136,85 +130,86 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // ===== Demo Mode Selection (Always Visible) =====
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primary.withValues(alpha: 0.1),
-                        AppColors.primary.withValues(alpha: 0.05),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                // ===== Demo Mode Selection (only when enabled) =====
+                if (AppConfig.enableDemoMode)
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary.withValues(alpha: 0.1),
+                          AppColors.primary.withValues(alpha: 0.05),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: AppRadius.xlBR,
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                      ),
                     ),
-                    borderRadius: AppRadius.xlBR,
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.play_circle_outline,
-                            size: 20,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '데모 모드로 체험하기',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.play_circle_outline,
+                              size: 20,
                               color: AppColors.primary,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '로그인 없이 앱의 주요 기능을 미리 체험해보세요',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                            const SizedBox(width: 8),
+                            Text(
+                              '데모 모드로 체험하기',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 8),
+                        Text(
+                          '로그인 없이 앱의 주요 기능을 미리 체험해보세요',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
-                      // Two demo account buttons side by side
-                      Row(
-                        children: [
-                          // Fan Account Button
-                          Expanded(
-                            child: _DemoAccountButton(
-                              icon: Icons.favorite_rounded,
-                              title: '팬 계정',
-                              subtitle: '구독 · 메시지 · 후원',
-                              color: Colors.pink,
-                              isDark: isDark,
-                              onTap: _enterDemoAsFan,
+                        // Two demo account buttons side by side
+                        Row(
+                          children: [
+                            // Fan Account Button
+                            Expanded(
+                              child: _DemoAccountButton(
+                                icon: Icons.favorite_rounded,
+                                title: '팬 계정',
+                                subtitle: '구독 · 메시지 · 후원',
+                                color: Colors.pink,
+                                isDark: isDark,
+                                onTap: _enterDemoAsFan,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Creator Account Button
-                          Expanded(
-                            child: _DemoAccountButton(
-                              icon: Icons.star_rounded,
-                              title: '크리에이터',
-                              subtitle: '대시보드 · CRM · 분석',
-                              color: Colors.amber,
-                              isDark: isDark,
-                              onTap: _enterDemoAsCreator,
+                            const SizedBox(width: 12),
+                            // Creator Account Button
+                            Expanded(
+                              child: _DemoAccountButton(
+                                icon: Icons.star_rounded,
+                                title: '크리에이터',
+                                subtitle: '대시보드 · CRM · 분석',
+                                color: Colors.amber,
+                                isDark: isDark,
+                                onTap: _enterDemoAsCreator,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
                 const SizedBox(height: 32),
 
@@ -463,7 +458,8 @@ class _DemoAccountButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 4),
@@ -471,13 +467,15 @@ class _DemoAccountButton extends StatelessWidget {
                 subtitle,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: AppRadius.xlBR,
@@ -498,4 +496,3 @@ class _DemoAccountButton extends StatelessWidget {
     );
   }
 }
-

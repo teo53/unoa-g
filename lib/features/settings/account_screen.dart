@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/accessibility_helper.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/wallet_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
 
@@ -244,12 +245,48 @@ class AccountScreen extends ConsumerWidget {
                           label: '계정 삭제',
                           isOutline: true,
                           onPressed: () {
+                            final isDemoMode = ref.read(isDemoModeProvider);
+                            final balance = isDemoMode
+                                ? 0
+                                : ref.read(currentBalanceProvider);
                             showDialog(
                               context: context,
                               builder: (dialogContext) => AlertDialog(
                                 title: const Text('계정 삭제'),
-                                content: const Text(
-                                    '정말로 계정을 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                        '정말로 계정을 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.'),
+                                    if (balance > 0) ...[
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.warning100,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.warning_amber_rounded,
+                                                color: AppColors.warning,
+                                                size: 20),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '잔여 DT 잔액: $balance DT\n삭제 시 환불되지 않습니다.',
+                                                style: const TextStyle(
+                                                    fontSize: 13),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () =>
@@ -271,8 +308,8 @@ class AccountScreen extends ConsumerWidget {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(
-                                              content:
-                                                  Text('계정 삭제에 실패했습니다. 다시 시도해주세요.'),
+                                              content: Text(
+                                                  '계정 삭제에 실패했습니다. 다시 시도해주세요.'),
                                             ),
                                           );
                                         }
@@ -605,9 +642,7 @@ class _ConnectedAccount extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: connected
                     ? AppColors.success
-                    : (isDark
-                        ? AppColors.textSubDark
-                        : AppColors.textSubLight),
+                    : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
               ),
             ),
           ),

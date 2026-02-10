@@ -43,16 +43,11 @@ class _LoggedInHomeScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'UNO A',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
-                  letterSpacing: -0.5,
-                ),
+              Image.asset(
+                isDark
+                    ? 'assets/images/logo_white.png'
+                    : 'assets/images/logo.png',
+                height: 28,
               ),
               Stack(
                 children: [
@@ -193,16 +188,11 @@ class _GuestHomeScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'UNO A',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
-                  letterSpacing: -0.5,
-                ),
+              Image.asset(
+                isDark
+                    ? 'assets/images/logo_white.png'
+                    : 'assets/images/logo.png',
+                height: 28,
               ),
               TextButton(
                 onPressed: () => context.push('/login'),
@@ -534,7 +524,7 @@ class _FeatureCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.10),
+              color: iconColor.withOpacity(0.10),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 22),

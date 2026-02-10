@@ -15,10 +15,11 @@ import '../../shared/widgets/app_scaffold.dart';
 void _showConsentChangeDialog(
   BuildContext context,
   String consentType,
-  bool newValue,
-) {
+  bool newValue, {
+  VoidCallback? onConfirmed,
+}) {
   final action = newValue ? '수신 동의' : '수신 거부';
-  
+
   showDialog(
     context: context,
     builder: (dialogContext) => AlertDialog(
@@ -28,7 +29,7 @@ void _showConsentChangeDialog(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            newValue 
+            newValue
                 ? '$consentType 수신에 동의하시겠습니까?'
                 : '$consentType 수신을 거부하시겠습니까?',
           ),
@@ -59,8 +60,8 @@ void _showConsentChangeDialog(
         TextButton(
           onPressed: () {
             Navigator.pop(dialogContext);
-            // Update consent preference via Supabase
-            // In demo mode, just show confirmation
+            onConfirmed?.call();
+            // TODO: Persist consent change to Supabase
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('$consentType $action가 처리되었습니다'),
@@ -74,11 +75,20 @@ void _showConsentChangeDialog(
   );
 }
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _emailMarketing = false;
+  bool _smsMarketing = false;
+  bool _pushMarketing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeNotifier = ref.read(themeProvider.notifier);
 
@@ -264,12 +274,14 @@ class SettingsScreen extends ConsumerWidget {
                         title: '이메일 마케팅 수신',
                         subtitle: '프로모션, 이벤트 안내',
                         trailing: Switch(
-                          value: true,
+                          value: _emailMarketing,
                           onChanged: (value) {
                             _showConsentChangeDialog(
                               context,
                               '이메일 마케팅',
                               value,
+                              onConfirmed: () =>
+                                  setState(() => _emailMarketing = value),
                             );
                           },
                           activeColor: AppColors.primary600,
@@ -281,12 +293,14 @@ class SettingsScreen extends ConsumerWidget {
                         title: 'SMS 마케팅 수신',
                         subtitle: '문자 알림, 할인 정보',
                         trailing: Switch(
-                          value: false,
+                          value: _smsMarketing,
                           onChanged: (value) {
                             _showConsentChangeDialog(
                               context,
                               'SMS 마케팅',
                               value,
+                              onConfirmed: () =>
+                                  setState(() => _smsMarketing = value),
                             );
                           },
                           activeColor: AppColors.primary600,
@@ -298,12 +312,14 @@ class SettingsScreen extends ConsumerWidget {
                         title: '푸시 마케팅 수신',
                         subtitle: '앱 푸시 광고 알림',
                         trailing: Switch(
-                          value: true,
+                          value: _pushMarketing,
                           onChanged: (value) {
                             _showConsentChangeDialog(
                               context,
                               '푸시 마케팅',
                               value,
+                              onConfirmed: () =>
+                                  setState(() => _pushMarketing = value),
                             );
                           },
                           activeColor: AppColors.primary600,
@@ -359,7 +375,8 @@ class SettingsScreen extends ConsumerWidget {
                       _SettingsItem(
                         icon: Icons.shield_outlined,
                         title: '커뮤니티 가이드라인',
-                        onTap: () => context.push('/settings/moderation-policy'),
+                        onTap: () =>
+                            context.push('/settings/moderation-policy'),
                       ),
                       _SettingsItem(
                         icon: Icons.business_outlined,
@@ -410,7 +427,9 @@ class SettingsScreen extends ConsumerWidget {
                                     Navigator.pop(dialogContext);
                                     // Actually sign out or exit demo mode
                                     if (isDemoMode) {
-                                      ref.read(authProvider.notifier).exitDemoMode();
+                                      ref
+                                          .read(authProvider.notifier)
+                                          .exitDemoMode();
                                     } else {
                                       ref.read(authProvider.notifier).signOut();
                                     }

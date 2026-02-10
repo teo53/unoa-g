@@ -8,6 +8,9 @@ class AuthTextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final IconData? prefixIcon;
+  final IconData? suffixIcon;
+  final Color? suffixIconColor;
+  final VoidCallback? onSuffixTap;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final TextInputAction? textInputAction;
@@ -23,6 +26,9 @@ class AuthTextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.prefixIcon,
+    this.suffixIcon,
+    this.suffixIconColor,
+    this.onSuffixTap,
     this.validator,
     this.onChanged,
     this.textInputAction,
@@ -36,19 +42,24 @@ class AuthTextField extends StatefulWidget {
 }
 
 class _AuthTextFieldState extends State<AuthTextField> {
-  bool _obscureText = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _obscureText = widget.obscureText;
-  }
-
   @override
   Widget build(BuildContext context) {
+    Widget? suffixWidget;
+
+    if (widget.suffixIcon != null) {
+      // Custom suffix icon provided (e.g., password toggle, validation icon)
+      suffixWidget = IconButton(
+        icon: Icon(
+          widget.suffixIcon,
+          color: widget.suffixIconColor,
+        ),
+        onPressed: widget.onSuffixTap,
+      );
+    }
+
     return TextFormField(
       controller: widget.controller,
-      obscureText: widget.obscureText && _obscureText,
+      obscureText: widget.obscureText,
       keyboardType: widget.keyboardType,
       validator: widget.validator,
       onChanged: widget.onChanged,
@@ -61,18 +72,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
         hintText: widget.hint,
         border: const OutlineInputBorder(),
         prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
-        suffixIcon: widget.obscureText
-            ? IconButton(
-                icon: Icon(
-                  _obscureText ? Icons.visibility_off : Icons.visibility,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              )
-            : null,
+        suffixIcon: suffixWidget,
       ),
     );
   }

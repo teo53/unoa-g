@@ -48,6 +48,7 @@ class _CreatorProfileEditScreenState
 
   // Theme settings
   int _selectedThemeColor = 0;
+  bool _showBirthday = false;
 
   // Social links
   String _instagramLink = '';
@@ -93,6 +94,7 @@ class _CreatorProfileEditScreenState
     // 프로필에서 테마 색상 및 소셜 링크 로드
     if (profile != null) {
       _selectedThemeColor = profile.themeColorIndex;
+      _showBirthday = profile.showBirthday;
       _instagramLink = profile.instagramLink ?? '';
       _youtubeLink = profile.youtubeLink ?? '';
       _tiktokLink = profile.tiktokLink ?? '';
@@ -146,6 +148,10 @@ class _CreatorProfileEditScreenState
     super.dispose();
   }
 
+  String _formatDate(DateTime date) {
+    return '${date.year}년 ${date.month}월 ${date.day}일';
+  }
+
   void _onFieldChanged() {
     setState(() {
       _hasChanges = true;
@@ -160,21 +166,24 @@ class _CreatorProfileEditScreenState
     final isDemoMode = ref.read(isDemoModeProvider);
     if (isDemoMode) {
       ref.read(authProvider.notifier).updateDemoProfile(
-        displayName: _nameController.text.isNotEmpty ? _nameController.text : null,
-        bio: _bioController.text.isNotEmpty ? _bioController.text : null,
-        themeColorIndex: _selectedThemeColor,
-        // 빈 문자열은 null로 변환하여 필드를 비움 (sentinel 패턴)
-        instagramLink: _instagramLink.isNotEmpty ? _instagramLink : null,
-        youtubeLink: _youtubeLink.isNotEmpty ? _youtubeLink : null,
-        tiktokLink: _tiktokLink.isNotEmpty ? _tiktokLink : null,
-        twitterLink: _twitterLink.isNotEmpty ? _twitterLink : null,
-      );
+            displayName:
+                _nameController.text.isNotEmpty ? _nameController.text : null,
+            bio: _bioController.text.isNotEmpty ? _bioController.text : null,
+            themeColorIndex: _selectedThemeColor,
+            showBirthday: _showBirthday,
+            // 빈 문자열은 null로 변환하여 필드를 비움 (sentinel 패턴)
+            instagramLink: _instagramLink.isNotEmpty ? _instagramLink : null,
+            youtubeLink: _youtubeLink.isNotEmpty ? _youtubeLink : null,
+            tiktokLink: _tiktokLink.isNotEmpty ? _tiktokLink : null,
+            twitterLink: _twitterLink.isNotEmpty ? _twitterLink : null,
+          );
     } else {
       // 실제 인증된 사용자인 경우 서버에 저장
       await ref.read(authProvider.notifier).updateProfile(
-        displayName: _nameController.text.isNotEmpty ? _nameController.text : null,
-        bio: _bioController.text.isNotEmpty ? _bioController.text : null,
-      );
+            displayName:
+                _nameController.text.isNotEmpty ? _nameController.text : null,
+            bio: _bioController.text.isNotEmpty ? _bioController.text : null,
+          );
     }
 
     if (!mounted) return;
@@ -223,7 +232,8 @@ class _CreatorProfileEditScreenState
                 '프로필 변경 사항을 저장하시겠습니까?',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
               const SizedBox(height: 16),
@@ -246,23 +256,24 @@ class _CreatorProfileEditScreenState
                     ),
                     const SizedBox(height: 8),
                     ...AffectedView.values.take(3).map((view) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Row(
-                        children: [
-                          Icon(view.icon, size: 14, color: AppColors.primary),
-                          const SizedBox(width: 6),
-                          Text(
-                            view.label,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark
-                                  ? AppColors.textSubDark
-                                  : AppColors.textSubLight,
-                            ),
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            children: [
+                              Icon(view.icon,
+                                  size: 14, color: AppColors.primary),
+                              const SizedBox(width: 6),
+                              Text(
+                                view.label,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark
+                                      ? AppColors.textSubDark
+                                      : AppColors.textSubLight,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    )),
+                        )),
                   ],
                 ),
               ),
@@ -362,7 +373,8 @@ class _CreatorProfileEditScreenState
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ),
@@ -511,6 +523,64 @@ class _CreatorProfileEditScreenState
             onChanged: (_) => _onFieldChanged(),
           ),
           const SizedBox(height: 24),
+          _buildSectionTitle('생년월일', isDark),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profile?.dateOfBirth != null
+                      ? _formatDate(profile!.dateOfBirth!)
+                      : '설정되지 않음',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: profile?.dateOfBirth != null
+                        ? (isDark
+                            ? AppColors.textMainDark
+                            : AppColors.textMainLight)
+                        : (isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '프로필에 생년월일 공개',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
+                      ),
+                    ),
+                    Switch(
+                      value: _showBirthday,
+                      onChanged: (value) {
+                        setState(() {
+                          _showBirthday = value;
+                          _hasChanges = true;
+                        });
+                      },
+                      activeColor: AppColors.primary,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           _buildSectionTitle('배경 이미지', isDark),
           const SizedBox(height: 8),
           _buildBackgroundSelector(isDark),
@@ -539,7 +609,9 @@ class _CreatorProfileEditScreenState
             child: _drops.isEmpty
                 ? _buildEmptyState('드롭(상품)을 추가해보세요', isDark)
                 : Column(
-                    children: _drops.map((drop) => _buildDropItem(drop, isDark)).toList(),
+                    children: _drops
+                        .map((drop) => _buildDropItem(drop, isDark))
+                        .toList(),
                   ),
           ),
           const SizedBox(height: 24),
@@ -550,14 +622,17 @@ class _CreatorProfileEditScreenState
             icon: Icons.event_outlined,
             isDark: isDark,
             itemCount: _events.length,
-            onAdd: () => showEventEditDialog(context, isDark, onSave: (newEvent) {
+            onAdd: () =>
+                showEventEditDialog(context, isDark, onSave: (newEvent) {
               setState(() => _events.add(newEvent));
               _onFieldChanged();
             }),
             child: _events.isEmpty
                 ? _buildEmptyState('이벤트를 추가해보세요', isDark)
                 : Column(
-                    children: _events.map((event) => _buildEventItem(event, isDark)).toList(),
+                    children: _events
+                        .map((event) => _buildEventItem(event, isDark))
+                        .toList(),
                   ),
           ),
           const SizedBox(height: 24),
@@ -568,14 +643,17 @@ class _CreatorProfileEditScreenState
             icon: Icons.videocam_outlined,
             isDark: isDark,
             itemCount: _fancams.length,
-            onAdd: () => showFancamEditDialog(context, isDark, onSave: (newFancam) {
+            onAdd: () =>
+                showFancamEditDialog(context, isDark, onSave: (newFancam) {
               setState(() => _fancams.add(newFancam));
               _onFieldChanged();
             }),
             child: _fancams.isEmpty
                 ? _buildEmptyState('YouTube 직캠을 추가해보세요', isDark)
                 : Column(
-                    children: _fancams.map((fancam) => _buildFancamItem(fancam, isDark)).toList(),
+                    children: _fancams
+                        .map((fancam) => _buildFancamItem(fancam, isDark))
+                        .toList(),
                   ),
           ),
         ],
@@ -596,14 +674,17 @@ class _CreatorProfileEditScreenState
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+            Icon(icon,
+                size: 20,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
             const SizedBox(width: 8),
             Text(
               title,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
             const SizedBox(width: 8),
@@ -700,32 +781,42 @@ class _CreatorProfileEditScreenState
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                          color: isDark
+                              ? AppColors.textMainDark
+                              : AppColors.textMainLight,
                         ),
                       ),
                     ),
                     if (drop.isNew)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
                           'NEW',
-                          style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700),
                         ),
                       ),
                     if (drop.isSoldOut)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.grey,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
                           'SOLD OUT',
-                          style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700),
                         ),
                       ),
                   ],
@@ -743,17 +834,21 @@ class _CreatorProfileEditScreenState
             ),
           ),
           IconButton(
-            onPressed: () => showDropEditDialog(context, isDark, drop: drop, onSave: (updated) {
+            onPressed: () => showDropEditDialog(context, isDark, drop: drop,
+                onSave: (updated) {
               setState(() {
                 final index = _drops.indexWhere((d) => d.id == updated.id);
                 if (index >= 0) _drops[index] = updated;
               });
               _onFieldChanged();
             }),
-            icon: Icon(Icons.edit_outlined, size: 20, color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+            icon: Icon(Icons.edit_outlined,
+                size: 20,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
           ),
           IconButton(
-            onPressed: () => showDeleteConfirmDialog(context, itemType: '드롭', itemName: drop.name, onConfirm: () {
+            onPressed: () => showDeleteConfirmDialog(context,
+                itemType: '드롭', itemName: drop.name, onConfirm: () {
               setState(() => _drops.removeWhere((d) => d.id == drop.id));
               _onFieldChanged();
             }),
@@ -781,7 +876,9 @@ class _CreatorProfileEditScreenState
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: event.isOffline ? Colors.purple.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
+              color: event.isOffline
+                  ? Colors.purple.withValues(alpha: 0.1)
+                  : Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -797,9 +894,12 @@ class _CreatorProfileEditScreenState
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: event.isOffline ? Colors.purple.withValues(alpha: 0.2) : Colors.green.withValues(alpha: 0.2),
+                        color: event.isOffline
+                            ? Colors.purple.withValues(alpha: 0.2)
+                            : Colors.green.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -816,7 +916,9 @@ class _CreatorProfileEditScreenState
                       event.formattedDate,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
                       ),
                     ),
                   ],
@@ -827,31 +929,38 @@ class _CreatorProfileEditScreenState
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
                   ),
                 ),
                 Text(
                   event.location,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
             ),
           ),
           IconButton(
-            onPressed: () => showEventEditDialog(context, isDark, event: event, onSave: (updated) {
+            onPressed: () => showEventEditDialog(context, isDark, event: event,
+                onSave: (updated) {
               setState(() {
                 final index = _events.indexWhere((e) => e.id == updated.id);
                 if (index >= 0) _events[index] = updated;
               });
               _onFieldChanged();
             }),
-            icon: Icon(Icons.edit_outlined, size: 20, color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
+            icon: Icon(Icons.edit_outlined,
+                size: 20,
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight),
           ),
           IconButton(
-            onPressed: () => showDeleteConfirmDialog(context, itemType: '이벤트', itemName: event.title, onConfirm: () {
+            onPressed: () => showDeleteConfirmDialog(context,
+                itemType: '이벤트', itemName: event.title, onConfirm: () {
               setState(() => _events.removeWhere((e) => e.id == event.id));
               _onFieldChanged();
             }),
@@ -901,7 +1010,8 @@ class _CreatorProfileEditScreenState
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Icon(Icons.play_arrow, size: 12, color: Colors.white),
+                  child: const Icon(Icons.play_arrow,
+                      size: 12, color: Colors.white),
                 ),
               ),
             ],
@@ -916,12 +1026,14 @@ class _CreatorProfileEditScreenState
                     if (fancam.isPinned)
                       Container(
                         margin: const EdgeInsets.only(right: 6),
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Icon(Icons.push_pin, size: 10, color: Colors.white),
+                        child: const Icon(Icons.push_pin,
+                            size: 10, color: Colors.white),
                       ),
                     Expanded(
                       child: Text(
@@ -929,7 +1041,9 @@ class _CreatorProfileEditScreenState
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                          color: isDark
+                              ? AppColors.textMainDark
+                              : AppColors.textMainLight,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -939,13 +1053,19 @@ class _CreatorProfileEditScreenState
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.visibility, size: 12, color: isDark ? AppColors.textMutedDark : AppColors.textMuted),
+                    Icon(Icons.visibility,
+                        size: 12,
+                        color: isDark
+                            ? AppColors.textMutedDark
+                            : AppColors.textMuted),
                     const SizedBox(width: 4),
                     Text(
                       fancam.formattedViewCount,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight,
                       ),
                     ),
                   ],
@@ -964,11 +1084,14 @@ class _CreatorProfileEditScreenState
             icon: Icon(
               fancam.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
               size: 20,
-              color: fancam.isPinned ? AppColors.primary : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+              color: fancam.isPinned
+                  ? AppColors.primary
+                  : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
             ),
           ),
           IconButton(
-            onPressed: () => showDeleteConfirmDialog(context, itemType: '직캠', itemName: fancam.title, onConfirm: () {
+            onPressed: () => showDeleteConfirmDialog(context,
+                itemType: '직캠', itemName: fancam.title, onConfirm: () {
               setState(() => _fancams.removeWhere((f) => f.id == fancam.id));
               _onFieldChanged();
             }),
@@ -1034,14 +1157,16 @@ class _CreatorProfileEditScreenState
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: _themeColors[index].withValues(alpha: 0.5),
+                                    color: _themeColors[index]
+                                        .withValues(alpha: 0.5),
                                     blurRadius: 8,
                                   )
                                 ]
                               : null,
                         ),
                         child: isSelected
-                            ? const Icon(Icons.check, color: Colors.white, size: 24)
+                            ? const Icon(Icons.check,
+                                color: Colors.white, size: 24)
                             : null,
                       ),
                       const SizedBox(height: 8),
@@ -1049,10 +1174,13 @@ class _CreatorProfileEditScreenState
                         _themeColorNames[index],
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
                           color: isSelected
                               ? _themeColors[index]
-                              : (isDark ? AppColors.textSubDark : AppColors.textSubLight),
+                              : (isDark
+                                  ? AppColors.textSubDark
+                                  : AppColors.textSubLight),
                         ),
                       ),
                     ],
@@ -1170,7 +1298,8 @@ class _CreatorProfileEditScreenState
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -1188,12 +1317,14 @@ class _CreatorProfileEditScreenState
                 color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
               ),
               filled: true,
-              fillColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+              fillColor:
+                  isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             ),
           ),
         ],
@@ -1274,14 +1405,16 @@ class _CreatorProfileEditScreenState
                 Icon(
                   Icons.add_photo_alternate_outlined,
                   size: 32,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   '배경 이미지 추가',
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],

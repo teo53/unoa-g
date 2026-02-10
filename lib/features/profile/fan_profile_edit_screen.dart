@@ -23,15 +23,16 @@ class _FanProfileEditScreenState extends ConsumerState<FanProfileEditScreen> {
   late TextEditingController _bioController;
   String? _avatarUrl;
   bool _hasChanges = false;
+  bool _showBirthday = false;
 
   @override
   void initState() {
     super.initState();
     final profile = ref.read(currentProfileProvider);
-    _nameController =
-        TextEditingController(text: profile?.displayName ?? '');
+    _nameController = TextEditingController(text: profile?.displayName ?? '');
     _bioController = TextEditingController(text: profile?.bio ?? '');
     _avatarUrl = profile?.avatarUrl;
+    _showBirthday = profile?.showBirthday ?? false;
     _nameController.addListener(_onFieldChanged);
     _bioController.addListener(_onFieldChanged);
   }
@@ -47,6 +48,10 @@ class _FanProfileEditScreenState extends ConsumerState<FanProfileEditScreen> {
     if (!_hasChanges) {
       setState(() => _hasChanges = true);
     }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}년 ${date.month}월 ${date.day}일';
   }
 
   void _changeAvatar() {
@@ -76,6 +81,7 @@ class _FanProfileEditScreenState extends ConsumerState<FanProfileEditScreen> {
         displayName: name,
         avatarUrl: _avatarUrl,
         bio: _bioController.text.trim(),
+        showBirthday: _showBirthday,
       );
     }
 
@@ -255,15 +261,76 @@ class _FanProfileEditScreenState extends ConsumerState<FanProfileEditScreen> {
               maxLines: 3,
             ),
 
+            const SizedBox(height: 24),
+
+            // Birthday visibility section
+            _FieldLabel(label: '생년월일', isDark: isDark),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ref.read(currentProfileProvider)?.dateOfBirth != null
+                        ? _formatDate(
+                            ref.read(currentProfileProvider)!.dateOfBirth!)
+                        : '설정되지 않음',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color:
+                          ref.read(currentProfileProvider)?.dateOfBirth != null
+                              ? (isDark
+                                  ? AppColors.textMainDark
+                                  : AppColors.textMainLight)
+                              : (isDark
+                                  ? AppColors.textSubDark
+                                  : AppColors.textSubLight),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '프로필에 생년월일 공개',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
+                        ),
+                      ),
+                      Switch(
+                        value: _showBirthday,
+                        onChanged: (value) {
+                          setState(() {
+                            _showBirthday = value;
+                            _hasChanges = true;
+                          });
+                        },
+                        activeColor: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 40),
 
             // Info note
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.surfaceDark
-                    : Colors.grey.shade50,
+                color: isDark ? AppColors.surfaceDark : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isDark ? AppColors.borderDark : AppColors.borderLight,

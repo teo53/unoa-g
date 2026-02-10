@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/config/app_config.dart';
 import '../models/ai_draft_error.dart';
 import '../models/ai_draft_state.dart';
-import '../mock/mock_creator_messages.dart';
 import '../mock/reply_templates.dart';
-import 'creator_pattern_service.dart';
 
 /// Service that manages the AI draft suggestion pipeline.
 ///
@@ -40,7 +37,8 @@ class AiDraftService {
     required String fanMessage,
   }) async {
     final correlationId = 'corr_${const Uuid().v4().substring(0, 8)}';
-    final idempotencyKey = _computeIdempotencyKey(channelId, messageId, fanMessage);
+    final idempotencyKey =
+        _computeIdempotencyKey(channelId, messageId, fanMessage);
 
     // 1. Check local cache
     final cached = _cache[idempotencyKey];
@@ -52,7 +50,7 @@ class AiDraftService {
     }
 
     // 2. Demo mode: return local suggestions without API call
-    if (AppConfig.enableDemoMode && AppConfig.anthropicApiKey.isEmpty) {
+    if (AppConfig.enableDemoMode) {
       await Future.delayed(const Duration(milliseconds: 800));
 
       final demoSuggestions = ReplyTemplates.getRandomSuggestions();
@@ -68,14 +66,13 @@ class AiDraftService {
       );
     }
 
-    // 3. Try API call
+    // 3. Try API call via Edge Function
     try {
-      final suggestions = await _callApi(
+      final suggestions = await _fetchFromSupabase(
         channelId: channelId,
         messageId: messageId,
         fanMessage: fanMessage,
         correlationId: correlationId,
-        useFullPrompt: true,
       );
 
       // Cache on success
@@ -89,14 +86,13 @@ class AiDraftService {
         correlationId: correlationId,
       );
     } catch (e) {
-      // 3. Auto-retry with simplified prompt
+      // 3. Auto-retry
       try {
-        final suggestions = await _callApi(
+        final suggestions = await _fetchFromSupabase(
           channelId: channelId,
           messageId: messageId,
           fanMessage: fanMessage,
           correlationId: correlationId,
-          useFullPrompt: false, // simplified: no pattern context
         );
 
         _cache[idempotencyKey] = _CachedResult(
@@ -128,87 +124,7 @@ class AiDraftService {
     }
   }
 
-  /// Core API call — routes to Claude direct or Supabase Edge Function.
-  Future<List<ReplySuggestion>> _callApi({
-    required String channelId,
-    required String messageId,
-    required String fanMessage,
-    required String correlationId,
-    required bool useFullPrompt,
-  }) async {
-    if (AppConfig.anthropicApiKey.isNotEmpty) {
-      return _fetchFromClaude(
-        fanMessage: fanMessage,
-        channelId: channelId,
-        correlationId: correlationId,
-        useFullPrompt: useFullPrompt,
-      );
-    } else {
-      return _fetchFromSupabase(
-        channelId: channelId,
-        messageId: messageId,
-        fanMessage: fanMessage,
-        correlationId: correlationId,
-      );
-    }
-  }
-
-  /// Direct Claude API call (dev/demo).
-  Future<List<ReplySuggestion>> _fetchFromClaude({
-    required String fanMessage,
-    required String channelId,
-    required String correlationId,
-    required bool useFullPrompt,
-  }) async {
-    String patternContext = '';
-    if (useFullPrompt) {
-      patternContext = await _buildPatternContext(channelId);
-    }
-
-    final prompt = _buildPrompt(fanMessage, patternContext: patternContext);
-
-    final response = await http.post(
-      Uri.parse('https://api.anthropic.com/v1/messages'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': AppConfig.anthropicApiKey,
-        'anthropic-version': '2023-06-01',
-        'x-correlation-id': correlationId,
-      },
-      body: jsonEncode({
-        'model': AppConfig.claudeModel,
-        'max_tokens': 1024,
-        'messages': [
-          {'role': 'user', 'content': prompt},
-        ],
-      }),
-    ).timeout(Duration(seconds: AppConfig.apiTimeoutSeconds));
-
-    if (response.statusCode == 429) {
-      throw AiDraftError(
-        code: AiDraftErrorCode.anthropicRateLimit,
-        userMessage: 'AI 요청이 너무 많아요. 잠시 후 다시 시도해주세요',
-        correlationId: correlationId,
-      );
-    }
-
-    if (response.statusCode != 200) {
-      throw AiDraftError(
-        code: AiDraftErrorCode.anthropicError,
-        userMessage: 'AI 서비스에 일시적인 문제가 있어요',
-        technicalDetail: 'HTTP ${response.statusCode}',
-        correlationId: correlationId,
-      );
-    }
-
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final contentList = data['content'] as List<dynamic>;
-    final text = contentList.first['text'] as String;
-
-    return parseAiResponse(text);
-  }
-
-  /// Supabase Edge Function call (production).
+  /// Supabase Edge Function call.
   Future<List<ReplySuggestion>> _fetchFromSupabase({
     required String channelId,
     required String messageId,
@@ -243,77 +159,6 @@ class AiDraftService {
     return suggestionsJson
         .map((s) => ReplySuggestion.fromJson(s as Map<String, dynamic>))
         .toList();
-  }
-
-  /// Build pattern context from creator's past messages.
-  ///
-  /// In demo mode, uses per-channel mock messages so each creator
-  /// gets a distinct style analysis. In production, queries Supabase
-  /// for the creator's actual recent messages.
-  Future<String> _buildPatternContext(String channelId) async {
-    List<CreatorMessage> messages;
-
-    if (AppConfig.enableDemoMode) {
-      messages = MockCreatorMessages.forChannel(channelId);
-    } else {
-      // Production: query last 50 broadcast messages from this channel
-      try {
-        final response = await Supabase.instance.client
-            .from('messages')
-            .select('id, content, created_at')
-            .eq('channel_id', channelId)
-            .eq('delivery_scope', 'broadcast')
-            .order('created_at', ascending: false)
-            .limit(50);
-
-        messages = (response as List<dynamic>)
-            .map((m) => CreatorMessage.fromJson(m as Map<String, dynamic>))
-            .toList();
-      } catch (_) {
-        // Fallback to mock data if DB query fails
-        messages = MockCreatorMessages.forChannel(channelId);
-      }
-    }
-
-    if (messages.isEmpty) return '';
-
-    final patternService = CreatorPatternService.instance;
-    final analysis = patternService.analyzePatterns(
-      creatorId: channelId,
-      messages: messages,
-    );
-
-    return patternService.buildPatternContext(analysis);
-  }
-
-  /// Build the AI prompt.
-  String _buildPrompt(String fanMessage, {String patternContext = ''}) {
-    final buffer = StringBuffer();
-    buffer.writeln('당신은 K-pop/엔터테인먼트 크리에이터의 팬 메시지 답글 초안을 작성하는 도우미입니다.');
-    buffer.writeln();
-
-    if (patternContext.isNotEmpty) {
-      buffer.writeln(patternContext);
-      buffer.writeln();
-    }
-
-    buffer.writeln('[팬 메시지]');
-    buffer.writeln('"$fanMessage"');
-    buffer.writeln();
-    buffer.writeln('[안전 규칙]');
-    buffer.writeln('- 친근하되 기만적이지 않게 작성');
-    buffer.writeln('- "AI"라는 단어 사용 금지');
-    buffer.writeln('- 각 답변 200자 이내');
-    buffer.writeln();
-    buffer.writeln('정확히 3개의 서로 다른 스타일의 답글 초안을 JSON 배열 형식으로 반환하세요.');
-    buffer.writeln('스타일: 짧게, 따뜻하게, 재미있게');
-    buffer.writeln();
-    buffer.writeln('예시 형식:');
-    buffer.writeln('["첫 번째 답글", "두 번째 답글", "세 번째 답글"]');
-    buffer.writeln();
-    buffer.writeln('답글만 출력하고 다른 설명은 포함하지 마세요.');
-
-    return buffer.toString();
   }
 
   /// Parse AI response text into a list of [ReplySuggestion].
@@ -372,14 +217,16 @@ class AiDraftService {
     throw AiDraftError(
       code: AiDraftErrorCode.parseFail,
       userMessage: 'AI 응답을 처리할 수 없어요',
-      technicalDetail: 'No valid suggestions found in response: ${text.substring(0, text.length.clamp(0, 200))}',
+      technicalDetail:
+          'No valid suggestions found in response: ${text.substring(0, text.length.clamp(0, 200))}',
     );
   }
 
   /// Compute idempotency key from request params.
   /// Uses a simple hash combination — this is for in-memory caching only,
   /// not for security purposes.
-  String _computeIdempotencyKey(String channelId, String messageId, String fanMessage) {
+  String _computeIdempotencyKey(
+      String channelId, String messageId, String fanMessage) {
     final input = '$channelId:$messageId:$fanMessage';
     // Use Object.hashAll for a deterministic hash string
     return 'idem_${input.hashCode.toRadixString(36)}';

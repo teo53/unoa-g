@@ -7,7 +7,8 @@ import '../core/config/demo_config.dart';
 import '../data/models/user.dart';
 
 // Re-export unified user models for backward compatibility
-export '../data/models/user.dart' show UserAuthProfile, UserDisplayProfile, UserBase;
+export '../data/models/user.dart'
+    show UserAuthProfile, UserDisplayProfile, UserBase;
 
 /// Sentinel for updateDemoProfile to distinguish "not provided" from "null"
 const Object _demoSentinel = Object();
@@ -382,6 +383,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     String? avatarUrl,
     String? bio,
     int? themeColorIndex,
+    bool? showBirthday,
     Object? instagramLink = _demoSentinel,
     Object? youtubeLink = _demoSentinel,
     Object? tiktokLink = _demoSentinel,
@@ -395,6 +397,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       avatarUrl: avatarUrl,
       bio: bio,
       themeColorIndex: themeColorIndex,
+      showBirthday: showBirthday,
       instagramLink: instagramLink == _demoSentinel
           ? currentState.demoProfile.instagramLink
           : instagramLink,
