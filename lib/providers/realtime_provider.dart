@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/demo_config.dart';
-import '../core/supabase/supabase_client.dart';
 import '../services/realtime_service.dart';
 import 'auth_provider.dart';
 

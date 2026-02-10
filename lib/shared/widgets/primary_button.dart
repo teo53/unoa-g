@@ -381,7 +381,6 @@ class BadgeChip extends StatelessWidget {
         fgColor = textColor ?? AppColors.warning;
         break;
       case BadgeType.standard:
-      default:
         bgColor = backgroundColor ??
             (isDark ? Colors.grey[800]! : AppColors.badgeStandard);
         fgColor = textColor ??

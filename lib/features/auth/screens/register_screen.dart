@@ -176,22 +176,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
-  bool get _step1Valid {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-    final displayName = _displayNameController.text.trim();
-
-    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty || displayName.isEmpty) {
-      return false;
-    }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) return false;
-    if (password.length < 8) return false;
-    if (password != confirmPassword) return false;
-    if (displayName.length < 2 || displayName.length > 20) return false;
-    return true;
-  }
-
   void _goToStep2() {
     if (!_formKey.currentState!.validate()) return;
     setState(() {

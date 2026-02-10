@@ -37,7 +37,6 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   bool _isSending = false;
   bool _isMediaMenuOpen = false;
   bool _isRecording = false;
-  bool _isOffline = false;
   String? _failedMessageText;
   int _recordingDuration = 0;
   StreamSubscription<int>? _durationSub;
@@ -100,13 +99,11 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     if (connectivity == ConnectivityResult.none) {
       setState(() {
         _isSending = false;
-        _isOffline = true;
         _failedMessageText = text;
       });
       _showOfflineWarning();
       return;
     }
-    _isOffline = false;
 
     try {
       final success = await ref
@@ -137,33 +134,6 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     setState(() {
       _isMediaMenuOpen = !_isMediaMenuOpen;
     });
-  }
-
-  Future<void> _pickAndSendCamera() async {
-    setState(() { _isMediaMenuOpen = false; });
-    final image = await _mediaService.pickImage(source: ImageSource.camera);
-    if (image == null) return;
-
-    setState(() { _isSending = true; });
-    try {
-      final result = await _mediaService.uploadMedia(
-        image,
-        channelId: widget.channelId,
-        userId: ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
-      );
-      if (result != null) {
-        await ref.read(chatProvider(widget.channelId).notifier).sendMediaMessage(
-          mediaUrl: result.url,
-          messageType: 'image',
-          mediaMetadata: result.metadata,
-        );
-        widget.onMessageSent?.call();
-      }
-    } catch (e) {
-      _showError('카메라 촬영에 실패했습니다.');
-    } finally {
-      setState(() { _isSending = false; });
-    }
   }
 
   // ── Voice recording ──

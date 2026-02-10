@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/supabase/supabase_client.dart';
 import '../core/config/demo_config.dart';
 import '../core/config/business_config.dart';
 import 'auth_provider.dart';

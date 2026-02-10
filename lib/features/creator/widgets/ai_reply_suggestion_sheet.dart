@@ -138,14 +138,6 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
     widget.onInsert(text);
   }
 
-  // Extract suggestions list from current state
-  List<ReplySuggestion> get _currentSuggestions {
-    final state = _state;
-    if (state is AiDraftSuccess) return state.suggestions;
-    if (state is AiDraftSoftFail) return state.templateSuggestions;
-    return [];
-  }
-
   bool get _isGenerating => _state is AiDraftGenerating;
 
   @override

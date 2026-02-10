@@ -2,9 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/supabase/supabase_client.dart';
 import '../core/theme/app_colors.dart';
-import '../data/models/channel.dart';
 import '../data/models/message.dart';
 import 'auth_provider.dart';
 
@@ -253,7 +251,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
           lastMessageAt: messagesResponse?['created_at'] != null
               ? DateTime.parse(messagesResponse!['created_at'] as String)
               : null,
-          unreadCount: (unreadResponse.count ?? 0),
+          unreadCount: unreadResponse.count,
           isVerified: artistProfile?['is_verified'] as bool? ?? false,
           isPinned: sub['is_pinned'] as bool? ?? false,
           tier: sub['tier'] as String? ?? 'STANDARD',

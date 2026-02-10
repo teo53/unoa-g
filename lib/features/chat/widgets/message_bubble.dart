@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/premium_effects.dart';
 import '../../../data/models/message.dart';
 
 class MessageBubble extends StatelessWidget {

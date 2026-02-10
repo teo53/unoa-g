@@ -37,9 +37,6 @@ void main() {
 
     testWidgets('shows edit and delete options for own message',
         (WidgetTester tester) async {
-      bool editCalled = false;
-      bool deleteCalled = false;
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -50,8 +47,8 @@ void main() {
                     context: context,
                     message: ownMessage,
                     isOwnMessage: true,
-                    onEdit: () => editCalled = true,
-                    onDelete: () => deleteCalled = true,
+                    onEdit: () {},
+                    onDelete: () {},
                   );
                 },
                 child: const Text('Show Actions'),
@@ -76,9 +73,6 @@ void main() {
 
     testWidgets('shows report and block options for other message',
         (WidgetTester tester) async {
-      bool reportCalled = false;
-      bool blockCalled = false;
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -89,10 +83,8 @@ void main() {
                     context: context,
                     message: otherMessage,
                     isOwnMessage: false,
-                    onReport: (reason, description) async {
-                      reportCalled = true;
-                    },
-                    onBlock: () => blockCalled = true,
+                    onReport: (reason, description) async {},
+                    onBlock: () {},
                   );
                 },
                 child: const Text('Show Actions'),

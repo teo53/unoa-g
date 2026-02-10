@@ -1412,8 +1412,6 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
   // ===== 하이라이트 편집 다이얼로그 =====
 
   void _showHighlightEditDialog(bool isDark, Color themeColor) {
-    final highlights = ref.read(creatorContentProvider).highlights;
-
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
