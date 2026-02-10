@@ -139,7 +139,9 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   // ── Voice recording ──
 
   Future<void> _startVoiceRecording() async {
-    setState(() { _isMediaMenuOpen = false; });
+    setState(() {
+      _isMediaMenuOpen = false;
+    });
 
     if (kIsWeb) {
       _showError('웹에서는 음성 녹음이 지원되지 않습니다.');
@@ -164,12 +166,18 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     });
 
     _durationSub = _voiceService.durationStream.listen((seconds) {
-      if (mounted) setState(() { _recordingDuration = seconds; });
+      if (mounted) {
+        setState(() {
+          _recordingDuration = seconds;
+        });
+      }
     });
 
     _stateSub = _voiceService.stateStream.listen((state) {
       if (state == VoiceRecordingState.idle && mounted) {
-        setState(() { _isRecording = false; });
+        setState(() {
+          _isRecording = false;
+        });
       }
     });
   }
@@ -178,34 +186,43 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     final result = await _voiceService.stopRecording();
     _durationSub?.cancel();
     _stateSub?.cancel();
-    setState(() { _isRecording = false; });
+    setState(() {
+      _isRecording = false;
+    });
 
     if (result == null) {
       _showError('녹음에 실패했습니다.');
       return;
     }
 
-    setState(() { _isSending = true; });
+    setState(() {
+      _isSending = true;
+    });
     try {
       final uploaded = await _mediaService.uploadVoice(
         result.toXFile(),
         channelId: widget.channelId,
-        userId: ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
+        userId:
+            ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
         durationSeconds: result.durationSeconds,
       );
 
       if (uploaded != null) {
-        await ref.read(chatProvider(widget.channelId).notifier).sendMediaMessage(
-          mediaUrl: uploaded.mainUrl,
-          messageType: 'voice',
-          mediaMetadata: uploaded.metadata,
-        );
+        await ref
+            .read(chatProvider(widget.channelId).notifier)
+            .sendMediaMessage(
+              mediaUrl: uploaded.mainUrl,
+              messageType: 'voice',
+              mediaMetadata: uploaded.metadata,
+            );
         widget.onMessageSent?.call();
       }
     } catch (e) {
       _showError('음성 메시지 전송에 실패했습니다.');
     } finally {
-      setState(() { _isSending = false; });
+      setState(() {
+        _isSending = false;
+      });
     }
   }
 
@@ -213,13 +230,18 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     await _voiceService.cancelRecording();
     _durationSub?.cancel();
     _stateSub?.cancel();
-    setState(() { _isRecording = false; });
+    setState(() {
+      _isRecording = false;
+    });
   }
 
   // ── Video pick & send ──
 
-  Future<void> _pickAndSendVideo({ImageSource source = ImageSource.gallery}) async {
-    setState(() { _isMediaMenuOpen = false; });
+  Future<void> _pickAndSendVideo(
+      {ImageSource source = ImageSource.gallery}) async {
+    setState(() {
+      _isMediaMenuOpen = false;
+    });
 
     final video = await _mediaService.pickVideo(source: source);
     if (video == null) return;
@@ -231,31 +253,40 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
       return;
     }
 
-    setState(() { _isSending = true; });
+    setState(() {
+      _isSending = true;
+    });
     try {
       final uploaded = await _mediaService.uploadVideo(
         video,
         channelId: widget.channelId,
-        userId: ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
+        userId:
+            ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
       );
 
       if (uploaded != null) {
-        await ref.read(chatProvider(widget.channelId).notifier).sendMediaMessage(
-          mediaUrl: uploaded.mainUrl,
-          messageType: 'video',
-          mediaMetadata: uploaded.metadata,
-        );
+        await ref
+            .read(chatProvider(widget.channelId).notifier)
+            .sendMediaMessage(
+              mediaUrl: uploaded.mainUrl,
+              messageType: 'video',
+              mediaMetadata: uploaded.metadata,
+            );
         widget.onMessageSent?.call();
       }
     } catch (e) {
       _showError('동영상 전송에 실패했습니다.');
     } finally {
-      setState(() { _isSending = false; });
+      setState(() {
+        _isSending = false;
+      });
     }
   }
 
   Future<void> _pickAndSendImage() async {
-    setState(() { _isMediaMenuOpen = false; });
+    setState(() {
+      _isMediaMenuOpen = false;
+    });
     final image = await _mediaService.pickImage();
     if (image == null) return;
 
@@ -268,15 +299,18 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
       final result = await _mediaService.uploadMedia(
         image,
         channelId: widget.channelId,
-        userId: ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
+        userId:
+            ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
       );
 
       if (result != null) {
-        await ref.read(chatProvider(widget.channelId).notifier).sendMediaMessage(
-          mediaUrl: result.url,
-          messageType: 'image',
-          mediaMetadata: result.metadata,
-        );
+        await ref
+            .read(chatProvider(widget.channelId).notifier)
+            .sendMediaMessage(
+              mediaUrl: result.url,
+              messageType: 'image',
+              mediaMetadata: result.metadata,
+            );
         widget.onMessageSent?.call();
       }
     } catch (e) {
@@ -291,7 +325,8 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   Widget _buildVoiceRecordingBar(bool isDark) {
     final minutes = _recordingDuration ~/ 60;
     final seconds = _recordingDuration % 60;
-    final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    final timeStr =
+        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
     return Row(
       children: [
@@ -484,7 +519,9 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
               isDark: isDark,
               accentColor: accent,
               onCancel: () {
-                ref.read(chatProvider(widget.channelId).notifier).clearReplyTo();
+                ref
+                    .read(chatProvider(widget.channelId).notifier)
+                    .clearReplyTo();
               },
             ),
 
@@ -594,96 +631,102 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
           if (_isRecording)
             _buildVoiceRecordingBar(isDark)
           else
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // + / X toggle button
-              IconButton(
-                onPressed: _toggleMediaMenu,
-                icon: AnimatedRotation(
-                  turns: _isMediaMenuOpen ? 0.125 : 0, // 45도 회전 → X 모양
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // + / X toggle button
+                IconButton(
+                  onPressed: _toggleMediaMenu,
+                  icon: AnimatedRotation(
+                    turns: _isMediaMenuOpen ? 0.125 : 0, // 45도 회전 → X 모양
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.add,
+                      color: _isMediaMenuOpen
+                          ? accent
+                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                      size: 26,
+                    ),
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 40, minHeight: 40),
+                ),
+
+                // Text input
+                Expanded(
+                  child: Container(
+                    constraints: const BoxConstraints(maxHeight: 120),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.grey[800] : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: TextField(
+                      controller: _controller,
+                      onChanged: _onTextChanged,
+                      maxLines: null,
+                      maxLength: characterLimit,
+                      buildCounter: (_,
+                              {required currentLength,
+                              required isFocused,
+                              maxLength}) =>
+                          null,
+                      decoration: InputDecoration(
+                        hintText: '메시지를 입력하세요',
+                        hintStyle: TextStyle(
+                          color: isDark ? Colors.grey[500] : Colors.grey[400],
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
+                // Send button
+                AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    Icons.add,
-                    color: _isMediaMenuOpen
-                        ? accent
-                        : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                    size: 26,
-                  ),
+                  width: 40,
+                  height: 40,
+                  child: _isSending
+                      ? const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : IconButton(
+                          onPressed: _isComposing &&
+                                  _controller.text.length <= characterLimit
+                              ? _sendMessage
+                              : null,
+                          style: IconButton.styleFrom(
+                            backgroundColor: _isComposing
+                                ? accent
+                                : isDark
+                                    ? Colors.grey[700]
+                                    : Colors.grey[300],
+                            shape: const CircleBorder(),
+                          ),
+                          icon: Icon(
+                            Icons.send,
+                            color:
+                                _isComposing ? Colors.white : Colors.grey[500],
+                            size: 20,
+                          ),
+                        ),
                 ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              ),
-
-              // Text input
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.grey[800] : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: TextField(
-                    controller: _controller,
-                    onChanged: _onTextChanged,
-                    maxLines: null,
-                    maxLength: characterLimit,
-                    buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
-                    decoration: InputDecoration(
-                      hintText: '메시지를 입력하세요',
-                      hintStyle: TextStyle(
-                        color: isDark ? Colors.grey[500] : Colors.grey[400],
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                    ),
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              // Send button
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 40,
-                height: 40,
-                child: _isSending
-                    ? const Center(
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : IconButton(
-                        onPressed: _isComposing &&
-                                _controller.text.length <= characterLimit
-                            ? _sendMessage
-                            : null,
-                        style: IconButton.styleFrom(
-                          backgroundColor: _isComposing
-                              ? accent
-                              : isDark
-                                  ? Colors.grey[700]
-                                  : Colors.grey[300],
-                          shape: const CircleBorder(),
-                        ),
-                        icon: Icon(
-                          Icons.send,
-                          color: _isComposing ? Colors.white : Colors.grey[500],
-                          size: 20,
-                        ),
-                      ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );
@@ -855,21 +898,21 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
 
       // Send donation via wallet provider
       final donation = await ref.read(walletProvider.notifier).sendDonation(
-        channelId: widget.channelId,
-        creatorId: creatorId,
-        amountDt: amount,
-        isAnonymous: _isAnonymous,
-      );
+            channelId: widget.channelId,
+            creatorId: creatorId,
+            amountDt: amount,
+            isAnonymous: _isAnonymous,
+          );
 
       // Send donation message if text provided
       if (_messageController.text.trim().isNotEmpty && donation != null) {
         await ref
             .read(chatProvider(widget.channelId).notifier)
             .sendDonationMessage(
-          content: _messageController.text.trim(),
-          amountDt: amount,
-          donationId: donation['id'] as String,
-        );
+              content: _messageController.text.trim(),
+              amountDt: amount,
+              donationId: donation['id'] as String,
+            );
       }
 
       if (mounted) {
@@ -948,7 +991,8 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
             runSpacing: 8,
             children: [
               ..._presetAmounts.map((amount) {
-                final isSelected = !_isCustomAmount && _selectedAmount == amount;
+                final isSelected =
+                    !_isCustomAmount && _selectedAmount == amount;
                 return ChoiceChip(
                   label: Text(_formatNumber(amount)),
                   selected: isSelected,
@@ -1024,7 +1068,8 @@ class _DonationSheetState extends ConsumerState<_DonationSheet> {
 
           // Send button
           FilledButton(
-            onPressed: (_isSending || _effectiveAmount < 10) ? null : _sendDonation,
+            onPressed:
+                (_isSending || _effectiveAmount < 10) ? null : _sendDonation,
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFFEC4899),
               minimumSize: const Size.fromHeight(48),
@@ -1119,13 +1164,14 @@ class _ReplyPreviewBar extends StatelessWidget {
     final senderName = message.isFromArtist
         ? (message.senderName ?? '아티스트')
         : (message.senderName ?? '나');
-    final previewText = message.content ?? (message.messageType == BroadcastMessageType.image
-        ? '사진'
-        : message.messageType == BroadcastMessageType.video
-            ? '동영상'
-            : message.messageType == BroadcastMessageType.voice
-                ? '음성 메시지'
-                : '메시지');
+    final previewText = message.content ??
+        (message.messageType == BroadcastMessageType.image
+            ? '사진'
+            : message.messageType == BroadcastMessageType.video
+                ? '동영상'
+                : message.messageType == BroadcastMessageType.voice
+                    ? '음성 메시지'
+                    : '메시지');
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
