@@ -24,7 +24,6 @@ class ErrorBoundary extends StatefulWidget {
 
 class _ErrorBoundaryState extends State<ErrorBoundary> {
   Object? _error;
-  int _retryCount = 0;
 
   @override
   void initState() {
@@ -34,7 +33,6 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
   void _retry() {
     setState(() {
       _error = null;
-      _retryCount++;
     });
   }
 

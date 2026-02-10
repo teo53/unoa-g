@@ -20,8 +20,6 @@ import '../features/notifications/notifications_screen.dart';
 import '../features/subscriptions/subscriptions_screen.dart';
 import '../features/help/help_center_screen.dart';
 import '../features/artist_inbox/artist_inbox_screen.dart';
-import '../features/creator/creator_analytics_screen.dart';
-import '../features/creator/creator_dm_screen.dart';
 import '../features/creator/creator_crm_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';

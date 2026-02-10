@@ -819,7 +819,6 @@ class _ChatMessage {
   final String fanTier;
   final bool isFromCreator;
   final DateTime timestamp;
-  final int? donationAmount;
   final bool isRead;
 
   _ChatMessage({
@@ -830,7 +829,6 @@ class _ChatMessage {
     required this.fanTier,
     required this.isFromCreator,
     required this.timestamp,
-    this.donationAmount,
     this.isRead = true,
   });
 }

@@ -163,7 +163,6 @@ class TokenIndicator extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final available = quota?.tokensAvailable ?? 0;
     final isFallback = quota?.isFallbackOnly ?? false;
-    final canReply = quota?.canReply ?? false;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

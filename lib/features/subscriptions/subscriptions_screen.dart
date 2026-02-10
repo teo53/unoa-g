@@ -6,7 +6,6 @@ import '../../core/utils/accessibility_helper.dart';
 import '../../data/mock/mock_data.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
-import '../../shared/widgets/skeleton_loader.dart';
 import '../../shared/widgets/error_boundary.dart';
 
 class SubscriptionsScreen extends StatelessWidget {

@@ -531,11 +531,8 @@ class _DtExpirationBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Demo data: 90일 이내 만료 예정 DT (실제로는 get_expiring_dt_summary RPC 호출)
-    const hasExpiringDt = true;
     const expiringAmount = 500;
     const daysUntilExpiry = 45;
-
-    if (!hasExpiringDt) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,

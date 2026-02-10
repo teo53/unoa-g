@@ -12,7 +12,6 @@ import '../../providers/chat_list_provider.dart';
 import '../../data/models/broadcast_message.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/push_permission_prompt.dart';
-import 'widgets/message_bubble.dart';
 import 'widgets/chat_input_bar_v2.dart';
 import 'widgets/voice_message_widget.dart';
 import 'widgets/message_actions_sheet.dart';
@@ -170,8 +169,6 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
         ),
       );
     }
-
-    final channel = chatState.channel;
 
     return AppScaffold(
       showStatusBar: true,

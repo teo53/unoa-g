@@ -63,7 +63,6 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
 
   // 검색 상태
   bool _isSearchActive = false;
-  String _searchQuery = '';
   List<int> _searchMatchIndices = [];
   int _currentSearchMatchIndex = -1;
 
@@ -711,7 +710,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
 
   void _onSearchQueryChanged(String query) {
     setState(() {
-      _searchQuery = query;
+      // query used for filtering
       _searchMatchIndices = [];
       _currentSearchMatchIndex = -1;
       if (query.isNotEmpty) {
@@ -754,7 +753,6 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   void _onSearchClose() {
     setState(() {
       _isSearchActive = false;
-      _searchQuery = '';
       _searchMatchIndices = [];
       _currentSearchMatchIndex = -1;
     });

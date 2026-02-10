@@ -5,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/config/demo_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/private_card.dart';
-import '../../data/models/fan_filter.dart';
 import '../../providers/private_card_provider.dart';
 
 /// Tab screen for private cards (shown in creator bottom nav)

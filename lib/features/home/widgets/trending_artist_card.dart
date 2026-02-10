@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/artist.dart';
-import '../../../shared/widgets/avatar_with_badge.dart';
 import '../../../shared/widgets/primary_button.dart';
 
 class TrendingArtistCard extends StatelessWidget {
