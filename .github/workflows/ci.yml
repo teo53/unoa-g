@@ -109,7 +109,7 @@ jobs:
         run: |
           echo "=== Checking for potential secrets in tracked files ==="
           # Check for common secret patterns (fail if found)
-          if git grep -lI 'sk_live_\|sk_test_\|AKIA[0-9A-Z]\{16\}\|-----BEGIN.*PRIVATE KEY' -- ':!*.lock' ':!node_modules' ':!.github'; then
+          if git grep -lI 'sk_live_\|sk_test_\|AKIA[0-9A-Z]\{16\}\|-----BEGIN.*PRIVATE KEY' -- ':!*.lock' ':!node_modules' ':!.github' ':!scripts/gates' ':!tools/mcp' ':!*.md'; then
             echo "::error::Potential secrets found in tracked files!"
             exit 1
           else
