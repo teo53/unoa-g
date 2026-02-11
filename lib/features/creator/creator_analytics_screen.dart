@@ -263,15 +263,11 @@ class _CreatorAnalyticsScreenState
                         width: 28,
                         height: height,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primary.withValues(alpha: 0.6),
-                            ],
-                          ),
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: AppColors.primary500.withValues(alpha: 0.12),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),

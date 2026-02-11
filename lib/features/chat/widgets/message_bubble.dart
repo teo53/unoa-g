@@ -286,12 +286,7 @@ class _FanBubble extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.star.withValues(alpha: 0.2),
-                            AppColors.vip.withValues(alpha: 0.15),
-                          ],
-                        ),
+                        color: AppColors.star.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: AppColors.star.withValues(alpha: 0.3),

@@ -107,12 +107,8 @@ class PrivateCardListView extends ConsumerWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.vip.withValues(alpha: 0.2),
-                  AppColors.cardAccentPink.withValues(alpha: 0.2),
-                ],
-              ),
+              color: AppColors.vip.withValues(alpha: 0.15),
+              border: Border.all(color: AppColors.vip.withValues(alpha: 0.2)),
             ),
             child: const Icon(
               Icons.mail_outline_rounded,
@@ -396,9 +392,7 @@ class _SentCardTile extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: AppColors.privateCardGradient,
-              ),
+              color: AppColors.vip,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Center(

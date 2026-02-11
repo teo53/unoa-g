@@ -345,18 +345,11 @@ class _GuestHeroSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24),
       padding: const EdgeInsets.fromLTRB(28, 36, 28, 32),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.10),
-            AppColors.primary.withValues(alpha: 0.04),
-            isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+        color: isDark ? AppColors.surfaceDark : AppColors.primary100,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.12),
+          color: (isDark ? Colors.white : AppColors.primary500)
+              .withValues(alpha: 0.12),
         ),
       ),
       child: Column(

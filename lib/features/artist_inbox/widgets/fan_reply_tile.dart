@@ -99,12 +99,7 @@ class FanReplyTile extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          AppColors.primary500,
-                          AppColors.primary600,
-                        ],
-                      ),
+                      color: AppColors.primary600,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

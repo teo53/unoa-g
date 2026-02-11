@@ -110,15 +110,11 @@ class ModerationPolicyScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary100,
-            AppColors.primary100.withValues(alpha: 0.5),
-          ],
-        ),
+        color: isDark ? AppColors.surfaceDark : AppColors.primary100,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: (isDark ? Colors.white : AppColors.primary500)
+                .withValues(alpha: 0.12)),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,

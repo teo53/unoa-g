@@ -81,7 +81,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       if (!hasShown && mounted) {
         await prefs.setBool('push_prompt_shown', true);
         if (mounted) {
-          PushPermissionPrompt.show(context);
+          await PushPermissionPrompt.show(context);
         }
       }
     } catch (_) {
@@ -323,9 +323,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: _getTierColors(chatState.subscription!.tier),
-                        ),
+                        color:
+                            _getTierColors(chatState.subscription!.tier).first,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -1108,12 +1107,7 @@ class MessageBubbleV2 extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFFFEE2E2).withValues(alpha: 0.5),
-            const Color(0xFFFCE7F3).withValues(alpha: 0.5),
-          ],
-        ),
+        color: const Color(0xFFFEE2E2).withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: const Color(0xFFF9A8D4).withValues(alpha: 0.5),

@@ -137,14 +137,7 @@ class _CardTemplateItem extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.7),
-                        Colors.transparent,
-                      ],
-                    ),
+                    color: Colors.black.withValues(alpha: 0.5),
                   ),
                   child: Text(
                     template.name,
