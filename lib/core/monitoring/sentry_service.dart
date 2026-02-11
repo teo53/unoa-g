@@ -22,12 +22,21 @@ class SentryService {
       );
 
   /// Sentry 초기화
+  /// 프로덕션 환경에서는 DSN이 반드시 설정되어야 합니다.
   static Future<void> initialize() async {
     if (_initialized) return;
 
     final dsn = _dsn;
     if (dsn == null || dsn.isEmpty) {
-      debugPrint('[Sentry] DSN not configured, skipping initialization');
+      if (_environment == 'production') {
+        throw StateError(
+          '[Sentry] DSN is required in production. '
+          'Set --dart-define=SENTRY_DSN=your-dsn',
+        );
+      }
+      if (kDebugMode) {
+        debugPrint('[Sentry] DSN not configured, skipping initialization');
+      }
       return;
     }
 
@@ -63,7 +72,9 @@ class SentryService {
     );
 
     _initialized = true;
-    debugPrint('[Sentry] Initialized for environment: $_environment');
+    if (kDebugMode) {
+      debugPrint('[Sentry] Initialized for environment: $_environment');
+    }
   }
 
   /// 에러 전송 전 민감 정보 필터링
@@ -92,6 +103,10 @@ class SentryService {
     if (breadcrumb.category == 'http') {
       final data = Map<String, dynamic>.from(breadcrumb.data ?? {});
       data.remove('headers'); // 헤더에 토큰이 있을 수 있음
+      data.remove('request_body'); // 요청 본문에 민감 정보 가능
+      data.remove('response_body'); // 응답 본문에 민감 정보 가능
+      data.remove('request_body_size');
+      data.remove('response_body_size');
       return breadcrumb.copyWith(data: data);
     }
 

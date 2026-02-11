@@ -99,7 +99,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   int? get _age {
     final dob = _dateOfBirth;
     if (dob == null) return null;
-    return DateTime.now().difference(dob).inDays ~/ 365;
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    // 생일이 아직 안 지났으면 1살 빼기
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
   }
 
   bool get _isMinor {

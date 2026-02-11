@@ -39,8 +39,15 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       'card'; // card, bank_transfer, virtual_account
 
   // KRW 결제: DT 지갑이 아니라 원화 결제
-  int get _totalAmount =>
-      widget.tier['price_krw'] as int? ?? widget.tier['price_dt'] as int? ?? 0;
+  // ⚠️ 참고: 실제 결제 금액은 서버(Edge Function)에서 캠페인/티어 DB 조회 후 결정됨.
+  // 이 값은 UI 표시용이며, 서버에서 최종 금액을 검증합니다.
+  int get _totalAmount {
+    final amount = widget.tier['price_krw'] as int? ??
+        widget.tier['price_dt'] as int? ??
+        0;
+    if (amount <= 0) return 0;
+    return amount;
+  }
 
   @override
   void initState() {
@@ -84,6 +91,10 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('로그인이 필요합니다');
 
+      if (_totalAmount <= 0) {
+        throw Exception('유효하지 않은 결제 금액입니다');
+      }
+
       // 주문번호 생성 (가맹점 고유)
       final orderId =
           'FUND_${widget.campaign['id']}_${DateTime.now().millisecondsSinceEpoch}';
@@ -126,7 +137,11 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
 
       final data = response.data as Map<String, dynamic>?;
 
-      if (data?['success'] == true) {
+      if (data == null) {
+        throw Exception('서버로부터 응답을 받지 못했습니다');
+      }
+
+      if (data['success'] == true) {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -136,12 +151,12 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
               campaign: widget.campaign,
               tier: widget.tier,
               totalAmount: _totalAmount,
-              pledgeId: data?['pledgeId'],
+              pledgeId: data['pledgeId'],
             ),
           ),
         );
       } else {
-        throw Exception(data?['error'] ?? data?['message'] ?? '후원에 실패했습니다');
+        throw Exception(data['error'] ?? data['message'] ?? '후원에 실패했습니다');
       }
     } catch (e) {
       if (!mounted) return;

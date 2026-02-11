@@ -89,6 +89,13 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
   }
 
   Future<void> _doSendMessage(String text) async {
+    // Validate character limit before sending
+    final chatState = ref.read(chatProvider(widget.channelId));
+    if (text.length > chatState.characterLimit) {
+      _showError('글자 수 제한(${chatState.characterLimit}자)을 초과했습니다.');
+      return;
+    }
+
     setState(() {
       _isSending = true;
       _failedMessageText = null;
@@ -199,11 +206,17 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
       _isSending = true;
     });
     try {
+      final userId =
+          ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '';
+      if (userId.isEmpty) {
+        _showError('로그인이 필요합니다.');
+        return;
+      }
+
       final uploaded = await _mediaService.uploadVoice(
         result.toXFile(),
         channelId: widget.channelId,
-        userId:
-            ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
+        userId: userId,
         durationSeconds: result.durationSeconds,
       );
 
@@ -257,11 +270,17 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
       _isSending = true;
     });
     try {
+      final userId =
+          ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '';
+      if (userId.isEmpty) {
+        _showError('로그인이 필요합니다.');
+        return;
+      }
+
       final uploaded = await _mediaService.uploadVideo(
         video,
         channelId: widget.channelId,
-        userId:
-            ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
+        userId: userId,
       );
 
       if (uploaded != null) {
@@ -295,12 +314,18 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     });
 
     try {
+      final userId =
+          ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '';
+      if (userId.isEmpty) {
+        _showError('로그인이 필요합니다.');
+        return;
+      }
+
       // Upload image
       final result = await _mediaService.uploadMedia(
         image,
         channelId: widget.channelId,
-        userId:
-            ref.read(chatProvider(widget.channelId)).subscription?.userId ?? '',
+        userId: userId,
       );
 
       if (result != null) {

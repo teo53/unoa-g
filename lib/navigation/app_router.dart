@@ -147,8 +147,12 @@ final appRouter = GoRouter(
         }
         return '/';
       }
-    } catch (_) {
+    } catch (e) {
       // ProviderScope not available yet (e.g., during initial build)
+      assert(() {
+        debugPrint('[AppRouter] redirect error: $e');
+        return true;
+      }());
     }
     return null;
   },
@@ -265,16 +269,28 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/chat/:artistId',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => ChatThreadScreenV2(
-        channelId: state.pathParameters['artistId']!,
-      ),
+      builder: (context, state) {
+        final artistId = state.pathParameters['artistId'];
+        if (artistId == null || artistId.isEmpty) {
+          return const Scaffold(
+            body: Center(child: Text('잘못된 접근입니다.')),
+          );
+        }
+        return ChatThreadScreenV2(channelId: artistId);
+      },
     ),
     GoRoute(
       path: '/artist/:artistId',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => ArtistProfileScreen(
-        artistId: state.pathParameters['artistId']!,
-      ),
+      builder: (context, state) {
+        final artistId = state.pathParameters['artistId'];
+        if (artistId == null || artistId.isEmpty) {
+          return const Scaffold(
+            body: Center(child: Text('잘못된 접근입니다.')),
+          );
+        }
+        return ArtistProfileScreen(artistId: artistId);
+      },
     ),
     // Fan Profile Edit
     GoRoute(

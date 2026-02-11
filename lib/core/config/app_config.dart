@@ -66,9 +66,10 @@ class AppConfig {
   // ============================================================
 
   /// Enable demo mode (allows app usage without real authentication)
+  /// 프로덕션에서는 반드시 ENABLE_DEMO=false로 빌드해야 합니다.
   static bool get enableDemoMode =>
       isDevelopment ||
-      const bool.fromEnvironment('ENABLE_DEMO', defaultValue: true);
+      const bool.fromEnvironment('ENABLE_DEMO', defaultValue: false);
 
   /// Enable analytics tracking
   static bool get enableAnalytics =>

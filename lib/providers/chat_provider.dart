@@ -567,9 +567,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
     } catch (e, stackTrace) {
       _paginationRetryCount++;
-      debugPrint(
-          '[ChatNotifier] Pagination error (attempt $_paginationRetryCount): $e');
       if (kDebugMode) {
+        debugPrint(
+            '[ChatNotifier] Pagination error (attempt $_paginationRetryCount): $e');
         debugPrint(stackTrace.toString());
       }
 
@@ -587,8 +587,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
   List<BroadcastMessage> _parseMessages(dynamic response) {
     if (response == null) return [];
     if (response is! List) {
-      debugPrint(
-          '[ChatNotifier] Unexpected response type: ${response.runtimeType}');
+      if (kDebugMode) {
+        debugPrint(
+            '[ChatNotifier] Unexpected response type: ${response.runtimeType}');
+      }
       return [];
     }
 
@@ -598,7 +600,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
           try {
             return BroadcastMessage.fromJson(json);
           } catch (e) {
-            debugPrint('[ChatNotifier] Failed to parse message: $e');
+            if (kDebugMode) {
+              debugPrint('[ChatNotifier] Failed to parse message: $e');
+            }
             return null;
           }
         })
@@ -654,8 +658,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       return true;
     } catch (e, stackTrace) {
-      debugPrint('[ChatNotifier] sendReply error: $e');
       if (kDebugMode) {
+        debugPrint('[ChatNotifier] sendReply error: $e');
         debugPrint(stackTrace.toString());
       }
       return false;
@@ -831,8 +835,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       return true;
     } catch (e, stackTrace) {
-      debugPrint('[ChatNotifier] sendDonationMessage error: $e');
       if (kDebugMode) {
+        debugPrint('[ChatNotifier] sendDonationMessage error: $e');
         debugPrint(stackTrace.toString());
       }
       return false;
@@ -864,8 +868,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       return true;
     } catch (e, stackTrace) {
-      debugPrint('[ChatNotifier] sendMediaMessage error: $e');
       if (kDebugMode) {
+        debugPrint('[ChatNotifier] sendMediaMessage error: $e');
         debugPrint(stackTrace.toString());
       }
       return false;
@@ -989,8 +993,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(messages: updatedMessages);
       return true;
     } catch (e, stackTrace) {
-      debugPrint('[ChatNotifier] editMessage error: $e');
       if (kDebugMode) {
+        debugPrint('[ChatNotifier] editMessage error: $e');
         debugPrint(stackTrace.toString());
       }
       return false;
@@ -1063,8 +1067,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(messages: updatedMessages);
       return true;
     } catch (e, stackTrace) {
-      debugPrint('[ChatNotifier] deleteMessage error: $e');
       if (kDebugMode) {
+        debugPrint('[ChatNotifier] deleteMessage error: $e');
         debugPrint(stackTrace.toString());
       }
       return false;

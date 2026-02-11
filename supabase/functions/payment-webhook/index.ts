@@ -331,7 +331,7 @@ serve(async (req) => {
 
       // Verify amount matches if applicable
       if (verification.orderId && verification.orderId !== orderId) {
-        logEntry.error_message = `Order ID mismatch: expected ${orderId}, got ${verification.orderId}`
+        logEntry.error_message = 'Order ID mismatch between webhook payload and payment provider'
         logEntry.processed_status = 'failed'
         await logWebhookEvent(supabase, logEntry)
         return new Response(
