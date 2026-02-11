@@ -1,42 +1,101 @@
-// This is a basic Flutter widget test.
-//
-// TODO: Update this test once the app structure is finalized.
-// The current test is a placeholder as the app doesn't have a simple
-// counter widget - it's a complex fan messaging platform.
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:uno_a_flutter/shared/widgets/error_boundary.dart';
 
 void main() {
-  testWidgets('App smoke test - placeholder', (WidgetTester tester) async {
-    // Note: The UNO A app requires Supabase initialization and
-    // various providers to be set up before it can be tested.
-    //
-    // TODO: Implement proper widget tests with:
-    // 1. Mock Supabase client
-    // 2. Mock providers using ProviderScope overrides
-    // 3. Test individual screens and widgets in isolation
-    //
-    // For now, this is a placeholder test.
-    expect(true, isTrue);
+  group('ErrorDisplay', () {
+    testWidgets('renders default error message', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ErrorDisplay(error: Exception('Test error')),
+          ),
+        ),
+      );
+
+      // Default title
+      expect(find.text('문제가 발생했습니다'), findsOneWidget);
+
+      // Error icon
+      expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+    });
+
+    testWidgets('renders retry button when onRetry provided',
+        (WidgetTester tester) async {
+      var retryCount = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ErrorDisplay(
+              error: Exception('Test error'),
+              onRetry: () => retryCount++,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('다시 시도'), findsOneWidget);
+
+      await tester.tap(find.text('다시 시도'));
+      expect(retryCount, equals(1));
+    });
+
+    testWidgets('renders custom title and message',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ErrorDisplay(
+              error: Exception('Test'),
+              title: '서버 오류',
+              message: '잠시 후 다시 시도해주세요.',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('서버 오류'), findsOneWidget);
+      expect(find.text('잠시 후 다시 시도해주세요.'), findsOneWidget);
+    });
+
+    testWidgets('generates error code in ERR-xxx format',
+        (WidgetTester tester) async {
+      final code = ErrorDisplay.generateErrorCode();
+      expect(code, startsWith('ERR-'));
+      expect(code.split('-').length, equals(3));
+    });
   });
 
-  group('UI Component Tests', () {
-    testWidgets('BottomNavBar should have 4 tabs', (WidgetTester tester) async {
-      // TODO: Test BottomNavBar widget
-      // Expected tabs: 홈, 메시지, 탐색, 프로필
-      expect(true, isTrue); // Placeholder
+  group('EmptyState', () {
+    testWidgets('renders title and message', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: EmptyState(
+              title: '아직 메시지가 없어요',
+              message: '첫 메시지를 보내보세요',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('아직 메시지가 없어요'), findsOneWidget);
+      expect(find.text('첫 메시지를 보내보세요'), findsOneWidget);
     });
 
-    testWidgets('ChatBubble should render message correctly',
+    testWidgets('noMessages factory renders correctly',
         (WidgetTester tester) async {
-      // TODO: Test ChatBubble widget with broadcast and reply messages
-      expect(true, isTrue); // Placeholder
-    });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: EmptyState.noMessages(),
+          ),
+        ),
+      );
 
-    testWidgets('ReplyInput should show character limit',
-        (WidgetTester tester) async {
-      // TODO: Test ReplyInput widget shows remaining characters
-      expect(true, isTrue); // Placeholder
+      expect(find.text('아직 메시지가 없어요'), findsOneWidget);
+      expect(find.byIcon(Icons.chat_bubble_outline_rounded), findsOneWidget);
     });
   });
 }

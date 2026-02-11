@@ -17,7 +17,7 @@ class SentryService {
 
   /// 현재 환경
   static String get _environment => const String.fromEnvironment(
-        'ENVIRONMENT',
+        'ENV',
         defaultValue: 'development',
       );
 
