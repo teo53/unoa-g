@@ -4,16 +4,18 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { requireCronAuth } from '../_shared/cron_auth.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: jsonHeaders })
   }
+
+  // SECURITY: Require cron secret for batch operations
+  const authFail = requireCronAuth(req)
+  if (authFail) return authFail
 
   try {
     const supabase = createClient(
@@ -36,14 +38,14 @@ serve(async (req) => {
       console.error('Failed to fetch scheduled messages:', fetchError)
       return new Response(
         JSON.stringify({ error: 'Failed to fetch messages' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: jsonHeaders }
       )
     }
 
     if (!messages || messages.length === 0) {
       return new Response(
         JSON.stringify({ success: true, processed: 0, message: 'No messages to process' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: jsonHeaders }
       )
     }
 
@@ -141,13 +143,13 @@ serve(async (req) => {
         success: true,
         ...results,
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: jsonHeaders }
     )
   } catch (error) {
     console.error('Scheduled dispatcher error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: jsonHeaders }
     )
   }
 })

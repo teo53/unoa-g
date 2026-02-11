@@ -4,11 +4,10 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { verifyCronAuth } from '../_shared/cron_auth.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 // Format number with thousand separators
 function formatNumber(num: number): string {
@@ -23,16 +22,45 @@ function formatDate(dateStr: string): string {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req) })
   }
 
   try {
+    // SECURITY: Dual auth — cron secret OR JWT + ownership
+    const isCron = verifyCronAuth(req)
+    let authenticatedUserId: string | null = null
+
+    if (!isCron) {
+      // JWT auth path — creator viewing own statement
+      const authHeader = req.headers.get('Authorization')
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized: missing cron secret or JWT' }),
+          { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+        )
+      }
+
+      const supabaseAuth = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      )
+      const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized: invalid JWT' }),
+          { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+        )
+      }
+      authenticatedUserId = user.id
+    }
+
     const { payoutId } = await req.json()
 
     if (!payoutId) {
       return new Response(
         JSON.stringify({ error: 'Missing payoutId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -58,7 +86,15 @@ serve(async (req) => {
     if (payoutError || !payout) {
       return new Response(
         JSON.stringify({ error: 'Payout not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // SECURITY: If JWT auth (not cron), verify ownership
+    if (authenticatedUserId && payout.creator_profiles?.user_id !== authenticatedUserId) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: not your payout' }),
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -343,13 +379,13 @@ serve(async (req) => {
         statementUrl: urlData.publicUrl,
         html, // Also return raw HTML for client-side PDF generation
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   } catch (error) {
     console.error('Statement generation error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 })

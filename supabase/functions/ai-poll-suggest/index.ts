@@ -8,11 +8,10 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
 
@@ -49,7 +48,7 @@ const SAFETY_BLOCKLIST = [
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req) })
   }
 
   const startTime = Date.now()
@@ -61,7 +60,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Missing authorization header', correlation_id: correlationId }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -75,7 +74,24 @@ serve(async (req) => {
     if (userError || !user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized', correlation_id: correlationId }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // B5: Rate limiting — 20 requests/day per creator
+    const rateLimitAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+    const rlResult = await checkRateLimit(rateLimitAdmin, {
+      key: `ai-poll:${user.id}`,
+      limit: 20,
+      windowSeconds: 86400, // 24 hours
+    })
+    if (!rlResult.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded (20/day)', correlation_id: correlationId }),
+        { status: 429, headers: { ...getCorsHeaders(req), ...jsonHeaders, ...rateLimitHeaders(rlResult) } }
       )
     }
 
@@ -86,7 +102,7 @@ serve(async (req) => {
     if (!channel_id) {
       return new Response(
         JSON.stringify({ error: 'channel_id is required', correlation_id: correlationId }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -100,7 +116,7 @@ serve(async (req) => {
     if (!channel || channel.artist_id !== user.id) {
       return new Response(
         JSON.stringify({ error: 'Not channel owner', correlation_id: correlationId }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -109,7 +125,7 @@ serve(async (req) => {
       console.error('AI service not configured')
       return new Response(
         JSON.stringify({ error: 'AI service configuration error', correlation_id: correlationId }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -169,7 +185,7 @@ serve(async (req) => {
           safety_filtered: candidates.length - safeCandidates.length,
         },
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   } catch (error) {
     console.error(`[${correlationId}] Error in ai-poll-suggest:`, error)
@@ -178,7 +194,7 @@ serve(async (req) => {
         error: error.message || 'Internal server error',
         correlation_id: correlationId,
       }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 })

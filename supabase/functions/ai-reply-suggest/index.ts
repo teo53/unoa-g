@@ -9,11 +9,11 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { maskPII } from '../_shared/pii_mask.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
 
@@ -35,7 +35,7 @@ interface ReplySuggestion {
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req) })
   }
 
   const startTime = Date.now()
@@ -46,7 +46,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -62,7 +62,24 @@ serve(async (req) => {
     if (userError || !user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // B5: Rate limiting — 50 requests/day per creator
+    const rateLimitAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+    const rlResult = await checkRateLimit(rateLimitAdmin, {
+      key: `ai-reply:${user.id}`,
+      limit: 50,
+      windowSeconds: 86400, // 24 hours
+    })
+    if (!rlResult.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded (50/day)' }),
+        { status: 429, headers: { ...getCorsHeaders(req), ...jsonHeaders, ...rateLimitHeaders(rlResult) } }
       )
     }
 
@@ -73,14 +90,14 @@ serve(async (req) => {
     if (!channel_id) {
       return new Response(
         JSON.stringify({ error: 'channel_id is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (!message_id && !fan_message) {
       return new Response(
         JSON.stringify({ error: 'message_id or fan_message is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -94,14 +111,14 @@ serve(async (req) => {
     if (channelError || !channel) {
       return new Response(
         JSON.stringify({ error: 'Channel not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (channel.artist_id !== user.id) {
       return new Response(
         JSON.stringify({ error: 'Forbidden: Not channel owner' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -129,7 +146,7 @@ serve(async (req) => {
         if (msgData.channel_id !== channel_id) {
           return new Response(
             JSON.stringify({ error: 'Message does not belong to this channel' }),
-            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
           )
         }
         fanMessageContent = msgData.content || fanMessageContent
@@ -140,7 +157,7 @@ serve(async (req) => {
     if (!fanMessageContent) {
       return new Response(
         JSON.stringify({ error: 'No fan message content available' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -198,7 +215,7 @@ serve(async (req) => {
             ai_generated_label: 'AI가 만들었습니다',
           },
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -241,6 +258,13 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(20)
 
+    // SECURITY: Mask PII before sending to external LLM
+    fanMessageContent = maskPII(fanMessageContent)
+    conversationHistory = conversationHistory.map(m => ({
+      ...m,
+      content: maskPII(m.content),
+    }))
+
     // Build prompt for AI
     const prompt = buildPrompt(
       fanMessageContent,
@@ -265,7 +289,7 @@ serve(async (req) => {
       }
       return new Response(
         JSON.stringify({ error: 'AI service configuration error' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -305,14 +329,14 @@ serve(async (req) => {
           ai_generated_label: 'AI가 만들었습니다',
         },
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
 
   } catch (error) {
     console.error('Error in ai-reply-suggest:', error)
     return new Response(
       JSON.stringify({ error: error.message || 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 })

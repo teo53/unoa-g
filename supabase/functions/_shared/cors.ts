@@ -10,6 +10,8 @@ const PRODUCTION_ORIGINS = [
   'https://www.unoa.app',
   'https://studio.unoa.app',
   'https://admin.unoa.app',
+  'https://unoa-app-demo.web.app',
+  'https://unoa-app-demo.firebaseapp.com',
 ];
 
 const DEVELOPMENT_ORIGINS = [
@@ -84,8 +86,5 @@ export function handleWebhookPreflightRequest(): Response {
   });
 }
 
-// Legacy export for backward compatibility (gradually migrate to new functions)
-export const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+// NOTE: Legacy corsHeaders export removed in Sprint 2.
+// All functions now use getCorsHeaders(req) or getWebhookCorsHeaders().

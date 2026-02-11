@@ -15,13 +15,11 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { requireCronAuth } from '../_shared/cron_auth.ts'
 
 const PORTONE_API_SECRET = Deno.env.get('PORTONE_API_SECRET') || ''
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 interface CampaignResult {
   campaignId: string
@@ -74,8 +72,12 @@ async function cancelPortOnePayment(
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: jsonHeaders })
   }
+
+  // SECURITY: Require cron secret for batch operations
+  const authFail = requireCronAuth(req)
+  if (authFail) return authFail
 
   try {
     const supabase = createClient(
@@ -97,7 +99,7 @@ serve(async (req) => {
       console.error('Failed to query expired campaigns:', queryError)
       return new Response(
         JSON.stringify({ error: 'Failed to query campaigns', details: queryError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: jsonHeaders }
       )
     }
 
@@ -109,7 +111,7 @@ serve(async (req) => {
           message: 'No expired campaigns to process',
           results: { completed: 0, succeeded: 0, refundQueued: 0 },
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: jsonHeaders }
       )
     }
 
@@ -314,13 +316,13 @@ serve(async (req) => {
         },
         results,
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: jsonHeaders }
     )
   } catch (error) {
     console.error('Campaign completion error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: String(error) }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: jsonHeaders }
     )
   }
 })

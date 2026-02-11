@@ -24,11 +24,9 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { requireCronAuth } from '../_shared/cron_auth.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 // DT → KRW 내부 변환 단가 (패키지별 고정가 기준)
 // DT_PACKAGES: 10 DT = 1,000원, 100 DT = 10,000원 등
@@ -46,8 +44,12 @@ const DEFAULT_TAX_RATE = 0.033 // 3.3%
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: jsonHeaders })
   }
+
+  // SECURITY: Require cron secret for batch operations
+  const authFail = requireCronAuth(req)
+  if (authFail) return authFail
 
   try {
     const supabase = createClient(
@@ -77,7 +79,7 @@ serve(async (req) => {
       console.error('Failed to fetch creators:', creatorsError)
       return new Response(
         JSON.stringify({ error: 'Failed to fetch creators' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: jsonHeaders }
       )
     }
 
@@ -404,13 +406,13 @@ serve(async (req) => {
         dtToKrwRate: DT_UNIT_PRICE_KRW,
         results,
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: jsonHeaders }
     )
   } catch (error) {
     console.error('Payout calculation error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: jsonHeaders }
     )
   }
 })
