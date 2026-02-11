@@ -6,17 +6,19 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { requireCronAuth } from '../_shared/cron_auth.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: jsonHeaders })
   }
+
+  // SECURITY: Require cron secret for batch operations
+  const authFail = requireCronAuth(req)
+  if (authFail) return authFail
 
   try {
     // Initialize Supabase client with service role key
@@ -48,7 +50,7 @@ serve(async (req) => {
           message: 'Fallback quota feature is disabled',
           updated: 0
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: jsonHeaders }
       )
     }
 
@@ -82,7 +84,7 @@ serve(async (req) => {
           fallback_tokens: policy.fallback_tokens || 1
         }
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: jsonHeaders }
     )
   } catch (error) {
     console.error('[refresh-fallback-quotas] Error:', error)
@@ -94,7 +96,7 @@ serve(async (req) => {
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: jsonHeaders
       }
     )
   }

@@ -10,11 +10,9 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 interface RefundRequest {
   purchaseId: string
@@ -34,7 +32,7 @@ interface RefundResponse {
 serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req) })
   }
 
   try {
@@ -43,7 +41,7 @@ serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ success: false, message: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -60,7 +58,7 @@ serve(async (req: Request) => {
       console.error('Auth error:', authError)
       return new Response(
         JSON.stringify({ success: false, message: 'Invalid or expired token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -71,7 +69,7 @@ serve(async (req: Request) => {
     if (!purchaseId) {
       return new Response(
         JSON.stringify({ success: false, message: 'Missing purchaseId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -92,7 +90,7 @@ serve(async (req: Request) => {
       console.error('Purchase lookup error:', purchaseError)
       return new Response(
         JSON.stringify({ success: false, message: 'Purchase not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -101,7 +99,7 @@ serve(async (req: Request) => {
       console.warn(`Unauthorized refund attempt: user ${user.id} tried to refund purchase ${purchaseId} owned by ${purchase.user_id}`)
       return new Response(
         JSON.stringify({ success: false, message: 'Unauthorized: This purchase does not belong to you' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -114,7 +112,7 @@ serve(async (req: Request) => {
           message: 'This purchase has already been refunded',
           orderId: purchaseId
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -124,7 +122,7 @@ serve(async (req: Request) => {
           success: false,
           message: `Cannot refund purchase with status: ${purchase.status}. Only paid purchases can be refunded.`
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -134,7 +132,7 @@ serve(async (req: Request) => {
           success: false,
           message: `Cannot refund: ${purchase.dt_used} DT from this purchase has already been used`
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -144,7 +142,7 @@ serve(async (req: Request) => {
           success: false,
           message: `Refund period has expired. This purchase was eligible for refund until ${new Date(purchase.refund_eligible_until).toLocaleDateString('ko-KR')}`
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -168,7 +166,7 @@ serve(async (req: Request) => {
             message: 'This refund has already been processed',
             orderId: purchaseId
           }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
 
@@ -178,7 +176,7 @@ serve(async (req: Request) => {
             success: false,
             message: 'Insufficient DT balance for refund. Some DT may have been spent.'
           }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
 
@@ -187,7 +185,7 @@ serve(async (req: Request) => {
           success: false,
           message: refundError.message || 'Refund processing failed'
         }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -207,7 +205,7 @@ serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify(response),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
 
   } catch (error) {
@@ -217,7 +215,7 @@ serve(async (req: Request) => {
         success: false,
         message: 'An unexpected error occurred. Please try again later.'
       }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 })

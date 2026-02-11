@@ -7,14 +7,12 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 interface ReviewRequest {
   campaignId: string
@@ -24,13 +22,13 @@ interface ReviewRequest {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req) })
   }
 
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ success: false, error: 'Method not allowed' }),
-      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 405, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 
@@ -40,7 +38,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ success: false, error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -55,7 +53,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid authentication' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -69,7 +67,7 @@ serve(async (req) => {
     if (profileError || !profile || profile.role !== 'admin') {
       return new Response(
         JSON.stringify({ success: false, error: 'Admin access required' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -80,21 +78,21 @@ serve(async (req) => {
     if (!campaignId) {
       return new Response(
         JSON.stringify({ success: false, error: 'Campaign ID is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (!action || !['approve', 'reject'].includes(action)) {
       return new Response(
         JSON.stringify({ success: false, error: 'Action must be "approve" or "reject"' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (action === 'reject' && !reason) {
       return new Response(
         JSON.stringify({ success: false, error: 'Rejection reason is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -108,7 +106,7 @@ serve(async (req) => {
     if (campaignError || !campaign) {
       return new Response(
         JSON.stringify({ success: false, error: 'Campaign not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -119,7 +117,7 @@ serve(async (req) => {
           success: false,
           error: `Cannot review campaign with status "${campaign.status}". Only "submitted" campaigns can be reviewed.`,
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -162,7 +160,7 @@ serve(async (req) => {
       console.error('Update error:', updateError)
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to update campaign' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -174,14 +172,14 @@ serve(async (req) => {
           ? `Campaign approved and set to "${newStatus}"`
           : 'Campaign rejected',
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
 
   } catch (error) {
     console.error('Admin review error:', error)
     return new Response(
       JSON.stringify({ success: false, error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 })

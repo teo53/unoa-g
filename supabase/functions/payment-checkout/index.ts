@@ -3,11 +3,10 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 // DT Package definitions (should match database)
 const DT_PACKAGES: Record<string, { dt: number; bonus: number; priceKrw: number; name: string }> = {
@@ -22,17 +21,41 @@ const DT_PACKAGES: Record<string, { dt: number; bonus: number; priceKrw: number;
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req) })
   }
 
   try {
-    const { userId, packageId, paymentMethod = 'card' } = await req.json()
+    // SECURITY: Extract userId from JWT, not from request body
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // userId comes from verified JWT — body userId is ignored for security
+    const userId = user.id
+    const { packageId, paymentMethod = 'card' } = await req.json()
 
     // Validate inputs
-    if (!userId || !packageId) {
+    if (!packageId) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: userId, packageId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Missing required field: packageId' }),
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -40,7 +63,7 @@ serve(async (req) => {
     if (!pkg) {
       return new Response(
         JSON.stringify({ error: 'Invalid package ID' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -60,14 +83,14 @@ serve(async (req) => {
     if (userError || !userProfile) {
       return new Response(
         JSON.stringify({ error: 'User not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (userProfile.is_banned) {
       return new Response(
         JSON.stringify({ error: 'User account is suspended' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -79,16 +102,29 @@ serve(async (req) => {
       if (age < 14) {
         return new Response(
           JSON.stringify({ error: '만 14세 미만은 결제가 불가합니다.' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
 
       if (age < 19 && !userProfile.guardian_consent_at) {
         return new Response(
           JSON.stringify({ error: '만 19세 미만은 법정대리인 동의가 필요합니다.' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
+    }
+
+    // B6: Pending order limit — max 10 pending orders per hour per user
+    const rlResult = await checkRateLimit(supabase, {
+      key: `checkout:${userId}`,
+      limit: 10,
+      windowSeconds: 3600, // 1 hour
+    })
+    if (!rlResult.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Too many pending orders. Please try again later.' }),
+        { status: 429, headers: { ...getCorsHeaders(req), ...jsonHeaders, ...rateLimitHeaders(rlResult) } }
+      )
     }
 
     // Calculate refund eligibility (7 days from now)
@@ -124,7 +160,7 @@ serve(async (req) => {
       console.error('Failed to create purchase:', purchaseError)
       return new Response(
         JSON.stringify({ error: 'Failed to create purchase order' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -150,14 +186,14 @@ serve(async (req) => {
       }),
       {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...getCorsHeaders(req), ...jsonHeaders },
       }
     )
   } catch (error) {
     console.error('Payment checkout error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 })

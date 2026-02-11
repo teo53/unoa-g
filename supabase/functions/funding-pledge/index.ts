@@ -14,15 +14,13 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
 const PORTONE_API_SECRET = Deno.env.get('PORTONE_API_SECRET') || ''
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 interface PledgeRequest {
   campaignId: string
@@ -110,13 +108,13 @@ async function verifyPortOnePayment(paymentId: string, expectedAmountKrw: number
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req) })
   }
 
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ success: false, error: 'Method not allowed' }),
-      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 405, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 
@@ -126,7 +124,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ success: false, error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -140,7 +138,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid authentication' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -165,7 +163,7 @@ serve(async (req) => {
           success: false,
           error: 'Missing required fields: campaignId, amountKrw, paymentId, paymentOrderId, idempotencyKey',
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -179,6 +177,16 @@ serve(async (req) => {
       .single()
 
     if (existingPledge) {
+      // B7: Verify amount consistency on idempotency key reuse
+      if (existingPledge.total_amount_krw !== amountKrw) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Conflict: amount mismatch for existing idempotency key',
+          }),
+          { status: 409, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+        )
+      }
       return new Response(
         JSON.stringify({
           success: true,
@@ -186,7 +194,7 @@ serve(async (req) => {
           totalAmountKrw: existingPledge.total_amount_krw,
           message: 'Pledge already processed',
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -200,28 +208,28 @@ serve(async (req) => {
     if (campaignError || !campaign) {
       return new Response(
         JSON.stringify({ success: false, error: 'Campaign not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (campaign.status !== 'active') {
       return new Response(
         JSON.stringify({ success: false, error: 'Campaign is not active' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (campaign.end_at && new Date(campaign.end_at) < new Date()) {
       return new Response(
         JSON.stringify({ success: false, error: 'Campaign has ended' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
     if (campaign.creator_id === user.id) {
       return new Response(
         JSON.stringify({ success: false, error: 'Cannot pledge to your own campaign' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -237,21 +245,21 @@ serve(async (req) => {
       if (tierError || !tier) {
         return new Response(
           JSON.stringify({ success: false, error: 'Reward tier not found' }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 404, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
 
       if (!tier.is_active) {
         return new Response(
           JSON.stringify({ success: false, error: 'Reward tier is not available' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
 
       if (tier.remaining_quantity !== null && tier.remaining_quantity <= 0) {
         return new Response(
           JSON.stringify({ success: false, error: 'Reward tier is sold out' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
 
@@ -261,7 +269,7 @@ serve(async (req) => {
             success: false,
             error: `Amount must be at least ${tier.price_krw.toLocaleString()} KRW for this tier`,
           }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
     }
@@ -278,7 +286,7 @@ serve(async (req) => {
           error: 'Payment verification failed',
           message: verification.error,
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -315,14 +323,14 @@ serve(async (req) => {
         if (txError.message?.includes(key)) {
           return new Response(
             JSON.stringify({ success: false, error: msg }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
           )
         }
       }
 
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to process pledge. Please try again.' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
 
@@ -364,14 +372,14 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify(response),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
 
   } catch (error) {
     console.error('Funding pledge error:', error)
     return new Response(
       JSON.stringify({ success: false, error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     )
   }
 })

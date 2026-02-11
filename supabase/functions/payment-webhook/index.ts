@@ -10,6 +10,7 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getWebhookCorsHeaders } from '../_shared/cors.ts'
 
 // Environment configuration
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
@@ -17,15 +18,8 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '
 const PORTONE_API_SECRET = Deno.env.get('PORTONE_API_SECRET') || ''
 const PORTONE_WEBHOOK_SECRET = Deno.env.get('PORTONE_WEBHOOK_SECRET') || ''
 const TOSSPAYMENTS_SECRET_KEY = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') || ''
-const ENVIRONMENT = Deno.env.get('ENVIRONMENT') || 'production'
-// SECURITY: Explicit flag required to skip signature verification (NEVER enable in production)
-const SKIP_SIGNATURE_VERIFICATION = Deno.env.get('SKIP_WEBHOOK_SIGNATURE') === 'true'
-const isDevelopmentWithSkip = ENVIRONMENT === 'development' && SKIP_SIGNATURE_VERIFICATION
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, webhook-id, webhook-timestamp, webhook-signature',
-}
+const webhookCorsHeaders = getWebhookCorsHeaders()
 
 interface WebhookLogEntry {
   event_type: string
@@ -46,18 +40,19 @@ async function verifyPortOneSignature(
   webhookSignature: string,
   payload: string
 ): Promise<boolean> {
-  // SECURITY: Only skip verification when explicitly enabled in development
-  if (isDevelopmentWithSkip) {
-    console.warn('[DEV] SECURITY WARNING: Skipping PortOne signature verification. Never enable this in production!')
-    return true
-  }
-
   if (!PORTONE_WEBHOOK_SECRET) {
     console.error('Webhook signature verification not configured')
     return false
   }
 
   try {
+    // B8: Validate timestamp is within 5-minute window (replay attack prevention)
+    const timestampMs = parseInt(webhookTimestamp) * 1000
+    if (isNaN(timestampMs) || Math.abs(Date.now() - timestampMs) > 5 * 60 * 1000) {
+      console.error('Webhook timestamp outside 5-minute window')
+      return false
+    }
+
     // PortOne V2 signature format: {timestamp}.{payload}
     const signedPayload = `${webhookTimestamp}.${payload}`
 
@@ -109,12 +104,6 @@ async function verifyTossPaymentsSignature(
   signature: string,
   payload: string
 ): Promise<boolean> {
-  // SECURITY: Only skip verification when explicitly enabled in development
-  if (isDevelopmentWithSkip) {
-    console.warn('[DEV] SECURITY WARNING: Skipping TossPayments signature verification. Never enable this in production!')
-    return true
-  }
-
   if (!TOSSPAYMENTS_SECRET_KEY) {
     console.error('Payment gateway credentials not configured')
     return false
@@ -164,7 +153,7 @@ async function verifyPaymentWithPortOne(paymentId: string): Promise<{
 }> {
   try {
     const response = await fetch(
-      `https://api.portone.io/payments/${paymentId}`,
+      `https://api.portone.io/v2/payments/${paymentId}`,
       {
         method: 'GET',
         headers: {
@@ -217,7 +206,7 @@ async function logWebhookEvent(
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: webhookCorsHeaders })
   }
 
   // Initialize Supabase client
@@ -260,7 +249,7 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ success: true, message: 'Already processed' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -271,17 +260,14 @@ serve(async (req) => {
     } else if (provider === 'tosspayments') {
       isValidSignature = await verifyTossPaymentsSignature(webhookSignature, body)
     } else {
-      // Unknown provider - reject in production
-      if (ENVIRONMENT !== 'development') {
-        logEntry.error_message = 'Unknown payment provider'
-        logEntry.processed_status = 'failed'
-        await logWebhookEvent(supabase, logEntry)
-        return new Response(
-          JSON.stringify({ error: 'Unknown payment provider' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-      isValidSignature = true
+      // Unknown provider - always reject
+      logEntry.error_message = 'Unknown payment provider'
+      logEntry.processed_status = 'failed'
+      await logWebhookEvent(supabase, logEntry)
+      return new Response(
+        JSON.stringify({ error: 'Unknown payment provider' }),
+        { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     logEntry.signature_valid = isValidSignature
@@ -292,7 +278,7 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ error: 'Invalid signature' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -312,12 +298,12 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ error: 'Missing order ID' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     // Cross-verify payment with PortOne API (if PortOne provider)
-    if (provider === 'portone' && paymentId && ENVIRONMENT !== 'development') {
+    if (provider === 'portone' && paymentId) {
       const verification = await verifyPaymentWithPortOne(paymentId)
       if (!verification.valid) {
         logEntry.error_message = 'Payment cross-verification failed'
@@ -325,7 +311,7 @@ serve(async (req) => {
         await logWebhookEvent(supabase, logEntry)
         return new Response(
           JSON.stringify({ error: 'Payment verification failed' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
@@ -336,7 +322,7 @@ serve(async (req) => {
         await logWebhookEvent(supabase, logEntry)
         return new Response(
           JSON.stringify({ error: 'Order ID mismatch' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
     }
@@ -380,7 +366,7 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ error: 'Purchase not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -401,7 +387,7 @@ serve(async (req) => {
         await logWebhookEvent(supabase, logEntry)
         return new Response(
           JSON.stringify({ error: 'Failed to process cancellation' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
@@ -410,7 +396,7 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ success: true, message: 'Cancellation processed' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -436,7 +422,7 @@ serve(async (req) => {
         await logWebhookEvent(supabase, logEntry)
         return new Response(
           JSON.stringify({ error: 'Chargeback processing failed' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
@@ -450,7 +436,7 @@ serve(async (req) => {
           disputeId: chargebackResult?.dispute_id,
           dtFrozen: chargebackResult?.dt_frozen,
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -473,7 +459,7 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ success: true, message: 'Payment failure recorded' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -498,7 +484,7 @@ serve(async (req) => {
         await logWebhookEvent(supabase, logEntry)
         return new Response(
           JSON.stringify({ error: 'Failed to process payment' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
       wallet = newWallet
@@ -529,7 +515,7 @@ serve(async (req) => {
         await logWebhookEvent(supabase, logEntry)
         return new Response(
           JSON.stringify({ success: true, message: 'Already processed' }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
@@ -538,7 +524,7 @@ serve(async (req) => {
       await logWebhookEvent(supabase, logEntry)
       return new Response(
         JSON.stringify({ error: 'Failed to process payment' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -555,7 +541,7 @@ serve(async (req) => {
         creditedDt: totalDt,
         newBalance: newBalance,
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Payment webhook error:', error)
@@ -576,7 +562,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

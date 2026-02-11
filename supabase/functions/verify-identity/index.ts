@@ -8,6 +8,9 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from '../_shared/cors.ts';
+
+const jsonHeaders = { 'Content-Type': 'application/json' };
 
 // PortOne V2 API configuration
 const PORTONE_API_SECRET = Deno.env.get("PORTONE_API_SECRET") || "";
@@ -150,15 +153,9 @@ async function verifyWithPortOne(impUid: string): Promise<PortOneIdentityRespons
 }
 
 serve(async (req: Request) => {
-  // CORS headers
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -172,7 +169,7 @@ serve(async (req: Request) => {
           error_code: "CONFIGURATION_ERROR",
           error_message: "서버 설정 오류입니다. 관리자에게 문의하세요.",
         } as VerificationResponse),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       );
     }
 
@@ -186,7 +183,7 @@ serve(async (req: Request) => {
           error_code: "MISSING_IMP_UID",
           error_message: "인증 ID가 누락되었습니다.",
         } as VerificationResponse),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       );
     }
 
@@ -199,7 +196,7 @@ serve(async (req: Request) => {
           error_code: "UNAUTHORIZED",
           error_message: "인증이 필요합니다.",
         } as VerificationResponse),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       );
     }
 
@@ -219,7 +216,7 @@ serve(async (req: Request) => {
           error_code: "INVALID_USER",
           error_message: "사용자 정보를 확인할 수 없습니다.",
         } as VerificationResponse),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       );
     }
 
@@ -233,7 +230,7 @@ serve(async (req: Request) => {
           error_code: "VERIFICATION_FAILED",
           error_message: "본인인증에 실패했습니다.",
         } as VerificationResponse),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       );
     }
 
@@ -273,7 +270,7 @@ serve(async (req: Request) => {
           error_code: "DATABASE_ERROR",
           error_message: "인증 정보 저장에 실패했습니다.",
         } as VerificationResponse),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       );
     }
 
@@ -304,7 +301,7 @@ serve(async (req: Request) => {
         is_adult: age >= 19,
         is_at_least_14: age >= 14,
       } as VerificationResponse),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     );
 
   } catch (error) {
@@ -315,7 +312,7 @@ serve(async (req: Request) => {
         error_code: "INTERNAL_ERROR",
         error_message: "서버 오류가 발생했습니다.",
       } as VerificationResponse),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
     );
   }
 });
