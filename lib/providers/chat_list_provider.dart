@@ -442,3 +442,31 @@ final artistThemeColorByChannelProvider =
   final thread = threads.where((t) => t.channelId == channelId).firstOrNull;
   return ArtistThemeColors.fromIndex(thread?.themeColorIndex ?? 0);
 });
+
+/// Story users provider — derived from chat threads
+/// In demo mode, returns mock stories. In real mode, returns subscribed artists with recent broadcasts.
+final storyUsersProvider = Provider<List<Map<String, dynamic>>>((ref) {
+  final threads = ref.watch(chatThreadsProvider);
+
+  if (threads.isEmpty) return const [];
+
+  // Build story list from subscribed artists
+  final stories = <Map<String, dynamic>>[
+    // "내 스토리" placeholder
+    {
+      'name': '내 스토리',
+      'avatarUrl': '',
+      'isAddStory': true,
+      'hasNewStory': false,
+    },
+    // Artist stories from chat threads
+    ...threads.take(5).map((thread) => {
+          'name': thread.artistName,
+          'avatarUrl': thread.avatarUrl ?? '',
+          'isAddStory': false,
+          'hasNewStory': thread.unreadCount > 0,
+        }),
+  ];
+
+  return stories;
+});
