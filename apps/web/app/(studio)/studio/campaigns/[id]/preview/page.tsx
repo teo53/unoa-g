@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, Edit2 } from 'lucide-react'
 import { DEMO_MODE, getCampaignById, getTiersByCampaignId, getFAQsByCampaignId, getMockCampaignIds } from '@/lib/mock/demo-data'
 import { formatDT, formatPercent, formatDate, formatBackerCount } from '@/lib/utils/format'
+import { sanitizeHtml } from '@/lib/utils/sanitize'
 import { Button } from '@/components/ui/button'
 
 interface PageProps {
@@ -165,7 +166,7 @@ export default async function PreviewCampaignPage({ params }: PageProps) {
                 {campaign.description_html ? (
                   <div
                     className="prose prose-gray max-w-none"
-                    dangerouslySetInnerHTML={{ __html: campaign.description_html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(campaign.description_html) }}
                   />
                 ) : campaign.description_md ? (
                   <div className="prose prose-gray max-w-none whitespace-pre-wrap">

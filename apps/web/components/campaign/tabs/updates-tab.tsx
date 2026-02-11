@@ -4,6 +4,7 @@ import { CampaignUpdate } from '@/lib/types/database'
 import { Badge } from '@/components/ui/badge'
 import { Eye, Lock, Calendar, Bell } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/utils/sanitize'
 
 interface UpdatesTabProps {
   updates: CampaignUpdate[]
@@ -90,7 +91,7 @@ export function UpdatesTab({ updates, isBackerOnly = false }: UpdatesTabProps) {
               <div className="p-4">
                 <div
                   className="prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: update.content_html }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(update.content_html) }}
                 />
               </div>
             )}

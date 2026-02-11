@@ -61,6 +61,13 @@ tools/mcp/**/*.js
 tools/mcp/**/*.js.map
 tools/mcp/**/*.tsbuildinfo
 
+# Notion crawler (internal tool — should not be in repo)
+notion-crawler-v2/
+
+# Crawl result files
+crawl-result*.json
+crawl-summary*.json
+
 # Environment & secrets
 .env
 .env.*

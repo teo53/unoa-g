@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CampaignEnhanced } from '@/lib/types/database'
 import { cn } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/utils/sanitize'
 import { FileText, Wallet, Calendar, Users, ChevronRight } from 'lucide-react'
 
 interface IntroTabProps {
@@ -72,7 +73,7 @@ function IntroContent({ campaign }: { campaign: CampaignEnhanced }) {
       {campaign.description_html ? (
         <div
           className="prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-pink-600"
-          dangerouslySetInnerHTML={{ __html: campaign.description_html }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(campaign.description_html) }}
         />
       ) : (
         <div className="text-center py-12 text-gray-500">
@@ -142,7 +143,7 @@ function IntroContent({ campaign }: { campaign: CampaignEnhanced }) {
                 <h4 className="font-medium text-gray-900 mb-2">{notice.title}</h4>
                 <div
                   className="text-sm text-gray-600 prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: notice.content_html }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(notice.content_html) }}
                 />
               </div>
             ))}
