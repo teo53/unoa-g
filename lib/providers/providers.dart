@@ -9,3 +9,5 @@ export 'wallet_provider.dart';
 export 'chat_provider.dart';
 export 'realtime_provider.dart';
 export 'daily_question_set_provider.dart';
+export 'discover_provider.dart';
+export 'subscription_provider.dart';
