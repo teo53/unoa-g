@@ -35,7 +35,7 @@ serve(async (req) => {
       const authHeader = req.headers.get('Authorization')
       if (!authHeader) {
         return new Response(
-          JSON.stringify({ error: 'Unauthorized: missing cron secret or JWT' }),
+          JSON.stringify({ error: 'Unauthorized' }),
           { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }
@@ -48,7 +48,7 @@ serve(async (req) => {
       const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
       if (authError || !user) {
         return new Response(
-          JSON.stringify({ error: 'Unauthorized: invalid JWT' }),
+          JSON.stringify({ error: 'Unauthorized' }),
           { status: 401, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
         )
       }

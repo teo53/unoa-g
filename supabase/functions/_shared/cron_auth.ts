@@ -39,7 +39,7 @@ function timingSafeEqual(a: string, b: string): boolean {
  */
 export function verifyCronAuth(req: Request): boolean {
   if (!CRON_SECRET) {
-    console.error('[CronAuth] CRON_SECRET not configured')
+    console.warn('[CronAuth] Authentication failed')
     return false
   }
 
@@ -65,7 +65,7 @@ export function requireCronAuth(req: Request): Response | null {
 
   console.warn('[CronAuth] Unauthorized cron request rejected')
   return new Response(
-    JSON.stringify({ error: 'Unauthorized: invalid or missing cron secret' }),
+    JSON.stringify({ error: 'Unauthorized' }),
     {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
