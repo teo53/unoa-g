@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
-import '../../data/mock/mock_data.dart';
+import '../../providers/wallet_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/premium_shimmer.dart';
 
-class DtChargeScreen extends StatefulWidget {
+class DtChargeScreen extends ConsumerStatefulWidget {
   const DtChargeScreen({super.key});
 
   @override
-  State<DtChargeScreen> createState() => _DtChargeScreenState();
+  ConsumerState<DtChargeScreen> createState() => _DtChargeScreenState();
 }
 
-class _DtChargeScreenState extends State<DtChargeScreen> {
+class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
   int? _selectedPackageIndex;
   bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final packages = ref.watch(dtPackagesProvider);
 
     return AppScaffold(
       showStatusBar: true,
@@ -91,9 +93,9 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                       mainAxisSpacing: 12,
                       childAspectRatio: 1.3,
                     ),
-                    itemCount: MockData.dtPackages.length,
+                    itemCount: packages.length,
                     itemBuilder: (context, index) {
-                      final package = MockData.dtPackages[index];
+                      final package = packages[index];
                       final isSelected = _selectedPackageIndex == index;
 
                       return _PackageCard(
@@ -207,8 +209,7 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                           ),
                         ),
                         Text(
-                          MockData.dtPackages[_selectedPackageIndex!]
-                              .formattedPrice,
+                          packages[_selectedPackageIndex!].formattedPrice,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
@@ -237,7 +238,7 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
                       label: _isProcessing
                           ? '처리 중...'
                           : (_selectedPackageIndex != null
-                              ? '${MockData.dtPackages[_selectedPackageIndex!].formattedPrice} 결제하기'
+                              ? '${packages[_selectedPackageIndex!].formattedPrice} 결제하기'
                               : '패키지를 선택하세요'),
                       isLoading: _isProcessing,
                       onPressed: _selectedPackageIndex != null && !_isProcessing
@@ -270,7 +271,8 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
         _isProcessing = false;
       });
 
-      final package = MockData.dtPackages[_selectedPackageIndex!];
+      final packages = ref.read(dtPackagesProvider);
+      final package = packages[_selectedPackageIndex!];
 
       showDialog(
         // ignore: use_build_context_synchronously
@@ -323,10 +325,10 @@ class _DtChargeScreenState extends State<DtChargeScreen> {
   }
 }
 
-class _CurrentBalanceCard extends StatelessWidget {
+class _CurrentBalanceCard extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    final user = MockData.currentUser;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final balance = ref.watch(currentBalanceProvider);
 
     return PremiumShimmer.balance(
       child: Container(
@@ -368,7 +370,7 @@ class _CurrentBalanceCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${user.dtBalance} DT',
+                  '$balance DT',
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
