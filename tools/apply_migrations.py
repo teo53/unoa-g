@@ -6,8 +6,12 @@ import re
 import sys
 import urllib.request
 
-PROJECT_REF = "sgkyerbmmexxsyrcsdzy"
-ACCESS_TOKEN = os.environ.get("SUPABASE_ACCESS_TOKEN", "sbp_82462bbbf5a375eebf0b3c7ebfb102ee8c04c6d7")
+PROJECT_REF = os.environ.get("SUPABASE_PROJECT_REF", "sgkyerbmmexxsyrcsdzy")
+ACCESS_TOKEN = os.environ.get("SUPABASE_ACCESS_TOKEN")
+if not ACCESS_TOKEN:
+    print("ERROR: SUPABASE_ACCESS_TOKEN 환경 변수를 설정해주세요.", file=sys.stderr)
+    print("  export SUPABASE_ACCESS_TOKEN='sbp_your_token_here'", file=sys.stderr)
+    sys.exit(1)
 API_URL = f"https://api.supabase.com/v1/projects/{PROJECT_REF}/database/query"
 
 MIGRATIONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "supabase", "migrations")

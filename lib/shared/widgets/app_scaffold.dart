@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../../core/config/app_config.dart';
 import '../../core/theme/app_colors.dart';
 
 /// 앱 레이아웃 Scaffold
@@ -106,37 +107,48 @@ class _WebPreviewLayout extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[isDark ? 900 : 200],
-      body: Center(
-        child: Container(
-          width: 400,
-          height: 844,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(48),
-            border: Border.all(
-              color: isDark ? Colors.grey[800]! : Colors.grey[900]!,
-              width: 8,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
+      body: Stack(
+        children: [
+          Center(
+            child: Container(
+              width: 400,
+              height: 844,
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(48),
+                border: Border.all(
+                  color: isDark ? Colors.grey[800]! : Colors.grey[900]!,
+                  width: 8,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(40),
-            child: Column(
-              children: [
-                if (showStatusBar) const StatusBarWidget(),
-                Expanded(child: child),
-                if (bottomNavigationBar != null) bottomNavigationBar!,
-                _HomeIndicator(isDark: isDark),
-              ],
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: Column(
+                  children: [
+                    if (showStatusBar) const StatusBarWidget(),
+                    Expanded(child: child),
+                    if (bottomNavigationBar != null) bottomNavigationBar!,
+                    _HomeIndicator(isDark: isDark),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          // Demo version disclaimer badge (bottom-right)
+          if (!AppConfig.isProduction)
+            const Positioned(
+              right: 16,
+              bottom: 16,
+              child: _DemoDisclaimerBadge(),
+            ),
+        ],
       ),
     );
   }
@@ -162,6 +174,57 @@ class _HomeIndicator extends StatelessWidget {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 데모 버전 고지 배지 (우하단)
+///
+/// 프로덕션이 아닌 환경에서 표시.
+/// "본 데모는 확정 버전이 아닙니다" 고지.
+class _DemoDisclaimerBadge extends StatelessWidget {
+  const _DemoDisclaimerBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            'DEMO VERSION',
+            style: TextStyle(
+              color: Colors.amber,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            ),
+          ),
+          SizedBox(height: 2),
+          Text(
+            '본 데모는 확정 버전이 아니며,\n실제 서비스와 다를 수 있습니다.',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 9,
+              height: 1.3,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        ],
       ),
     );
   }

@@ -74,6 +74,12 @@ crawl-summary*.json
 !.env.example
 **/secrets/
 
+# Tax/Legal documents (confidential)
+tax/
+
+# Sensitive tooling with credentials
+tools/apply_migrations.py
+
 # Temp/backup files
 *.bak
 nul
