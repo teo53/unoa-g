@@ -5,18 +5,71 @@ import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
 
 /// Campaign statistics screen for creators
-class CampaignStatsScreen extends ConsumerWidget {
+class CampaignStatsScreen extends ConsumerStatefulWidget {
   final String campaignId;
 
   const CampaignStatsScreen({super.key, required this.campaignId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CampaignStatsScreen> createState() =>
+      _CampaignStatsScreenState();
+}
+
+class _CampaignStatsScreenState extends ConsumerState<CampaignStatsScreen> {
+  CampaignStats? _stats;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final stats = await ref
+        .read(fundingProvider.notifier)
+        .getStatsForCampaign(widget.campaignId);
+    if (mounted) {
+      setState(() {
+        _stats = stats;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final campaign =
-        ref.watch(fundingProvider.notifier).getCampaignById(campaignId);
-    final stats =
-        ref.watch(fundingProvider.notifier).getStatsForCampaign(campaignId);
+        ref.watch(fundingProvider.notifier).getCampaignById(widget.campaignId);
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor:
+            isDark ? AppColors.backgroundDark : AppColors.background,
+        appBar: AppBar(
+          backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surface,
+          elevation: 0,
+          title: Text(
+            '펀딩 통계',
+            style: TextStyle(
+              color: isDark ? AppColors.textDark : AppColors.text,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: isDark ? AppColors.textDark : AppColors.text,
+            ),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final stats = _stats!;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,

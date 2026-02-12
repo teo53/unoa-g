@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/supabase/supabase_client.dart';
 import 'auth_provider.dart';
+import 'repository_providers.dart';
 
 // ============================================================================
 // Models
@@ -723,6 +725,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
       // Load my campaigns if creator
       List<Campaign> myCampaigns = [];
+      List<Pledge> myPledges = [];
       if (userId != null) {
         final myResponse = await client
             .from('funding_campaigns')
@@ -733,11 +736,41 @@ class FundingNotifier extends StateNotifier<FundingState> {
         myCampaigns = (myResponse as List)
             .map((json) => Campaign.fromJson(json))
             .toList();
+
+        // Load my pledges as a fan
+        try {
+          final repo = _ref.read(fundingRepositoryProvider);
+          final pledgeData = await repo.getMyPledges();
+          myPledges = pledgeData.map((json) {
+            final tierData =
+                json['funding_reward_tiers'] as Map<String, dynamic>?;
+            final campaignData =
+                json['funding_campaigns'] as Map<String, dynamic>?;
+            return Pledge(
+              id: json['id'] as String,
+              campaignId: json['campaign_id'] as String,
+              userId: json['user_id'] as String,
+              tierId: json['tier_id'] as String? ?? '',
+              tierTitle: tierData?['title'] as String?,
+              campaignTitle: campaignData?['title'] as String?,
+              amountKrw: (json['amount_krw'] as num?)?.toInt() ?? 0,
+              isAnonymous: json['is_anonymous'] as bool? ?? false,
+              supportMessage: json['support_message'] as String?,
+              status: json['status'] as String? ?? 'paid',
+              createdAt: json['created_at'] != null
+                  ? DateTime.parse(json['created_at'] as String)
+                  : DateTime.now(),
+            );
+          }).toList();
+        } catch (e) {
+          if (kDebugMode) debugPrint('[Funding] loadMyPledges error: $e');
+        }
       }
 
       state = state.copyWith(
         allCampaigns: allCampaigns,
         myCampaigns: myCampaigns,
+        myPledges: myPledges,
         isLoading: false,
       );
     } catch (e) {
@@ -748,8 +781,26 @@ class FundingNotifier extends StateNotifier<FundingState> {
   // ========== CRUD Operations ==========
 
   /// Get tiers for a campaign
-  List<RewardTier> getTiersForCampaign(String campaignId) {
-    // Demo tiers
+  Future<List<RewardTier>> getTiersForCampaign(String campaignId) async {
+    final isDemoMode = _ref.read(isDemoModeProvider);
+
+    if (isDemoMode || campaignId.startsWith('demo_')) {
+      return _getDemoTiers(campaignId);
+    }
+
+    try {
+      final repo = _ref.read(fundingRepositoryProvider);
+      final data = await repo.getTiersForCampaign(campaignId);
+      if (data.isEmpty) return _getDemoTiers(campaignId);
+      return data.map((json) => RewardTier.fromJson(json)).toList();
+    } catch (e) {
+      if (kDebugMode) debugPrint('[Funding] getTiers error: $e');
+      return _getDemoTiers(campaignId);
+    }
+  }
+
+  /// Demo tiers fallback
+  List<RewardTier> _getDemoTiers(String campaignId) {
     return [
       RewardTier(
         id: '${campaignId}_tier_1',
@@ -1037,7 +1088,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
       }
 
       final campaign = getCampaignById(campaignId);
-      final tiers = getTiersForCampaign(campaignId);
+      final tiers = _getDemoTiers(campaignId);
       final tier = tiers.where((t) => t.id == tierId).firstOrNull;
 
       final pledge = Pledge(
@@ -1077,26 +1128,24 @@ class FundingNotifier extends StateNotifier<FundingState> {
       return pledge;
     }
 
-    // Real implementation
-    final client = SupabaseConfig.client;
-    final response = await client.functions.invoke(
-      'funding-pledge',
-      body: {
-        'campaignId': campaignId,
-        'tierId': tierId,
-        'amountKrw': amountKrw,
-        'isAnonymous': isAnonymous,
-        'supportMessage': supportMessage,
-      },
+    // Real implementation — call atomic DB function via repository
+    final repo = _ref.read(fundingRepositoryProvider);
+    final result = await repo.submitPledge(
+      campaignId: campaignId,
+      tierId: tierId,
+      amountKrw: amountKrw,
+      isAnonymous: isAnonymous,
+      supportMessage: supportMessage,
     );
 
-    final data = response.data as Map<String, dynamic>?;
-    if (data?['success'] != true) {
-      throw Exception(data?['message'] ?? '후원에 실패했습니다');
+    final pledgeId = result['pledge_id'] as String?;
+    if (pledgeId == null) {
+      throw Exception(result['error']?.toString() ?? '후원에 실패했습니다');
     }
 
+    final client = SupabaseConfig.client;
     final pledge = Pledge(
-      id: data?['pledgeId'] ?? '',
+      id: pledgeId,
       campaignId: campaignId,
       userId: client.auth.currentUser?.id ?? '',
       tierId: tierId,
@@ -1214,46 +1263,67 @@ class FundingNotifier extends StateNotifier<FundingState> {
     state = state.copyWith(searchQuery: query);
   }
 
-  /// Get backers for a campaign (demo)
-  List<Backer> getBackersForCampaign(String campaignId) {
+  /// Get backers for a campaign
+  Future<List<Backer>> getBackersForCampaign(String campaignId) async {
+    final isDemoMode = _ref.read(isDemoModeProvider);
+
+    if (isDemoMode || campaignId.startsWith('demo_')) {
+      return _getDemoBackers(campaignId);
+    }
+
+    try {
+      final repo = _ref.read(fundingRepositoryProvider);
+      final data = await repo.getBackersForCampaign(campaignId);
+      if (data.isEmpty) return _getDemoBackers(campaignId);
+
+      return data.map((json) {
+        final tierData = json['funding_reward_tiers'] as Map<String, dynamic>?;
+        final userData = json['user_profiles'] as Map<String, dynamic>?;
+        final isAnon = json['is_anonymous'] as bool? ?? false;
+
+        return Backer(
+          id: json['id'] as String,
+          userId: json['user_id'] as String,
+          displayName: isAnon
+              ? '익명'
+              : (userData?['display_name'] as String? ?? '후원자'),
+          avatarUrl: isAnon ? null : userData?['avatar_url'] as String?,
+          tierTitle: tierData?['title'] as String? ?? '후원',
+          amountKrw: (json['amount_krw'] as num?)?.toInt() ?? 0,
+          isAnonymous: isAnon,
+          supportMessage: json['support_message'] as String?,
+          createdAt: json['created_at'] != null
+              ? DateTime.parse(json['created_at'] as String)
+              : DateTime.now(),
+        );
+      }).toList();
+    } catch (e) {
+      if (kDebugMode) debugPrint('[Funding] getBackers error: $e');
+      return _getDemoBackers(campaignId);
+    }
+  }
+
+  /// Demo backers fallback
+  List<Backer> _getDemoBackers(String campaignId) {
     final campaign = getCampaignById(campaignId);
     if (campaign == null) return [];
 
     final now = DateTime.now();
     final demoNames = [
-      '하늘별',
-      '달빛소녀',
-      '봄바람',
-      '꿈나래',
-      '은하수',
-      '민트초코',
-      '해바라기',
-      '별빛가루',
-      '달콤이',
-      '뮤직러버',
-      '핑크빛',
-      '코코넛밀크',
-      '블루오션',
-      '스타라이트',
-      '체리블라썸',
+      '하늘별', '달빛소녀', '봄바람', '꿈나래', '은하수',
+      '민트초코', '해바라기', '별빛가루', '달콤이', '뮤직러버',
+      '핑크빛', '코코넛밀크', '블루오션', '스타라이트', '체리블라썸',
     ];
-    final tiers = getTiersForCampaign(campaignId);
+    final demoTiers = _getDemoTiers(campaignId);
     final messages = [
-      '항상 응원합니다! 💕',
-      '최고의 아티스트! 화이팅!',
-      '데뷔 때부터 팬이에요 🥰',
-      null,
-      '사랑해요! 꼭 성공하길 바랍니다',
-      null,
-      '팬미팅에서 만나요! ❤️',
-      '앨범 너무 기대돼요!',
-      null,
-      '항상 행복하세요 🌸',
+      '항상 응원합니다!', '최고의 아티스트! 화이팅!', '데뷔 때부터 팬이에요',
+      null, '사랑해요! 꼭 성공하길 바랍니다', null, '팬미팅에서 만나요!',
+      '앨범 너무 기대돼요!', null, '항상 행복하세요',
     ];
 
     final count = campaign.backerCount.clamp(0, 15);
     return List.generate(count, (i) {
-      final tier = tiers[i % tiers.length];
+      final tier = demoTiers[i % demoTiers.length];
       final isAnon = i % 7 == 3;
       return Backer(
         id: '${campaignId}_backer_$i',
@@ -1269,7 +1339,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
   }
 
   /// Get stats for a campaign
-  CampaignStats getStatsForCampaign(String campaignId) {
+  Future<CampaignStats> getStatsForCampaign(String campaignId) async {
     final campaign = getCampaignById(campaignId);
     if (campaign == null) {
       return const CampaignStats(
@@ -1283,9 +1353,65 @@ class FundingNotifier extends StateNotifier<FundingState> {
       );
     }
 
-    final tiers = getTiersForCampaign(campaignId);
+    final isDemoMode = _ref.read(isDemoModeProvider);
+
+    if (!isDemoMode && !campaignId.startsWith('demo_')) {
+      try {
+        final repo = _ref.read(fundingRepositoryProvider);
+        final data = await repo.getStatsForCampaign(campaignId);
+
+        // Build tier distribution from real data
+        final tierDist = <String, int>{};
+        final tierStats = data['tier_stats'] as List?;
+        if (tierStats != null) {
+          for (final t in tierStats) {
+            final map = t as Map<String, dynamic>;
+            tierDist[map['title'] as String? ?? ''] =
+                (map['pledge_count'] as num?)?.toInt() ?? 0;
+          }
+        }
+
+        // Build daily data from real data
+        final dailyDataRaw = data['daily_data'] as List?;
+        final dailyData = <DailyFundingData>[];
+        if (dailyDataRaw != null && dailyDataRaw.isNotEmpty) {
+          for (final d in dailyDataRaw) {
+            final map = d as Map<String, dynamic>;
+            dailyData.add(DailyFundingData(
+              date: DateTime.parse(map['date'] as String),
+              amount: (map['amount'] as num?)?.toInt() ?? 0,
+              backerCount: (map['backer_count'] as num?)?.toInt() ?? 0,
+            ));
+          }
+        }
+
+        // If we got real tier data, use it; otherwise fall through to demo
+        if (tierDist.isNotEmpty || dailyData.isNotEmpty) {
+          return CampaignStats(
+            totalBackers: campaign.backerCount,
+            totalRaisedKrw: campaign.currentAmountKrw,
+            fundingPercent: campaign.fundingPercent,
+            daysLeft: campaign.daysLeft,
+            avgPledgeKrw: campaign.backerCount > 0
+                ? campaign.currentAmountKrw ~/ campaign.backerCount
+                : 0,
+            tierDistribution: tierDist,
+            dailyData: dailyData,
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) debugPrint('[Funding] getStats error: $e');
+      }
+    }
+
+    // Fallback: generate stats from campaign data
+    return _generateDemoStats(campaign, campaignId);
+  }
+
+  CampaignStats _generateDemoStats(Campaign campaign, String campaignId) {
+    final demoTiers = _getDemoTiers(campaignId);
     final tierDist = <String, int>{};
-    for (final tier in tiers) {
+    for (final tier in demoTiers) {
       tierDist[tier.title] = tier.pledgeCount;
     }
 
@@ -1298,7 +1424,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
     final dailyData = List.generate(totalDays.clamp(1, 14), (i) {
       final day = now.subtract(Duration(days: totalDays - 1 - i));
-      final variance = (i * 17 + 7) % 11 - 5; // pseudo-random variance
+      final variance = (i * 17 + 7) % 11 - 5;
       final amount =
           (dailyAvg + dailyAvg * variance ~/ 10).clamp(0, dailyAvg * 3);
       final backers =

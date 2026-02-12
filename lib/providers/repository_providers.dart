@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories/supabase_chat_repository.dart';
+import '../data/repositories/supabase_funding_repository.dart';
 import '../data/repositories/supabase_wallet_repository.dart';
 
 /// Repository Providers for Dependency Injection
@@ -53,6 +54,16 @@ abstract class IWalletRepository {
     String? entryType,
   });
 }
+
+// ============================================
+// Funding Repository
+// ============================================
+
+/// Funding repository provider
+final fundingRepositoryProvider =
+    Provider<SupabaseFundingRepository>((ref) {
+  return SupabaseFundingRepository();
+});
 
 // ============================================
 // Environment-based Repository Switching

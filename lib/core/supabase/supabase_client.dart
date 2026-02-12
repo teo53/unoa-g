@@ -7,12 +7,13 @@ class SupabaseConfig {
   // flutter run --dart-define=SUPABASE_URL=your_url --dart-define=SUPABASE_ANON_KEY=your_key
   static const String supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: 'https://your-project.supabase.co',
+    defaultValue: 'https://sgkyerbmmexxsyrcsdzy.supabase.co',
   );
 
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
-    defaultValue: 'your-anon-key',
+    defaultValue:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNna3llcmJtbWV4eHN5cmNzZHp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzIzNTIsImV4cCI6MjA4NjQwODM1Mn0.BcF6uLvGuHOIUJHToYgN5HbhrlDssZNC9QXbbHlPw-8',
   );
 
   /// Initialize Supabase client

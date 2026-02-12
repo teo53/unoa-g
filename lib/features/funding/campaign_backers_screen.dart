@@ -5,18 +5,44 @@ import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
 
 /// Screen showing backers of a campaign (for creators)
-class CampaignBackersScreen extends ConsumerWidget {
+class CampaignBackersScreen extends ConsumerStatefulWidget {
   final String campaignId;
 
   const CampaignBackersScreen({super.key, required this.campaignId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CampaignBackersScreen> createState() =>
+      _CampaignBackersScreenState();
+}
+
+class _CampaignBackersScreenState
+    extends ConsumerState<CampaignBackersScreen> {
+  List<Backer> _backers = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBackers();
+  }
+
+  Future<void> _loadBackers() async {
+    final backers = await ref
+        .read(fundingProvider.notifier)
+        .getBackersForCampaign(widget.campaignId);
+    if (mounted) {
+      setState(() {
+        _backers = backers;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final campaign =
-        ref.watch(fundingProvider.notifier).getCampaignById(campaignId);
-    final backers =
-        ref.watch(fundingProvider.notifier).getBackersForCampaign(campaignId);
+        ref.watch(fundingProvider.notifier).getCampaignById(widget.campaignId);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
@@ -72,7 +98,7 @@ class CampaignBackersScreen extends ConsumerWidget {
                       _buildSummaryChip(
                         isDark,
                         Icons.people_rounded,
-                        '${backers.length}명',
+                        '${_backers.length}명',
                       ),
                       const SizedBox(width: 12),
                       _buildSummaryChip(
@@ -88,20 +114,22 @@ class CampaignBackersScreen extends ConsumerWidget {
 
           // Backer list
           Expanded(
-            child: backers.isEmpty
-                ? _buildEmptyState(isDark)
-                : ListView.separated(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: backers.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final backer = backers[index];
-                      return _BackerCard(
-                        backer: backer,
-                        rank: index + 1,
-                      );
-                    },
-                  ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _backers.isEmpty
+                    ? _buildEmptyState(isDark)
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: _backers.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final backer = _backers[index];
+                          return _BackerCard(
+                            backer: backer,
+                            rank: index + 1,
+                          );
+                        },
+                      ),
           ),
         ],
       ),

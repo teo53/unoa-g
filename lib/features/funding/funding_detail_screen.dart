@@ -21,6 +21,25 @@ class FundingDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
+  List<RewardTier> _tiers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTiers();
+  }
+
+  Future<void> _loadTiers() async {
+    final tiers = await ref
+        .read(fundingProvider.notifier)
+        .getTiersForCampaign(widget.campaignId);
+    if (mounted) {
+      setState(() {
+        _tiers = tiers;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -71,9 +90,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
       );
     }
 
-    final tiers = ref
-        .read(fundingProvider.notifier)
-        .getTiersForCampaign(widget.campaignId);
+    final tiers = _tiers;
     final fundingPercent = campaign.fundingPercent;
     final daysLeft = campaign.daysLeft;
     final isEnded = campaign.isEnded;
