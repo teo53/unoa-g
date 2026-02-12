@@ -18,9 +18,10 @@ class CreatorBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bottomSafeArea = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+      padding: EdgeInsets.fromLTRB(24, 12, 24, 8 + bottomSafeArea),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         border: Border(

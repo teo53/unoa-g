@@ -6,8 +6,9 @@ import '../../core/theme/app_colors.dart';
 /// 앱 레이아웃 Scaffold
 ///
 /// 플랫폼별 렌더링:
-/// - 웹: 폰 프레임 UI로 데모 표시
-/// - 모바일(안드로이드/iOS): 전체 화면으로 표시 (테두리 없음)
+/// - 모바일 네이티브(안드로이드/iOS): 전체 화면으로 표시 (테두리 없음)
+/// - 모바일 웹 (화면 너비 ≤ 600px): 전체 화면으로 표시 (브라우저 대응)
+/// - 데스크톱 웹 (화면 너비 > 600px): 폰 프레임 UI로 데모 표시
 class AppScaffold extends StatelessWidget {
   final Widget child;
   final Widget? bottomNavigationBar;
@@ -28,7 +29,7 @@ class AppScaffold extends StatelessWidget {
     final bgColor = backgroundColor ??
         (isDark ? AppColors.backgroundDark : AppColors.backgroundLight);
 
-    // 모바일 디바이스: 전체 화면 레이아웃 (테두리 없음)
+    // 모바일 디바이스(네이티브): 전체 화면 레이아웃 (테두리 없음)
     if (!kIsWeb) {
       return _MobileLayout(
         backgroundColor: bgColor,
@@ -37,7 +38,20 @@ class AppScaffold extends StatelessWidget {
       );
     }
 
-    // 웹: 폰 프레임 데모 레이아웃
+    // 웹: 화면 너비에 따라 모바일/데스크톱 분기
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobileWeb = screenWidth <= 600;
+
+    // 모바일 웹: 전체 화면 레이아웃 (폰 프레임 없이)
+    if (isMobileWeb) {
+      return _MobileWebLayout(
+        backgroundColor: bgColor,
+        bottomNavigationBar: bottomNavigationBar,
+        child: child,
+      );
+    }
+
+    // 데스크톱 웹: 폰 프레임 데모 레이아웃
     return _WebPreviewLayout(
       backgroundColor: bgColor,
       showStatusBar: showStatusBar,
@@ -92,6 +106,51 @@ class _MobileLayout extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// 모바일 웹 전체 화면 레이아웃
+///
+/// 모바일 브라우저에서 Firebase 링크로 접속 시 사용.
+/// 특징:
+/// - 폰 프레임 없이 전체 화면으로 표시
+/// - 브라우저 하단 바/노치에 대한 safe area 패딩 처리
+/// - 뷰포트 높이를 100% 활용
+class _MobileWebLayout extends StatelessWidget {
+  final Widget child;
+  final Widget? bottomNavigationBar;
+  final Color backgroundColor;
+
+  const _MobileWebLayout({
+    required this.child,
+    required this.backgroundColor,
+    this.bottomNavigationBar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: child,
+      bottomNavigationBar: bottomNavigationBar != null || !AppConfig.isProduction
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (bottomNavigationBar != null) bottomNavigationBar!,
+                // Demo disclaimer text
+                if (!AppConfig.isProduction)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Center(child: const _DemoDisclaimerText()),
+                  ),
+                // 브라우저 하단 safe area 여백
+                SizedBox(height: bottomPadding > 0 ? bottomPadding : 8),
+              ],
+            )
+          : null,
     );
   }
 }
