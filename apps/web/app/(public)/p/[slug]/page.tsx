@@ -11,8 +11,8 @@ import type { Metadata } from 'next'
 import type {
   CampaignEnhanced,
   RewardTierEnhanced,
-  CampaignUpdate,
-  FAQItem,
+  CampaignUpdate_,
+  FaqItem,
   CampaignComment,
   CampaignReview
 } from '@/lib/types/database'
@@ -20,8 +20,8 @@ import type {
 interface CampaignFullData {
   campaign: CampaignEnhanced
   tiers: RewardTierEnhanced[]
-  updates: CampaignUpdate[]
-  faqs: FAQItem[]
+  updates: CampaignUpdate_[]
+  faqs: FaqItem[]
   comments: CampaignComment[]
   reviews: CampaignReview[]
 }
@@ -54,35 +54,37 @@ async function getCampaignData(slug: string): Promise<CampaignFullData | null> {
     `)
     .eq('slug', slug)
     .in('status', ['active', 'completed', 'approved'])
-    .single()
+    .single() as { data: (CampaignEnhanced & { id: string }) | null; error: unknown }
 
   if (error || !campaignData) {
     return null
   }
+
+  const campaignId = campaignData.id
 
   // Get related data in parallel
   const [tiersResult, updatesResult, faqsResult, commentsResult, reviewsResult] = await Promise.all([
     supabase
       .from('funding_reward_tiers')
       .select('*')
-      .eq('campaign_id', campaignData.id)
+      .eq('campaign_id', campaignId)
       .eq('is_active', true)
       .order('display_order'),
 
     supabase
       .from('funding_updates')
       .select('*')
-      .eq('campaign_id', campaignData.id)
+      .eq('campaign_id', campaignId)
       .order('created_at', { ascending: false }),
 
     supabase
       .from('funding_faq_items')
       .select('*')
-      .eq('campaign_id', campaignData.id)
+      .eq('campaign_id', campaignId)
       .order('display_order'),
 
     supabase
-      .from('funding_comments')
+      .from('funding_comments' as any)
       .select(`
         *,
         user:user_profiles!user_id (
@@ -91,12 +93,12 @@ async function getCampaignData(slug: string): Promise<CampaignFullData | null> {
           avatar_url
         )
       `)
-      .eq('campaign_id', campaignData.id)
+      .eq('campaign_id', campaignId)
       .order('created_at', { ascending: false })
-      .limit(50),
+      .limit(50) as any,
 
     supabase
-      .from('funding_reviews')
+      .from('funding_reviews' as any)
       .select(`
         *,
         user:user_profiles!user_id (
@@ -105,16 +107,16 @@ async function getCampaignData(slug: string): Promise<CampaignFullData | null> {
           avatar_url
         )
       `)
-      .eq('campaign_id', campaignData.id)
+      .eq('campaign_id', campaignId)
       .order('created_at', { ascending: false })
-      .limit(50)
+      .limit(50) as any
   ])
 
   return {
     campaign: campaignData as CampaignEnhanced,
     tiers: (tiersResult.data || []) as RewardTierEnhanced[],
-    updates: (updatesResult.data || []) as CampaignUpdate[],
-    faqs: (faqsResult.data || []) as FAQItem[],
+    updates: (updatesResult.data || []) as CampaignUpdate_[],
+    faqs: (faqsResult.data || []) as FaqItem[],
     comments: (commentsResult.data || []) as CampaignComment[],
     reviews: (reviewsResult.data || []) as CampaignReview[]
   }

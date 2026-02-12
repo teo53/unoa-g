@@ -1,13 +1,19 @@
 'use client'
 
-import { CampaignUpdate } from '@/lib/types/database'
+import { CampaignUpdate_ } from '@/lib/types/database'
 import { Badge } from '@/components/ui/badge'
 import { Eye, Lock, Calendar, Bell } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { sanitizeHtml } from '@/lib/utils/sanitize'
 
+// Extended update type with optional enhanced fields for display
+type UpdateItem = CampaignUpdate_ & {
+  update_type?: string
+  visibility?: 'public' | 'backers_only'
+}
+
 interface UpdatesTabProps {
-  updates: CampaignUpdate[]
+  updates: UpdateItem[]
   isBackerOnly?: boolean
 }
 
@@ -28,7 +34,7 @@ export function UpdatesTab({ updates, isBackerOnly = false }: UpdatesTabProps) {
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
 
-  const getUpdateTypeBadge = (type: CampaignUpdate['update_type']) => {
+  const getUpdateTypeBadge = (type: string | undefined) => {
     const configs: Record<string, { label: string; className: string }> = {
       general: { label: '일반', className: 'bg-gray-100 text-gray-700' },
       milestone: { label: '마일스톤', className: 'bg-purple-100 text-purple-700' },
@@ -36,14 +42,14 @@ export function UpdatesTab({ updates, isBackerOnly = false }: UpdatesTabProps) {
       schedule_change: { label: '일정변경', className: 'bg-orange-100 text-orange-700' },
       goal_reached: { label: '목표달성', className: 'bg-green-100 text-green-700' },
     }
-    return configs[type] || configs.general
+    return (type ? configs[type] : undefined) || configs.general
   }
 
   return (
     <div className="space-y-4">
       {sortedUpdates.map((update, index) => {
         const typeBadge = getUpdateTypeBadge(update.update_type)
-        const isLocked = update.visibility !== 'public' && !isBackerOnly
+        const isLocked = update.visibility ? (update.visibility !== 'public' && !isBackerOnly) : (!update.is_public && !isBackerOnly)
 
         return (
           <article
@@ -91,7 +97,7 @@ export function UpdatesTab({ updates, isBackerOnly = false }: UpdatesTabProps) {
               <div className="p-4">
                 <div
                   className="prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(update.content_html) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(update.content_html || update.content_md || '') }}
                 />
               </div>
             )}

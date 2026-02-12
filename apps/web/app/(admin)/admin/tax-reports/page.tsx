@@ -82,7 +82,7 @@ async function getTaxSummaries(): Promise<CreatorTaxSummary[]> {
 
   // Aggregate settlement data per creator for current year
   const { data, error } = await supabase
-    .from('settlement_statements')
+    .from('settlement_statements' as never)
     .select(`
       creator_id,
       income_type,
@@ -95,7 +95,17 @@ async function getTaxSummaries(): Promise<CreatorTaxSummary[]> {
       net_payout_krw
     `)
     .gte('period_start', '2026-01-01')
-    .lte('period_end', '2026-12-31')
+    .lte('period_end', '2026-12-31') as { data: Array<{
+      creator_id: string
+      income_type: string
+      tax_rate: number
+      total_revenue_krw: number
+      platform_fee_krw: number
+      income_tax_krw: number
+      local_tax_krw: number
+      withholding_tax_krw: number
+      net_payout_krw: number
+    }> | null; error: unknown }
 
   if (error) {
     console.error('Error fetching tax data:', error)

@@ -16,11 +16,11 @@ export function IntroTab({ campaign }: IntroTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('intro')
 
   const subTabs = [
-    { id: 'intro', label: '소개', icon: FileText },
-    { id: 'budget', label: '예산', icon: Wallet, disabled: !campaign.budget_info?.items?.length },
-    { id: 'schedule', label: '일정', icon: Calendar, disabled: !campaign.schedule_info?.length },
-    { id: 'team', label: '팀 소개', icon: Users, disabled: !campaign.team_info?.members?.length },
-  ] as const
+    { id: 'intro' as SubTab, label: '소개', icon: FileText, disabled: false },
+    { id: 'budget' as SubTab, label: '예산', icon: Wallet, disabled: !campaign.budget_info?.items?.length },
+    { id: 'schedule' as SubTab, label: '일정', icon: Calendar, disabled: !campaign.schedule_info?.length },
+    { id: 'team' as SubTab, label: '팀 소개', icon: Users, disabled: !campaign.team_info?.members?.length },
+  ]
 
   return (
     <div className="space-y-6">

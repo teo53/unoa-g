@@ -36,11 +36,12 @@ export default function NewCampaignPage() {
           creator_id: user.id,
           title: title.trim(),
           status: 'draft',
-        })
+        } as any)
         .select()
-        .single()
+        .single() as { data: { id: string } | null; error: any }
 
       if (createError) throw createError
+      if (!campaign) throw new Error('캠페인 생성 결과가 없습니다')
 
       // Redirect to edit page
       router.push(`/studio/campaigns/${campaign.id}/edit`)

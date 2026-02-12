@@ -4,8 +4,8 @@ import { useState } from 'react'
 import {
   CampaignEnhanced,
   RewardTierEnhanced,
-  CampaignUpdate,
-  FAQItem,
+  CampaignUpdate_,
+  FaqItem,
   CampaignComment,
   CampaignReview
 } from '@/lib/types/database'
@@ -28,8 +28,8 @@ import {
 interface CampaignDetailClientProps {
   campaign: CampaignEnhanced
   tiers: RewardTierEnhanced[]
-  updates: CampaignUpdate[]
-  faqs: FAQItem[]
+  updates: CampaignUpdate_[]
+  faqs: FaqItem[]
   comments: CampaignComment[]
   reviews: CampaignReview[]
 }
