@@ -165,7 +165,7 @@ export function NoticesEditor({ notices, onChange }: NoticesEditorProps) {
                     <div>
                       <Label className="text-xs text-gray-500">내용 *</Label>
                       <Textarea
-                        placeholder="유의사항 내용을 입력하세요. HTML 태그를 사용할 수 있습니다."
+                        placeholder="유의사항 내용을 입력하세요. (HTML은 안전한 태그만 허용됩니다)"
                         value={notice.content_html}
                         onChange={(e) => updateNotice(index, 'content_html', e.target.value)}
                         rows={5}

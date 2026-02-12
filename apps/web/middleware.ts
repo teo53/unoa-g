@@ -1,6 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * WARNING: This middleware does NOT execute when using `output: 'export'` in next.config.ts.
+ * Firebase static hosting serves pre-built HTML files, so Next.js middleware never runs.
+ * Authentication and authorization must be handled client-side or via Supabase RLS.
+ * This file is kept for reference and future use if the app moves to server-side rendering.
+ */
+
 // SECURITY: Demo mode must be explicitly enabled via environment variable
 // Never auto-enable demo mode based on missing config
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'

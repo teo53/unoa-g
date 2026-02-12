@@ -1020,7 +1020,7 @@ export const mockPolicies: PlatformPolicy[] = [
 export const mockDemoUser = {
   id: 'demo-user',
   email: 'demo@unoa.app',
-  role: 'admin' as const, // Demo user has admin access
+  role: 'fan' as const, // SECURITY: Demo user must not have admin role
 }
 
 // ============================================

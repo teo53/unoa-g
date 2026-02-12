@@ -13,6 +13,16 @@ if (isProduction && isDemoBuild) {
   )
 }
 
+// SECURITY: Prevent demo mode in production builds unless explicitly acknowledged
+if (isProduction && process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+  if (!isDemoBuild) {
+    throw new Error(
+      'SECURITY: NEXT_PUBLIC_DEMO_MODE=true is not allowed in production builds. ' +
+      'Set NEXT_PUBLIC_DEMO_BUILD=true to explicitly acknowledge this is a demo deployment.'
+    )
+  }
+}
+
 const nextConfig: NextConfig = {
   output: 'export', // Enable static export for Firebase Hosting
   images: {
