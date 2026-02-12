@@ -6,11 +6,11 @@ CREATE TABLE IF NOT EXISTS message_reactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  reaction_type TEXT NOT NULL DEFAULT 'heart',
+  emoji TEXT NOT NULL DEFAULT 'heart',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   -- 같은 사용자가 같은 메시지에 같은 리액션 중복 방지
-  UNIQUE(message_id, user_id, reaction_type)
+  UNIQUE(message_id, user_id, emoji)
 );
 
 -- 인덱스 생성
@@ -25,6 +25,7 @@ ALTER TABLE messages ADD COLUMN IF NOT EXISTS reaction_count INTEGER NOT NULL DE
 ALTER TABLE message_reactions ENABLE ROW LEVEL SECURITY;
 
 -- RLS 정책: 본인의 리액션만 추가 가능
+DROP POLICY IF EXISTS "Users can add their own reactions" ON message_reactions;
 CREATE POLICY "Users can add their own reactions"
   ON message_reactions
   FOR INSERT
@@ -32,6 +33,7 @@ CREATE POLICY "Users can add their own reactions"
   WITH CHECK (auth.uid() = user_id);
 
 -- RLS 정책: 본인의 리액션만 삭제 가능
+DROP POLICY IF EXISTS "Users can delete their own reactions" ON message_reactions;
 CREATE POLICY "Users can delete their own reactions"
   ON message_reactions
   FOR DELETE
@@ -39,6 +41,7 @@ CREATE POLICY "Users can delete their own reactions"
   USING (auth.uid() = user_id);
 
 -- RLS 정책: 같은 채널 구독자만 리액션 조회 가능
+DROP POLICY IF EXISTS "Channel subscribers can view reactions" ON message_reactions;
 CREATE POLICY "Channel subscribers can view reactions"
   ON message_reactions
   FOR SELECT
@@ -49,7 +52,7 @@ CREATE POLICY "Channel subscribers can view reactions"
       JOIN subscriptions s ON m.channel_id = s.channel_id
       WHERE m.id = message_reactions.message_id
         AND s.user_id = auth.uid()
-        AND s.status = 'active'
+        AND s.is_active = true
     )
     OR
     -- 또는 채널 소유자 (크리에이터)
@@ -72,6 +75,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS trigger_update_reaction_count_insert ON message_reactions;
 CREATE TRIGGER trigger_update_reaction_count_insert
   AFTER INSERT ON message_reactions
   FOR EACH ROW
@@ -88,6 +92,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS trigger_update_reaction_count_delete ON message_reactions;
 CREATE TRIGGER trigger_update_reaction_count_delete
   AFTER DELETE ON message_reactions
   FOR EACH ROW
@@ -107,7 +112,7 @@ BEGIN
       SELECT 1 FROM message_reactions mr
       WHERE mr.message_id = p_message_id
         AND mr.user_id = auth.uid()
-        AND mr.reaction_type = 'heart'
+        AND mr.emoji = 'heart'
     ) AS has_reacted
   FROM messages m
   WHERE m.id = p_message_id;
@@ -117,7 +122,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 리액션 토글 함수 (추가/삭제)
 CREATE OR REPLACE FUNCTION toggle_message_reaction(
   p_message_id UUID,
-  p_reaction_type TEXT DEFAULT 'heart'
+  p_emoji TEXT DEFAULT 'heart'
 )
 RETURNS TABLE (
   reaction_count INTEGER,
@@ -131,15 +136,15 @@ BEGIN
   FROM message_reactions
   WHERE message_id = p_message_id
     AND user_id = auth.uid()
-    AND reaction_type = p_reaction_type;
+    AND emoji = p_emoji;
 
   IF v_existing_id IS NOT NULL THEN
     -- 이미 있으면 삭제
     DELETE FROM message_reactions WHERE id = v_existing_id;
   ELSE
     -- 없으면 추가
-    INSERT INTO message_reactions (message_id, user_id, reaction_type)
-    VALUES (p_message_id, auth.uid(), p_reaction_type);
+    INSERT INTO message_reactions (message_id, user_id, emoji)
+    VALUES (p_message_id, auth.uid(), p_emoji);
   END IF;
 
   -- 최신 상태 반환
@@ -148,5 +153,5 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 COMMENT ON TABLE message_reactions IS '메시지 리액션 (하트 반응)';
-COMMENT ON COLUMN message_reactions.reaction_type IS '리액션 유형 (현재는 heart만 지원)';
+COMMENT ON COLUMN message_reactions.emoji IS '리액션 이모지 (예: heart, ❤️)';
 COMMENT ON FUNCTION toggle_message_reaction IS '메시지 리액션 토글 (추가/삭제)';

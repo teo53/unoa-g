@@ -1,0 +1,15 @@
+-- =====================================================
+-- Migration 055: Storage 버킷 정책 강화
+--
+-- NOTE: Storage policies must be managed via the Supabase
+-- Dashboard or Storage API, not via SQL migrations.
+-- The postgres role does not own storage.objects.
+--
+-- The following policies should be configured in Dashboard:
+--   campaign-images: INSERT (creator_id check), DELETE (owner), SELECT (public)
+--   team-avatars: INSERT (creator check), DELETE (owner), SELECT (public)
+--   benefit-images: INSERT (creator check), DELETE (owner), SELECT (public)
+--
+-- This migration is a placeholder to maintain numbering.
+-- =====================================================
+SELECT 1;

@@ -33,10 +33,18 @@ ALTER FUNCTION public.process_payment_atomic(UUID, TEXT, UUID, UUID, INTEGER, IN
 ALTER FUNCTION public.process_refund_atomic(UUID, TEXT) SET search_path = public;
 
 -- 020_fix_atomic_refund_dt.sql
-ALTER FUNCTION public.process_refund_atomic_v2(UUID, TEXT, INTEGER) SET search_path = public;
+DO $$ BEGIN
+  ALTER FUNCTION public.process_refund_atomic_v2(UUID, TEXT, INTEGER) SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function process_refund_atomic_v2 does not exist, skipping';
+END $$;
 
 -- 021_funding_schema.sql
-ALTER FUNCTION public.process_funding_pledge(UUID, UUID, UUID, UUID, INT, INT, TEXT, BOOLEAN, TEXT) SET search_path = public;
+DO $$ BEGIN
+  ALTER FUNCTION public.process_funding_pledge(UUID, UUID, UUID, UUID, INT, INT, TEXT, BOOLEAN, TEXT) SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function process_funding_pledge does not exist, skipping';
+END $$;
 
 -- 039_dt_expiration.sql
 ALTER FUNCTION public.process_dt_expiration() SET search_path = public;
@@ -62,8 +70,16 @@ ALTER FUNCTION public.process_funding_pledge_krw(UUID, UUID, UUID, INT, INT, TEX
 ALTER FUNCTION public.mark_funding_payment_refunded(UUID, INT, TEXT, TEXT) SET search_path = public;
 
 -- 046_settlement_tax.sql
-ALTER FUNCTION public.get_withholding_rate(TEXT) SET search_path = public;
-ALTER FUNCTION public.get_creator_tax_info(UUID) SET search_path = public;
+DO $$ BEGIN
+  ALTER FUNCTION public.get_withholding_rate(TEXT) SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function get_withholding_rate does not exist, skipping';
+END $$;
+DO $$ BEGIN
+  ALTER FUNCTION public.get_creator_tax_info(UUID) SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function get_creator_tax_info does not exist, skipping';
+END $$;
 
 -- 047_funding_refund_krw.sql
 ALTER FUNCTION public.queue_campaign_refunds(UUID) SET search_path = public;
@@ -153,9 +169,17 @@ ALTER FUNCTION public.create_report(TEXT, UUID, TEXT, TEXT, TEXT[]) SET search_p
 -- =====================================================
 
 -- 017_payment_webhook_logs.sql
-ALTER FUNCTION public.get_webhook_events_for_payment(UUID) SET search_path = public;
+DO $$ BEGIN
+  ALTER FUNCTION public.get_webhook_events_for_payment(UUID) SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function get_webhook_events_for_payment does not exist, skipping';
+END $$;
 ALTER FUNCTION public.get_failed_webhooks_for_retry(INTEGER) SET search_path = public;
-ALTER FUNCTION public.mark_webhook_processed(UUID) SET search_path = public;
+DO $$ BEGIN
+  ALTER FUNCTION public.mark_webhook_processed(UUID) SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function mark_webhook_processed does not exist, skipping';
+END $$;
 
 -- 018_user_consents_enhancement.sql
 ALTER FUNCTION public.log_consent_change() SET search_path = public;
@@ -169,5 +193,13 @@ ALTER FUNCTION public.track_storage_usage(UUID, TEXT, TEXT, BIGINT, TEXT, UUID) 
 -- get_celebration_queue는 036에서 SET search_path로 정의되었으므로 skip
 
 -- 043_review_improvements.sql
-ALTER FUNCTION public.cleanup_old_webhook_logs() SET search_path = public;
-ALTER FUNCTION public.get_campaign_review_criteria() SET search_path = public;
+DO $$ BEGIN
+  ALTER FUNCTION public.cleanup_old_webhook_logs() SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function cleanup_old_webhook_logs does not exist, skipping';
+END $$;
+DO $$ BEGIN
+  ALTER FUNCTION public.get_campaign_review_criteria() SET search_path = public;
+EXCEPTION WHEN undefined_function THEN
+  RAISE NOTICE 'Function get_campaign_review_criteria does not exist, skipping';
+END $$;

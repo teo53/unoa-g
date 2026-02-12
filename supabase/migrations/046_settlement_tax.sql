@@ -9,36 +9,59 @@
 
 -- ============================================
 -- 1. 소득유형별 원천징수 세율 테이블
+-- income_tax_rates 테이블이 이미 다른 스키마로 존재하므로
+-- 필요한 컬럼만 추가 (ALTER TABLE)
 -- ============================================
+
+-- 기존 테이블이 없는 경우 생성 (초기 배포용)
 CREATE TABLE IF NOT EXISTS public.income_tax_rates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-  -- 소득유형 식별자
-  income_type TEXT NOT NULL UNIQUE CHECK (income_type IN (
-    'business_income',  -- 사업소득 (프리랜서/개인)
-    'other_income',     -- 기타소득
-    'invoice'           -- 세금계산서 (사업자)
-  )),
-
-  -- 표시 정보
-  label_ko TEXT NOT NULL,           -- '사업소득 (3.3%)'
-  description_ko TEXT,              -- 상세 설명
-
-  -- 세율 (소득세 + 지방소득세 합산)
-  tax_rate NUMERIC(5,2) NOT NULL,   -- 3.30, 8.80, 0.00
-  income_tax_rate NUMERIC(5,2),     -- 소득세만 (3.0, 8.0, 0.0)
-  local_tax_rate NUMERIC(5,2),      -- 지방소득세만 (0.3, 0.8, 0.0)
-
-  -- 메타
-  requires_business_registration BOOLEAN DEFAULT false,
-  is_active BOOLEAN DEFAULT true,
-  display_order INT DEFAULT 0,
-
+  income_type TEXT NOT NULL UNIQUE,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 기본 세율 삽입
+-- 필요 컬럼 추가 (기존 테이블에 없는 경우만)
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS label_ko TEXT;
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS description_ko TEXT;
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS tax_rate NUMERIC(5,2);
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS income_tax_rate NUMERIC(5,2);
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS local_tax_rate NUMERIC(5,2);
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS requires_business_registration BOOLEAN DEFAULT false;
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE public.income_tax_rates ADD COLUMN IF NOT EXISTS display_order INT DEFAULT 0;
+
+-- 기존 CHECK 제약조건 삭제 (있을 경우) — 새 income_type 값 허용
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE constraint_name = 'income_tax_rates_income_type_check'
+    AND table_name = 'income_tax_rates'
+    AND table_schema = 'public'
+  ) THEN
+    ALTER TABLE public.income_tax_rates DROP CONSTRAINT income_tax_rates_income_type_check;
+  END IF;
+END $$;
+
+-- 기존 NOT NULL 컬럼을 NULLABLE로 변경 (새 스키마와 공존)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'income_tax_rates' AND column_name = 'tax_category' AND is_nullable = 'NO'
+  ) THEN
+    ALTER TABLE public.income_tax_rates ALTER COLUMN tax_category DROP NOT NULL;
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'income_tax_rates' AND column_name = 'withholding_rate' AND is_nullable = 'NO'
+  ) THEN
+    ALTER TABLE public.income_tax_rates ALTER COLUMN withholding_rate DROP NOT NULL;
+  END IF;
+END $$;
+
+-- 기본 세율 삽입 (기존 데이터와 공존)
 INSERT INTO income_tax_rates (income_type, label_ko, description_ko, tax_rate, income_tax_rate, local_tax_rate, requires_business_registration, display_order)
 VALUES
   ('business_income', '사업소득 (3.3%)', '프리랜서/개인사업자 기본 원천징수. 소득세 3% + 지방소득세 0.3%', 3.30, 3.00, 0.30, false, 1),
@@ -56,13 +79,14 @@ ON CONFLICT (income_type) DO UPDATE SET
 -- RLS
 ALTER TABLE income_tax_rates ENABLE ROW LEVEL SECURITY;
 
--- 모든 인증 사용자가 세율 조회 가능
+-- 정책 (존재할 수 있으므로 DROP IF EXISTS 먼저)
+DROP POLICY IF EXISTS "Authenticated users can view tax rates" ON income_tax_rates;
 CREATE POLICY "Authenticated users can view tax rates"
   ON income_tax_rates FOR SELECT
   TO authenticated
   USING (is_active = true);
 
--- 관리자만 수정 가능
+DROP POLICY IF EXISTS "Admins can manage tax rates" ON income_tax_rates;
 CREATE POLICY "Admins can manage tax rates"
   ON income_tax_rates FOR ALL
   TO authenticated
@@ -71,16 +95,10 @@ CREATE POLICY "Admins can manage tax rates"
 -- ============================================
 -- 2. payout_settings 확장 (소득유형 + 사업자등록)
 -- ============================================
-ALTER TABLE payout_settings ADD COLUMN IF NOT EXISTS income_type TEXT
-  DEFAULT 'business_income'
-  CHECK (income_type IN ('business_income', 'other_income', 'invoice'));
-
+ALTER TABLE payout_settings ADD COLUMN IF NOT EXISTS income_type TEXT DEFAULT 'business_income';
 ALTER TABLE payout_settings ADD COLUMN IF NOT EXISTS business_registration_number_encrypted TEXT;
 ALTER TABLE payout_settings ADD COLUMN IF NOT EXISTS business_registration_verified BOOLEAN DEFAULT false;
 ALTER TABLE payout_settings ADD COLUMN IF NOT EXISTS business_registration_verified_at TIMESTAMPTZ;
-
--- 기존 withholding_tax_rate은 income_type에 따라 자동 결정되도록
--- 기존 컬럼은 override용으로 유지 (NULL이면 income_type 기본값 사용)
 
 -- ============================================
 -- 3. 정산 명세서 테이블 (월별 상세 내역)
@@ -96,37 +114,37 @@ CREATE TABLE IF NOT EXISTS public.settlement_statements (
 
   -- === DT 수익 (메시징 관련) ===
   dt_tips_count INT DEFAULT 0,
-  dt_tips_gross INT DEFAULT 0,           -- 팁 총 DT
+  dt_tips_gross INT DEFAULT 0,
   dt_cards_count INT DEFAULT 0,
-  dt_cards_gross INT DEFAULT 0,          -- 프라이빗카드 총 DT
+  dt_cards_gross INT DEFAULT 0,
   dt_replies_count INT DEFAULT 0,
-  dt_replies_gross INT DEFAULT 0,        -- 유료답글 총 DT
-  dt_total_gross INT DEFAULT 0,          -- DT 수익 합계
+  dt_replies_gross INT DEFAULT 0,
+  dt_total_gross INT DEFAULT 0,
 
   -- DT → KRW 변환
-  dt_to_krw_rate NUMERIC(10,2) NOT NULL DEFAULT 1.0,  -- DT→KRW 환율 (현재 1:1)
-  dt_revenue_krw INT DEFAULT 0,          -- DT 수익의 KRW 환산
+  dt_to_krw_rate NUMERIC(10,2) NOT NULL DEFAULT 1.0,
+  dt_revenue_krw INT DEFAULT 0,
 
   -- === KRW 수익 (펀딩) ===
   funding_campaigns_count INT DEFAULT 0,
   funding_pledges_count INT DEFAULT 0,
-  funding_revenue_krw INT DEFAULT 0,     -- 펀딩 총 KRW (이미 KRW, 변환 불필요)
+  funding_revenue_krw INT DEFAULT 0,
 
   -- === 합산 ===
-  total_revenue_krw INT NOT NULL DEFAULT 0,    -- dt_revenue_krw + funding_revenue_krw
-  platform_fee_rate NUMERIC(5,2) NOT NULL DEFAULT 20.00,  -- 플랫폼 수수료율 (%)
-  platform_fee_krw INT NOT NULL DEFAULT 0,     -- 플랫폼 수수료
-  subtotal_krw INT NOT NULL DEFAULT 0,         -- total - platform_fee
+  total_revenue_krw INT NOT NULL DEFAULT 0,
+  platform_fee_rate NUMERIC(5,2) NOT NULL DEFAULT 20.00,
+  platform_fee_krw INT NOT NULL DEFAULT 0,
+  subtotal_krw INT NOT NULL DEFAULT 0,
 
   -- === 세금 ===
   income_type TEXT NOT NULL DEFAULT 'business_income',
   tax_rate NUMERIC(5,2) NOT NULL DEFAULT 3.30,
-  income_tax_krw INT NOT NULL DEFAULT 0,       -- 소득세
-  local_tax_krw INT NOT NULL DEFAULT 0,        -- 지방소득세
-  withholding_tax_krw INT NOT NULL DEFAULT 0,  -- 원천징수 합계 (income + local)
+  income_tax_krw INT NOT NULL DEFAULT 0,
+  local_tax_krw INT NOT NULL DEFAULT 0,
+  withholding_tax_krw INT NOT NULL DEFAULT 0,
 
   -- === 최종 지급액 ===
-  net_payout_krw INT NOT NULL DEFAULT 0,       -- subtotal - withholding_tax
+  net_payout_krw INT NOT NULL DEFAULT 0,
 
   -- PDF 명세서
   pdf_url TEXT,
@@ -151,17 +169,20 @@ CREATE INDEX IF NOT EXISTS idx_settlement_statements_period
 -- RLS
 ALTER TABLE settlement_statements ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Creators can view own settlement statements" ON settlement_statements;
 CREATE POLICY "Creators can view own settlement statements"
   ON settlement_statements FOR SELECT
   TO authenticated
   USING (creator_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admins can manage all settlement statements" ON settlement_statements;
 CREATE POLICY "Admins can manage all settlement statements"
   ON settlement_statements FOR ALL
   TO authenticated
   USING (public.is_admin());
 
 -- 트리거: updated_at
+DROP TRIGGER IF EXISTS update_settlement_statements_updated_at ON settlement_statements;
 CREATE TRIGGER update_settlement_statements_updated_at
   BEFORE UPDATE ON settlement_statements
   FOR EACH ROW
@@ -180,7 +201,6 @@ BEGIN
   WHERE income_type = p_income_type
     AND is_active = true;
 
-  -- 찾지 못하면 기본 사업소득 3.3%
   RETURN COALESCE(v_rate, 3.30);
 END;
 $$ LANGUAGE plpgsql STABLE;
@@ -201,24 +221,28 @@ RETURNS TABLE (
   has_override BOOLEAN
 ) AS $$
 DECLARE
-  v_settings payout_settings;
-  v_tax_rate_record income_tax_rates;
+  v_income_type TEXT;
+  v_withholding_rate NUMERIC;
+  v_tax_rate_record RECORD;
 BEGIN
   -- 크리에이터 설정 조회
-  SELECT * INTO v_settings FROM payout_settings WHERE creator_id = p_creator_id;
+  SELECT ps.income_type, ps.withholding_tax_rate
+  INTO v_income_type, v_withholding_rate
+  FROM payout_settings ps WHERE ps.creator_id = p_creator_id;
 
   -- 소득유형 결정 (설정 > 기본값)
-  income_type := COALESCE(v_settings.income_type, 'business_income');
+  income_type := COALESCE(v_income_type, 'business_income');
 
   -- 세율 조회
-  SELECT * INTO v_tax_rate_record
+  SELECT itr.tax_rate, itr.income_tax_rate, itr.local_tax_rate, itr.label_ko
+  INTO v_tax_rate_record
   FROM income_tax_rates itr
   WHERE itr.income_type = get_creator_tax_info.income_type
     AND itr.is_active = true;
 
   -- override 확인
-  IF v_settings.withholding_tax_rate IS NOT NULL THEN
-    tax_rate := v_settings.withholding_tax_rate * 100;  -- 0.033 → 3.30
+  IF v_withholding_rate IS NOT NULL THEN
+    tax_rate := v_withholding_rate * 100;
     has_override := true;
   ELSE
     tax_rate := COALESCE(v_tax_rate_record.tax_rate, 3.30);
@@ -238,8 +262,9 @@ GRANT EXECUTE ON FUNCTION get_creator_tax_info TO service_role;
 
 -- ============================================
 -- 6. calculate_creator_payout() 업데이트
--- DT 수익 + KRW 수익 분리 집계
 -- ============================================
+DROP FUNCTION IF EXISTS public.calculate_creator_payout(UUID, DATE, DATE, NUMERIC, NUMERIC);
+
 CREATE OR REPLACE FUNCTION public.calculate_creator_payout(
   p_creator_id UUID,
   p_period_start DATE,
@@ -291,9 +316,9 @@ BEGIN
     AND pc.created_at < p_period_end + INTERVAL '1 day';
 
   v_gross_dt := v_tip_total_dt + v_card_total_dt;
-  v_dt_revenue_krw := v_gross_dt;  -- 1 DT = 1 KRW (현재 환율)
+  v_dt_revenue_krw := v_gross_dt;
 
-  -- 3. KRW 수익: 펀딩 (DT 원장과 완전히 분리!)
+  -- 3. KRW 수익: 펀딩
   SELECT
     COUNT(DISTINCT fp2.campaign_id),
     COUNT(*),

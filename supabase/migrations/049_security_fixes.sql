@@ -8,21 +8,33 @@
 -- 043_review_improvements.sql에서 테이블 생성 시 RLS 미설정
 -- =====================================================
 
-ALTER TABLE public.campaign_review_criteria ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'campaign_review_criteria') THEN
+    RAISE NOTICE 'campaign_review_criteria table does not exist, skipping RLS setup';
+    RETURN;
+  END IF;
 
--- 읽기: 인증된 사용자 모두 (심사 기준은 공개 참조 데이터)
-CREATE POLICY campaign_review_criteria_select
-  ON public.campaign_review_criteria
-  FOR SELECT
-  USING (auth.uid() IS NOT NULL);
+  ALTER TABLE public.campaign_review_criteria ENABLE ROW LEVEL SECURITY;
 
--- 쓰기(INSERT/UPDATE/DELETE): 관리자만
-CREATE POLICY campaign_review_criteria_admin_manage
-  ON public.campaign_review_criteria
-  FOR ALL
-  USING (
-    EXISTS (SELECT 1 FROM admin_users WHERE user_id = auth.uid())
-  );
+  -- 읽기: 인증된 사용자 모두 (심사 기준은 공개 참조 데이터)
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'campaign_review_criteria_select' AND tablename = 'campaign_review_criteria') THEN
+    CREATE POLICY campaign_review_criteria_select
+      ON public.campaign_review_criteria
+      FOR SELECT
+      USING (auth.uid() IS NOT NULL);
+  END IF;
+
+  -- 쓰기(INSERT/UPDATE/DELETE): 관리자만
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'campaign_review_criteria_admin_manage' AND tablename = 'campaign_review_criteria') THEN
+    CREATE POLICY campaign_review_criteria_admin_manage
+      ON public.campaign_review_criteria
+      FOR ALL
+      USING (
+        EXISTS (SELECT 1 FROM admin_users WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
 
 -- =====================================================
 -- 2. payment_webhook_logs RLS 정책 추가

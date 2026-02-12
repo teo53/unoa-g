@@ -2,11 +2,83 @@
 -- UNO A - User Consents Enhancement
 -- Version: 1.1.0
 --
--- 기존 user_consents 테이블에 추가 보안/감사 필드 추가:
+-- Creates user_consents infrastructure and adds audit fields:
 -- - document_snapshot_hash: 약관 버전 해시 (증빙용)
 -- - revoked_at: 마케팅 동의 철회 시점
 -- - consent_history: 동의/철회 이력 추적
 -- ============================================
+
+-- ============================================
+-- 0. BASE TABLES (create if not exist)
+-- ============================================
+
+-- Consent type enum
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'consent_type') THEN
+    CREATE TYPE consent_type AS ENUM (
+      'terms_of_service',
+      'privacy_policy',
+      'marketing_email',
+      'marketing_push',
+      'marketing_sms',
+      'age_verification',
+      'third_party_sharing'
+    );
+  END IF;
+END;
+$$;
+
+-- Consent documents (약관 문서 버전 관리)
+CREATE TABLE IF NOT EXISTS public.consent_documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  consent_type consent_type NOT NULL,
+  version VARCHAR(20) NOT NULL,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  is_required BOOLEAN DEFAULT false,
+  effective_from TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(consent_type, version)
+);
+
+-- User consents (사용자 동의 기록)
+CREATE TABLE IF NOT EXISTS public.user_consents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  consent_type consent_type NOT NULL,
+  version VARCHAR(20) NOT NULL,
+  agreed BOOLEAN NOT NULL DEFAULT false,
+  agreed_at TIMESTAMPTZ DEFAULT NOW(),
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, consent_type)
+);
+
+ALTER TABLE user_consents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE consent_documents ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own consents" ON user_consents;
+CREATE POLICY "Users can view own consents"
+  ON user_consents FOR SELECT
+  USING (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Users can insert own consents" ON user_consents;
+CREATE POLICY "Users can insert own consents"
+  ON user_consents FOR INSERT
+  WITH CHECK (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Users can update own consents" ON user_consents;
+CREATE POLICY "Users can update own consents"
+  ON user_consents FOR UPDATE
+  USING (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Anyone can view consent documents" ON consent_documents;
+CREATE POLICY "Anyone can view consent documents"
+  ON consent_documents FOR SELECT
+  USING (true);
 
 -- ============================================
 -- 1. USER_CONSENTS 테이블 필드 추가

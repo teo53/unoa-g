@@ -13,7 +13,10 @@
 -- 세무 감사 대응을 위해 최소 5년 보존 필요
 -- ============================================
 
--- 기존 cleanup 함수가 있다면 보존기간 업데이트
+-- 기존 cleanup 함수(INT 파라미터 버전)를 먼저 삭제
+DROP FUNCTION IF EXISTS public.cleanup_old_webhook_logs(INT);
+
+-- 새 함수 생성 (파라미터 없음, 5년 고정)
 CREATE OR REPLACE FUNCTION public.cleanup_old_webhook_logs()
 RETURNS INT
 LANGUAGE plpgsql
@@ -34,7 +37,7 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION cleanup_old_webhook_logs IS
+COMMENT ON FUNCTION cleanup_old_webhook_logs() IS
 '웹훅 로그 정리: 성공/중복 로그는 5년 후 삭제 (세무 감사 대응).
 실패 로그는 영구 보존. 기존 90일에서 5년으로 연장.';
 

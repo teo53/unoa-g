@@ -14,16 +14,15 @@
 CREATE INDEX IF NOT EXISTS idx_messages_channel_sender_time
   ON messages(channel_id, sender_id, created_at DESC);
 
--- Index for unread message counts
+-- Index for message delivery read tracking
 -- Used by: ChatNotifier.markAsRead(), unread badge counts
-CREATE INDEX IF NOT EXISTS idx_messages_channel_read
-  ON messages(channel_id, is_read, created_at DESC)
-  WHERE is_read = false;
+-- Note: is_read is tracked in message_delivery table, not messages
+-- See message_delivery table for read-state indexes
 
 -- Index for message search within a channel
 -- Used by: Message search functionality
 CREATE INDEX IF NOT EXISTS idx_messages_channel_content_gin
-  ON messages USING gin(to_tsvector('korean', content))
+  ON messages USING gin(to_tsvector('simple', content))
   WHERE content IS NOT NULL;
 
 -- Index for pinned messages
@@ -103,8 +102,8 @@ CREATE INDEX IF NOT EXISTS idx_reply_quota_user_channel
 
 -- Index for quota refresh job
 -- Used by: refresh_reply_quotas trigger function
-CREATE INDEX IF NOT EXISTS idx_reply_quota_channel_period
-  ON reply_quota(channel_id, period_start DESC);
+CREATE INDEX IF NOT EXISTS idx_reply_quota_channel_updated
+  ON reply_quota(channel_id, updated_at DESC);
 
 -- =====================================================
 -- 6. DT_PURCHASES TABLE INDEXES
@@ -119,7 +118,7 @@ CREATE INDEX IF NOT EXISTS idx_purchases_user_status_time
 -- Used by: SupabaseWalletRepository.requestRefund()
 CREATE INDEX IF NOT EXISTS idx_purchases_refund_eligible
   ON dt_purchases(user_id, status, refund_eligible_until)
-  WHERE status = 'paid' AND refund_eligible_until > now();
+  WHERE status = 'paid' AND refund_eligible_until IS NOT NULL;
 
 -- =====================================================
 -- 7. USER_PROFILES TABLE INDEXES
@@ -131,10 +130,10 @@ CREATE INDEX IF NOT EXISTS idx_user_profiles_display_name_gin
   ON user_profiles USING gin(to_tsvector('simple', display_name))
   WHERE display_name IS NOT NULL;
 
--- Index for username lookups
-CREATE INDEX IF NOT EXISTS idx_user_profiles_username
-  ON user_profiles(username)
-  WHERE username IS NOT NULL;
+-- Index for display_name lookups
+CREATE INDEX IF NOT EXISTS idx_user_profiles_display_name
+  ON user_profiles(display_name)
+  WHERE display_name IS NOT NULL;
 
 -- =====================================================
 -- 8. CHANNELS TABLE INDEXES
@@ -142,7 +141,7 @@ CREATE INDEX IF NOT EXISTS idx_user_profiles_username
 
 -- Index for channel search by name
 CREATE INDEX IF NOT EXISTS idx_channels_name_gin
-  ON channels USING gin(to_tsvector('korean', name));
+  ON channels USING gin(to_tsvector('simple', name));
 
 -- Index for active channels
 CREATE INDEX IF NOT EXISTS idx_channels_active
@@ -165,8 +164,8 @@ CREATE INDEX IF NOT EXISTS idx_creator_profiles_verified_category
 
 -- Index for available cards by channel
 CREATE INDEX IF NOT EXISTS idx_private_cards_channel_available
-  ON private_cards(channel_id, is_available, created_at DESC)
-  WHERE is_available = true;
+  ON private_cards(channel_id, is_active, created_at DESC)
+  WHERE is_active = true;
 
 -- Index for card purchase lookups
 CREATE INDEX IF NOT EXISTS idx_private_card_purchases_user_card

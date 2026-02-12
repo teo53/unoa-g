@@ -73,7 +73,8 @@ CREATE TABLE public.messages (
   media_metadata JSONB,
 
   -- Donation info (for donation_message)
-  donation_id UUID REFERENCES dt_donations(id) ON DELETE SET NULL,
+  -- FK to dt_donations added in 006_wallet_ledger.sql (table created there)
+  donation_id UUID,
   donation_amount INTEGER, -- DT amount
 
   -- Highlighting/pinning for artist inbox

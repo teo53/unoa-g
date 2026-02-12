@@ -27,7 +27,7 @@ CREATE POLICY "Subscribers can view public shared messages"
       SELECT 1 FROM subscriptions s
       WHERE s.channel_id = messages.channel_id
         AND s.user_id = auth.uid()
-        AND s.status = 'active'
+        AND s.is_active = true
     )
   );
 

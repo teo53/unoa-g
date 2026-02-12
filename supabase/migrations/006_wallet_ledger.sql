@@ -442,3 +442,11 @@ BEGIN
   RETURN NEXT;
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
+
+-- ============================================
+-- 10. ADD DEFERRED FK: messages.donation_id -> dt_donations
+-- (messages table created in 001 before dt_donations existed)
+-- ============================================
+ALTER TABLE public.messages
+  ADD CONSTRAINT fk_messages_donation
+  FOREIGN KEY (donation_id) REFERENCES dt_donations(id) ON DELETE SET NULL;

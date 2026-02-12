@@ -145,40 +145,41 @@ GRANT EXECUTE ON FUNCTION public.can_request_payout(UUID) TO authenticated;
 CREATE TABLE IF NOT EXISTS public.bank_codes (
   code TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  short_name TEXT,
+  name_en TEXT,
   is_active BOOLEAN DEFAULT true
 );
 
 -- 한국 주요 은행 코드 (금융결제원 기준)
-INSERT INTO bank_codes (code, name, short_name) VALUES
-  ('002', 'KDB산업은행', '산업'),
-  ('003', 'IBK기업은행', '기업'),
-  ('004', 'KB국민은행', '국민'),
-  ('007', '수협은행', '수협'),
-  ('011', 'NH농협은행', '농협'),
-  ('012', '농협중앙회', '농협중앙'),
-  ('020', '우리은행', '우리'),
+INSERT INTO bank_codes (code, name, name_en) VALUES
+  ('002', 'KDB산업은행', 'KDB'),
+  ('003', 'IBK기업은행', 'IBK'),
+  ('004', 'KB국민은행', 'KB'),
+  ('007', '수협은행', 'Suhyup'),
+  ('011', 'NH농협은행', 'NH'),
+  ('012', '농협중앙회', 'NH Central'),
+  ('020', '우리은행', 'Woori'),
   ('023', 'SC제일은행', 'SC'),
-  ('027', '한국씨티은행', '씨티'),
-  ('031', '대구은행', '대구'),
-  ('032', '부산은행', '부산'),
-  ('034', '광주은행', '광주'),
-  ('035', '제주은행', '제주'),
-  ('037', '전북은행', '전북'),
-  ('039', '경남은행', '경남'),
-  ('045', '새마을금고', '새마을'),
-  ('048', '신협', '신협'),
-  ('071', '우체국', '우체국'),
-  ('081', '하나은행', '하나'),
-  ('088', '신한은행', '신한'),
-  ('089', '케이뱅크', '케이뱅크'),
-  ('090', '카카오뱅크', '카카오'),
-  ('092', '토스뱅크', '토스')
+  ('027', '한국씨티은행', 'Citi'),
+  ('031', '대구은행', 'Daegu'),
+  ('032', '부산은행', 'Busan'),
+  ('034', '광주은행', 'Gwangju'),
+  ('035', '제주은행', 'Jeju'),
+  ('037', '전북은행', 'Jeonbuk'),
+  ('039', '경남은행', 'Gyeongnam'),
+  ('045', '새마을금고', 'KFCC'),
+  ('048', '신협', 'CU'),
+  ('071', '우체국', 'Post'),
+  ('081', '하나은행', 'Hana'),
+  ('088', '신한은행', 'Shinhan'),
+  ('089', '케이뱅크', 'K-Bank'),
+  ('090', '카카오뱅크', 'Kakao'),
+  ('092', '토스뱅크', 'Toss')
 ON CONFLICT (code) DO NOTHING;
 
 -- 은행 코드 조회용 RLS (모두 조회 가능)
 ALTER TABLE bank_codes ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view bank codes" ON bank_codes;
 CREATE POLICY "Anyone can view bank codes"
   ON bank_codes FOR SELECT
   USING (true);
