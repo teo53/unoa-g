@@ -309,22 +309,12 @@ class _CreatorDashboardScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.9),
-            AppColors.primary600,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? AppColors.surfaceDark : AppColors.primary100,
         borderRadius: AppRadius.xlBR,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        border: Border.all(
+          color: (isDark ? Colors.white : AppColors.primary500)
+              .withValues(alpha: 0.12),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,7 +327,7 @@ class _CreatorDashboardScreenState
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -345,7 +335,7 @@ class _CreatorDashboardScreenState
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -354,14 +344,14 @@ class _CreatorDashboardScreenState
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: AppRadius.baseBR,
                 ),
                 child: const Row(
                   children: [
                     Icon(
                       Icons.trending_up_rounded,
-                      color: Colors.white,
+                      color: AppColors.success,
                       size: 16,
                     ),
                     SizedBox(width: 4),
@@ -370,7 +360,7 @@ class _CreatorDashboardScreenState
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: AppColors.success,
                       ),
                     ),
                   ],
@@ -383,16 +373,16 @@ class _CreatorDashboardScreenState
             '이번 달 총 수익',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             '${_formatNumber(DemoConfig.demoMonthlyRevenue)} DT',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
               letterSpacing: -0.5,
             ),
           ),
@@ -534,21 +524,17 @@ class _CreatorDashboardScreenState
                         Container(
                           height: height,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isLast
-                                  ? [AppColors.primary, AppColors.primary600]
-                                  : [
-                                      (isDark
-                                          ? Colors.grey[600]!
-                                          : Colors.grey[300]!),
-                                      (isDark
-                                          ? Colors.grey[700]!
-                                          : Colors.grey[400]!),
-                                    ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
+                            color: isLast
+                                ? AppColors.primary
+                                : (isDark
+                                    ? Colors.grey[700]!
+                                    : Colors.grey[300]!),
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color:
+                                  (isDark ? Colors.white : AppColors.primary500)
+                                      .withValues(alpha: 0.12),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -857,17 +843,19 @@ class _RevenueDetailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: Colors.white,
+            color: AppColors.primary,
             size: 16,
           ),
         ),
@@ -879,15 +867,16 @@ class _RevenueDetailItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.8),
+                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
               ),
             ),
             Text(
               '$value DT',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight,
               ),
             ),
           ],

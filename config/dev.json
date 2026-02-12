@@ -1,0 +1,10 @@
+{
+  "ENV": "development",
+  "SUPABASE_URL": "https://your-project.supabase.co",
+  "SUPABASE_ANON_KEY": "",
+  "SENTRY_DSN": "",
+  "FIREBASE_PROJECT_ID": "unoa-app-demo",
+  "ENABLE_DEMO": "true",
+  "ENABLE_ANALYTICS": "false",
+  "ENABLE_CRASH_REPORTING": "false"
+}

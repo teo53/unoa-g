@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
+import '../core/utils/app_logger.dart';
 
 /// Voice recording configuration
 class VoiceRecordingConfig {
@@ -80,14 +81,14 @@ class VoiceRecordingService {
     }
 
     if (kIsWeb) {
-      debugPrint('Voice recording not supported on web');
+      AppLogger.debug('Voice recording not supported on web', tag: 'Voice');
       return false;
     }
 
     try {
       // Check permission
       if (!await hasPermission()) {
-        debugPrint('Microphone permission not granted');
+        AppLogger.debug('Microphone permission not granted', tag: 'Voice');
         return false;
       }
 
@@ -117,7 +118,7 @@ class VoiceRecordingService {
 
       return true;
     } catch (e) {
-      debugPrint('Error starting recording: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error starting recording');
       _updateState(VoiceRecordingState.idle);
       return false;
     }
@@ -132,7 +133,7 @@ class VoiceRecordingService {
       _durationTimer?.cancel();
       _updateState(VoiceRecordingState.paused);
     } catch (e) {
-      debugPrint('Error pausing recording: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error pausing recording');
     }
   }
 
@@ -145,7 +146,7 @@ class VoiceRecordingService {
       _startDurationTimer();
       _updateState(VoiceRecordingState.recording);
     } catch (e) {
-      debugPrint('Error resuming recording: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error resuming recording');
     }
   }
 
@@ -183,7 +184,7 @@ class VoiceRecordingService {
 
       return result;
     } catch (e) {
-      debugPrint('Error stopping recording: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error stopping recording');
       _updateState(VoiceRecordingState.idle);
       return null;
     }
@@ -207,7 +208,7 @@ class VoiceRecordingService {
       _currentDurationSeconds = 0;
       _updateState(VoiceRecordingState.idle);
     } catch (e) {
-      debugPrint('Error canceling recording: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error canceling recording');
     }
   }
 
@@ -302,7 +303,7 @@ class VoicePlayerService {
       final duration = await _player.setUrl(url);
       return duration;
     } catch (e) {
-      debugPrint('Error loading audio: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error loading audio');
       return null;
     }
   }
@@ -314,7 +315,7 @@ class VoicePlayerService {
       final duration = await _player.setFilePath(path);
       return duration;
     } catch (e) {
-      debugPrint('Error loading audio file: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error loading audio file');
       return null;
     }
   }
@@ -324,7 +325,7 @@ class VoicePlayerService {
     try {
       await _player.play();
     } catch (e) {
-      debugPrint('Error playing audio: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error playing audio');
     }
   }
 
@@ -333,7 +334,7 @@ class VoicePlayerService {
     try {
       await _player.pause();
     } catch (e) {
-      debugPrint('Error pausing audio: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error pausing audio');
     }
   }
 
@@ -342,7 +343,7 @@ class VoicePlayerService {
     try {
       await _player.stop();
     } catch (e) {
-      debugPrint('Error stopping audio: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error stopping audio');
     }
   }
 
@@ -351,7 +352,7 @@ class VoicePlayerService {
     try {
       await _player.seek(position);
     } catch (e) {
-      debugPrint('Error seeking audio: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error seeking audio');
     }
   }
 
@@ -360,7 +361,7 @@ class VoicePlayerService {
     try {
       await _player.setSpeed(speed);
     } catch (e) {
-      debugPrint('Error setting speed: $e');
+      AppLogger.error(e, tag: 'Voice', message: 'Error setting speed');
     }
   }
 

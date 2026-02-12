@@ -107,10 +107,10 @@ cd unoa-g-main
 flutter pub get
 ```
 
-3. **환경 변수 설정**
+3. **환경 설정 (선택)**
 ```bash
-cp .env.example .env
-# .env 파일을 열어 Supabase 키 입력
+# config/dev.json을 열어 Supabase 키 입력 (기본값으로도 데모 모드 실행 가능)
+# 자세한 내용은 아래 "환경 변수" 섹션 참조
 ```
 
 4. **Supabase 프로젝트 설정**
@@ -137,20 +137,49 @@ flutter build ios --release  # iOS
 
 ## 환경 변수
 
-`.env.example` 파일을 `.env`로 복사하고 값을 입력하세요:
+이 프로젝트는 `--dart-define` 또는 `--dart-define-from-file`을 사용합니다.
+(`.env` 파일은 사용하지 않습니다.)
 
-```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-
-# 결제 설정 (프로덕션)
-TOSSPAYMENTS_CLIENT_KEY=
-TOSSPAYMENTS_SECRET_KEY=
-TOSSPAYMENTS_WEBHOOK_SECRET=
-
-# 환경
-ENVIRONMENT=development
+### 개발 모드 (빠른 시작)
+```bash
+flutter run  # 기본값: development 환경, 데모 모드 활성화
 ```
+
+### dart-define-from-file 사용 (권장)
+```bash
+# 개발
+flutter run --dart-define-from-file=config/dev.json
+
+# 베타 테스트
+flutter build apk --release --dart-define-from-file=config/beta.json
+
+# 프로덕션 (CI에서 시크릿 주입)
+flutter build appbundle --release --dart-define-from-file=config/prod.json
+```
+
+### 개별 dart-define 사용
+```bash
+flutter run \
+  --dart-define=ENV=beta \
+  --dart-define=SUPABASE_URL=https://xxx.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your-key \
+  --dart-define=SENTRY_DSN=https://xxx@sentry.io/xxx
+```
+
+### 환경변수 목록
+
+| 변수 | 설명 | 기본값 |
+|------|------|--------|
+| `ENV` | `development` / `beta` / `staging` / `production` | `development` |
+| `SUPABASE_URL` | Supabase 프로젝트 URL | (placeholder) |
+| `SUPABASE_ANON_KEY` | Supabase 익명 키 | (빈 문자열) |
+| `SENTRY_DSN` | Sentry 에러 추적 DSN | (빈 문자열) |
+| `FIREBASE_PROJECT_ID` | Firebase 프로젝트 ID | `unoa-app-demo` |
+| `ENABLE_DEMO` | 데모 모드 활성화 | dev/beta: `true` |
+| `ENABLE_ANALYTICS` | 분석 활성화 | prod: `true` |
+| `ENABLE_CRASH_REPORTING` | 크래시 리포팅 | prod/beta/staging: `true` |
+
+> **주의**: `config/*.json`에는 비밀키를 직접 저장하지 마세요. CI/CD에서는 시크릿으로 관리합니다.
 
 ## 테스트
 

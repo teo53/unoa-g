@@ -284,13 +284,12 @@ class _OwnMessageBubble extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.star.withValues(alpha: 0.3),
-                          AppColors.vip.withValues(alpha: 0.2),
-                        ],
-                      ),
+                      color: AppColors.star.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.star.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,

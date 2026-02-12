@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/utils/app_logger.dart';
 import '../data/models/broadcast_message.dart';
 import '../data/models/reply_quota.dart';
 import '../data/models/channel.dart';
@@ -515,9 +515,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         final client = _ref.read(supabaseClientProvider);
         client.removeChannel(_presenceChannel!);
       } catch (e) {
-        if (kDebugMode) {
-          debugPrint('[ChatNotifier] Presence channel cleanup error: $e');
-        }
+        AppLogger.debug('Presence channel cleanup error: $e', tag: 'Chat');
       }
       _presenceChannel = null;
     }
@@ -536,9 +534,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // Prevent infinite retry loops
     if (_paginationRetryCount >= _maxPaginationRetries) {
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] Max pagination retries reached');
-      }
+      AppLogger.debug('Max pagination retries reached', tag: 'Chat');
       return;
     }
 
@@ -567,11 +563,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
     } catch (e, stackTrace) {
       _paginationRetryCount++;
-      if (kDebugMode) {
-        debugPrint(
-            '[ChatNotifier] Pagination error (attempt $_paginationRetryCount): $e');
-        debugPrint(stackTrace.toString());
-      }
+      AppLogger.error(e,
+          stackTrace: stackTrace,
+          tag: 'Chat',
+          message: 'Pagination error (attempt $_paginationRetryCount)');
 
       // Show error to user after max retries
       if (_paginationRetryCount >= _maxPaginationRetries) {
@@ -587,10 +582,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   List<BroadcastMessage> _parseMessages(dynamic response) {
     if (response == null) return [];
     if (response is! List) {
-      if (kDebugMode) {
-        debugPrint(
-            '[ChatNotifier] Unexpected response type: ${response.runtimeType}');
-      }
+      AppLogger.warning('Unexpected response type: ${response.runtimeType}',
+          tag: 'Chat');
       return [];
     }
 
@@ -600,9 +593,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           try {
             return BroadcastMessage.fromJson(json);
           } catch (e) {
-            if (kDebugMode) {
-              debugPrint('[ChatNotifier] Failed to parse message: $e');
-            }
+            AppLogger.debug('Failed to parse message: $e', tag: 'Chat');
             return null;
           }
         })
@@ -658,10 +649,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] sendReply error: $e');
-        debugPrint(stackTrace.toString());
-      }
+      AppLogger.error(e,
+          stackTrace: stackTrace, tag: 'Chat', message: 'sendReply error');
       return false;
     }
   }
@@ -835,10 +824,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] sendDonationMessage error: $e');
-        debugPrint(stackTrace.toString());
-      }
+      AppLogger.error(e,
+          stackTrace: stackTrace,
+          tag: 'Chat',
+          message: 'sendDonationMessage error');
       return false;
     }
   }
@@ -868,10 +857,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] sendMediaMessage error: $e');
-        debugPrint(stackTrace.toString());
-      }
+      AppLogger.error(e,
+          stackTrace: stackTrace,
+          tag: 'Chat',
+          message: 'sendMediaMessage error');
       return false;
     }
   }
@@ -892,10 +881,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         },
       );
     } catch (e) {
-      // Typing indicator errors are non-critical, don't log in release
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] updateTyping error: $e');
-      }
+      AppLogger.debug('updateTyping error: $e', tag: 'Chat');
     }
   }
 
@@ -923,10 +909,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           .eq('user_id', userId)
           .inFilter('message_id', unreadIds);
     } catch (e) {
-      // Read receipt errors are non-critical, don't log in release
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] markAsRead error: $e');
-      }
+      AppLogger.debug('markAsRead error: $e', tag: 'Chat');
     }
   }
 
@@ -993,10 +976,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(messages: updatedMessages);
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] editMessage error: $e');
-        debugPrint(stackTrace.toString());
-      }
+      AppLogger.error(e,
+          stackTrace: stackTrace, tag: 'Chat', message: 'editMessage error');
       return false;
     }
   }
@@ -1067,10 +1048,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(messages: updatedMessages);
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('[ChatNotifier] deleteMessage error: $e');
-        debugPrint(stackTrace.toString());
-      }
+      AppLogger.error(e,
+          stackTrace: stackTrace, tag: 'Chat', message: 'deleteMessage error');
       return false;
     }
   }

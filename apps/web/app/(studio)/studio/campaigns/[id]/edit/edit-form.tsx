@@ -832,8 +832,8 @@ export default function EditForm({ id }: EditFormProps) {
                           {/* Advanced Options */}
                           <div className="pt-4 border-t border-gray-100">
                             <RewardAdvancedEditor
-                              tier={tier}
-                              onChange={(updates) => updateTier(tier.id, updates as Partial<RewardTier>)}
+                              tier={tier as unknown as RewardTierEnhanced}
+                              onChange={(updates) => updateTier(tier.id, updates as unknown as Partial<RewardTier>)}
                             />
                           </div>
                         </div>

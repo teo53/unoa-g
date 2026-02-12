@@ -29,6 +29,9 @@ class AppConfig {
   /// Check if running in production mode
   static bool get isProduction => environment == 'production';
 
+  /// Check if running in beta mode
+  static bool get isBeta => environment == 'beta';
+
   // ============================================================
   // Supabase Configuration
   // ============================================================
@@ -69,6 +72,7 @@ class AppConfig {
   /// 프로덕션에서는 반드시 ENABLE_DEMO=false로 빌드해야 합니다.
   static bool get enableDemoMode =>
       isDevelopment ||
+      isBeta ||
       const bool.fromEnvironment('ENABLE_DEMO', defaultValue: false);
 
   /// Enable analytics tracking
@@ -79,6 +83,8 @@ class AppConfig {
   /// Enable crash reporting
   static bool get enableCrashReporting =>
       isProduction ||
+      isBeta ||
+      isStaging ||
       const bool.fromEnvironment('ENABLE_CRASH_REPORTING', defaultValue: false);
 
   /// Enable verbose logging
@@ -142,7 +148,7 @@ class AppConfig {
   static void validate() {
     final errors = <String>[];
 
-    if (isProduction || isStaging) {
+    if (isProduction || isStaging || isBeta) {
       if (supabaseUrl == 'https://your-project.supabase.co' ||
           supabaseUrl.isEmpty) {
         errors.add('SUPABASE_URL is not configured');

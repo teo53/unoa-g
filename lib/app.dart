@@ -23,9 +23,12 @@ class UnoAApp extends ConsumerWidget {
       builder: (context, child) {
         // Apply global settings
         return MediaQuery(
-          // Prevent text scaling from affecting UI
+          // Allow limited text scaling for accessibility (up to 130%)
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.noScaling,
+            textScaler: MediaQuery.of(context).textScaler.clamp(
+                  minScaleFactor: 1.0,
+                  maxScaleFactor: 1.3,
+                ),
           ),
           child: child ?? const SizedBox.shrink(),
         );

@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/accessibility_helper.dart';
-import '../../data/mock/mock_data.dart';
+import '../../providers/subscription_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/error_boundary.dart';
 
-class SubscriptionsScreen extends StatelessWidget {
+class SubscriptionsScreen extends ConsumerWidget {
   const SubscriptionsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final subscriptions = MockData.mySubscriptions;
+    final subscriptions = ref.watch(subscriptionListProvider);
 
     return AppScaffold(
       showStatusBar: true,
@@ -56,12 +57,12 @@ class SubscriptionsScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: AppColors.subtleGradient,
-                ),
+                color: isDark ? AppColors.surfaceDark : AppColors.primary100,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: (isDark ? Colors.white : AppColors.primary500)
+                      .withValues(alpha: 0.12),
+                ),
               ),
               child: Row(
                 children: [
@@ -73,16 +74,20 @@ class SubscriptionsScreen extends StatelessWidget {
                           '활성 구독',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withValues(alpha: 0.8),
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${subscriptions.length}개',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: isDark
+                                ? AppColors.textMainDark
+                                : AppColors.textMainLight,
                           ),
                         ),
                       ],
@@ -94,7 +99,7 @@ class SubscriptionsScreen extends StatelessWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
@@ -102,7 +107,7 @@ class SubscriptionsScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary600,
+                        color: Colors.white,
                       ),
                     ),
                   ),

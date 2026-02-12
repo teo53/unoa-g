@@ -131,44 +131,41 @@ class SettlementHistoryScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            AppColors.primary600,
-            AppColors.primary700,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? AppColors.surfaceDark : AppColors.primary100,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: (isDark ? Colors.white : AppColors.primary500)
+              .withValues(alpha: 0.12),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '누적 정산',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white70,
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             '${_formatKrw(state.summary.totalPayout)}원',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               _buildSummaryItem(
-                  '총 수익', '${_formatKrw(state.summary.totalRevenue)}원'),
+                  isDark, '총 수익', '${_formatKrw(state.summary.totalRevenue)}원'),
               _buildSummaryItem(
-                  '수수료', '-${_formatKrw(state.summary.totalFee)}원'),
+                  isDark, '수수료', '-${_formatKrw(state.summary.totalFee)}원'),
               _buildSummaryItem(
-                  '세금', '-${_formatKrw(state.summary.totalTax)}원'),
+                  isDark, '세금', '-${_formatKrw(state.summary.totalTax)}원'),
             ],
           ),
           if (state.summary.pendingAmount > 0) ...[
@@ -176,18 +173,25 @@ class SettlementHistoryScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.access_time,
-                      size: 14, color: Colors.white70),
+                  Icon(Icons.access_time,
+                      size: 14,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight),
                   const SizedBox(width: 6),
                   Text(
                     '정산 대기: ${_formatKrw(state.summary.pendingAmount)}원',
-                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: isDark
+                            ? AppColors.textSubDark
+                            : AppColors.textSubLight),
                   ),
                 ],
               ),
@@ -198,20 +202,25 @@ class SettlementHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryItem(String label, String value) {
+  Widget _buildSummaryItem(bool isDark, String label, String value) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: Colors.white60),
+            style: TextStyle(
+                fontSize: 11,
+                color: isDark ? AppColors.textMutedDark : AppColors.textMuted),
           ),
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? AppColors.textMainDark : AppColors.textMainLight),
           ),
         ],
       ),

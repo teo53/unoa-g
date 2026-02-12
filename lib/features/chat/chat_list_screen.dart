@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/animation_utils.dart';
-import '../../data/mock/mock_data.dart';
 import '../../providers/chat_list_provider.dart';
 import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/avatar_with_badge.dart';
@@ -75,26 +74,29 @@ class ChatListScreen extends ConsumerWidget {
 
         const SizedBox(height: 16),
 
-        // Stories Row (still using mock data for now)
+        // Stories Row
         SizedBox(
           height: 90,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            itemCount: MockData.storyUsers.length,
-            itemBuilder: (context, index) {
-              final story = MockData.storyUsers[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: StoryAvatar(
-                  imageUrl: story['avatarUrl'] as String,
-                  label: story['name'] as String,
-                  isAddStory: story['isAddStory'] as bool,
-                  hasNewStory: story['hasNewStory'] as bool,
-                ),
-              );
-            },
-          ),
+          child: Builder(builder: (context) {
+            final storyUsers = ref.watch(storyUsersProvider);
+            return ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              itemCount: storyUsers.length,
+              itemBuilder: (context, index) {
+                final story = storyUsers[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: StoryAvatar(
+                    imageUrl: story['avatarUrl'] as String,
+                    label: story['name'] as String,
+                    isAddStory: story['isAddStory'] as bool,
+                    hasNewStory: story['hasNewStory'] as bool,
+                  ),
+                );
+              },
+            );
+          }),
         ),
 
         // Divider

@@ -234,7 +234,7 @@ export function TiptapEditor({ content, onChange, placeholder = '프로젝트를
       {/* Image Upload Modal */}
       <ImageUploadModal
         open={isImageModalOpen}
-        onClose={() => setIsImageModalOpen(false)}
+        onOpenChange={(open) => setIsImageModalOpen(open)}
         onInsert={handleImageInsert}
         folder={campaignId ? `campaign-${campaignId}/content` : 'content'}
       />

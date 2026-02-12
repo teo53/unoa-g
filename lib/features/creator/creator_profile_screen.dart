@@ -606,13 +606,11 @@ class _TappableProfileArea extends StatelessWidget {
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.3),
-                          AppColors.primary600.withValues(alpha: 0.1),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                      color:
+                          isDark ? AppColors.surfaceDark : AppColors.primary100,
+                      border: Border.all(
+                        color: (isDark ? Colors.white : AppColors.primary500)
+                            .withValues(alpha: 0.12),
                       ),
                     ),
                     child: ClipOval(

@@ -77,22 +77,11 @@ class _BalanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.success,
-            AppColors.success.withValues(alpha: 0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.success.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: AppColors.success.withValues(alpha: 0.2),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +90,7 @@ class _BalanceCard extends StatelessWidget {
             children: [
               const Icon(
                 Icons.account_balance_wallet_rounded,
-                color: Colors.white,
+                color: AppColors.success,
                 size: 24,
               ),
               const SizedBox(width: 8),
@@ -110,7 +99,8 @@ class _BalanceCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
             ],
@@ -118,10 +108,10 @@ class _BalanceCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             '${formatNumber(summary.totalPayout)}원',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
               letterSpacing: -1,
             ),
           ),
@@ -130,22 +120,22 @@ class _BalanceCard extends StatelessWidget {
             '총 ${summary.settlementCount}건 정산 완료',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.8),
+              color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: AppColors.success.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.info_outline,
                   size: 16,
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color: AppColors.success,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -153,7 +143,9 @@ class _BalanceCard extends StatelessWidget {
                     '정산 대기 중: 400,000 DT (7일 후 출금 가능)',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                 ),

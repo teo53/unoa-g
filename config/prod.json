@@ -1,0 +1,10 @@
+{
+  "ENV": "production",
+  "SUPABASE_URL": "",
+  "SUPABASE_ANON_KEY": "",
+  "SENTRY_DSN": "",
+  "FIREBASE_PROJECT_ID": "",
+  "ENABLE_DEMO": "false",
+  "ENABLE_ANALYTICS": "true",
+  "ENABLE_CRASH_REPORTING": "true"
+}

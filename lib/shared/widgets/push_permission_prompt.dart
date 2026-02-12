@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../core/theme/app_colors.dart';
 
 /// 푸시 알림 권한 요청 사전 설명 바텀시트
@@ -13,7 +15,27 @@ class PushPermissionPrompt {
       isScrollControlled: true,
       builder: (context) => const _PushPermissionSheet(),
     );
-    return result ?? false;
+
+    if (result == true) {
+      return await _requestOsPermission();
+    }
+    return false;
+  }
+
+  /// Request actual OS notification permission via permission_handler.
+  static Future<bool> _requestOsPermission() async {
+    // Web does not support permission_handler
+    if (kIsWeb) return false;
+
+    try {
+      final status = await Permission.notification.request();
+      return status.isGranted;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[PushPermission] OS permission request failed: $e');
+      }
+      return false;
+    }
   }
 }
 
@@ -51,9 +73,7 @@ class _PushPermissionSheet extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary500, AppColors.primary600],
-                  ),
+                  color: AppColors.primary600,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Icon(

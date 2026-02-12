@@ -241,15 +241,11 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            AppColors.primary600,
-            AppColors.primary700,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? AppColors.surfaceDark : AppColors.primary100,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: (isDark ? Colors.white : AppColors.primary500)
+                .withValues(alpha: 0.12)),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary600.withValues(alpha: 0.3),
@@ -272,7 +268,8 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withValues(alpha: 0.3),
+                color: (isDark ? Colors.white : AppColors.primary500)
+                    .withValues(alpha: 0.2),
               ),
               Expanded(
                 child: _SummaryStatItem(
@@ -284,7 +281,8 @@ class _MyCampaignsTabState extends ConsumerState<_MyCampaignsTab>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withValues(alpha: 0.3),
+                color: (isDark ? Colors.white : AppColors.primary500)
+                    .withValues(alpha: 0.2),
               ),
               Expanded(
                 child: _SummaryStatItem(
@@ -327,16 +325,21 @@ class _SummaryStatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
-        Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 20),
+        Icon(icon,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.9)
+                : AppColors.primary600,
+            size: 20),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: isDark ? Colors.white : AppColors.primary700,
           ),
         ),
         const SizedBox(height: 2),
@@ -344,7 +347,9 @@ class _SummaryStatItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 11,
-            color: Colors.white.withValues(alpha: 0.8),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.8)
+                : AppColors.primary600.withValues(alpha: 0.8),
           ),
         ),
       ],

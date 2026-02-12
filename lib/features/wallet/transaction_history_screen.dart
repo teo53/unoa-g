@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
-import '../../data/mock/mock_data.dart';
-import '../../data/models/user_profile.dart';
+import '../../providers/wallet_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
@@ -118,19 +118,55 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
   }
 }
 
-class _TransactionList extends StatelessWidget {
+Color _statusColor(String status) {
+  switch (status) {
+    case 'completed':
+      return AppColors.success;
+    case 'pending':
+      return AppColors.warning;
+    case 'failed':
+    case 'cancelled':
+      return AppColors.danger;
+    case 'refunded':
+      return Colors.blue;
+    default:
+      return Colors.grey;
+  }
+}
+
+String _statusLabel(String status) {
+  switch (status) {
+    case 'completed':
+      return '완료';
+    case 'pending':
+      return '처리 중';
+    case 'failed':
+      return '실패';
+    case 'cancelled':
+      return '취소';
+    case 'refunded':
+      return '환불';
+    default:
+      return status;
+  }
+}
+
+class _TransactionList extends ConsumerWidget {
   final String? filter;
 
   const _TransactionList({this.filter});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Filter transactions based on type
-    final transactions = MockData.transactions.where((txn) {
+    final allTransactions = ref.watch(recentTransactionsProvider);
+    final transactions = allTransactions.where((txn) {
       if (filter == null) return true;
-      return txn.type.name == filter;
+      if (filter == 'credit') return txn.isCredit;
+      if (filter == 'debit') return txn.isDebit;
+      return true;
     }).toList();
 
     if (transactions.isEmpty) {
@@ -157,9 +193,10 @@ class _TransactionList extends StatelessWidget {
     }
 
     // Group transactions by date
-    final groupedTransactions = <String, List<dynamic>>{};
+    final groupedTransactions = <String, List<LedgerEntry>>{};
     for (final txn in transactions) {
-      final dateKey = txn.formattedDate.split(' ').first;
+      final dateKey =
+          '${txn.createdAt.year}.${txn.createdAt.month.toString().padLeft(2, '0')}.${txn.createdAt.day.toString().padLeft(2, '0')}';
       groupedTransactions.putIfAbsent(dateKey, () => []).add(txn);
     }
 
@@ -197,7 +234,7 @@ class _TransactionList extends StatelessWidget {
                 children: txns.asMap().entries.map((entry) {
                   final i = entry.key;
                   final txn = entry.value;
-                  final isCredit = txn.type.name == 'credit';
+                  final isCredit = txn.isCredit;
 
                   return Column(
                     children: [
@@ -231,7 +268,7 @@ class _TransactionList extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      txn.description,
+                                      txn.description ?? txn.typeDisplayName,
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -244,7 +281,7 @@ class _TransactionList extends StatelessWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          txn.formattedDate.split(' ').last,
+                                          '${txn.createdAt.hour.toString().padLeft(2, '0')}:${txn.createdAt.minute.toString().padLeft(2, '0')}',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: isDark
@@ -260,18 +297,17 @@ class _TransactionList extends StatelessWidget {
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Color(txn.status.colorValue)
+                                            color: _statusColor(txn.status)
                                                 .withValues(alpha: 0.15),
                                             borderRadius:
                                                 BorderRadius.circular(4),
                                           ),
                                           child: Text(
-                                            txn.status.label,
+                                            _statusLabel(txn.status),
                                             style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.w600,
-                                              color:
-                                                  Color(txn.status.colorValue),
+                                              color: _statusColor(txn.status),
                                             ),
                                           ),
                                         ),
@@ -315,7 +351,7 @@ class _TransactionList extends StatelessWidget {
   }
 
   void _showRefundDialog(
-      BuildContext context, Transaction txn, bool isCredit, bool isDark) {
+      BuildContext context, LedgerEntry txn, bool isCredit, bool isDark) {
     // Only credit transactions (charges) can be refunded
     if (!isCredit) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -326,9 +362,8 @@ class _TransactionList extends StatelessWidget {
 
     // Check 7-day refund window
     final daysSinceTransaction =
-        DateTime.now().difference(txn.timestamp).inDays;
-    final canRefund =
-        daysSinceTransaction <= 7 && txn.status == TransactionStatus.completed;
+        DateTime.now().difference(txn.createdAt).inDays;
+    final canRefund = daysSinceTransaction <= 7 && txn.status == 'completed';
 
     showModalBottomSheet(
       context: context,
@@ -363,10 +398,17 @@ class _TransactionList extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            _DetailRow(label: '거래 내용', value: txn.description, isDark: isDark),
+            _DetailRow(
+                label: '거래 내용',
+                value: txn.description ?? txn.typeDisplayName,
+                isDark: isDark),
             _DetailRow(label: '금액', value: txn.formattedAmount, isDark: isDark),
-            _DetailRow(label: '거래일', value: txn.formattedDate, isDark: isDark),
-            _DetailRow(label: '상태', value: txn.status.label, isDark: isDark),
+            _DetailRow(
+                label: '거래일',
+                value:
+                    '${txn.createdAt.year}.${txn.createdAt.month.toString().padLeft(2, '0')}.${txn.createdAt.day.toString().padLeft(2, '0')}',
+                isDark: isDark),
+            _DetailRow(label: '상태', value: txn.status, isDark: isDark),
             const SizedBox(height: 20),
             if (canRefund) ...[
               Container(
@@ -449,13 +491,13 @@ class _TransactionList extends StatelessWidget {
     );
   }
 
-  void _confirmRefund(BuildContext context, Transaction txn) {
+  void _confirmRefund(BuildContext context, LedgerEntry txn) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('환불 요청'),
         content: Text(
-          '${txn.amount} DT 충전 내역을 환불 요청하시겠습니까?\n\n'
+          '${txn.amountDt} DT 충전 내역을 환불 요청하시겠습니까?\n\n'
           '• 환불은 영업일 기준 3-5일 소요됩니다.\n'
           '• 보너스 DT는 회수됩니다.\n'
           '• 환불 수수료가 발생할 수 있습니다.',

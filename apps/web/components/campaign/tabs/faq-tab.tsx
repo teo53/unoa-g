@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { FAQItem } from '@/lib/types/database'
+import { FaqItem } from '@/lib/types/database'
 import { ChevronDown, HelpCircle, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface FAQTabProps {
-  faqs: FAQItem[]
+  faqs: FaqItem[]
 }
 
 export function FAQTab({ faqs }: FAQTabProps) {

@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
 import '../../core/utils/accessibility_helper.dart';
-import '../../data/mock/mock_data.dart';
+import '../../providers/wallet_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/premium_shimmer.dart';
 
-class WalletScreen extends StatelessWidget {
+class WalletScreen extends ConsumerWidget {
   const WalletScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final user = MockData.currentUser;
+    final balance = ref.watch(currentBalanceProvider);
+    final packages = ref.watch(dtPackagesProvider);
+    final transactions = ref.watch(recentTransactionsProvider);
 
     return AppScaffold(
       showStatusBar: true,
@@ -100,7 +103,7 @@ class WalletScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            '${user.dtBalance}',
+                            '$balance',
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.w900,
@@ -228,13 +231,12 @@ class WalletScreen extends StatelessWidget {
                     height: 140,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: MockData.dtPackages.length,
+                      itemCount: packages.length,
                       itemBuilder: (context, index) {
-                        final package = MockData.dtPackages[index];
+                        final package = packages[index];
                         return Padding(
                           padding: EdgeInsets.only(
-                            right:
-                                index < MockData.dtPackages.length - 1 ? 12 : 0,
+                            right: index < packages.length - 1 ? 12 : 0,
                           ),
                           child: _PackageCard(
                             name: package.name,
@@ -290,18 +292,20 @@ class WalletScreen extends StatelessWidget {
                       ),
                     ),
                     child: Column(
-                      children: MockData.transactions.asMap().entries.map((e) {
+                      children: transactions.asMap().entries.map((e) {
                         final index = e.key;
                         final txn = e.value;
                         return Column(
                           children: [
                             _TransactionTile(
-                              description: txn.description,
+                              description:
+                                  txn.description ?? txn.typeDisplayName,
                               amount: txn.formattedAmount,
-                              date: txn.formattedDate,
-                              isCredit: txn.type.name == 'credit',
+                              date:
+                                  '${txn.createdAt.year}.${txn.createdAt.month.toString().padLeft(2, '0')}.${txn.createdAt.day.toString().padLeft(2, '0')}',
+                              isCredit: txn.isCredit,
                             ),
-                            if (index < MockData.transactions.length - 1)
+                            if (index < transactions.length - 1)
                               Divider(
                                 height: 1,
                                 indent: 16,

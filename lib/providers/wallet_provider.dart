@@ -189,6 +189,8 @@ class DtPackage {
 
   int get totalDt => dtAmount + bonusDt;
 
+  bool get isPopular => badgeText != null;
+
   String get formattedPrice => '${priceKrw.toString().replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
         (match) => '${match[1]},',

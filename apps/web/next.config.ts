@@ -1,6 +1,18 @@
 import type { NextConfig } from 'next'
 import { withSentryConfig } from '@sentry/nextjs'
 
+// SECURITY: Block DEMO_BUILD in production to prevent typecheck/lint bypass (F-08)
+const isProduction = process.env.NODE_ENV === 'production'
+const isDemoBuild = process.env.NEXT_PUBLIC_DEMO_BUILD === 'true'
+
+if (isProduction && isDemoBuild) {
+  console.warn(
+    '\n⚠️  WARNING: NEXT_PUBLIC_DEMO_BUILD=true in production mode.\n' +
+    '   TypeScript and ESLint checks are disabled. This is NOT recommended for production.\n' +
+    '   Remove NEXT_PUBLIC_DEMO_BUILD or set to "false" for production deployments.\n'
+  )
+}
+
 const nextConfig: NextConfig = {
   output: 'export', // Enable static export for Firebase Hosting
   images: {
@@ -29,13 +41,13 @@ const nextConfig: NextConfig = {
   },
   // Trailing slash for Firebase Hosting compatibility
   trailingSlash: true,
-  // Type checking and linting should always be enabled in production
-  // Only set to true for demo/prototype deployment via NEXT_PUBLIC_DEMO_BUILD=true
+  // SECURITY (F-08): In production, NEVER skip type checking or linting.
+  // DEMO_BUILD bypass is only allowed in non-production environments.
   typescript: {
-    ignoreBuildErrors: process.env.NEXT_PUBLIC_DEMO_BUILD === 'true',
+    ignoreBuildErrors: !isProduction && isDemoBuild,
   },
   eslint: {
-    ignoreDuringBuilds: process.env.NEXT_PUBLIC_DEMO_BUILD === 'true',
+    ignoreDuringBuilds: !isProduction && isDemoBuild,
   },
 }
 

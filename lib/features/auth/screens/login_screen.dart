@@ -135,17 +135,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.1),
-                          AppColors.primary.withValues(alpha: 0.05),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color:
+                          isDark ? AppColors.surfaceDark : AppColors.primary100,
                       borderRadius: AppRadius.xlBR,
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
+                        color: (isDark ? Colors.white : AppColors.primary500)
+                            .withValues(alpha: 0.12),
                       ),
                     ),
                     child: Column(

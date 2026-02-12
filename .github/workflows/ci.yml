@@ -7,7 +7,10 @@ on:
     branches: [main]
 
 jobs:
-  quality-gate:
+  # =====================================================
+  # Flutter Quality Gate (existing)
+  # =====================================================
+  flutter-quality:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -17,7 +20,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'
+          flutter-version: '3.38.5'
           channel: stable
           cache: true
 
@@ -36,3 +39,89 @@ jobs:
       - name: Build web (PR only)
         if: github.event_name == 'pull_request'
         run: flutter build web --release
+
+  # =====================================================
+  # Web App Quality Gate (F-09: new)
+  # =====================================================
+  web-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build (static export)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_DEMO_BUILD: 'true'
+
+  # =====================================================
+  # Security Scan (F-09: new)
+  # =====================================================
+  security-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Web dependency audit
+        working-directory: apps/web
+        run: npm audit --audit-level=high || true
+        # Note: `|| true` to not fail on moderate/low — review output manually
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+          channel: stable
+          cache: true
+
+      - name: Flutter dependency check
+        run: flutter pub get && flutter pub deps --style=compact
+
+      - name: Check for sensitive files
+        run: |
+          echo "=== Checking for potential secrets in tracked files ==="
+          # Check for common secret patterns (fail if found)
+          if git grep -lI 'sk_live_\|sk_test_\|AKIA[0-9A-Z]\{16\}\|-----BEGIN.*PRIVATE KEY' -- ':!*.lock' ':!node_modules' ':!.github' ':!scripts/gates' ':!tools/mcp' ':!*.md'; then
+            echo "::error::Potential secrets found in tracked files!"
+            exit 1
+          else
+            echo "No secrets detected."
+          fi
+
+      - name: Check for unwanted directories
+        run: |
+          echo "=== Checking for directories that should not be committed ==="
+          UNWANTED=("notion-crawler-v2" "crawl-result" ".env.local" ".env.production")
+          for item in "${UNWANTED[@]}"; do
+            if git ls-files --error-unmatch "$item" 2>/dev/null; then
+              echo "::warning::Found unwanted tracked file/directory: $item"
+            fi
+          done

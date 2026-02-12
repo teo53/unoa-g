@@ -1,40 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
 import '../../core/utils/animation_utils.dart';
-import '../../data/mock/mock_data.dart';
+import '../../providers/discover_provider.dart';
 import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 
-class DiscoverScreen extends StatefulWidget {
+class DiscoverScreen extends ConsumerStatefulWidget {
   const DiscoverScreen({super.key});
 
   @override
-  State<DiscoverScreen> createState() => _DiscoverScreenState();
+  ConsumerState<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
-class _DiscoverScreenState extends State<DiscoverScreen> {
-  bool _isLoading = true;
+class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   int _selectedCategory = 0;
   final List<String> _categories = ['전체', '아이돌', '배우', '가수'];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
-  }
 
   void _showFilterSheet(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -139,12 +125,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           child: RefreshIndicator(
             onRefresh: () async {
               HapticFeedback.mediumImpact();
-              await _loadData();
+              await ref.read(discoverProvider.notifier).refresh();
             },
             color: AppColors.primary,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: _isLoading
+              child: ref.watch(discoverProvider) is DiscoverLoading
                   ? _buildSkeletonContent(isDark)
                   : _buildContent(context, isDark),
             ),
@@ -240,6 +226,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Widget _buildContent(BuildContext context, bool isDark) {
+    final artists = ref.watch(trendingArtistsProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -304,15 +292,15 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           delay: const Duration(milliseconds: 100),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: _FeaturedBanner(
-              artist: MockData.trendingArtists.first,
-              onTap: () {
-                HapticFeedback.selectionClick();
-                context.push(
-                  '/artist/${MockData.trendingArtists.first.id}',
-                );
-              },
-            ),
+            child: artists.isNotEmpty
+                ? _FeaturedBanner(
+                    artist: artists.first,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      context.push('/artist/${artists.first.id}');
+                    },
+                  )
+                : const SizedBox.shrink(),
           ),
         ),
 
@@ -340,9 +328,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               mainAxisSpacing: 16,
               childAspectRatio: 0.75,
             ),
-            itemCount: MockData.trendingArtists.length,
+            itemCount: artists.length,
             itemBuilder: (context, index) {
-              final artist = MockData.trendingArtists[index];
+              final artist = artists[index];
               return FadeInAnimation(
                 delay: Duration(milliseconds: 200 + (60 * index)),
                 child: ScaleOnTap(
@@ -382,17 +370,17 @@ class _FeaturedBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 180,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: AppColors.subtleGradient,
-          ),
+          color: isDark ? AppColors.surfaceDark : AppColors.primary100,
+          border: Border.all(
+              color: (isDark ? Colors.white : AppColors.primary500)
+                  .withValues(alpha: 0.12)),
           boxShadow: PremiumEffects.primaryCtaShadows,
         ),
         child: Stack(
@@ -405,11 +393,14 @@ class _FeaturedBanner extends StatelessWidget {
                     ? Container(
                         width: 160,
                         height: 160,
-                        color: Colors.white.withValues(alpha: 0.2),
-                        child: const Icon(
+                        color: (isDark ? Colors.white : AppColors.primary500)
+                            .withValues(alpha: 0.1),
+                        child: Icon(
                           Icons.person_rounded,
                           size: 80,
-                          color: Colors.white54,
+                          color: isDark
+                              ? Colors.white54
+                              : AppColors.primary500.withValues(alpha: 0.3),
                         ),
                       )
                     : CachedNetworkImage(
@@ -420,16 +411,20 @@ class _FeaturedBanner extends StatelessWidget {
                         placeholder: (context, url) => Container(
                           width: 160,
                           height: 160,
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: (isDark ? Colors.white : AppColors.primary500)
+                              .withValues(alpha: 0.1),
                         ),
                         errorWidget: (context, url, error) => Container(
                           width: 160,
                           height: 160,
-                          color: Colors.white.withValues(alpha: 0.2),
-                          child: const Icon(
+                          color: (isDark ? Colors.white : AppColors.primary500)
+                              .withValues(alpha: 0.1),
+                          child: Icon(
                             Icons.person_rounded,
                             size: 80,
-                            color: Colors.white54,
+                            color: isDark
+                                ? Colors.white54
+                                : AppColors.primary500.withValues(alpha: 0.3),
                           ),
                         ),
                       ),
@@ -446,7 +441,9 @@ class _FeaturedBanner extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : AppColors.primary600,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
@@ -461,17 +458,19 @@ class _FeaturedBanner extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     artist.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: isDark ? Colors.white : AppColors.primary700,
                     ),
                   ),
                   Text(
                     artist.group ?? '',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : AppColors.primary600.withValues(alpha: 0.8),
                     ),
                   ),
                   const Spacer(),
@@ -481,15 +480,15 @@ class _FeaturedBanner extends StatelessWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark ? Colors.white : AppColors.primary600,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
+                    child: Text(
                       '프로필 보기',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary600,
+                        color: isDark ? AppColors.primary600 : Colors.white,
                       ),
                     ),
                   ),

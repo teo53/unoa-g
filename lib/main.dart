@@ -54,12 +54,16 @@ Future<void> main() async {
     // await Firebase.initializeApp();
     // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // Initialize FCM (push notifications)
-    await FcmService().initialize();
+    // Initialize FCM (push notifications) - only when crash reporting is enabled
+    if (AppConfig.enableCrashReporting) {
+      await FcmService().initialize();
+    }
 
-    // Initialize Analytics (GA4)
-    await AnalyticsService().initialize();
-    await AnalyticsService().logAppOpen();
+    // Initialize Analytics (GA4) - only when analytics is enabled
+    if (AppConfig.enableAnalytics) {
+      await AnalyticsService().initialize();
+      await AnalyticsService().logAppOpen();
+    }
 
     // Flutter 에러 핸들러 설정
     FlutterError.onError = (FlutterErrorDetails details) {

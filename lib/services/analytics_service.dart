@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+import '../core/utils/app_logger.dart';
 
 /// Analytics Service for GA4 / Firebase Analytics
 ///
@@ -43,9 +43,9 @@ class AnalyticsService {
       // debugPrint('[Analytics] Initialized');
 
       _initialized = true;
-      debugPrint('[Analytics] Service initialized (template mode)');
+      AppLogger.info('Service initialized (template mode)', tag: 'Analytics');
     } catch (e) {
-      debugPrint('[Analytics] Initialization error: $e');
+      AppLogger.error(e, tag: 'Analytics', message: 'Initialization error');
     }
   }
 
@@ -63,9 +63,9 @@ class AnalyticsService {
       //   screenName: screenName,
       //   screenClass: screenClass,
       // );
-      debugPrint('[Analytics] Screen view: $screenName');
+      AppLogger.debug('Screen view: $screenName', tag: 'Analytics');
     } catch (e) {
-      debugPrint('[Analytics] Error logging screen view: $e');
+      AppLogger.debug('Error logging screen view: $e', tag: 'Analytics');
     }
   }
 
@@ -77,9 +77,9 @@ class AnalyticsService {
   Future<void> setUserId(String? userId) async {
     try {
       // await _analytics.setUserId(id: userId);
-      debugPrint('[Analytics] User ID set: ${userId ?? 'null'}');
+      AppLogger.debug('User ID set: ${userId ?? 'null'}', tag: 'Analytics');
     } catch (e) {
-      debugPrint('[Analytics] Error setting user ID: $e');
+      AppLogger.debug('Error setting user ID: $e', tag: 'Analytics');
     }
   }
 
@@ -90,9 +90,9 @@ class AnalyticsService {
   }) async {
     try {
       // await _analytics.setUserProperty(name: name, value: value);
-      debugPrint('[Analytics] User property: $name = $value');
+      AppLogger.debug('User property: $name = $value', tag: 'Analytics');
     } catch (e) {
-      debugPrint('[Analytics] Error setting user property: $e');
+      AppLogger.debug('Error setting user property: $e', tag: 'Analytics');
     }
   }
 
@@ -120,9 +120,9 @@ class AnalyticsService {
       //   name: name,
       //   parameters: parameters,
       // );
-      debugPrint('[Analytics] Event: $name, params: $parameters');
+      AppLogger.debug('Event: $name, params: $parameters', tag: 'Analytics');
     } catch (e) {
-      debugPrint('[Analytics] Error logging event: $e');
+      AppLogger.debug('Error logging event: $e', tag: 'Analytics');
     }
   }
 
@@ -446,7 +446,7 @@ class AnalyticsService {
   /// Log app open
   Future<void> logAppOpen() async {
     // await _analytics.logAppOpen();
-    debugPrint('[Analytics] App open logged');
+    AppLogger.debug('App open logged', tag: 'Analytics');
   }
 
   /// Log tutorial begin
@@ -472,9 +472,9 @@ class AnalyticsService {
       // adb shell setprop debug.firebase.analytics.app <package_name>
       // or via scheme for iOS:
       // -FIRDebugEnabled
-      debugPrint('[Analytics] Debug mode: $enabled');
+      AppLogger.debug('Debug mode: $enabled', tag: 'Analytics');
     } catch (e) {
-      debugPrint('[Analytics] Error setting debug mode: $e');
+      AppLogger.debug('Error setting debug mode: $e', tag: 'Analytics');
     }
   }
 
@@ -482,9 +482,9 @@ class AnalyticsService {
   Future<void> resetAnalyticsData() async {
     try {
       // await _analytics.resetAnalyticsData();
-      debugPrint('[Analytics] Analytics data reset');
+      AppLogger.debug('Analytics data reset', tag: 'Analytics');
     } catch (e) {
-      debugPrint('[Analytics] Error resetting analytics data: $e');
+      AppLogger.debug('Error resetting analytics data: $e', tag: 'Analytics');
     }
   }
 }

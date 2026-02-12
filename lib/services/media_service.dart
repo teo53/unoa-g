@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 import 'package:video_compress/video_compress.dart';
+import '../core/utils/app_logger.dart';
 import '../core/supabase/supabase_client.dart';
 
 /// Media types supported by the chat system
@@ -95,7 +96,7 @@ class MediaService {
       );
       return image;
     } catch (e) {
-      debugPrint('Error picking image: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error picking image');
       return null;
     }
   }
@@ -116,7 +117,7 @@ class MediaService {
       );
       return images;
     } catch (e) {
-      debugPrint('Error picking images: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error picking images');
       return [];
     }
   }
@@ -134,7 +135,7 @@ class MediaService {
       );
       return video;
     } catch (e) {
-      debugPrint('Error picking video: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error picking video');
       return null;
     }
   }
@@ -188,7 +189,7 @@ class MediaService {
         fileSizeBytes: fileSizeBytes,
       );
     } catch (e) {
-      debugPrint('Error validating video: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error validating video');
       return const VideoValidationResult(
         isValid: false,
         errorMessage: '동영상 검증 중 오류가 발생했습니다.',
@@ -234,7 +235,7 @@ class MediaService {
         height: mainImageMaxWidth,
       );
     } catch (e) {
-      debugPrint('Error compressing image: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error compressing image');
       return null;
     }
   }
@@ -254,7 +255,8 @@ class MediaService {
 
       return thumbnail;
     } catch (e) {
-      debugPrint('Error generating video thumbnail: $e');
+      AppLogger.error(e,
+          tag: 'Media', message: 'Error generating video thumbnail');
       return null;
     }
   }
@@ -320,7 +322,7 @@ class MediaService {
         },
       );
     } catch (e) {
-      debugPrint('Error uploading image: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error uploading image');
       rethrow;
     }
   }
@@ -383,7 +385,7 @@ class MediaService {
         },
       );
     } catch (e) {
-      debugPrint('Error uploading video: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error uploading video');
       rethrow;
     }
   }
@@ -428,7 +430,7 @@ class MediaService {
         },
       );
     } catch (e) {
-      debugPrint('Error uploading voice: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error uploading voice');
       rethrow;
     }
   }
@@ -488,7 +490,7 @@ class MediaService {
         },
       );
     } catch (e) {
-      debugPrint('Error uploading file: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error uploading file');
       rethrow;
     }
   }
@@ -508,7 +510,7 @@ class MediaService {
           .from('chat-media')
           .remove([storagePath]);
     } catch (e) {
-      debugPrint('Error deleting media: $e');
+      AppLogger.error(e, tag: 'Media', message: 'Error deleting media');
     }
   }
 

@@ -22,6 +22,9 @@ if (SENTRY_DSN) {
     replaysSessionSampleRate: ENVIRONMENT === 'production' ? 0.1 : 0,
     replaysOnErrorSampleRate: 1.0,
 
+    // Trace propagation targets (controls which outgoing requests get tracing headers)
+    tracePropagationTargets: ['localhost', /^https:\/\/.*\.supabase\.co/],
+
     // Integrations
     integrations: [
       // Session Replay
@@ -31,10 +34,7 @@ if (SENTRY_DSN) {
         blockAllMedia: true,
       }),
       // Browser Tracing for performance
-      Sentry.browserTracingIntegration({
-        // Trace all navigations
-        tracePropagationTargets: ['localhost', /^https:\/\/.*\.supabase\.co/],
-      }),
+      Sentry.browserTracingIntegration(),
     ],
 
     // Filter sensitive data

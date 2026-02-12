@@ -99,8 +99,8 @@ export function CampaignGallery({ galleryImages, coverImage, title }: CampaignGa
             {/* Close button */}
             <Button
               variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
+              size="sm"
+              className="absolute top-4 right-4 z-10 text-white hover:bg-white/20 p-2"
               onClick={() => setIsLightboxOpen(false)}
             >
               <X className="h-6 w-6" />
@@ -111,16 +111,16 @@ export function CampaignGallery({ galleryImages, coverImage, title }: CampaignGa
               <>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12"
+                  size="sm"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12 p-2"
                   onClick={handlePrev}
                 >
                   <ChevronLeft className="h-8 w-8" />
                 </Button>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12"
+                  size="sm"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 h-12 w-12 p-2"
                   onClick={handleNext}
                 >
                   <ChevronRight className="h-8 w-8" />

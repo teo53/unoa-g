@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
-import '../../data/mock/mock_data.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/wallet_provider.dart';
+import '../../providers/subscription_provider.dart';
 import '../../core/utils/animation_utils.dart';
 import '../../shared/widgets/primary_button.dart';
 
@@ -23,7 +24,8 @@ class MyProfileScreen extends ConsumerWidget {
     }
 
     final isCreator = profile.isCreator;
-    final user = MockData.currentUser;
+    final balance = ref.watch(currentBalanceProvider);
+    final subCount = ref.watch(subscriptionCountProvider);
 
     return Column(
       children: [
@@ -73,13 +75,13 @@ class MyProfileScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.primary.withValues(alpha: 0.2),
-                              Colors.transparent,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                          color: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.primary100,
+                          border: Border.all(
+                            color:
+                                (isDark ? Colors.white : AppColors.primary500)
+                                    .withValues(alpha: 0.12),
                           ),
                         ),
                         child: ClipOval(
@@ -124,7 +126,7 @@ class MyProfileScreen extends ConsumerWidget {
 
                 // Name
                 Text(
-                  profile.displayName ?? user.name,
+                  profile.displayName ?? '사용자',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -138,7 +140,7 @@ class MyProfileScreen extends ConsumerWidget {
 
                 // Username
                 Text(
-                  user.username,
+                  '@${profile.displayName?.toLowerCase().replaceAll(' ', '_') ?? 'user'}',
                   style: TextStyle(
                     fontSize: 14,
                     color:
@@ -172,14 +174,14 @@ class MyProfileScreen extends ConsumerWidget {
                         Expanded(
                           child: _StatCard(
                             label: '구독 중',
-                            value: '${user.subscriptionCount}명',
+                            value: '$subCount명',
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _StatCard(
                             label: 'DT 잔액',
-                            value: '${user.dtBalance}',
+                            value: '$balance',
                             valueColor: AppColors.primary,
                           ),
                         ),
@@ -199,7 +201,7 @@ class MyProfileScreen extends ConsumerWidget {
                         iconColor: AppColors.primary,
                         iconBgColor: AppColors.primary.withValues(alpha: 0.1),
                         title: 'Wallet / DreamTime (DT)',
-                        subtitle: '잔액: ${user.dtBalance} DT',
+                        subtitle: '잔액: $balance DT',
                         onTap: () => context.push('/wallet'),
                       ),
                       _MenuItem(
@@ -207,7 +209,7 @@ class MyProfileScreen extends ConsumerWidget {
                         iconColor: Colors.blue,
                         iconBgColor: Colors.blue.withValues(alpha: 0.1),
                         title: '구독 관리',
-                        subtitle: '${user.subscriptionCount}개 구독 중',
+                        subtitle: '$subCount개 구독 중',
                         onTap: () => context.push('/subscriptions'),
                       ),
                     ],

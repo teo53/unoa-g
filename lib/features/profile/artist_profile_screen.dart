@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
-import '../../data/mock/mock_data.dart';
 import '../../data/models/artist.dart';
 import '../../data/models/creator_content.dart';
+import '../../providers/discover_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
-class ArtistProfileScreen extends StatefulWidget {
+class ArtistProfileScreen extends ConsumerStatefulWidget {
   final String artistId;
 
   const ArtistProfileScreen({
@@ -17,10 +18,11 @@ class ArtistProfileScreen extends StatefulWidget {
   });
 
   @override
-  State<ArtistProfileScreen> createState() => _ArtistProfileScreenState();
+  ConsumerState<ArtistProfileScreen> createState() =>
+      _ArtistProfileScreenState();
 }
 
-class _ArtistProfileScreenState extends State<ArtistProfileScreen>
+class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -53,15 +55,17 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
   }
 
   List<Map<String, dynamic>> get _currentTabFeeds {
+    final feedsAsync = ref.read(artistContentFeedsProvider(widget.artistId));
+    final feeds = feedsAsync.valueOrNull ?? {};
     switch (_tabController.index) {
       case 0:
-        return MockData.highlightFeeds;
+        return feeds['highlight'] ?? [];
       case 1:
-        return MockData.announcementFeeds;
+        return feeds['announcement'] ?? [];
       case 2:
-        return MockData.otaLetterFeeds;
+        return feeds['letter'] ?? [];
       default:
-        return MockData.highlightFeeds;
+        return feeds['highlight'] ?? [];
     }
   }
 
@@ -225,10 +229,18 @@ class _ArtistProfileScreenState extends State<ArtistProfileScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final artist = MockData.trendingArtists.firstWhere(
-      (a) => a.id == widget.artistId,
-      orElse: () => MockData.trendingArtists.first,
-    );
+    final artists = ref.watch(trendingArtistsProvider);
+    final artist = artists.isNotEmpty
+        ? artists.firstWhere(
+            (a) => a.id == widget.artistId,
+            orElse: () => artists.first,
+          )
+        : Artist(
+            id: widget.artistId,
+            name: '아티스트',
+            avatarUrl: '',
+            followerCount: 0,
+          );
 
     return AppScaffold(
       showStatusBar: true,

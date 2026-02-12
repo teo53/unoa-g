@@ -288,14 +288,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
       height: 280,
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            themeColor,
-            themeColor.withValues(alpha: 0.8),
-          ],
-        ),
+        color: themeColor,
       ),
       child: Stack(
         children: [
@@ -307,14 +300,7 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
             child: Container(
               height: 120,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.5),
-                  ],
-                ),
+                color: Colors.black.withValues(alpha: 0.3),
               ),
             ),
           ),

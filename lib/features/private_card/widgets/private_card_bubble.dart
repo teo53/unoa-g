@@ -61,9 +61,7 @@ class PrivateCardBubble extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.vip, AppColors.cardAccentPink],
-                        ),
+                        color: AppColors.vip,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(
@@ -106,14 +104,7 @@ class PrivateCardBubble extends StatelessWidget {
                             ),
                             errorWidget: (_, __, ___) => Container(
                               decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    AppColors.cardWarmPink,
-                                    AppColors.cardGradientEnd
-                                  ],
-                                ),
+                                color: AppColors.cardWarmPink,
                               ),
                               child: const Center(
                                 child: Icon(Icons.favorite,

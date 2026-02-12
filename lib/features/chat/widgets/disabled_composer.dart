@@ -113,12 +113,7 @@ class DisabledComposer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary500.withValues(alpha: 0.1),
-                      AppColors.primary600.withValues(alpha: 0.1),
-                    ],
-                  ),
+                  color: isDark ? AppColors.surfaceDark : AppColors.primary100,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: AppColors.primary500.withValues(alpha: 0.3),
