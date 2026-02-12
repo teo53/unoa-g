@@ -72,12 +72,26 @@ class _MobileLayout extends StatelessWidget {
         bottom: false, // 하단 네비게이션 바에서 처리
         child: child,
       ),
-      bottomNavigationBar: bottomNavigationBar != null
-          ? SafeArea(
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (bottomNavigationBar != null)
+            SafeArea(
               top: false,
+              bottom: false,
               child: bottomNavigationBar!,
-            )
-          : null,
+            ),
+          // Demo disclaimer text at very bottom
+          if (!AppConfig.isProduction)
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 4, top: 2),
+                child: Center(child: const _DemoDisclaimerText()),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -105,50 +119,53 @@ class _WebPreviewLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final phoneFrame = Container(
+      width: 400,
+      height: 844,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(48),
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey[900]!,
+          width: 8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(40),
+        child: Column(
+          children: [
+            if (showStatusBar) const StatusBarWidget(),
+            Expanded(child: child),
+            if (bottomNavigationBar != null) bottomNavigationBar!,
+            _HomeIndicator(isDark: isDark),
+          ],
+        ),
+      ),
+    );
+
     return Scaffold(
       backgroundColor: Colors.grey[isDark ? 900 : 200],
-      body: Stack(
-        children: [
-          Center(
-            child: Container(
-              width: 400,
-              height: 844,
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(48),
-                border: Border.all(
-                  color: isDark ? Colors.grey[800]! : Colors.grey[900]!,
-                  width: 8,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            phoneFrame,
+            // Demo version disclaimer text (below phone frame)
+            if (!AppConfig.isProduction)
+              const Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: _DemoDisclaimerText(),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(40),
-                child: Column(
-                  children: [
-                    if (showStatusBar) const StatusBarWidget(),
-                    Expanded(child: child),
-                    if (bottomNavigationBar != null) bottomNavigationBar!,
-                    _HomeIndicator(isDark: isDark),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Demo version disclaimer badge (bottom-right)
-          if (!AppConfig.isProduction)
-            const Positioned(
-              right: 16,
-              bottom: 16,
-              child: _DemoDisclaimerBadge(),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -179,52 +196,23 @@ class _HomeIndicator extends StatelessWidget {
   }
 }
 
-/// 데모 버전 고지 배지 (우하단)
+/// 데모 버전 고지 텍스트
 ///
 /// 프로덕션이 아닌 환경에서 표시.
-/// "본 데모는 확정 버전이 아닙니다" 고지.
-class _DemoDisclaimerBadge extends StatelessWidget {
-  const _DemoDisclaimerBadge();
+/// 은은한 텍스트로 확정 버전이 아님을 고지.
+class _DemoDisclaimerText extends StatelessWidget {
+  const _DemoDisclaimerText();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.black87,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: const Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            'DEMO VERSION',
-            style: TextStyle(
-              color: Colors.amber,
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-            ),
-          ),
-          SizedBox(height: 2),
-          Text(
-            '본 데모는 확정 버전이 아니며,\n실제 서비스와 다를 수 있습니다.',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 9,
-              height: 1.3,
-            ),
-            textAlign: TextAlign.right,
-          ),
-        ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Text(
+      'DEMO  ·  본 데모는 확정 버전이 아니며, 실제 서비스와 다를 수 있습니다.',
+      style: TextStyle(
+        color: isDark ? Colors.grey[600] : Colors.grey[500],
+        fontSize: 10,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0.2,
       ),
     );
   }
