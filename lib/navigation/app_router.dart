@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
+import '../core/config/app_config.dart';
 import '../features/home/home_screen.dart';
 import '../features/chat/chat_list_screen.dart';
 import '../features/chat/chat_thread_screen_v2.dart';
@@ -119,6 +120,11 @@ final appRouter = GoRouter(
           authState is AuthAuthenticated || authState is AuthDemoMode;
       final path = state.uri.path;
       final isAuthRoute = path == '/login' || path == '/register';
+
+      // 데모 모드 활성화 시 비로그인 홈화면 스킵 → 바로 로그인(팬/크리에이터 선택)으로
+      if (!isLoggedIn && path == '/' && AppConfig.enableDemoMode) {
+        return '/login';
+      }
 
       // Creator routes require authentication
       if (!isLoggedIn && path.startsWith('/creator/')) {
