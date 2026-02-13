@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/business_config.dart';
 import '../../shared/widgets/auth_gate.dart';
-import '../../shared/widgets/intermediary_notice_widget.dart';
 import 'funding_result_screen.dart';
 
 /// Checkout screen for funding pledge (KRW 결제)
@@ -223,7 +222,6 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       ),
       body: Column(
         children: [
-          const IntermediaryNoticeWidget(),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(20),

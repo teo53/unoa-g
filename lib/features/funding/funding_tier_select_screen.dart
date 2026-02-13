@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
-import '../../shared/widgets/intermediary_notice_widget.dart';
 import 'funding_checkout_screen.dart';
 
 /// Screen for selecting a reward tier
@@ -64,7 +63,6 @@ class _FundingTierSelectScreenState extends State<FundingTierSelectScreen> {
       ),
       body: Column(
         children: [
-          const IntermediaryNoticeWidget(),
           // Tier list
           Expanded(
             child: ListView(

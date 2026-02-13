@@ -4,7 +4,6 @@ import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 import '../../shared/widgets/error_boundary.dart';
-import '../../shared/widgets/intermediary_notice_widget.dart';
 import 'funding_detail_screen.dart';
 
 /// Main funding screen showing active campaigns (fan view)
@@ -45,7 +44,6 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
       body: SafeArea(
         child: Column(
           children: [
-            const IntermediaryNoticeWidget(),
             _buildHeader(isDark),
             _buildTabBar(isDark),
             Expanded(
