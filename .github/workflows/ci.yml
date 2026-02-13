@@ -8,7 +8,7 @@ on:
 
 jobs:
   # =====================================================
-  # Flutter Quality Gate (existing)
+  # Flutter Quality Gate
   # =====================================================
   flutter-quality:
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.5'
+          flutter-version: '3.38.9'
           channel: stable
           cache: true
 
@@ -34,14 +34,65 @@ jobs:
         run: dart format --set-exit-if-changed .
 
       - name: Test
-        run: flutter test
+        run: flutter test --reporter=expanded
 
-      - name: Build web (PR only)
+      - name: Build web
         if: github.event_name == 'pull_request'
         run: flutter build web --release
 
   # =====================================================
-  # Web App Quality Gate (F-09: new)
+  # Android APK Build Gate
+  # =====================================================
+  android-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK (release)
+        run: flutter build apk --release
+
+      - name: Verify APK exists
+        run: |
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "::error::APK not found at $APK_PATH"
+            exit 1
+          fi
+          APK_SIZE=$(du -m "$APK_PATH" | cut -f1)
+          echo "APK size: ${APK_SIZE}MB"
+          echo "apk_size=${APK_SIZE}" >> "$GITHUB_OUTPUT"
+          if [ "$APK_SIZE" -gt 150 ]; then
+            echo "::warning::APK size exceeds 150MB (${APK_SIZE}MB)"
+          fi
+
+      - name: Upload APK artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
+
+  # =====================================================
+  # Web App Quality Gate
   # =====================================================
   web-quality:
     runs-on: ubuntu-latest
@@ -76,7 +127,7 @@ jobs:
           NEXT_PUBLIC_DEMO_BUILD: 'true'
 
   # =====================================================
-  # Security Scan (F-09: new)
+  # Security Scan
   # =====================================================
   security-scan:
     runs-on: ubuntu-latest
@@ -98,7 +149,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.5'
+          flutter-version: '3.38.9'
           channel: stable
           cache: true
 

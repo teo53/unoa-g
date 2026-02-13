@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/mock/mock_data.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/ops_config_provider.dart';
 import '../../core/utils/animation_utils.dart';
 import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/section_header.dart';
@@ -28,13 +30,13 @@ class HomeScreen extends ConsumerWidget {
 }
 
 /// Logged-in user home screen (기존 로직 유지)
-class _LoggedInHomeScreen extends StatelessWidget {
+class _LoggedInHomeScreen extends ConsumerWidget {
   final bool isDark;
 
   const _LoggedInHomeScreen({required this.isDark});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         // Header
@@ -98,6 +100,9 @@ class _LoggedInHomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Ops Banner Section (from app_public_config)
+                _HomeBannerSection(isDark: isDark),
+
                 // Trending Artists Section
                 const SectionHeader(
                   title: '인기 캐스트',
@@ -552,6 +557,130 @@ class _FeatureCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Home banner section — displays published banners from Ops CRM
+class _HomeBannerSection extends ConsumerWidget {
+  final bool isDark;
+
+  const _HomeBannerSection({required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final banners = ref.watch(opsBannersProvider('home_top'));
+
+    if (banners.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 160,
+          child: PageView.builder(
+            itemCount: banners.length,
+            itemBuilder: (context, index) {
+              final banner = banners[index];
+              return GestureDetector(
+                onTap: () {
+                  if (banner.linkType != 'none' && banner.linkUrl.isNotEmpty) {
+                    if (banner.linkType == 'internal') {
+                      context.push(banner.linkUrl);
+                    }
+                    // External links handled via url_launcher if needed
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color:
+                        isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                    border: Border.all(
+                      color:
+                          isDark ? AppColors.borderDark : AppColors.borderLight,
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: banner.imageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: banner.imageUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: 160,
+                          placeholder: (context, url) => Container(
+                            color: isDark
+                                ? AppColors.surfaceDark
+                                : AppColors.surfaceLight,
+                            child: const Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: isDark
+                                ? AppColors.surfaceDark
+                                : AppColors.surfaceLight,
+                            child: Center(
+                              child: Text(
+                                banner.title,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? AppColors.textMainDark
+                                      : AppColors.textMainLight,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            banner.title,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? AppColors.textMainDark
+                                  : AppColors.textMainLight,
+                            ),
+                          ),
+                        ),
+                ),
+              );
+            },
+          ),
+        ),
+        if (banners.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                banners.length,
+                (i) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: i == 0
+                        ? AppColors.primary500
+                        : (isDark
+                            ? AppColors.borderDark
+                            : AppColors.borderLight),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 }

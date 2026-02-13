@@ -79,8 +79,7 @@ const sentryWebpackPluginOptions = {
   // Upload source maps for debugging
   widenClientFileUpload: true,
 
-  // Routes browser requests to Sentry through a Next.js rewrite
-  tunnelRoute: '/monitoring',
+  // tunnelRoute: '/monitoring',  // Static export (`output:'export'`)에서는 서버 라우트가 없어 미작동. Direct DSN fallback 사용.
 
   // Hides source maps from generated client bundles
   hideSourceMaps: true,

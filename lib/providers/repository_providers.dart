@@ -60,8 +60,7 @@ abstract class IWalletRepository {
 // ============================================
 
 /// Funding repository provider
-final fundingRepositoryProvider =
-    Provider<SupabaseFundingRepository>((ref) {
+final fundingRepositoryProvider = Provider<SupabaseFundingRepository>((ref) {
   return SupabaseFundingRepository();
 });
 

@@ -40,40 +40,34 @@ class SentryService {
       return;
     }
 
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = dsn;
-        options.environment = _environment;
+    try {
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = dsn;
+          options.environment = _environment;
 
-        // 성능 모니터링 설정
-        options.tracesSampleRate = _environment == 'production' ? 0.2 : 1.0;
-        options.profilesSampleRate = _environment == 'production' ? 0.1 : 0.5;
+          // 성능 모니터링 설정
+          options.tracesSampleRate = _environment == 'production' ? 0.2 : 1.0;
 
-        // 디버그 모드에서 더 많은 정보 수집
-        options.debug = kDebugMode;
-        options.diagnosticLevel =
-            kDebugMode ? SentryLevel.debug : SentryLevel.warning;
+          // 디버그 모드에서 더 많은 정보 수집
+          options.debug = kDebugMode;
+          options.diagnosticLevel =
+              kDebugMode ? SentryLevel.debug : SentryLevel.warning;
 
-        // 스크린샷 및 뷰 계층 첨부 (에러 발생 시)
-        options.attachScreenshot = true;
-        options.attachViewHierarchy = true;
+          // 민감한 데이터 필터링
+          options.beforeSend = _beforeSend;
+          options.beforeBreadcrumb = _beforeBreadcrumb;
+        },
+      );
 
-        // 민감한 데이터 필터링
-        options.beforeSend = _beforeSend;
-        options.beforeBreadcrumb = _beforeBreadcrumb;
-
-        // 자동 세션 추적
-        options.autoSessionTrackingInterval = const Duration(seconds: 30);
-
-        // 앱 행 탐지
-        options.anrEnabled = true;
-        options.anrTimeoutInterval = const Duration(seconds: 5);
-      },
-    );
-
-    _initialized = true;
-    if (kDebugMode) {
-      debugPrint('[Sentry] Initialized for environment: $_environment');
+      _initialized = true;
+      if (kDebugMode) {
+        debugPrint('[Sentry] Initialized for environment: $_environment');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[Sentry] Initialization failed: $e');
+      }
     }
   }
 
@@ -87,6 +81,7 @@ class SentryService {
     // 민감한 정보가 포함된 예외 필터링
     final message = event.throwable?.toString() ?? '';
     if (_containsSensitiveData(message)) {
+      // ignore: deprecated_member_use
       return event.copyWith(
         throwable: Exception('[FILTERED] Sensitive data removed'),
       );
@@ -107,6 +102,7 @@ class SentryService {
       data.remove('response_body'); // 응답 본문에 민감 정보 가능
       data.remove('request_body_size');
       data.remove('response_body_size');
+      // ignore: deprecated_member_use
       return breadcrumb.copyWith(data: data);
     }
 

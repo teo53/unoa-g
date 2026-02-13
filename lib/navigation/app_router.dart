@@ -139,6 +139,11 @@ final appRouter = GoRouter(
         }
       }
 
+      // CRM은 데모 모드에서 접근 불가 (관리자 계정 전용)
+      if (authState is AuthDemoMode && path == '/creator/crm') {
+        return '/creator/dashboard';
+      }
+
       // Redirect authenticated users away from login/register
       if (isLoggedIn && isAuthRoute) {
         final auth = container.read(authProvider);

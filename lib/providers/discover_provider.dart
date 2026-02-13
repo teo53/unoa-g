@@ -106,7 +106,7 @@ class DiscoverNotifier extends StateNotifier<DiscoverState> {
 
   /// Demo mode fallback
   void _loadDemoArtists() {
-    state = DiscoverLoaded(
+    state = const DiscoverLoaded(
       trendingArtists: MockData.trendingArtists,
       recommendedArtists: MockData.trendingArtists,
     );

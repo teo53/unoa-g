@@ -1284,9 +1284,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         return Backer(
           id: json['id'] as String,
           userId: json['user_id'] as String,
-          displayName: isAnon
-              ? '익명'
-              : (userData?['display_name'] as String? ?? '후원자'),
+          displayName:
+              isAnon ? '익명' : (userData?['display_name'] as String? ?? '후원자'),
           avatarUrl: isAnon ? null : userData?['avatar_url'] as String?,
           tierTitle: tierData?['title'] as String? ?? '후원',
           amountKrw: (json['amount_krw'] as num?)?.toInt() ?? 0,
@@ -1310,15 +1309,34 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
     final now = DateTime.now();
     final demoNames = [
-      '하늘별', '달빛소녀', '봄바람', '꿈나래', '은하수',
-      '민트초코', '해바라기', '별빛가루', '달콤이', '뮤직러버',
-      '핑크빛', '코코넛밀크', '블루오션', '스타라이트', '체리블라썸',
+      '하늘별',
+      '달빛소녀',
+      '봄바람',
+      '꿈나래',
+      '은하수',
+      '민트초코',
+      '해바라기',
+      '별빛가루',
+      '달콤이',
+      '뮤직러버',
+      '핑크빛',
+      '코코넛밀크',
+      '블루오션',
+      '스타라이트',
+      '체리블라썸',
     ];
     final demoTiers = _getDemoTiers(campaignId);
     final messages = [
-      '항상 응원합니다!', '최고의 아티스트! 화이팅!', '데뷔 때부터 팬이에요',
-      null, '사랑해요! 꼭 성공하길 바랍니다', null, '팬미팅에서 만나요!',
-      '앨범 너무 기대돼요!', null, '항상 행복하세요',
+      '항상 응원합니다!',
+      '최고의 아티스트! 화이팅!',
+      '데뷔 때부터 팬이에요',
+      null,
+      '사랑해요! 꼭 성공하길 바랍니다',
+      null,
+      '팬미팅에서 만나요!',
+      '앨범 너무 기대돼요!',
+      null,
+      '항상 행복하세요',
     ];
 
     final count = campaign.backerCount.clamp(0, 15);

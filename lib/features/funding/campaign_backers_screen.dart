@@ -15,8 +15,7 @@ class CampaignBackersScreen extends ConsumerStatefulWidget {
       _CampaignBackersScreenState();
 }
 
-class _CampaignBackersScreenState
-    extends ConsumerState<CampaignBackersScreen> {
+class _CampaignBackersScreenState extends ConsumerState<CampaignBackersScreen> {
   List<Backer> _backers = [];
   bool _isLoading = true;
 

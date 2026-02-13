@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../providers/auth_provider.dart';
 import 'widgets/crm_revenue_tab.dart';
 import 'widgets/crm_fan_tab.dart';
 import 'widgets/crm_content_tab.dart';
@@ -35,6 +37,57 @@ class _CreatorCRMScreenState extends ConsumerState<CreatorCRMScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDemoMode = ref.watch(isDemoModeProvider);
+
+    // 데모 모드에서는 CRM 접근 차단
+    if (isDemoMode) {
+      return Scaffold(
+        backgroundColor:
+            isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.lock_outline,
+                  size: 64,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '관리자 계정 전용',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'CRM 기능은 데모 모드에서 사용할 수 없습니다.\n관리자 계정으로 로그인해주세요.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('돌아가기'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor:

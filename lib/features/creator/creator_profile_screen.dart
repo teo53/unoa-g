@@ -87,21 +87,22 @@ class CreatorProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // Creator Management Section
-                _MenuSection(
-                  title: '크리에이터 관리',
-                  items: [
-                    _MenuItem(
-                      icon: Icons.analytics_rounded,
-                      iconColor: Colors.teal,
-                      iconBgColor: Colors.teal.withValues(alpha: 0.1),
-                      title: 'CRM / 수익 관리',
-                      subtitle: '팬 분석, 정산 내역 및 출금',
-                      onTap: () => context.push('/creator/crm'),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
+                if (!isDemoMode) ...[
+                  _MenuSection(
+                    title: '크리에이터 관리',
+                    items: [
+                      _MenuItem(
+                        icon: Icons.analytics_rounded,
+                        iconColor: Colors.teal,
+                        iconBgColor: Colors.teal.withValues(alpha: 0.1),
+                        title: 'CRM / 수익 관리',
+                        subtitle: '팬 분석, 정산 내역 및 출금',
+                        onTap: () => context.push('/creator/crm'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 // Fan Activities Section (아티스트도 다른 아티스트의 팬이 될 수 있음)
                 _MenuSection(

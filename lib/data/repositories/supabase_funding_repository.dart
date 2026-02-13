@@ -140,8 +140,7 @@ class SupabaseFundingRepository {
   // ============================================
 
   /// Get aggregated stats for a campaign
-  Future<Map<String, dynamic>> getStatsForCampaign(
-      String campaignId) async {
+  Future<Map<String, dynamic>> getStatsForCampaign(String campaignId) async {
     // Get tier distribution
     final tierStats = await _client
         .from('funding_reward_tiers')
@@ -243,8 +242,7 @@ class SupabaseFundingRepository {
   }) async {
     if (_userId == null) throw Exception('Not authenticated');
 
-    final result =
-        await _client.rpc('process_funding_pledge_krw', params: {
+    final result = await _client.rpc('process_funding_pledge_krw', params: {
       'p_campaign_id': campaignId,
       'p_tier_id': tierId,
       'p_user_id': _userId,
@@ -405,5 +403,4 @@ class SupabaseFundingRepository {
 
     return (response as List).length;
   }
-
 }

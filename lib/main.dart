@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'core/config/app_config.dart';
 import 'core/supabase/supabase_client.dart';
 import 'core/monitoring/sentry_service.dart';
@@ -27,78 +26,89 @@ import 'app.dart';
 // }
 
 Future<void> main() async {
-  // Sentry 초기화를 위해 runZonedGuarded 사용
-  await runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-    // Validate configuration before any initialization
-    AppConfig.validate();
+  // Validate configuration before any initialization
+  AppConfig.validate();
 
-    // Set preferred orientations
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
-    // Initialize Hive for local storage
-    await Hive.initFlutter();
+  // Initialize Hive for local storage
+  await Hive.initFlutter();
 
-    // Initialize Sentry for error monitoring
+  // Initialize Sentry for error monitoring (safe — skips if no DSN)
+  try {
     await SentryService.initialize();
-
-    // Initialize Supabase
-    await SupabaseConfig.initialize();
-
-    // Initialize Firebase (for FCM & Analytics)
-    // Note: Uncomment when Firebase is configured with google-services.json / GoogleService-Info.plist
-    // await Firebase.initializeApp();
-    // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    // Initialize FCM (push notifications) - only when crash reporting is enabled
-    if (AppConfig.enableCrashReporting) {
-      await FcmService().initialize();
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint('[Main] Sentry init failed (non-fatal): $e');
     }
+  }
 
-    // Initialize Analytics (GA4) - only when analytics is enabled
-    if (AppConfig.enableAnalytics) {
+  // Initialize Supabase
+  try {
+    await SupabaseConfig.initialize();
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint('[Main] Supabase init failed (non-fatal): $e');
+    }
+  }
+
+  // Initialize Firebase (for FCM & Analytics)
+  // Note: Uncomment when Firebase is configured with google-services.json / GoogleService-Info.plist
+  // await Firebase.initializeApp();
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Initialize FCM (push notifications) - only when crash reporting is enabled
+  if (AppConfig.enableCrashReporting) {
+    try {
+      await FcmService().initialize();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[Main] FCM init failed (non-fatal): $e');
+      }
+    }
+  }
+
+  // Initialize Analytics (GA4) - only when analytics is enabled
+  if (AppConfig.enableAnalytics) {
+    try {
       await AnalyticsService().initialize();
       await AnalyticsService().logAppOpen();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[Main] Analytics init failed (non-fatal): $e');
+      }
     }
+  }
 
-    // Flutter 에러 핸들러 설정
-    FlutterError.onError = (FlutterErrorDetails details) {
-      FlutterError.presentError(details);
-      SentryService.captureException(
-        details.exception,
-        stackTrace: details.stack,
-        message: details.context?.toString(),
-        extras: {
-          'library': details.library ?? 'unknown',
-          'silent': details.silent,
-        },
-      );
-    };
-
-    // 플랫폼 에러 핸들러 설정
-    PlatformDispatcher.instance.onError = (error, stack) {
-      SentryService.captureException(error, stackTrace: stack);
-      return true;
-    };
-
-    runApp(
-      // Sentry 위젯 래핑 (네비게이션 추적 등)
-      SentryWidget(
-        child: const ProviderScope(
-          child: UnoAApp(),
-        ),
-      ),
+  // Flutter 에러 핸들러 설정
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    SentryService.captureException(
+      details.exception,
+      stackTrace: details.stack,
+      message: details.context?.toString(),
+      extras: {
+        'library': details.library ?? 'unknown',
+        'silent': details.silent,
+      },
     );
-  }, (error, stackTrace) {
-    // Zone 에러 캡처
-    SentryService.captureException(error, stackTrace: stackTrace);
-    if (kDebugMode) {
-      debugPrint('[ZoneError] $error');
-      debugPrint('[StackTrace] $stackTrace');
-    }
-  });
+  };
+
+  // 플랫폼 에러 핸들러 설정
+  PlatformDispatcher.instance.onError = (error, stack) {
+    SentryService.captureException(error, stackTrace: stack);
+    return true;
+  };
+
+  runApp(
+    const ProviderScope(
+      child: UnoAApp(),
+    ),
+  );
 }

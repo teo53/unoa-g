@@ -1,11 +1,39 @@
 import Link from 'next/link'
-import { LayoutDashboard, FileCheck, Flag, LogOut, Wallet, FileText, CreditCard, Calculator } from 'lucide-react'
+import { LayoutDashboard, FileCheck, Flag, LogOut, Wallet, CreditCard, Calculator, Image, ToggleLeft, ScrollText, Users, Megaphone, ShieldAlert } from 'lucide-react'
+import { OpsToastProvider } from '@/components/ops/ops-toast'
+import { DEMO_MODE } from '@/lib/mock/demo-data'
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // 데모 모드에서는 관리자 패널 접근 차단
+  if (DEMO_MODE) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <ShieldAlert className="w-8 h-8 text-red-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            관리자 인증 필요
+          </h1>
+          <p className="text-gray-500 mb-6">
+            관리자 패널은 데모 모드에서 사용할 수 없습니다.<br />
+            관리자 계정으로 로그인해주세요.
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            홈으로 돌아가기
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -85,6 +113,47 @@ export default function AdminLayout({
               <Flag className="w-5 h-5" />
               <span>신고 관리</span>
             </Link>
+
+            {/* Ops CRM Section */}
+            <div className="pt-2 pb-1 px-4">
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">운영 (Ops)</div>
+            </div>
+
+            <Link
+              href="/admin/ops"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Megaphone className="w-5 h-5" />
+              <span>Ops 대시보드</span>
+            </Link>
+            <Link
+              href="/admin/ops/banners"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Image className="w-5 h-5" />
+              <span>배너 관리</span>
+            </Link>
+            <Link
+              href="/admin/ops/flags"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ToggleLeft className="w-5 h-5" />
+              <span>기능 플래그</span>
+            </Link>
+            <Link
+              href="/admin/ops/audit"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ScrollText className="w-5 h-5" />
+              <span>감사 로그</span>
+            </Link>
+            <Link
+              href="/admin/ops/staff"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Users className="w-5 h-5" />
+              <span>스태프 관리</span>
+            </Link>
           </nav>
 
           <div className="p-4 border-t border-gray-200">
@@ -97,7 +166,9 @@ export default function AdminLayout({
 
         {/* Main Content */}
         <main className="flex-1 p-6">
-          {children}
+          <OpsToastProvider>
+            {children}
+          </OpsToastProvider>
         </main>
       </div>
     </div>

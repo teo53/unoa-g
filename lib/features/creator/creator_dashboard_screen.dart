@@ -84,7 +84,7 @@ class _CreatorDashboardScreenState
                   // 1. Quick Actions (즉시 행동 가능한 액션 우선)
                   _buildSectionTitle('빠른 실행', isDark),
                   const SizedBox(height: 12),
-                  _buildQuickActions(context, isDark),
+                  _buildQuickActions(context, isDark, isDemoMode),
                   const SizedBox(height: 24),
 
                   // 2. Stats Grid (팬 참여 지표 = 동기부여)
@@ -153,21 +153,27 @@ class _CreatorDashboardScreenState
                   if (_showBusinessSection) ...[
                     // 6. Fan Insights
                     _buildSectionTitle('팬 인사이트', isDark,
-                        onMore: () => context.push('/creator/crm')),
+                        onMore: isDemoMode
+                            ? null
+                            : () => context.push('/creator/crm')),
                     const SizedBox(height: 12),
                     _buildFanInsights(isDark),
                     const SizedBox(height: 24),
 
                     // 7. Revenue Summary
                     _buildSectionTitle('수익 현황', isDark,
-                        onMore: () => context.push('/creator/crm')),
+                        onMore: isDemoMode
+                            ? null
+                            : () => context.push('/creator/crm')),
                     const SizedBox(height: 12),
                     _buildRevenueSummaryCard(isDark, isDemoMode),
                     const SizedBox(height: 20),
 
                     // 8. Revenue Chart
                     _buildSectionTitle('월별 수익 추이', isDark,
-                        onMore: () => context.push('/creator/crm')),
+                        onMore: isDemoMode
+                            ? null
+                            : () => context.push('/creator/crm')),
                     const SizedBox(height: 12),
                     _buildRevenueChart(isDark),
                     const SizedBox(height: 24),
@@ -407,7 +413,8 @@ class _CreatorDashboardScreenState
     );
   }
 
-  Widget _buildQuickActions(BuildContext context, bool isDark) {
+  Widget _buildQuickActions(
+      BuildContext context, bool isDark, bool isDemoMode) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -430,20 +437,22 @@ class _CreatorDashboardScreenState
           isDark: isDark,
           onTap: () => context.push('/creator/private-card/compose'),
         ),
-        _QuickActionCard(
-          icon: Icons.analytics_rounded,
-          label: 'CRM 상세',
-          color: Colors.blue,
-          isDark: isDark,
-          onTap: () => context.push('/creator/crm'),
-        ),
-        _QuickActionCard(
-          icon: Icons.account_balance_wallet_rounded,
-          label: '출금',
-          color: Colors.green,
-          isDark: isDark,
-          onTap: () => context.push('/creator/crm'),
-        ),
+        if (!isDemoMode)
+          _QuickActionCard(
+            icon: Icons.analytics_rounded,
+            label: 'CRM 상세',
+            color: Colors.blue,
+            isDark: isDark,
+            onTap: () => context.push('/creator/crm'),
+          ),
+        if (!isDemoMode)
+          _QuickActionCard(
+            icon: Icons.account_balance_wallet_rounded,
+            label: '출금',
+            color: Colors.green,
+            isDark: isDark,
+            onTap: () => context.push('/creator/crm'),
+          ),
         _QuickActionCard(
           icon: Icons.poll_outlined,
           label: '투표 만들기',
@@ -464,13 +473,14 @@ class _CreatorDashboardScreenState
             );
           },
         ),
-        _QuickActionCard(
-          icon: Icons.people_outline_rounded,
-          label: '팬 관리',
-          color: Colors.teal,
-          isDark: isDark,
-          onTap: () => context.push('/creator/crm'),
-        ),
+        if (!isDemoMode)
+          _QuickActionCard(
+            icon: Icons.people_outline_rounded,
+            label: '팬 관리',
+            color: Colors.teal,
+            isDark: isDark,
+            onTap: () => context.push('/creator/crm'),
+          ),
       ],
     );
   }

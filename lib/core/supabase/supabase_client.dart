@@ -1,26 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../config/app_config.dart';
+
 /// Supabase configuration and client initialization
 class SupabaseConfig {
-  // These should be provided via environment variables or --dart-define
-  // flutter run --dart-define=SUPABASE_URL=your_url --dart-define=SUPABASE_ANON_KEY=your_key
-  static const String supabaseUrl = String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: 'https://sgkyerbmmexxsyrcsdzy.supabase.co',
-  );
-
-  static const String supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNna3llcmJtbWV4eHN5cmNzZHp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzIzNTIsImV4cCI6MjA4NjQwODM1Mn0.BcF6uLvGuHOIUJHToYgN5HbhrlDssZNC9QXbbHlPw-8',
-  );
-
   /// Initialize Supabase client
   static Future<void> initialize() async {
     await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
+      url: AppConfig.supabaseUrl,
+      anonKey: AppConfig.supabaseAnonKey,
       debug: kDebugMode,
       authOptions: const FlutterAuthClientOptions(
         authFlowType: AuthFlowType.pkce,
@@ -34,7 +23,8 @@ class SupabaseConfig {
     );
 
     if (kDebugMode) {
-      debugPrint('[SupabaseConfig] Initialized with URL: $supabaseUrl');
+      debugPrint(
+          '[SupabaseConfig] Initialized with URL: ${AppConfig.supabaseUrl}');
     }
   }
 

@@ -97,11 +97,11 @@ class _MobileLayout extends StatelessWidget {
             ),
           // Demo disclaimer text at very bottom
           if (!AppConfig.isProduction)
-            SafeArea(
+            const SafeArea(
               top: false,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 4, top: 2),
-                child: Center(child: const _DemoDisclaimerText()),
+                padding: EdgeInsets.only(bottom: 4, top: 2),
+                child: Center(child: _DemoDisclaimerText()),
               ),
             ),
         ],
@@ -135,22 +135,23 @@ class _MobileWebLayout extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: child,
-      bottomNavigationBar: bottomNavigationBar != null || !AppConfig.isProduction
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (bottomNavigationBar != null) bottomNavigationBar!,
-                // Demo disclaimer text
-                if (!AppConfig.isProduction)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Center(child: const _DemoDisclaimerText()),
-                  ),
-                // 브라우저 하단 safe area 여백
-                SizedBox(height: bottomPadding > 0 ? bottomPadding : 8),
-              ],
-            )
-          : null,
+      bottomNavigationBar:
+          bottomNavigationBar != null || !AppConfig.isProduction
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (bottomNavigationBar != null) bottomNavigationBar!,
+                    // Demo disclaimer text
+                    if (!AppConfig.isProduction)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2),
+                        child: Center(child: _DemoDisclaimerText()),
+                      ),
+                    // 브라우저 하단 safe area 여백
+                    SizedBox(height: bottomPadding > 0 ? bottomPadding : 8),
+                  ],
+                )
+              : null,
     );
   }
 }
