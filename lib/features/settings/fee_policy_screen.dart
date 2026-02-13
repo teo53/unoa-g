@@ -110,6 +110,8 @@ class FeePolicyScreen extends StatelessWidget {
                     '   • 펀딩 (성공 캠페인 한정)',
                     '④ 정산 계산: 총 수익 - 플랫폼 수수료(${BusinessConfig.platformCommissionPercent.toInt()}%) - 원천징수세(3.3%)',
                     '⑤ 정산금은 등록된 계좌로 입금됩니다.',
+                    '',
+                    '※ 크리에이터 정산금은 서비스 홍보 활동에 대한 용역 대가로서 지급됩니다.',
                   ]),
 
                   const SizedBox(height: 24),

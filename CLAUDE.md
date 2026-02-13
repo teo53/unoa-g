@@ -268,7 +268,6 @@ unoa-g/
 │           ├── status_timeline.dart           # Status progression
 │           ├── premium_shimmer.dart           # Shimmer animation
 │           ├── message_action_sheet.dart      # Message context menu
-│           ├── intermediary_notice_widget.dart # Notice/alert widget
 │           └── widgets.dart                   # Widget exports
 ├── apps/
 │   └── web/                      # Next.js web platform

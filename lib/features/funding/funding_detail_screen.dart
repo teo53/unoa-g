@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
-import '../../shared/widgets/intermediary_notice_widget.dart';
 import 'funding_tier_select_screen.dart';
 
 /// Campaign detail screen showing full information
@@ -120,11 +119,6 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
                           : AppColors.surfaceAlt,
                     ),
             ),
-          ),
-
-          // 통신판매중개자 고지 (전자상거래법 §20①)
-          const SliverToBoxAdapter(
-            child: IntermediaryNoticeWidget(),
           ),
 
           // Content

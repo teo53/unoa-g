@@ -86,7 +86,7 @@ class CompanyInfoScreen extends StatelessWidget {
                     _buildInfoRow(isDark, '법인등록번호', '110111-0938047'),
                     _buildInfoRow(isDark, '통신판매업신고', '(신고 진행 중)'),
                     _buildInfoRow(isDark, '개업일', '2025년 09월 26일'),
-                    _buildInfoRow(isDark, '업태 / 종목', '전문서비스업 / 매니저업'),
+                    _buildInfoRow(isDark, '업태 / 종목', '전문서비스업 / 매니저업, 광고대행업'),
                     _buildInfoRow(isDark, '사업장 소재지',
                         '서울특별시 강남구 논현로 509, 9층 이노워크센터 801-27호(역삼동, 송암II빌딩)'),
                     _buildInfoRow(isDark, '고객센터', 'support@unoa.app'),
