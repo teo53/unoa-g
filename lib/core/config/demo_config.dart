@@ -15,6 +15,9 @@ class DemoConfig {
   /// Demo fan user ID
   static const String demoFanId = 'demo_user_001';
 
+  /// Demo admin user ID
+  static const String demoAdminId = 'demo_admin_001';
+
   /// Demo channel ID
   static const String demoChannelId = 'demo_channel_001';
 
@@ -31,12 +34,18 @@ class DemoConfig {
   /// Demo fan display name
   static const String demoFanName = '데모 팬';
 
+  /// Demo admin display name
+  static const String demoAdminName = '관리자 (데모)';
+
   /// Demo creator bio
   static const String demoCreatorBio =
       '버츄얼 유튜버 하늘달입니다. 데모 모드로 크리에이터 기능을 체험 중입니다.';
 
   /// Demo fan bio
   static const String demoFanBio = '데모 모드로 앱을 체험 중입니다.';
+
+  /// Demo admin bio
+  static const String demoAdminBio = '데모 모드 관리자 계정입니다.';
 
   // ============================================================
   // Demo Wallet Values

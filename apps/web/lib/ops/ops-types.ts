@@ -193,6 +193,20 @@ export const PLACEMENT_LABELS: Record<BannerPlacement, string> = {
   popup: '팝업',
 }
 
+export const PLACEMENT_DIMENSIONS: Record<BannerPlacement, {
+  width: number; height: number;
+  label: string; description: string;
+  aspectRatio: string;
+  safeZone?: string;
+}> = {
+  home_top:       { width: 1200, height: 300, label: '홈 상단', description: '메인 히어로 배너 — 풀 너비', aspectRatio: '4:1', safeZone: '좌우 16px 여백' },
+  home_bottom:    { width: 1200, height: 200, label: '홈 하단', description: '보조 프로모션 띠 배너', aspectRatio: '6:1' },
+  discover_top:   { width: 800, height: 400, label: '탐색 상단', description: '탐색 페이지 배너', aspectRatio: '2:1' },
+  chat_top:       { width: 600, height: 150, label: '채팅 상단', description: '채팅 리스트 상단 띠', aspectRatio: '4:1' },
+  profile_banner: { width: 800, height: 300, label: '프로필 배너', description: '프로필 헤더 영역', aspectRatio: '8:3' },
+  popup:          { width: 600, height: 800, label: '팝업', description: '모달 팝업 (세로)', aspectRatio: '3:4' },
+}
+
 export const ROLE_LABELS: Record<OpsRole, string> = {
   viewer: '뷰어',
   operator: '운영자',
