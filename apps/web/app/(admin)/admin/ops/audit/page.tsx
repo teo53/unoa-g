@@ -21,6 +21,14 @@ const ACTION_LABELS: Record<string, string> = {
   'staff.create': '스태프 추가',
   'staff.update': '스태프 수정',
   'staff.remove': '스태프 삭제',
+  'settlement.approve': '정산 승인',
+  'settlement.reject': '정산 반려',
+  'creator.warn': '크리에이터 경고',
+  'creator.suspend': '크리에이터 정지',
+  'report.review': '신고 검토 시작',
+  'report.resolve': '신고 해결',
+  'report.dismiss': '신고 기각',
+  'payment.refund': '결제 환불',
 }
 
 function DiffView({ before, after }: {
@@ -99,6 +107,10 @@ export default function AuditPage() {
           <option value="ops_feature_flags">플래그</option>
           <option value="ops_assets">에셋</option>
           <option value="ops_staff">스태프</option>
+          <option value="settlements">정산</option>
+          <option value="creators">크리에이터</option>
+          <option value="reports">신고</option>
+          <option value="payments">결제</option>
         </select>
         <span className="text-sm text-gray-500">총 {total}건</span>
       </div>

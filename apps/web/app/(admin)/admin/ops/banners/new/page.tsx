@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Info } from 'lucide-react'
 import Link from 'next/link'
 import { createBanner } from '@/lib/ops/ops-client'
 import type { BannerFormData, BannerPlacement, LinkType, TargetAudience } from '@/lib/ops/ops-types'
-import { PLACEMENT_LABELS } from '@/lib/ops/ops-types'
+import { PLACEMENT_LABELS, PLACEMENT_DIMENSIONS } from '@/lib/ops/ops-types'
 import { OpsImageUploader } from '@/components/ops/ops-image-uploader'
 
 export default function NewBannerPage() {
@@ -89,6 +89,38 @@ export default function NewBannerPage() {
               <option key={key} value={key}>{label}</option>
             ))}
           </select>
+
+          {/* Dimension Guide */}
+          {form.placement && PLACEMENT_DIMENSIONS[form.placement as BannerPlacement] && (
+            <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <div className="font-medium text-blue-900 text-sm">
+                    권장 규격: {PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].width} x {PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].height}px
+                    ({PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].aspectRatio})
+                  </div>
+                  <div className="text-blue-700 text-xs mt-1">
+                    {PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].description}
+                  </div>
+                  {PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].safeZone && (
+                    <div className="text-blue-600 text-xs mt-1">
+                      안전 영역: {PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].safeZone}
+                    </div>
+                  )}
+                  <div
+                    className="mt-3 border-2 border-dashed border-blue-300 rounded bg-blue-100/50 flex items-center justify-center text-blue-400 text-xs"
+                    style={{
+                      aspectRatio: `${PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].width} / ${PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].height}`,
+                      maxHeight: '150px',
+                    }}
+                  >
+                    {PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].width} x {PLACEMENT_DIMENSIONS[form.placement as BannerPlacement].height}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Image */}

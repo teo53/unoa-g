@@ -47,9 +47,14 @@ import '../features/settings/fee_policy_screen.dart';
 import '../features/settings/funding_terms_screen.dart';
 import '../features/settings/moderation_policy_screen.dart';
 import '../features/settings/consent_history_screen.dart';
+import '../features/admin/admin_dashboard_screen.dart';
+import '../features/admin/admin_creators_screen.dart';
+import '../features/admin/admin_settlements_screen.dart';
+import '../features/admin/admin_settings_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/widgets/creator_bottom_nav_bar.dart';
+import '../shared/widgets/admin_bottom_nav_bar.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -100,12 +105,20 @@ class AppRoutes {
   static const String settingsConsentHistory = '/settings/consent-history';
   static const String settingsTax = '/settings/tax';
   static const String creatorSettlement = '/creator/settlement';
+
+  // Admin Routes (with bottom navigation) - 4탭 구조
+  static const String adminDashboard = '/admin/dashboard';
+  static const String adminCreators = '/admin/creators';
+  static const String adminSettlements = '/admin/settlements';
+  static const String adminSettings = '/admin/settings';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _creatorShellNavigatorKey =
+    GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _adminShellNavigatorKey =
     GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
@@ -139,6 +152,23 @@ final appRouter = GoRouter(
         }
       }
 
+      // Admin routes require authentication + admin role
+      if (!isLoggedIn && path.startsWith('/admin/')) {
+        return '/login?next=${Uri.encodeComponent(state.uri.toString())}';
+      }
+      if (isLoggedIn && path.startsWith('/admin/')) {
+        final authState = container.read(authProvider);
+        UserAuthProfile? profile;
+        if (authState is AuthAuthenticated) {
+          profile = authState.profile;
+        } else if (authState is AuthDemoMode) {
+          profile = authState.demoProfile;
+        }
+        if (profile != null && !profile.isAdmin) {
+          return '/'; // 비관리자는 홈으로 리다이렉트
+        }
+      }
+
       // CRM은 데모 모드에서 접근 불가 (관리자 계정 전용)
       if (authState is AuthDemoMode && path == '/creator/crm') {
         return '/creator/dashboard';
@@ -147,8 +177,13 @@ final appRouter = GoRouter(
       // Redirect authenticated users away from login/register
       if (isLoggedIn && isAuthRoute) {
         final auth = container.read(authProvider);
-        if (auth is AuthDemoMode && auth.demoProfile.role == 'creator') {
-          return '/creator/dashboard';
+        if (auth is AuthDemoMode) {
+          if (auth.demoProfile.role == 'admin') {
+            return '/admin/dashboard';
+          }
+          if (auth.demoProfile.role == 'creator') {
+            return '/creator/dashboard';
+          }
         }
         return '/';
       }
@@ -263,6 +298,46 @@ final appRouter = GoRouter(
           path: '/creator/profile',
           pageBuilder: (context, state) => const NoTransitionPage(
             child: CreatorProfileScreen(),
+          ),
+        ),
+      ],
+    ),
+
+    // ============================================
+    // Admin Shell Route (with admin bottom navigation)
+    // 4탭 구조: 대시보드, 크리에이터, 정산, 설정
+    // ============================================
+    ShellRoute(
+      navigatorKey: _adminShellNavigatorKey,
+      builder: (context, state, child) {
+        return AdminShell(
+          currentPath: state.uri.path,
+          child: child,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: '/admin/dashboard',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: AdminDashboardScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/admin/creators',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: AdminCreatorsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/admin/settlements',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: AdminSettlementsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/admin/settings',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: AdminSettingsScreen(),
           ),
         ),
       ],
@@ -605,6 +680,55 @@ class CreatorShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppScaffold(
       bottomNavigationBar: CreatorBottomNavBar(
+        currentIndex: _calculateIndex(currentPath),
+        onTap: (index) => _navigateToTab(context, index),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Admin Shell - Shell for admin users with admin bottom navigation
+/// 4탭 구조: 대시보드, 크리에이터, 정산, 설정
+class AdminShell extends StatelessWidget {
+  final Widget child;
+  final String currentPath;
+
+  const AdminShell({
+    super.key,
+    required this.child,
+    required this.currentPath,
+  });
+
+  int _calculateIndex(String path) {
+    if (path.startsWith('/admin/dashboard')) return 0;
+    if (path.startsWith('/admin/creators')) return 1;
+    if (path.startsWith('/admin/settlements')) return 2;
+    if (path.startsWith('/admin/settings')) return 3;
+    return 0;
+  }
+
+  void _navigateToTab(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        context.go('/admin/dashboard');
+        break;
+      case 1:
+        context.go('/admin/creators');
+        break;
+      case 2:
+        context.go('/admin/settlements');
+        break;
+      case 3:
+        context.go('/admin/settings');
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      bottomNavigationBar: AdminBottomNavBar(
         currentIndex: _calculateIndex(currentPath),
         onTap: (index) => _navigateToTab(context, index),
       ),

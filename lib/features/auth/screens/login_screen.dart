@@ -97,6 +97,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     context.go(next == '/' ? '/creator/dashboard' : next);
   }
 
+  void _enterDemoAsAdmin() {
+    ref.read(authProvider.notifier).enterDemoModeAsAdmin();
+    final next = _nextRoute;
+    context.go(next == '/' ? '/admin/dashboard' : next);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -174,7 +180,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Two demo account buttons side by side
+                        // Demo account buttons
                         Row(
                           children: [
                             // Fan Account Button
@@ -201,6 +207,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Admin Account Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: _DemoAccountButton(
+                            icon: Icons.shield_rounded,
+                            title: '관리자',
+                            subtitle: '정산 · 크리에이터 관리 · 신고 · 감사 로그',
+                            color: Colors.indigo,
+                            isDark: isDark,
+                            onTap: _enterDemoAsAdmin,
+                          ),
                         ),
                       ],
                     ),

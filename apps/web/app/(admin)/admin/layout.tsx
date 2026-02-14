@@ -8,8 +8,8 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  // 데모 모드에서는 관리자 패널 접근 차단
-  if (DEMO_MODE) {
+  // 데모 모드에서는 관리자 패널 접근 차단 (로컬 테스트 시 비활성화)
+  if (DEMO_MODE && process.env.NODE_ENV === 'production') {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-lg p-8 text-center">
@@ -112,6 +112,13 @@ export default function AdminLayout({
             >
               <Flag className="w-5 h-5" />
               <span>신고 관리</span>
+            </Link>
+            <Link
+              href="/admin/creators"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Users className="w-5 h-5" />
+              <span>크리에이터 관리</span>
             </Link>
 
             {/* Ops CRM Section */}

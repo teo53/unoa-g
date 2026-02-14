@@ -338,6 +338,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     enterDemoMode(asCreator: true);
   }
 
+  /// Enter demo mode as admin
+  void enterDemoModeAsAdmin() {
+    final demoProfile = UserProfile(
+      id: DemoConfig.demoAdminId,
+      role: 'admin',
+      displayName: DemoConfig.demoAdminName,
+      bio: DemoConfig.demoAdminBio,
+      avatarUrl: DemoConfig.avatarUrl('admin1'),
+      createdAt: DateTime.now().subtract(const Duration(days: 730)),
+    );
+    state = AuthDemoMode(demoProfile: demoProfile);
+  }
+
   /// Exit demo mode
   void exitDemoMode() {
     state = const AuthUnauthenticated();
