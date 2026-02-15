@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
+import '../../core/config/demo_config.dart';
 import '../../data/models/broadcast_message.dart';
-import '../../data/repositories/mock_chat_repository.dart';
+import '../../providers/repository_providers.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import 'widgets/media_preview_confirmation.dart';
 
 /// Broadcast Compose Screen
 /// Artist uses this to send messages to all subscribers
-class BroadcastComposeScreen extends StatefulWidget {
+class BroadcastComposeScreen extends ConsumerStatefulWidget {
   final String? channelId;
   final bool showBackButton;
 
@@ -21,13 +23,12 @@ class BroadcastComposeScreen extends StatefulWidget {
   });
 
   @override
-  State<BroadcastComposeScreen> createState() => _BroadcastComposeScreenState();
+  ConsumerState<BroadcastComposeScreen> createState() => _BroadcastComposeScreenState();
 }
 
-class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
+class _BroadcastComposeScreenState extends ConsumerState<BroadcastComposeScreen> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final MockArtistInboxRepository _repository = MockArtistInboxRepository();
   final ImagePicker _imagePicker = ImagePicker();
 
   bool _isSending = false;
@@ -35,9 +36,9 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
   String? _mediaUrl;
 
   // Mock data
-  static const int _subscriberCount = 1250;
-  static const String _artistName = '아티스트';
-  static const String? _artistAvatarUrl = null;
+  static const int _subscriberCount = DemoConfig.demoSubscriberCount;
+  static const String _artistName = DemoConfig.demoCreatorName;
+  static String? get _artistAvatarUrl => DemoConfig.demoCreatorAvatarUrl;
 
   @override
   void initState() {
@@ -60,8 +61,8 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
     setState(() => _isSending = true);
 
     try {
-      await _repository.sendBroadcast(
-        widget.channelId ?? 'channel_1',
+      await ref.read(artistInboxRepositoryProvider).sendBroadcast(
+        widget.channelId ?? DemoConfig.demoChannelId,
         _controller.text.trim(),
         messageType: _messageType,
         mediaUrl: _mediaUrl,
@@ -341,8 +342,8 @@ class _BroadcastComposeScreenState extends State<BroadcastComposeScreen> {
             : BroadcastMessageType.voice;
 
     try {
-      await _repository.sendBroadcast(
-        widget.channelId ?? 'channel_1',
+      await ref.read(artistInboxRepositoryProvider).sendBroadcast(
+        widget.channelId ?? DemoConfig.demoChannelId,
         caption ?? '',
         messageType: msgType,
         mediaUrl: mediaPath,

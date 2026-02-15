@@ -1,9 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/business_config.dart';
+import '../../core/config/app_config.dart';
+import '../../services/payment_service.dart';
+import '../../providers/repository_providers.dart';
 import '../../shared/widgets/auth_gate.dart';
 import 'funding_result_screen.dart';
 
@@ -11,7 +15,7 @@ import 'funding_result_screen.dart';
 ///
 /// 펀딩은 KRW 전용 - DT 지갑과 완전히 분리
 /// 결제 플로우: PortOne SDK → 결제완료 → Edge Function 검증 → pledge 생성
-class FundingCheckoutScreen extends StatefulWidget {
+class FundingCheckoutScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> campaign;
   final Map<String, dynamic> tier;
 
@@ -22,10 +26,10 @@ class FundingCheckoutScreen extends StatefulWidget {
   });
 
   @override
-  State<FundingCheckoutScreen> createState() => _FundingCheckoutScreenState();
+  ConsumerState<FundingCheckoutScreen> createState() => _FundingCheckoutScreenState();
 }
 
-class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
+class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
   final _supabase = Supabase.instance.client;
   final _messageController = TextEditingController();
   late final TapGestureRecognizer _termsRecognizer;
@@ -100,21 +104,22 @@ class _FundingCheckoutScreenState extends State<FundingCheckoutScreen> {
       final idempotencyKey =
           'pledge:${userId}_${widget.campaign['id']}_${widget.tier['id'] ?? 'no_tier'}_${DateTime.now().millisecondsSinceEpoch}';
 
-      // TODO: 프로덕션에서는 PortOne SDK 호출
-      // IMP.request_pay({
-      //   pg: 'tosspayments',
-      //   pay_method: _selectedPaymentMethod,
-      //   merchant_uid: orderId,
-      //   name: '${widget.campaign['title']} - ${widget.tier['title']}',
-      //   amount: _totalAmount,
-      //   buyer_name: user.name,
-      //   buyer_email: user.email,
-      // });
-      //
-      // 결제 완료 후 paymentId를 받아서 아래 Edge Function 호출
+      // Request payment via payment service (handles demo vs production)
+      final paymentService = ref.read(paymentServiceProvider);
+      final paymentResult = await paymentService.requestPayment(
+        PaymentRequest(
+          merchantUid: orderId,
+          name: '${widget.campaign['title']} - ${widget.tier['title']}',
+          amount: _totalAmount,
+          payMethod: _selectedPaymentMethod,
+        ),
+      );
 
-      // 데모 모드에서는 결제 시뮬레이션
-      final paymentId = 'demo_payment_${DateTime.now().millisecondsSinceEpoch}';
+      if (!paymentResult.success) {
+        throw Exception(paymentResult.errorMessage ?? '결제에 실패했습니다');
+      }
+
+      final paymentId = paymentResult.paymentId ?? orderId;
 
       // Edge Function으로 결제 검증 + pledge 생성
       final response = await _supabase.functions.invoke(

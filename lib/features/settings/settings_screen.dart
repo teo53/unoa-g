@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/app_logger.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
@@ -10,6 +12,42 @@ import '../../shared/widgets/app_scaffold.dart';
 ///
 /// 계정, 알림, 구독, 앱 설정을 관리하는 화면
 /// 다크 모드 토글이 여기서 동작함
+
+/// Consent type mapping from Korean UI labels to database types
+const _consentTypeMapping = {
+  '마케팅 이메일': 'marketing_email',
+  '마케팅 푸시': 'marketing_push',
+  '마케팅 SMS': 'marketing_sms',
+  '제3자 제공': 'third_party_sharing',
+};
+
+/// Persist consent change to Supabase
+Future<void> _persistConsentChange(
+  BuildContext context,
+  String consentType,
+  bool newValue,
+) async {
+  final dbConsentType = _consentTypeMapping[consentType] ?? consentType.toLowerCase().replaceAll(' ', '_');
+
+  try {
+    final supabase = Supabase.instance.client;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return; // Demo mode or not authenticated
+
+    await supabase.from('user_consents').upsert({
+      'user_id': userId,
+      'consent_type': dbConsentType,
+      'agreed': newValue,
+      'agreed_at': newValue ? DateTime.now().toIso8601String() : null,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  } catch (e) {
+    AppLogger.error(
+      e,
+      message: 'Failed to persist consent change: $consentType',
+    );
+  }
+}
 
 /// Marketing consent change confirmation dialog
 void _showConsentChangeDialog(
@@ -61,7 +99,8 @@ void _showConsentChangeDialog(
           onPressed: () {
             Navigator.pop(dialogContext);
             onConfirmed?.call();
-            // TODO: Persist consent change to Supabase
+            // Persist consent change to Supabase (skip in demo mode)
+            _persistConsentChange(context, consentType, newValue);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('$consentType $action가 처리되었습니다'),

@@ -136,6 +136,27 @@ class AppConfig {
       const bool.fromEnvironment('VERBOSE_LOGGING', defaultValue: false);
 
   // ============================================================
+  // Payment Configuration
+  // ============================================================
+
+  /// PortOne Store ID for payment processing
+  static const String portOneStoreId = String.fromEnvironment(
+    'PORTONE_STORE_ID',
+    defaultValue: '',
+  );
+
+  // ============================================================
+  // Storage Configuration
+  // ============================================================
+
+  /// Use signed URLs for private storage buckets
+  /// Set to true when user-content bucket is switched to private
+  static const bool usePrivateStorageBucket = bool.fromEnvironment(
+    'USE_PRIVATE_STORAGE',
+    defaultValue: false,
+  );
+
+  // ============================================================
   // App Info
   // ============================================================
 

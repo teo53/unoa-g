@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/broadcast_message.dart';
-import '../../data/repositories/mock_chat_repository.dart';
+import '../../providers/repository_providers.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import 'widgets/fan_reply_tile.dart';
 import 'widgets/inbox_filter_bar.dart';
 
 /// Artist Inbox Screen
 /// Shows all fan messages (replies + donation messages) for the artist
-class ArtistInboxScreen extends StatefulWidget {
+class ArtistInboxScreen extends ConsumerStatefulWidget {
   final String channelId;
   final bool showBackButton;
 
@@ -20,11 +21,10 @@ class ArtistInboxScreen extends StatefulWidget {
   });
 
   @override
-  State<ArtistInboxScreen> createState() => _ArtistInboxScreenState();
+  ConsumerState<ArtistInboxScreen> createState() => _ArtistInboxScreenState();
 }
 
-class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
-  final MockArtistInboxRepository _repository = MockArtistInboxRepository();
+class _ArtistInboxScreenState extends ConsumerState<ArtistInboxScreen> {
 
   String _filterType = 'all';
   List<BroadcastMessage> _messages = [];
@@ -40,7 +40,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final messages = await _repository.getFanMessages(
+      final messages = await ref.read(artistInboxRepositoryProvider).getFanMessages(
         widget.channelId,
         filterType: _filterType,
       );
@@ -184,7 +184,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
               context.push('/artist/inbox/${message.senderId}');
             },
             onHighlightTap: () async {
-              await _repository.toggleHighlight(message.id);
+              await ref.read(artistInboxRepositoryProvider).toggleHighlight(message.id);
               _loadMessages();
             },
             onReplyTap: message.deliveryScope == DeliveryScope.donationMessage
@@ -341,7 +341,7 @@ class _ArtistInboxScreenState extends State<ArtistInboxScreen> {
                       if (content.isEmpty) return;
 
                       try {
-                        await _repository.replyToDonation(
+                        await ref.read(artistInboxRepositoryProvider).replyToDonation(
                           widget.channelId,
                           message.id,
                           content,

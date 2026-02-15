@@ -21,6 +21,9 @@ class DemoConfig {
   /// Demo channel ID
   static const String demoChannelId = 'demo_channel_001';
 
+  /// Demo channel 2 ID (secondary channel for mock data)
+  static const String demoChannel2Id = 'demo_channel_002';
+
   // ============================================================
   // Demo User Names
   // ============================================================
@@ -36,6 +39,12 @@ class DemoConfig {
 
   /// Demo admin display name
   static const String demoAdminName = '관리자 (데모)';
+
+  /// Demo channel 2 creator name
+  static const String demoChannel2CreatorName = '코스플레이어 미유';
+
+  /// Demo channel 2 description
+  static const String demoChannel2Description = '코스플레이어 미유의 프라이빗 채팅';
 
   /// Demo creator bio
   static const String demoCreatorBio =

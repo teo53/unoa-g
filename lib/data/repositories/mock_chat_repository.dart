@@ -2,12 +2,13 @@ import 'dart:async';
 import '../models/broadcast_message.dart';
 import '../models/reply_quota.dart';
 import '../models/channel.dart';
+import '../../core/config/demo_config.dart';
 import 'chat_repository.dart';
 
 /// Mock implementation of IChatRepository for demo/testing
 class MockChatRepository implements IChatRepository {
   // Simulated current user
-  static const String _currentUserId = 'user_1';
+  static String get _currentUserId => DemoConfig.demoFanId;
 
   // In-memory storage
   final Map<String, List<BroadcastMessage>> _messages = {};
@@ -28,31 +29,31 @@ class MockChatRepository implements IChatRepository {
     final now = DateTime.now();
 
     // Create mock channels (one per creator)
-    _channels['channel_1'] = Channel(
-      id: 'channel_1',
-      artistId: 'artist_1',
-      name: '하늘달',
-      description: '버츄얼 유튜버 하늘달의 팬채팅',
-      avatarUrl: 'https://picsum.photos/seed/vtuber1/200',
+    _channels[DemoConfig.demoChannelId] = Channel(
+      id: DemoConfig.demoChannelId,
+      artistId: DemoConfig.demoCreatorId,
+      name: DemoConfig.demoCreatorName,
+      description: '${DemoConfig.demoCreatorName}의 팬채팅',
+      avatarUrl: DemoConfig.avatarUrl('vtuber1'),
       createdAt: now.subtract(const Duration(days: 365)),
       updatedAt: now,
     );
 
-    _channels['channel_2'] = Channel(
-      id: 'channel_2',
+    _channels[DemoConfig.demoChannel2Id] = Channel(
+      id: DemoConfig.demoChannel2Id,
       artistId: 'artist_2',
-      name: '코스플레이어 미유',
-      description: '코스플레이어 미유의 프라이빗 채팅',
-      avatarUrl: 'https://picsum.photos/seed/cosplayer1/200',
+      name: DemoConfig.demoChannel2CreatorName,
+      description: DemoConfig.demoChannel2Description,
+      avatarUrl: DemoConfig.avatarUrl('cosplayer1'),
       createdAt: now.subtract(const Duration(days: 180)),
       updatedAt: now,
     );
 
     // Create mock subscriptions (user subscribed for different periods)
-    _subscriptions['channel_1'] = Subscription(
+    _subscriptions[DemoConfig.demoChannelId] = Subscription(
       id: 'sub_1',
       userId: _currentUserId,
-      channelId: 'channel_1',
+      channelId: DemoConfig.demoChannelId,
       tier: 'STANDARD',
       startedAt: now.subtract(const Duration(days: 85)), // 85일 구독
       isActive: true,
@@ -61,10 +62,10 @@ class MockChatRepository implements IChatRepository {
       updatedAt: now,
     );
 
-    _subscriptions['channel_2'] = Subscription(
+    _subscriptions[DemoConfig.demoChannel2Id] = Subscription(
       id: 'sub_2',
       userId: _currentUserId,
-      channelId: 'channel_2',
+      channelId: DemoConfig.demoChannel2Id,
       tier: 'STANDARD',
       startedAt: now.subtract(const Duration(days: 30)), // 30일 구독
       isActive: true,
@@ -74,10 +75,10 @@ class MockChatRepository implements IChatRepository {
     );
 
     // Create mock quotas (3 tokens per broadcast)
-    _quotas['channel_1'] = ReplyQuota(
+    _quotas[DemoConfig.demoChannelId] = ReplyQuota(
       id: 'quota_1',
       userId: _currentUserId,
-      channelId: 'channel_1',
+      channelId: DemoConfig.demoChannelId,
       tokensAvailable: 2, // 1개 사용함
       tokensUsed: 1,
       lastBroadcastId: 'msg_broadcast_1',
@@ -86,10 +87,10 @@ class MockChatRepository implements IChatRepository {
       updatedAt: now,
     );
 
-    _quotas['channel_2'] = ReplyQuota(
+    _quotas[DemoConfig.demoChannel2Id] = ReplyQuota(
       id: 'quota_2',
       userId: _currentUserId,
-      channelId: 'channel_2',
+      channelId: DemoConfig.demoChannel2Id,
       tokensAvailable: 0, // 토큰 소진
       tokensUsed: 3,
       lastBroadcastId: 'msg_broadcast_2',

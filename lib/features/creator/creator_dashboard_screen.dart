@@ -5,8 +5,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/config/demo_config.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/repository_providers.dart';
 import '../../data/repositories/chat_repository.dart';
-import '../../data/repositories/mock_chat_repository.dart';
 import 'widgets/todays_voted_question_section.dart';
 import 'widgets/ai_reply_suggestion_sheet.dart';
 import 'widgets/celebration_queue_section.dart';
@@ -28,7 +28,6 @@ class CreatorDashboardScreen extends ConsumerStatefulWidget {
 
 class _CreatorDashboardScreenState
     extends ConsumerState<CreatorDashboardScreen> {
-  final MockArtistInboxRepository _repository = MockArtistInboxRepository();
   InboxStats? _stats;
   bool _isLoading = true;
   bool _showBusinessSection = false;
@@ -50,7 +49,8 @@ class _CreatorDashboardScreenState
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
     try {
-      final stats = await _repository.getInboxStats('channel_1');
+      final repository = ref.read(artistInboxRepositoryProvider);
+      final stats = await repository.getInboxStats(DemoConfig.demoChannelId);
       setState(() {
         _stats = stats;
         _isLoading = false;

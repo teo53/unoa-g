@@ -391,7 +391,54 @@ serve(async (req) => {
         )
       }
 
-      // TODO: Handle refund of DT if already credited
+      // Handle refund of DT if already credited
+      if (purchase.status === 'paid') {
+        const refundReason = paymentData.cancels?.[0]?.cancelReason || paymentData.cancelReason || 'Payment cancelled'
+
+        console.log(`Processing DT refund for cancelled purchase ${orderId}`)
+
+        const { data: refundResult, error: refundError } = await supabase.rpc('process_refund_atomic', {
+          p_order_id: orderId,
+          p_refund_reason: refundReason,
+        })
+
+        if (refundError) {
+          // Check if already processed (idempotency)
+          if (refundError.code === '23505' || refundError.message?.includes('already_processed')) {
+            console.log(`Refund already processed for purchase ${orderId}`)
+            logEntry.processed_status = 'success'
+            await logWebhookEvent(supabase, logEntry)
+            return new Response(
+              JSON.stringify({ success: true, message: 'Cancellation already processed' }),
+              { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+            )
+          }
+
+          // Log the error but still return 200 to avoid webhook retries
+          console.error(`Refund processing failed for purchase ${orderId}:`, refundError)
+          logEntry.error_message = `Refund failed: ${refundError.message}`
+          logEntry.processed_status = 'failed'
+          await logWebhookEvent(supabase, logEntry)
+          return new Response(
+            JSON.stringify({ error: 'Refund processing failed', details: refundError.message }),
+            { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        console.log(`DT refund processed for purchase ${orderId}: ${refundResult?.refunded_dt || 0} DT refunded`)
+        logEntry.processed_status = 'success'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: 'Cancellation and refund processed',
+            refundedDt: refundResult?.refunded_dt || 0,
+          }),
+          { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // Purchase was not paid yet, just mark as cancelled
       logEntry.processed_status = 'success'
       await logWebhookEvent(supabase, logEntry)
       return new Response(

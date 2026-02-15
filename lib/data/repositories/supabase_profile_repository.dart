@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/config/app_config.dart';
 import '../../core/supabase/supabase_client.dart';
 
 /// User profile model
@@ -323,12 +324,36 @@ class SupabaseProfileRepository {
         .from('user-content')
         .uploadBinary(path, imageBytes as dynamic);
 
-    // TODO: Phase B — user-content 버킷 private 전환 시 signed URL 적용
-    final url = _supabase.storage.from('user-content').getPublicUrl(path);
+    // Use signed URL for private bucket, public URL for public bucket
+    final String url;
+    if (AppConfig.usePrivateStorageBucket) {
+      url = await _supabase.storage
+          .from('user-content')
+          .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 day expiry
+    } else {
+      url = _supabase.storage.from('user-content').getPublicUrl(path);
+    }
 
     await updateProfile(avatarUrl: url);
 
     return url;
+  }
+
+  /// Update user consent record in Supabase
+  ///
+  /// Maps Korean consent labels to database consent types and persists
+  /// the change to the user_consents table (migration 018).
+  Future<void> updateConsent({
+    required String consentType,
+    required bool agreed,
+  }) async {
+    await _supabase.from('user_consents').upsert({
+      'user_id': _currentUserId,
+      'consent_type': consentType,
+      'agreed': agreed,
+      'agreed_at': agreed ? DateTime.now().toIso8601String() : null,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
   }
 
   // ============================================
