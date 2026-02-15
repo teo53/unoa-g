@@ -2,14 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/app_config.dart';
+import '../utils/app_logger.dart';
 
 /// Supabase configuration and client initialization
 class SupabaseConfig {
   /// Initialize Supabase client
   static Future<void> initialize() async {
     await Supabase.initialize(
-      url: AppConfig.supabaseUrl,
-      anonKey: AppConfig.supabaseAnonKey,
+      url: AppConfig.effectiveSupabaseUrl,
+      anonKey: AppConfig.effectiveSupabaseAnonKey,
       debug: kDebugMode,
       authOptions: const FlutterAuthClientOptions(
         authFlowType: AuthFlowType.pkce,
@@ -22,10 +23,9 @@ class SupabaseConfig {
       ),
     );
 
-    if (kDebugMode) {
-      debugPrint(
-          '[SupabaseConfig] Initialized with URL: ${AppConfig.supabaseUrl}');
-    }
+    AppLogger.debug(
+        'Initialized with URL: ${AppConfig.effectiveSupabaseUrl}',
+        tag: 'SupabaseConfig');
   }
 
   /// Get Supabase client instance

@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase/supabase_client.dart';
+import '../core/utils/app_logger.dart';
 
 /// Typing indicator event
 class TypingEvent {
@@ -200,9 +200,9 @@ class RealtimeService {
 
     // Subscribe (no await - returns RealtimeChannel, not Future)
     channel.subscribe((status, error) {
-      debugPrint('Channel $channelName status: $status');
+      AppLogger.debug('Channel $channelName status: $status', tag: 'Realtime');
       if (error != null) {
-        debugPrint('Channel error: $error');
+        AppLogger.warning('Channel $channelName error: $error', tag: 'Realtime');
       }
     });
 
@@ -250,7 +250,7 @@ class RealtimeService {
         'status': 'online',
       });
     } catch (e) {
-      debugPrint('Error tracking presence: $e');
+      AppLogger.debug('Error tracking presence: $e', tag: 'Realtime');
     }
   }
 
@@ -274,7 +274,7 @@ class RealtimeService {
         },
       );
     } catch (e) {
-      debugPrint('Error sending typing indicator: $e');
+      AppLogger.debug('Error sending typing indicator: $e', tag: 'Realtime');
     }
   }
 
@@ -290,7 +290,7 @@ class RealtimeService {
         'status': status,
       });
     } catch (e) {
-      debugPrint('Error updating status: $e');
+      AppLogger.debug('Error updating status: $e', tag: 'Realtime');
     }
   }
 

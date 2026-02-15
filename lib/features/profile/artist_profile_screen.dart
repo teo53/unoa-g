@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../core/utils/safe_url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/artist.dart';
 import '../../data/models/creator_content.dart';
@@ -55,7 +55,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
   }
 
   List<Map<String, dynamic>> get _currentTabFeeds {
-    final feedsAsync = ref.read(artistContentFeedsProvider(widget.artistId));
+    final feedsAsync = ref.watch(artistContentFeedsProvider(widget.artistId));
     final feeds = feedsAsync.valueOrNull ?? {};
     switch (_tabController.index) {
       case 0:
@@ -70,29 +70,11 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
   }
 
   Future<void> _openYouTubeVideo(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('YouTube를 열 수 없습니다')),
-        );
-      }
-    }
+    await SafeUrlLauncher.launch(url, context: context);
   }
 
   Future<void> _openSocialLink(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('링크를 열 수 없습니다')),
-        );
-      }
-    }
+    await SafeUrlLauncher.launch(url, context: context);
   }
 
   void _showAllFancams(BuildContext context, List<YouTubeFancam> fancams) {

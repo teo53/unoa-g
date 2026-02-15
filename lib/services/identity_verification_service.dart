@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/utils/app_logger.dart';
 
 /// Identity verification result from PASS
 /// Note: Sensitive data (name, birthDate, gender) is stored server-side only
@@ -88,7 +88,7 @@ class IdentityVerificationService {
         response.data as Map<String, dynamic>,
       );
     } catch (e) {
-      debugPrint('Error verifying certification: $e');
+      AppLogger.error(e, tag: 'IdentityVerification', message: 'verifyCertification failed');
       return IdentityVerificationResult.error('인증 처리 중 오류가 발생했습니다.');
     }
   }
@@ -123,7 +123,7 @@ class IdentityVerificationService {
 
       return response['identity_verified'] == true;
     } catch (e) {
-      debugPrint('Error checking identity verification: $e');
+      AppLogger.error(e, tag: 'IdentityVerification', message: 'isIdentityVerified check failed');
       return false;
     }
   }
@@ -150,7 +150,7 @@ class IdentityVerificationService {
         isPhoneVerified: response['phone_verified'] == true,
       );
     } catch (e) {
-      debugPrint('Error getting verification status: $e');
+      AppLogger.error(e, tag: 'IdentityVerification', message: 'getVerificationStatus failed');
       return VerificationStatus.error();
     }
   }

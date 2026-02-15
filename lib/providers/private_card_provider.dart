@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/demo_config.dart';
+import '../core/utils/app_logger.dart';
 import '../data/models/fan_filter.dart';
 import '../data/models/private_card.dart';
 import 'auth_provider.dart';
@@ -253,7 +253,7 @@ class PrivateCardComposeNotifier
             .eq('fan_id', userId);
       }
     } catch (e) {
-      debugPrint('Favorite sync failed: $e');
+      AppLogger.error(e, tag: 'PrivateCard', message: 'Favorite sync failed');
     }
   }
 
@@ -387,7 +387,7 @@ class PrivateCardComposeNotifier
   Future<void> _sendDemoCard() async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    debugPrint('Demo: Private card sent to ${state.selectedFanCount} fans');
+    AppLogger.debug('Demo: Private card sent to ${state.selectedFanCount} fans', tag: 'PrivateCard');
   }
 
   Future<void> _sendSupabaseCard() async {
@@ -486,7 +486,7 @@ class PrivateCardHistoryNotifier
 
       state = state.copyWith(sentCards: cards, isLoading: false);
     } catch (e) {
-      debugPrint('Load private card history failed: $e');
+      AppLogger.error(e, tag: 'PrivateCard', message: 'Load private card history failed');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

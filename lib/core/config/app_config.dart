@@ -36,18 +36,62 @@ class AppConfig {
   // Supabase Configuration
   // ============================================================
 
-  /// Supabase project URL
+  /// Supabase project URL (must be provided via --dart-define for non-dev builds)
   static const String supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: 'https://sgkyerbmmexxsyrcsdzy.supabase.co',
+    defaultValue: 'https://placeholder.supabase.co',
   );
 
-  /// Supabase anonymous key for client-side access
+  /// Supabase anonymous key (must be provided via --dart-define for non-dev builds)
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
-    defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNna3llcmJtbWV4eHN5cmNzZHp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzIzNTIsImV4cCI6MjA4NjQwODM1Mn0.BcF6uLvGuHOIUJHToYgN5HbhrlDssZNC9QXbbHlPw-8',
+    defaultValue: '',
   );
+
+  // Development-only fallback credentials.
+  // Provide real values via --dart-define=SUPABASE_URL=... at build time.
+  // NEVER commit real credentials here — use CI/CD secrets.
+  static const String _devFallbackUrl =
+      'https://REPLACE-ME-dev.supabase.co';
+  static const String _devFallbackKey =
+      'dev-key-not-set--run-with-dart-define';
+
+  /// Effective Supabase URL — uses dev fallback only in development mode.
+  static String get effectiveSupabaseUrl {
+    if (supabaseUrl != 'https://placeholder.supabase.co' &&
+        supabaseUrl.isNotEmpty) {
+      return supabaseUrl;
+    }
+    // Only use fallback if it contains a real URL (not the placeholder)
+    if (isDevelopment && !_devFallbackUrl.contains('REPLACE-ME')) {
+      return _devFallbackUrl;
+    }
+    if (isDevelopment) {
+      assert(() {
+        debugLog(
+            '\u26a0\ufe0f SUPABASE_URL not set. Run with: --dart-define=SUPABASE_URL=...');
+        return true;
+      }());
+    }
+    return supabaseUrl; // will be placeholder → validate() catches this
+  }
+
+  /// Effective Supabase anon key — uses dev fallback only in development mode.
+  static String get effectiveSupabaseAnonKey {
+    if (supabaseAnonKey.isNotEmpty) return supabaseAnonKey;
+    // Only use fallback if it looks like a real JWT (starts with 'eyJ')
+    if (isDevelopment && _devFallbackKey.startsWith('eyJ')) {
+      return _devFallbackKey;
+    }
+    if (isDevelopment) {
+      assert(() {
+        debugLog(
+            '\u26a0\ufe0f SUPABASE_ANON_KEY not set. Run with: --dart-define=SUPABASE_ANON_KEY=...');
+        return true;
+      }());
+    }
+    return supabaseAnonKey; // will be empty → validate() catches this
+  }
 
   // ============================================================
   // Firebase Configuration
@@ -56,7 +100,7 @@ class AppConfig {
   /// Firebase project ID
   static const String firebaseProjectId = String.fromEnvironment(
     'FIREBASE_PROJECT_ID',
-    defaultValue: 'unoa-app-demo',
+    defaultValue: '',
   );
 
   /// Sentry DSN for error monitoring
@@ -123,7 +167,7 @@ class AppConfig {
         'Environment: $environment\n'
         'Demo Mode: $enableDemoMode\n'
         'Analytics: $enableAnalytics\n'
-        'Supabase URL: $supabaseUrl\n'
+        'Supabase URL: $effectiveSupabaseUrl\n'
         'Firebase Project: $firebaseProjectId\n'
         '=================');
   }
@@ -150,7 +194,8 @@ class AppConfig {
     final errors = <String>[];
 
     if (isProduction || isStaging || isBeta) {
-      if (supabaseUrl == 'https://your-project.supabase.co' ||
+      if (supabaseUrl == 'https://placeholder.supabase.co' ||
+          supabaseUrl == 'https://your-project.supabase.co' ||
           supabaseUrl.isEmpty) {
         errors.add('SUPABASE_URL is not configured');
       }

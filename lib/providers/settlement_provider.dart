@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/demo_config.dart';
+import '../core/utils/app_logger.dart';
 import 'auth_provider.dart';
 
 // ============================================================================
@@ -361,7 +361,7 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
         isLoading: false,
       );
     } catch (e) {
-      debugPrint('Settlement load error: $e');
+      AppLogger.error(e, tag: 'Settlement', message: 'Settlement load error');
       state = state.copyWith(isLoading: false, error: '정산 정보를 불러올 수 없습니다');
     }
   }
@@ -391,7 +391,7 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
       state = state.copyWith(incomeType: incomeType);
       return true;
     } catch (e) {
-      debugPrint('Income type update error: $e');
+      AppLogger.error(e, tag: 'Settlement', message: 'Income type update error');
       return false;
     }
   }
@@ -411,7 +411,7 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
       // CSV 데이터 반환
       return response.data?.toString();
     } catch (e) {
-      debugPrint('Export error: $e');
+      AppLogger.error(e, tag: 'Settlement', message: 'Settlement export error');
       return null;
     }
   }

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_colors.dart';
+import '../core/utils/app_logger.dart';
 import '../data/models/message.dart';
 import 'auth_provider.dart';
 
@@ -280,7 +281,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
 
       _subscribeToUpdates();
     } catch (e, stackTrace) {
-      debugPrint('[ChatListNotifier] Error loading threads: $e');
+      AppLogger.error(e, tag: 'ChatListNotifier', message: 'Error loading threads');
       if (kDebugMode) {
         debugPrint(stackTrace.toString());
       }
@@ -342,7 +343,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
 
       await loadChatThreads();
     } catch (e) {
-      debugPrint('[ChatListNotifier] Error toggling pin: $e');
+      AppLogger.error(e, tag: 'ChatListNotifier', message: 'Error toggling pin');
     }
   }
 

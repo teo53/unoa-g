@@ -58,6 +58,139 @@ class VideoValidationResult {
   });
 }
 
+// ============================================================================
+// Media URL Resolver — singleton with TTL cache
+// ============================================================================
+
+/// Cached URL entry with expiration timestamp.
+class _CachedUrl {
+  final String url;
+  final DateTime expiresAt;
+  _CachedUrl(this.url, this.expiresAt);
+  bool get isExpired => DateTime.now().isAfter(expiresAt);
+}
+
+/// Media URL resolver with built-in TTL cache.
+/// Singleton — one instance shared across the app lifecycle.
+///
+/// Usage:
+///   MediaUrlResolver.instance.resolve(urlOrPath)     // sync, for public bucket
+///   MediaUrlResolver.instance.resolveAsync(urlOrPath) // async, for signed URLs
+class MediaUrlResolver {
+  MediaUrlResolver._();
+  static final instance = MediaUrlResolver._();
+
+  /// TTL cache: path → (resolved URL, expiration timestamp)
+  final Map<String, _CachedUrl> _cache = {};
+
+  /// Cache TTL (5 minutes less than signed URL expiration to avoid edge cases)
+  static const int _cacheTtlSeconds =
+      MediaService.signedUrlExpirationSeconds - 300; // 3300 seconds (55 min)
+
+  /// Whether to use signed URLs (toggle for private bucket).
+  /// Default: false (public bucket → sync getPublicUrl).
+  /// Set to true when chat-media bucket is switched to private.
+  static bool useSignedUrls = false;
+
+  /// Normalize a Supabase public URL or storage path to a canonical storage path.
+  /// - Full Supabase public URL → extract path portion
+  /// - Already a path → return as-is
+  /// - External URL (non-Supabase) → return as-is (cannot normalize)
+  static String normalizeToPath(String urlOrPath) {
+    // Already a relative path (no scheme)
+    if (!urlOrPath.startsWith('http://') &&
+        !urlOrPath.startsWith('https://')) {
+      return urlOrPath;
+    }
+
+    // Check if it's a Supabase storage public URL for chat-media
+    const publicPrefix = '/storage/v1/object/public/chat-media/';
+    final uri = Uri.tryParse(urlOrPath);
+    if (uri != null && uri.path.contains(publicPrefix)) {
+      // Extract the storage path after the bucket prefix
+      final idx = uri.path.indexOf(publicPrefix);
+      return uri.path.substring(idx + publicPrefix.length);
+    }
+
+    // External URL (e.g., demo data picsum.photos, w3schools.com)
+    // → cannot normalize, return as-is
+    return urlOrPath;
+  }
+
+  /// Synchronous resolve — works for public bucket only.
+  /// For private bucket, returns cached URL if available, or empty string.
+  ///
+  /// CachedNetworkImage handles empty string gracefully via errorWidget.
+  /// For signed URL mode, use [resolveAsync] instead.
+  String resolve(String urlOrPath) {
+    final path = normalizeToPath(urlOrPath);
+
+    // External URL that couldn't be normalized → return as-is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
+    // Check cache first
+    final cached = _cache[path];
+    if (cached != null && !cached.isExpired) {
+      return cached.url;
+    }
+
+    // Public mode: generate URL synchronously
+    if (!useSignedUrls) {
+      final url = SupabaseConfig.client.storage
+          .from('chat-media')
+          .getPublicUrl(path);
+      _cache[path] = _CachedUrl(
+          url, DateTime.now().add(const Duration(seconds: _cacheTtlSeconds)));
+      return url;
+    }
+
+    // Signed mode: return cached or empty (caller should use resolveAsync)
+    return cached?.url ?? '';
+  }
+
+  /// Asynchronous resolve — supports both public and signed URLs.
+  /// Use this for media that needs guaranteed freshness (video playback, downloads).
+  Future<String> resolveAsync(String urlOrPath) async {
+    final path = normalizeToPath(urlOrPath);
+
+    // External URL → return as-is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
+    // Check cache
+    final cached = _cache[path];
+    if (cached != null && !cached.isExpired) {
+      return cached.url;
+    }
+
+    // Generate URL
+    String url;
+    if (useSignedUrls) {
+      url = await SupabaseConfig.client.storage
+          .from('chat-media')
+          .createSignedUrl(path, MediaService.signedUrlExpirationSeconds);
+    } else {
+      url = SupabaseConfig.client.storage
+          .from('chat-media')
+          .getPublicUrl(path);
+    }
+
+    _cache[path] = _CachedUrl(
+        url, DateTime.now().add(const Duration(seconds: _cacheTtlSeconds)));
+    return url;
+  }
+
+  /// Clear cache (e.g., on logout)
+  void clearCache() => _cache.clear();
+}
+
+// ============================================================================
+// Media Service — pick, compress, upload
+// ============================================================================
+
 /// Service for handling media operations (pick, compress, upload)
 class MediaService {
   final ImagePicker _picker = ImagePicker();
@@ -67,6 +200,7 @@ class MediaService {
   static const int maxImageSize = 10 * 1024 * 1024; // 10 MB
   static const int maxVideoSize = 30 * 1024 * 1024; // 30 MB (MVP limit)
   static const int maxVoiceSize = 5 * 1024 * 1024; // 5 MB
+  static const int maxGenericFileSize = 50 * 1024 * 1024; // 50 MB
 
   // Video constraints (MVP)
   static const int maxVideoDurationSeconds = 15; // 15 seconds max
@@ -144,18 +278,18 @@ class MediaService {
   Future<VideoValidationResult> validateVideo(XFile file) async {
     try {
       if (kIsWeb) {
-        // Web: Basic size check only
-        final bytes = await file.readAsBytes();
-        if (bytes.length > maxVideoSize) {
+        // Web: Check file size without loading entire file into memory
+        final fileSize = await file.length();
+        if (fileSize > maxVideoSize) {
           return VideoValidationResult(
             isValid: false,
             errorMessage: '동영상 크기가 ${maxVideoSize ~/ 1024 ~/ 1024}MB를 초과합니다.',
-            fileSizeBytes: bytes.length,
+            fileSizeBytes: fileSize,
           );
         }
         return VideoValidationResult(
           isValid: true,
-          fileSizeBytes: bytes.length,
+          fileSizeBytes: fileSize,
         );
       }
 
@@ -294,14 +428,9 @@ class MediaService {
           .from('chat-media')
           .uploadBinary(thumbPath, compressed.thumb);
 
-      // Get URLs (using public URL for now, can switch to signed URL)
-      final mainUrl = SupabaseConfig.client.storage
-          .from('chat-media')
-          .getPublicUrl(mainPath);
-
-      final thumbUrl = SupabaseConfig.client.storage
-          .from('chat-media')
-          .getPublicUrl(thumbPath);
+      // Store paths — resolve to URL at display time via MediaUrlResolver
+      final mainUrl = mainPath;
+      final thumbUrl = thumbPath;
 
       return MediaUploadResult(
         mainUrl: mainUrl,
@@ -318,6 +447,8 @@ class MediaService {
           'width': compressed.width,
           'height': compressed.height,
           'format': 'webp',
+          'storage_path': mainPath,
+          'thumb_storage_path': thumbPath,
           'uploaded_at': DateTime.now().toIso8601String(),
         },
       );
@@ -340,6 +471,11 @@ class MediaService {
         throw StateError(validation.errorMessage ?? '동영상 검증 실패');
       }
 
+      // Validate file size before loading into memory
+      final fileSize = await file.length();
+      if (fileSize > maxVideoSize) {
+        throw StateError('동영상 크기가 ${maxVideoSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
+      }
       final bytes = await file.readAsBytes();
       final extension = path.extension(file.path).toLowerCase();
       final fileId = _uuid.v4();
@@ -350,9 +486,8 @@ class MediaService {
           .from('chat-media')
           .uploadBinary(mainPath, bytes);
 
-      final mainUrl = SupabaseConfig.client.storage
-          .from('chat-media')
-          .getPublicUrl(mainPath);
+      // Store path — resolve to URL at display time via MediaUrlResolver
+      final mainUrl = mainPath;
 
       // Generate and upload thumbnail
       String? thumbUrl;
@@ -363,9 +498,7 @@ class MediaService {
         await SupabaseConfig.client.storage
             .from('chat-media')
             .uploadBinary(thumbPath, thumbnail);
-        thumbUrl = SupabaseConfig.client.storage
-            .from('chat-media')
-            .getPublicUrl(thumbPath);
+        thumbUrl = thumbPath; // Store path, resolve at display time
       }
 
       return MediaUploadResult(
@@ -379,7 +512,9 @@ class MediaService {
           'type': 'video',
           'size': bytes.length,
           'duration': validation.durationSeconds,
-          'thumbnail_url': thumbUrl,
+          'thumbnail_url': thumbUrl, // path — resolve via MediaUrlResolver
+          'storage_path': mainPath,
+          'thumb_storage_path': thumbPath,
           'format': extension.replaceAll('.', ''),
           'uploaded_at': DateTime.now().toIso8601String(),
         },
@@ -398,11 +533,12 @@ class MediaService {
     int? durationSeconds,
   }) async {
     try {
-      final bytes = await file.readAsBytes();
-
-      if (bytes.length > maxVoiceSize) {
+      // Validate file size before loading into memory
+      final fileSize = await file.length();
+      if (fileSize > maxVoiceSize) {
         throw StateError('음성 파일 크기가 ${maxVoiceSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
       }
+      final bytes = await file.readAsBytes();
 
       final extension = path.extension(file.path).toLowerCase();
       final fileId = _uuid.v4();
@@ -412,9 +548,8 @@ class MediaService {
           .from('chat-media')
           .uploadBinary(mainPath, bytes);
 
-      final mainUrl = SupabaseConfig.client.storage
-          .from('chat-media')
-          .getPublicUrl(mainPath);
+      // Store path — resolve to URL at display time via MediaUrlResolver
+      final mainUrl = mainPath;
 
       return MediaUploadResult(
         mainUrl: mainUrl,
@@ -425,6 +560,7 @@ class MediaService {
           'type': 'voice',
           'size': bytes.length,
           'duration': durationSeconds,
+          'storage_path': mainPath,
           'format': extension.replaceAll('.', ''),
           'uploaded_at': DateTime.now().toIso8601String(),
         },
@@ -464,6 +600,11 @@ class MediaService {
     required String userId,
   }) async {
     try {
+      // Validate file size before loading into memory
+      final fileSize = await file.length();
+      if (fileSize > maxGenericFileSize) {
+        throw StateError('파일 크기가 ${maxGenericFileSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
+      }
       final bytes = await file.readAsBytes();
       final extension = path.extension(file.path).toLowerCase();
       final fileName = '${_uuid.v4()}$extension';
@@ -473,9 +614,8 @@ class MediaService {
           .from('chat-media')
           .uploadBinary(filePath, bytes);
 
-      final url = SupabaseConfig.client.storage
-          .from('chat-media')
-          .getPublicUrl(filePath);
+      // Store path — resolve to URL at display time via MediaUrlResolver
+      final url = filePath;
 
       return MediaUploadResult(
         mainUrl: url,
@@ -486,6 +626,7 @@ class MediaService {
           'size': bytes.length,
           'extension': extension,
           'original_name': path.basename(file.path),
+          'storage_path': filePath,
           'uploaded_at': DateTime.now().toIso8601String(),
         },
       );

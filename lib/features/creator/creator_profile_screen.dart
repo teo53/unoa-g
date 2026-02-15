@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../core/utils/safe_url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 
@@ -16,24 +16,7 @@ class CreatorProfileScreen extends ConsumerWidget {
 
   /// 외부 URL을 브라우저에서 열기
   static Future<void> _launchUrl(String url, BuildContext context) async {
-    final uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('링크를 열 수 없습니다: $url')),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('링크를 열 수 없습니다: $url')),
-        );
-      }
-    }
+    await SafeUrlLauncher.launch(url, context: context);
   }
 
   @override

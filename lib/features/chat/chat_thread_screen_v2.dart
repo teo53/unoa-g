@@ -4,7 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../core/utils/safe_url_launcher.dart';
+import '../../core/utils/app_logger.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -22,6 +23,7 @@ import 'widgets/chat_search_bar.dart';
 import 'widgets/highlighted_text.dart';
 import 'widgets/media_gallery_sheet.dart';
 import 'widgets/full_screen_image_viewer.dart';
+import '../../services/media_service.dart';
 import '../private_card/widgets/private_card_bubble.dart';
 
 /// Chat thread screen showing 1:1 conversation with an artist
@@ -674,7 +676,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
 
     if (isDemoMode) {
       // 데모 모드: 신고 접수 시뮬레이션
-      debugPrint('Demo: Report submitted: $reason - $description');
+      AppLogger.debug('Demo: Report submitted: $reason - $description', tag: 'Chat');
     } else {
       try {
         final supabase = Supabase.instance.client;
@@ -689,7 +691,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
           'created_at': DateTime.now().toIso8601String(),
         });
       } catch (e) {
-        debugPrint('Report failed: $e');
+        AppLogger.error(e, tag: 'Chat', message: 'Report submission failed');
       }
     }
 
@@ -733,7 +735,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     final isDemoMode = authState is AuthDemoMode;
 
     if (isDemoMode) {
-      debugPrint('Demo: Blocking user $userId');
+      AppLogger.debug('Demo: Blocking user $userId', tag: 'Chat');
     } else {
       try {
         final supabase = Supabase.instance.client;
@@ -746,7 +748,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
           'created_at': DateTime.now().toIso8601String(),
         });
       } catch (e) {
-        debugPrint('Block failed: $e');
+        AppLogger.error(e, tag: 'Chat', message: 'User block failed');
       }
     }
 
@@ -1153,14 +1155,14 @@ class MessageBubbleV2 extends StatelessWidget {
         return GestureDetector(
           onTap: () => FullScreenImageViewer.show(
             context,
-            imageUrl: message.mediaUrl!,
+            imageUrl: MediaUrlResolver.instance.resolve(message.mediaUrl!),
             senderName: message.isFromArtist ? artistName : message.senderName,
             date: message.createdAt,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: CachedNetworkImage(
-              imageUrl: message.mediaUrl!,
+              imageUrl: MediaUrlResolver.instance.resolve(message.mediaUrl!),
               width: 200,
               fit: BoxFit.cover,
             ),
@@ -1170,7 +1172,7 @@ class MessageBubbleV2 extends StatelessWidget {
         // 동영상 썸네일 + 재생 버튼 오버레이
         final thumbnailUrl = message.mediaMetadata?['thumbnail_url'] as String?;
         return GestureDetector(
-          onTap: () => _playVideo(context, message.mediaUrl!),
+          onTap: () => _playVideo(context, MediaUrlResolver.instance.resolve(message.mediaUrl!)),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Stack(
@@ -1178,7 +1180,7 @@ class MessageBubbleV2 extends StatelessWidget {
               children: [
                 if (thumbnailUrl != null)
                   CachedNetworkImage(
-                    imageUrl: thumbnailUrl,
+                    imageUrl: MediaUrlResolver.instance.resolve(thumbnailUrl),
                     width: 200,
                     height: 150,
                     fit: BoxFit.cover,
@@ -1235,7 +1237,7 @@ class MessageBubbleV2 extends StatelessWidget {
         );
       case BroadcastMessageType.voice:
         return VoiceMessageWidget(
-          voiceUrl: message.mediaUrl!,
+          voiceUrl: MediaUrlResolver.instance.resolve(message.mediaUrl!),
           durationSeconds: message.mediaMetadata?['duration'] as int?,
           isFromArtist: message.isFromArtist,
         );
@@ -1254,10 +1256,7 @@ class MessageBubbleV2 extends StatelessWidget {
   void _playVideo(BuildContext context, String videoUrl) {
     // TODO: 전체화면 비디오 플레이어 구현 (video_player 패키지 필요)
     // 현재는 외부 브라우저에서 재생
-    final uri = Uri.tryParse(videoUrl);
-    if (uri != null) {
-      launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    SafeUrlLauncher.launch(videoUrl, context: context);
   }
 
   String _formatDuration(int seconds) {

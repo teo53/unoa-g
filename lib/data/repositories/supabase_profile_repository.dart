@@ -323,6 +323,7 @@ class SupabaseProfileRepository {
         .from('user-content')
         .uploadBinary(path, imageBytes as dynamic);
 
+    // TODO: Phase B — user-content 버킷 private 전환 시 signed URL 적용
     final url = _supabase.storage.from('user-content').getPublicUrl(path);
 
     await updateProfile(avatarUrl: url);

@@ -181,7 +181,9 @@ class SentryService {
     SentryLevel? level,
   }) async {
     if (!_initialized) {
-      debugPrint('[Sentry] Not initialized, logging locally: $exception');
+      if (kDebugMode) {
+        debugPrint('[Sentry] Not initialized, logging locally: $exception');
+      }
       return const SentryId.empty();
     }
 
@@ -209,7 +211,9 @@ class SentryService {
     Map<String, dynamic>? extras,
   }) async {
     if (!_initialized) {
-      debugPrint('[Sentry] Not initialized, logging locally: $message');
+      if (kDebugMode) {
+        debugPrint('[Sentry] Not initialized, logging locally: $message');
+      }
       return const SentryId.empty();
     }
 
@@ -289,9 +293,11 @@ extension SentryErrorHandling on Object {
     String? message,
     Map<String, dynamic>? extras,
   }) async {
-    debugPrint('[Error] $this');
-    if (stackTrace != null) {
-      debugPrint('[StackTrace] $stackTrace');
+    if (kDebugMode) {
+      debugPrint('[Error] $this');
+      if (stackTrace != null) {
+        debugPrint('[StackTrace] $stackTrace');
+      }
     }
 
     await SentryService.captureException(

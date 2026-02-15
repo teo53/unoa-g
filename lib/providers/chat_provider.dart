@@ -435,6 +435,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     _messagesSubscription?.cancel();
 
     final client = _ref.read(supabaseClientProvider);
+    final userId = _ref.read(currentUserProvider)?.id;
 
     _messagesSubscription = client
         .from('messages')
@@ -442,15 +443,34 @@ class ChatNotifier extends StateNotifier<ChatState> {
         .eq('channel_id', channelId)
         .order('created_at')
         .listen((data) {
-          // Filter and transform messages
-          // Note: In production, use the view or RPC for proper filtering
           final newMessages = data
               .map((json) => BroadcastMessage.fromJson(json))
               .where((msg) => msg.deletedAt == null)
+              .where((msg) => _isMessageVisibleToUser(msg, userId))
               .toList();
 
           state = state.copyWith(messages: newMessages);
         });
+  }
+
+  /// Client-side message visibility filter (safety net for real-time stream).
+  /// Initial load via RPC already handles this server-side.
+  bool _isMessageVisibleToUser(BroadcastMessage msg, String? userId) {
+    // Creator sees all messages in their channel
+    if (state.channel != null && state.channel!.artistId == userId) {
+      return true;
+    }
+    switch (msg.deliveryScope) {
+      case DeliveryScope.broadcast:
+      case DeliveryScope.publicShare:
+        return true;
+      case DeliveryScope.directReply:
+      case DeliveryScope.donationMessage:
+        return msg.senderId == userId;
+      case DeliveryScope.donationReply:
+      case DeliveryScope.privateCard:
+        return msg.targetUserId == userId || msg.senderId == userId;
+    }
   }
 
   void _subscribeToQuota() {
@@ -527,22 +547,24 @@ class ChatNotifier extends StateNotifier<ChatState> {
   // Pagination retry tracking
   int _paginationRetryCount = 0;
   static const int _maxPaginationRetries = 3;
+  bool _isPaginating = false;
 
   /// Load more messages (pagination)
   Future<void> loadMoreMessages() async {
-    if (!state.hasMoreMessages || state.isLoading) return;
-
-    // Prevent infinite retry loops
-    if (_paginationRetryCount >= _maxPaginationRetries) {
-      AppLogger.debug('Max pagination retries reached', tag: 'Chat');
-      return;
-    }
-
-    final oldestMessage =
-        state.messages.isNotEmpty ? state.messages.first : null;
-    if (oldestMessage == null) return;
+    if (!state.hasMoreMessages || state.isLoading || _isPaginating) return;
+    _isPaginating = true;
 
     try {
+      // Prevent infinite retry loops
+      if (_paginationRetryCount >= _maxPaginationRetries) {
+        AppLogger.debug('Max pagination retries reached', tag: 'Chat');
+        return;
+      }
+
+      final oldestMessage =
+          state.messages.isNotEmpty ? state.messages.first : null;
+      if (oldestMessage == null) return;
+
       final client = _ref.read(supabaseClientProvider);
 
       final response = await client.rpc('get_user_chat_thread', params: {
@@ -575,6 +597,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
           hasMoreMessages: false,
         );
       }
+    } finally {
+      _isPaginating = false;
     }
   }
 
