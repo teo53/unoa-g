@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/supabase/supabase_client.dart';
 
@@ -367,17 +368,65 @@ class SupabaseFundingRepository {
   // Prelaunch Signups
   // ============================================
 
+  static const String _prelaunchSignupUserConflictKey =
+      'campaign_id,user_id';
+  static const String _prelaunchSignupEmailConflictKey =
+      'campaign_id,email';
+
+  @visibleForTesting
+  static String prelaunchSignupConflictKeyFor({
+    required String? userId,
+    required String? email,
+  }) {
+    if (userId != null) return _prelaunchSignupUserConflictKey;
+
+    final normalizedEmail = email?.trim();
+    if (normalizedEmail == null || normalizedEmail.isEmpty) {
+      throw Exception('Email is required for anonymous prelaunch signup');
+    }
+
+    return _prelaunchSignupEmailConflictKey;
+  }
+
+  @visibleForTesting
+  static Map<String, dynamic> buildPrelaunchSignupPayload({
+    required String campaignId,
+    required String? userId,
+    String? email,
+  }) {
+    final normalizedEmail = email?.trim();
+    final hasEmail = normalizedEmail != null && normalizedEmail.isNotEmpty;
+
+    if (userId == null && !hasEmail) {
+      throw Exception('Email is required for anonymous prelaunch signup');
+    }
+
+    return {
+      'campaign_id': campaignId,
+      if (userId != null) 'user_id': userId,
+      if (hasEmail) 'email': normalizedEmail,
+      'notify_on_launch': true,
+    };
+  }
+
   /// Sign up for prelaunch notification
-  Future<void> signupForPrelaunch(String campaignId) async {
-    if (_userId == null) throw Exception('Not authenticated');
+  Future<void> signupForPrelaunch(String campaignId, {String? email}) async {
+    final user = _client.auth.currentUser;
+    final effectiveEmail = email ?? user?.email;
+    final payload = buildPrelaunchSignupPayload(
+      campaignId: campaignId,
+      userId: user?.id,
+      email: effectiveEmail,
+    );
+    final conflictKey = prelaunchSignupConflictKeyFor(
+      userId: user?.id,
+      email: effectiveEmail,
+    );
 
     await _client.from('funding_prelaunch_signups').upsert(
-      {
-        'campaign_id': campaignId,
-        'user_id': _userId,
-        'notify_on_launch': true,
-      },
-      onConflict: 'campaign_id,user_id,email',
+      payload,
+      onConflict: conflictKey,
+      ignoreDuplicates: true,
     );
   }
 
