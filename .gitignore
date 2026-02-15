@@ -73,6 +73,14 @@ crawl-summary*.json
 .env.*
 !.env.example
 **/secrets/
+**/secrets.*
+
+# Claude Code local settings
+.claude/local/
+
+# Certificate & key files
+**/*.pem
+**/*.key
 
 # Tax/Legal documents (confidential)
 tax/
