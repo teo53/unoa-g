@@ -8,6 +8,7 @@ class UserProfile {
   final String role; // 'fan', 'creator', 'creator_manager', 'admin'
   final String? displayName;
   final String? avatarUrl;
+  final String? bio;
   final DateTime? dateOfBirth;
   final DateTime? guardianConsentAt;
   final String locale;
@@ -20,6 +21,7 @@ class UserProfile {
     required this.role,
     this.displayName,
     this.avatarUrl,
+    this.bio,
     this.dateOfBirth,
     this.guardianConsentAt,
     this.locale = 'ko-KR',
@@ -47,6 +49,7 @@ class UserProfile {
       role: json['role'] as String? ?? 'fan',
       displayName: json['display_name'] as String?,
       avatarUrl: json['avatar_url'] as String?,
+      bio: json['bio'] as String?,
       dateOfBirth: json['date_of_birth'] != null
           ? DateTime.parse(json['date_of_birth'] as String)
           : null,
@@ -66,6 +69,7 @@ class UserProfile {
       'role': role,
       'display_name': displayName,
       'avatar_url': avatarUrl,
+      'bio': bio,
       'date_of_birth': dateOfBirth?.toIso8601String().split('T')[0],
       'guardian_consent_at': guardianConsentAt?.toIso8601String(),
       'locale': locale,
@@ -80,6 +84,7 @@ class UserProfile {
     String? role,
     String? displayName,
     String? avatarUrl,
+    String? bio,
     DateTime? dateOfBirth,
     DateTime? guardianConsentAt,
     String? locale,
@@ -92,6 +97,7 @@ class UserProfile {
       role: role ?? this.role,
       displayName: displayName ?? this.displayName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      bio: bio ?? this.bio,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       guardianConsentAt: guardianConsentAt ?? this.guardianConsentAt,
       locale: locale ?? this.locale,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/creator_content.dart';
+import '../../../providers/auth_provider.dart';
 
 /// 커버 섹션 (프로필 배너)
 class ContentCoverSection extends StatelessWidget {
@@ -93,11 +94,12 @@ class ContentCoverSection extends StatelessWidget {
                     CircleAvatar(
                       radius: 48,
                       backgroundColor: Colors.white24,
-                      child: profile?.avatarUrl != null &&
+                      child: profile != null &&
+                              profile!.avatarUrl != null &&
                               profile!.avatarUrl!.isNotEmpty
                           ? ClipOval(
                               child: CachedNetworkImage(
-                                imageUrl: profile.avatarUrl!,
+                                imageUrl: profile!.avatarUrl!,
                                 width: 96,
                                 height: 96,
                                 fit: BoxFit.cover,
@@ -166,7 +168,7 @@ class ContentCoverSection extends StatelessWidget {
                       if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
-                          profile.bio!,
+                          profile!.bio!,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white.withValues(alpha: 0.85),

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/demo_config.dart';
-import '../../data/models/creator_content.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/creator_content_provider.dart';
 import 'widgets/content_edit_dialogs.dart';

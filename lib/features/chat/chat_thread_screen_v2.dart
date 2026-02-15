@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../core/utils/safe_url_launcher.dart';
 import '../../core/utils/app_logger.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';

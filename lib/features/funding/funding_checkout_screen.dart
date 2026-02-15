@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/business_config.dart';
-import '../../core/config/app_config.dart';
 import '../../services/payment_service.dart';
 import '../../providers/repository_providers.dart';
 import '../../shared/widgets/auth_gate.dart';

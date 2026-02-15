@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../data/models/artist.dart';
+import '../../../data/models/creator_content.dart';
 
 /// Stat Badge Widget - Uses primary600 for WCAG compliance
 class ProfileStatBadge extends StatelessWidget {
