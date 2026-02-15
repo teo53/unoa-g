@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/config/app_config.dart';
@@ -14,8 +13,8 @@ import '../chat/widgets/media_gallery_sheet.dart';
 import '../chat/widgets/daily_question_cards_panel.dart';
 import 'widgets/poll_suggestion_sheet.dart';
 import '../../data/models/poll_draft.dart';
-import '../../data/models/poll_message.dart';
-import '../chat/widgets/poll_message_card.dart';
+import 'widgets/group_chat_bubble.dart';
+import 'widgets/chat_room_tile.dart';
 
 /// 크리에이터 채팅 탭 화면
 ///
@@ -70,11 +69,11 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   bool _isMediaMenuOpen = false;
 
   // 답장 상태
-  _GroupChatMessage? _replyingTo;
+  GroupChatMessage? _replyingTo;
   bool _isReplyDirect = true;
 
   // Mock messages - 실제로는 provider에서 가져옴
-  final List<_GroupChatMessage> _messages = [];
+  final List<GroupChatMessage> _messages = [];
 
   @override
   void initState() {
@@ -96,7 +95,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   void _loadMockMessages() {
     final now = DateTime.now();
     _messages.addAll([
-      _GroupChatMessage(
+      GroupChatMessage(
         id: '1',
         content: '오늘 컨텐츠 너무 좋았어요!',
         fanId: 'fan_1',
@@ -105,7 +104,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         isFromCreator: false,
         timestamp: now.subtract(const Duration(hours: 2)),
       ),
-      _GroupChatMessage(
+      GroupChatMessage(
         id: '2',
         content: '항상 응원합니다 💕',
         fanId: 'fan_2',
@@ -114,7 +113,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         isFromCreator: false,
         timestamp: now.subtract(const Duration(hours: 1, minutes: 45)),
       ),
-      _GroupChatMessage(
+      GroupChatMessage(
         id: '3',
         content: '고마워요 여러분~ 오늘도 힘내세요!',
         fanId: 'creator',
@@ -125,7 +124,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         readCount: 1087,
         totalSubscribers: DemoConfig.demoSubscriberCount,
       ),
-      _GroupChatMessage(
+      GroupChatMessage(
         id: '4',
         content: '내일 라이브 기대돼요!',
         fanId: 'fan_3',
@@ -136,7 +135,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         donationAmount: 1000,
       ),
       // 1:1 답장 예시
-      _GroupChatMessage(
+      GroupChatMessage(
         id: '4b',
         content: '달빛아 감사해요~ 내일 꼭 와주세요!',
         fanId: 'creator',
@@ -151,7 +150,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         replyToFanName: '달빛소녀',
         replyToContent: '내일 라이브 기대돼요!',
       ),
-      _GroupChatMessage(
+      GroupChatMessage(
         id: '5',
         content: '저도 기대돼요 ㅎㅎ',
         fanId: 'fan_1',
@@ -161,7 +160,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         timestamp: now.subtract(const Duration(minutes: 45)),
       ),
       // 전체 답장 예시
-      _GroupChatMessage(
+      GroupChatMessage(
         id: '6',
         content: '여러분 내일 라이브 7시에 시작해요! 많이 와주세요~',
         fanId: 'creator',
@@ -189,7 +188,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     final isReply = _replyingTo != null;
 
     setState(() {
-      _messages.add(_GroupChatMessage(
+      _messages.add(GroupChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         content: _messageController.text.trim(),
         fanId: 'creator',
@@ -242,7 +241,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
 
   void _addPollFromExternal(PollDraft draft, String? comment) {
     setState(() {
-      _messages.add(_GroupChatMessage(
+      _messages.add(GroupChatMessage(
         id: 'poll_${DateTime.now().millisecondsSinceEpoch}',
         content: draft.question,
         fanId: 'creator',
@@ -277,7 +276,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   /// 크리에이터 자신의 메시지 Long Press 시 편집/삭제/복사 바텀시트
   void _showCreatorMessageActionsSheet(
     BuildContext context,
-    _GroupChatMessage message,
+    GroupChatMessage message,
     bool isDark,
   ) {
     final hoursSinceCreation =
@@ -448,7 +447,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
 
   void _showEditDialog(
     BuildContext context,
-    _GroupChatMessage message,
+    GroupChatMessage message,
     bool isDark,
   ) {
     final controller = TextEditingController(text: message.content);
@@ -515,7 +514,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   }
 
   void _showDeleteConfirmation(
-      BuildContext context, _GroupChatMessage message) {
+      BuildContext context, GroupChatMessage message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -558,7 +557,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   /// 팬 메시지 Long Press 시 답장 타입 선택 바텀시트
   void _showReplyOptionsSheet(
     BuildContext context,
-    _GroupChatMessage originalMessage,
+    GroupChatMessage originalMessage,
     bool isDark,
   ) {
     showModalBottomSheet(
@@ -654,7 +653,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                                         ? AppColors.textSubDark
                                         : AppColors.textSubLight)),
                             const SizedBox(width: 6),
-                            _TierBadge(tier: originalMessage.fanTier),
+                            TierBadge(tier: originalMessage.fanTier),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -1059,7 +1058,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                       children: [
                         if (showDate)
                           _buildDateSeparator(message.timestamp, isDark),
-                        _GroupChatBubble(
+                        GroupChatBubble(
                           message: message,
                           isDark: isDark,
                           isHearted: _heartedMessages.contains(message.id),
@@ -1193,7 +1192,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                           if (AppConfig.enableDemoMode) {
                             // Demo mode: add poll message to local list
                             setState(() {
-                              _messages.add(_GroupChatMessage(
+                              _messages.add(GroupChatMessage(
                                 id: 'poll_${DateTime.now().millisecondsSinceEpoch}',
                                 content: draft.question,
                                 fanId: 'creator',
@@ -1487,7 +1486,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     );
   }
 
-  bool _shouldShowDate(_GroupChatMessage current, _GroupChatMessage? previous) {
+  bool _shouldShowDate(GroupChatMessage current, GroupChatMessage? previous) {
     if (previous == null) return true;
     final currentDate = DateTime(
       current.timestamp.year,
@@ -1547,7 +1546,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
       itemCount: chatThreads.length,
       itemBuilder: (context, index) {
         final thread = chatThreads[index];
-        return _ChatRoomTile(
+        return ChatRoomTile(
           artistName: thread.artistName,
           artistImageUrl: thread.avatarUrl,
           lastMessage: thread.lastMessage ?? '',
@@ -1557,843 +1556,6 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
           onTap: () => context.push('/chat/${thread.channelId}'),
         );
       },
-    );
-  }
-}
-
-// =============================================================================
-// 단체톡방 메시지 버블
-// =============================================================================
-
-class _GroupChatBubble extends StatelessWidget {
-  final _GroupChatMessage message;
-  final bool isDark;
-  final bool isHearted;
-  final VoidCallback onHeartTap;
-  final VoidCallback? onLongPress;
-
-  const _GroupChatBubble({
-    required this.message,
-    required this.isDark,
-    required this.isHearted,
-    required this.onHeartTap,
-    this.onLongPress,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Poll 메시지 (전체 너비, 카드 스타일)
-    if (message.messageType == 'poll' && message.pollData != null) {
-      return _buildPollBubble();
-    }
-
-    // 크리에이터 메시지 (오른쪽, 핑크 버블)
-    if (message.isFromCreator) {
-      return _buildCreatorBubble();
-    }
-
-    // 팬 메시지 (왼쪽, 팬 이름/티어 표시)
-    return _buildFanBubble();
-  }
-
-  Widget _buildPollBubble() {
-    final draft = message.pollData!;
-    final pollMessage = PollMessage(
-      id: message.id,
-      messageId: message.id,
-      question: draft.question,
-      options: draft.options,
-      createdAt: message.timestamp,
-      endsAt: message.timestamp.add(const Duration(hours: 24)),
-      showResultsBeforeEnd: true,
-    );
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: PollMessageCard(
-        poll: pollMessage,
-        isDark: isDark,
-        isCreator: true,
-      ),
-    );
-  }
-
-  Widget _buildFanBubble() {
-    return GestureDetector(
-      onLongPress: onLongPress,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Avatar
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isDark ? Colors.grey[800] : Colors.grey[200],
-                border: Border.all(
-                  color: _getTierColor(message.fanTier).withValues(alpha: 0.5),
-                  width: 2,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  message.fanName.isNotEmpty ? message.fanName[0] : '?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-
-            // Bubble content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Fan name + tier + donation badge
-                  Row(
-                    children: [
-                      Text(
-                        message.fanName,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.textSubDark
-                              : AppColors.textSubLight,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      _TierBadge(tier: message.fanTier),
-                      if (message.donationAmount != null) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.pink.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.diamond_rounded,
-                                size: 10,
-                                color: Colors.pink,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                '${message.donationAmount}',
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.pink,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Message bubble with heart button
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // Bubble
-                      Flexible(
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 240),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.surfaceDark
-                                : AppColors.surfaceLight,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(4),
-                              topRight: Radius.circular(18),
-                              bottomLeft: Radius.circular(18),
-                              bottomRight: Radius.circular(18),
-                            ),
-                            border: Border.all(
-                              color: isDark
-                                  ? AppColors.borderDark
-                                  : AppColors.borderLight,
-                            ),
-                          ),
-                          child: Text(
-                            message.content,
-                            style: TextStyle(
-                              fontSize: 15,
-                              height: 1.4,
-                              color: isDark
-                                  ? AppColors.textMainDark
-                                  : AppColors.textMainLight,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-
-                      // Heart button
-                      GestureDetector(
-                        onTap: onHeartTap,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: isHearted
-                                ? AppColors.primary.withValues(alpha: 0.1)
-                                : Colors.transparent,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isHearted ? Icons.favorite : Icons.favorite_border,
-                            size: 16,
-                            color: isHearted
-                                ? AppColors.primary
-                                : (isDark
-                                    ? Colors.grey[600]
-                                    : Colors.grey[400]),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-
-                      // Time
-                      Text(
-                        _formatTime(message.timestamp),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isDark
-                              ? AppColors.textMutedDark
-                              : AppColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCreatorBubble() {
-    // 삭제된 메시지
-    if (message.isDeleted) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              constraints: const BoxConstraints(maxWidth: 240),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[800] : Colors.grey[200],
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.block,
-                      size: 16,
-                      color: isDark ? Colors.grey[500] : Colors.grey[500]),
-                  const SizedBox(width: 6),
-                  Text(
-                    '삭제된 메시지입니다',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontStyle: FontStyle.italic,
-                      color: isDark ? Colors.grey[500] : Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // 읽은 수 계산
-    final hasReadStats =
-        message.readCount != null && message.totalSubscribers != null;
-    final readCount = message.readCount ?? 0;
-    final totalSubscribers = message.totalSubscribers ?? 0;
-    final isDirectReply = message.isDirectReplyMessage;
-
-    return GestureDetector(
-      onLongPress: onLongPress,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            // Time + 읽은 수 표시
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 편집됨 표시
-                if (message.isEdited)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Text(
-                      '편집됨',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontStyle: FontStyle.italic,
-                        color: isDark
-                            ? AppColors.textMutedDark
-                            : AppColors.textMuted,
-                      ),
-                    ),
-                  ),
-                // 1:1 답장 표시 또는 읽은 팬 수 표시
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isDirectReply ? Icons.person : Icons.done_all,
-                      size: 14,
-                      color: isDirectReply ? Colors.purple : AppColors.primary,
-                    ),
-                    const SizedBox(width: 3),
-                    if (isDirectReply)
-                      Text(
-                        '→ ${message.replyToFanName}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.purple,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    else if (hasReadStats)
-                      Text(
-                        '$readCount / ${_formatNumber(totalSubscribers)}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    else
-                      const Text(
-                        '전체',
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                  ],
-                ),
-                if (hasReadStats && !isDirectReply) ...[
-                  const SizedBox(height: 2),
-                  // 퍼센티지 바
-                  Container(
-                    width: 50,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: totalSubscribers > 0
-                          ? readCount / totalSubscribers
-                          : 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 3),
-                Text(
-                  _formatTime(message.timestamp),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color:
-                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 8),
-
-            // Bubble (1:1 답장은 보라색, 일반은 핑크/빨강)
-            Container(
-              constraints: const BoxConstraints(maxWidth: 240),
-              decoration: BoxDecoration(
-                color: isDirectReply ? Colors.purple : AppColors.primary,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(4),
-                  bottomLeft: Radius.circular(18),
-                  bottomRight: Radius.circular(18),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 메시지 타입 배지 (1:1 답장 / 전체)
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(10, 6, 10, 0),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isDirectReply
-                              ? Icons.person
-                              : Icons.campaign_outlined,
-                          size: 12,
-                          color: Colors.white.withValues(alpha: 0.9),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          isDirectReply ? '1:1 답장' : '전체',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 1:1 답장인 경우 원본 메시지 인용
-                  if (isDirectReply && message.replyToContent != null) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(18),
-                          topRight: Radius.circular(4),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.reply_rounded,
-                                size: 12,
-                                color: Colors.white.withValues(alpha: 0.8),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${message.replyToFanName}님에게 답장',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white.withValues(alpha: 0.9),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            message.replyToContent!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withValues(alpha: 0.7),
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    // 답장 내용
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
-                      child: Text(
-                        message.content,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          height: 1.4,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ] else
-                    // 일반 메시지
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      child: Text(
-                        message.content,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          height: 1.4,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatNumber(int number) {
-    if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(1)}K';
-    }
-    return number.toString();
-  }
-
-  String _formatTime(DateTime time) {
-    final hour =
-        time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
-    final period = time.hour >= 12 ? '오후' : '오전';
-    final minute = time.minute.toString().padLeft(2, '0');
-    return '$period $hour:$minute';
-  }
-
-  Color _getTierColor(String tier) {
-    switch (tier.toUpperCase()) {
-      case 'VIP':
-        return Colors.amber[700]!;
-      case 'STANDARD':
-        return AppColors.primary;
-      default:
-        return Colors.grey[500]!;
-    }
-  }
-}
-
-// =============================================================================
-// 티어 뱃지
-// =============================================================================
-
-class _TierBadge extends StatelessWidget {
-  final String tier;
-
-  const _TierBadge({required this.tier});
-
-  @override
-  Widget build(BuildContext context) {
-    Color bgColor;
-    Color textColor;
-
-    switch (tier.toUpperCase()) {
-      case 'VIP':
-        bgColor = Colors.amber[100]!;
-        textColor = Colors.amber[800]!;
-        break;
-      case 'STANDARD':
-        bgColor = AppColors.primary.withValues(alpha: 0.15);
-        textColor = AppColors.primary;
-        break;
-      default:
-        bgColor = Colors.grey[200]!;
-        textColor = Colors.grey[600]!;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Text(
-        tier.toUpperCase(),
-        style: TextStyle(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          color: textColor,
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// 채팅방 타일 (구독 아티스트용)
-// =============================================================================
-
-class _ChatRoomTile extends StatelessWidget {
-  final String artistName;
-  final String? artistImageUrl;
-  final String lastMessage;
-  final DateTime lastMessageTime;
-  final int unreadCount;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _ChatRoomTile({
-    required this.artistName,
-    this.artistImageUrl,
-    required this.lastMessage,
-    required this.lastMessageTime,
-    required this.unreadCount,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  String get _formattedTime {
-    final now = DateTime.now();
-    final diff = now.difference(lastMessageTime);
-
-    if (diff.inDays > 0) {
-      return '${diff.inDays}일 전';
-    } else if (diff.inHours > 0) {
-      return '${diff.inHours}시간 전';
-    } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}분 전';
-    }
-    return '방금';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight,
-              width: 0.5,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            // Avatar
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
-                ),
-              ),
-              child: ClipOval(
-                child: artistImageUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: artistImageUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: isDark ? Colors.grey[800] : Colors.grey[200],
-                        ),
-                      )
-                    : Container(
-                        color: isDark ? Colors.grey[800] : Colors.grey[200],
-                        child: Icon(
-                          Icons.person,
-                          size: 28,
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          artistName,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: unreadCount > 0
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: isDark
-                                ? AppColors.textMainDark
-                                : AppColors.textMainLight,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        _formattedTime,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark
-                              ? AppColors.textMutedDark
-                              : AppColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          lastMessage,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: unreadCount > 0
-                                ? (isDark
-                                    ? AppColors.textSubDark
-                                    : AppColors.textSubLight)
-                                : (isDark
-                                    ? AppColors.textMutedDark
-                                    : AppColors.textMuted),
-                            fontWeight: unreadCount > 0
-                                ? FontWeight.w500
-                                : FontWeight.normal,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (unreadCount > 0) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            unreadCount > 99 ? '99+' : '$unreadCount',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// 데이터 모델
-// =============================================================================
-
-class _GroupChatMessage {
-  final String id;
-  final String content;
-  final String fanId;
-  final String fanName;
-  final String fanTier;
-  final bool isFromCreator;
-  final DateTime timestamp;
-  final int? donationAmount;
-  final int? readCount; // 읽은 팬 수
-  final int? totalSubscribers; // 전체 구독자 수
-  // 답장 관련 필드
-  final bool isDirectReplyMessage; // 1:1 답장인지 여부
-  final String? replyToFanId; // 답장 대상 팬 ID
-  final String? replyToFanName; // 답장 대상 팬 이름
-  final String? replyToContent; // 원본 메시지 내용
-  // 메시지 타입 (text, poll, image 등)
-  final String messageType;
-  // Poll 데이터 (messageType == 'poll'일 때)
-  final PollDraft? pollData;
-  // 편집/삭제 상태
-  final bool isEdited;
-  final bool isDeleted;
-
-  _GroupChatMessage({
-    required this.id,
-    required this.content,
-    required this.fanId,
-    required this.fanName,
-    required this.fanTier,
-    required this.isFromCreator,
-    required this.timestamp,
-    this.donationAmount,
-    this.readCount,
-    this.totalSubscribers,
-    this.isDirectReplyMessage = false,
-    this.replyToFanId,
-    this.replyToFanName,
-    this.replyToContent,
-    this.messageType = 'text',
-    this.pollData,
-    this.isEdited = false,
-    this.isDeleted = false,
-  });
-
-  _GroupChatMessage copyWith({
-    String? content,
-    bool? isEdited,
-    bool? isDeleted,
-  }) {
-    return _GroupChatMessage(
-      id: id,
-      content: content ?? this.content,
-      fanId: fanId,
-      fanName: fanName,
-      fanTier: fanTier,
-      isFromCreator: isFromCreator,
-      timestamp: timestamp,
-      donationAmount: donationAmount,
-      readCount: readCount,
-      totalSubscribers: totalSubscribers,
-      isDirectReplyMessage: isDirectReplyMessage,
-      replyToFanId: replyToFanId,
-      replyToFanName: replyToFanName,
-      replyToContent: replyToContent,
-      messageType: messageType,
-      pollData: pollData,
-      isEdited: isEdited ?? this.isEdited,
-      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }

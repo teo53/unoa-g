@@ -8,6 +8,9 @@ import '../../data/models/artist.dart';
 import '../../data/models/creator_content.dart';
 import '../../providers/discover_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import 'widgets/artist_profile_feed_widgets.dart';
+import 'widgets/artist_profile_fancam_widgets.dart';
+import 'widgets/artist_profile_info_widgets.dart';
 
 class ArtistProfileScreen extends ConsumerStatefulWidget {
   final String artistId;
@@ -142,7 +145,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                     const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final fancam = fancams[index];
-                  return _FancamListItem(
+                  return FancamListItem(
                     fancam: fancam,
                     onTap: () {
                       Navigator.pop(context);
@@ -379,13 +382,13 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                           // Rank & Fan Badges
                           Row(
                             children: [
-                              _StatBadge(
+                              ProfileStatBadge(
                                 icon: Icons.trending_up,
                                 label: '주간랭킹: ${artist.rank}위',
                                 change: '+2',
                               ),
                               const SizedBox(width: 12),
-                              _StatBadge(
+                              ProfileStatBadge(
                                 icon: Icons.people,
                                 label: '팬 ${artist.formattedFollowers}',
                               ),
@@ -419,23 +422,23 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           children: const [
-                            _HighlightItem(
+                            ProfileHighlightItem(
                               icon: Icons.checkroom,
                               label: 'Today\'s OOTD',
                               hasRing: true,
                             ),
                             SizedBox(width: 16),
-                            _HighlightItem(
+                            ProfileHighlightItem(
                               icon: Icons.music_note,
                               label: 'Rehearsal',
                             ),
                             SizedBox(width: 16),
-                            _HighlightItem(
+                            ProfileHighlightItem(
                               icon: Icons.camera_alt,
                               label: 'Q&A',
                             ),
                             SizedBox(width: 16),
-                            _HighlightItem(
+                            ProfileHighlightItem(
                               icon: Icons.videocam,
                               label: 'V-log',
                             ),
@@ -447,7 +450,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
 
                       // Social Links (좌측 정렬)
                       if (_socialLinks.hasAnyLink)
-                        _SocialLinksSection(
+                        SocialLinksSection(
                           socialLinks: _socialLinks,
                           themeColor: _artistThemeColor,
                           onLinkTap: _openSocialLink,
@@ -461,14 +464,14 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _ActionButton(
+                            ProfileActionButton(
                               icon: Icons.chat_bubble_outline,
                               label: 'DM',
                               themeColor: _artistThemeColor,
                               onTap: () =>
                                   context.push('/chat/${widget.artistId}'),
                             ),
-                            _ActionButton(
+                            ProfileActionButton(
                               icon: Icons.card_giftcard,
                               label: '드롭',
                               themeColor: _artistThemeColor,
@@ -478,7 +481,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                                 );
                               },
                             ),
-                            _ActionButton(
+                            ProfileActionButton(
                               icon: Icons.groups,
                               label: '이벤트',
                               isPrimary: true,
@@ -575,7 +578,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
 
                       // YouTube Fancam Section
                       if (artist.fancams.isNotEmpty) ...[
-                        _SectionHeader(
+                        ProfileSectionHeader(
                           title: '아티스트 직캠',
                           trailing: artist.fancams.length > 1 ? '전체보기' : null,
                           onTrailingTap: artist.fancams.length > 1
@@ -595,7 +598,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                                 const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               final fancam = artist.fancams[index];
-                              return _FancamCard(
+                              return FancamCard(
                                 fancam: fancam,
                                 onTap: () => _openYouTubeVideo(fancam.videoUrl),
                               );
@@ -606,7 +609,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                       ],
 
                       // Drops Section
-                      _SectionHeader(
+                      ProfileSectionHeader(
                         title: '최신 드롭 (Drops)',
                         trailing: '전체보기',
                         onTrailingTap: () {
@@ -622,19 +625,19 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           children: const [
-                            _DropItem(
+                            ProfileDropItem(
                               name: '1st Anniversary T-shirt',
                               price: '35,000 KRW',
                               isSoldOut: true,
                             ),
                             SizedBox(width: 12),
-                            _DropItem(
+                            ProfileDropItem(
                               name: 'Winter Photo Set A',
                               price: '12,000 KRW',
                               isNew: true,
                             ),
                             SizedBox(width: 12),
-                            _DropItem(
+                            ProfileDropItem(
                               name: 'Gold Member Kit',
                               price: '5,000 KRW',
                             ),
@@ -645,7 +648,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                       const SizedBox(height: 24),
 
                       // Upcoming Events
-                      _SectionHeader(
+                      ProfileSectionHeader(
                         title: '다가오는 이벤트',
                         trailing: '더보기',
                         onTrailingTap: () {
@@ -657,7 +660,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                       const SizedBox(height: 12),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: _EventCard(
+                        child: ProfileEventCard(
                           title: 'Starlight Christmas Live',
                           location: '홍대 롤링홀',
                           date: '12월 24일 (토)',
@@ -702,7 +705,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                       ..._currentTabFeeds.map((feed) {
                         if (_tabController.index == 1) {
                           // 공지사항 탭 - 공식 공지 스타일
-                          return _AnnouncementPost(
+                          return AnnouncementPost(
                             artistName: artist.name,
                             artistAvatarUrl: artist.avatarUrl,
                             content: feed['content'] as String,
@@ -712,7 +715,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                           );
                         } else if (_tabController.index == 2) {
                           // 오타 레터 탭 - 편지 스타일
-                          return _OtaLetterPost(
+                          return OtaLetterPost(
                             artistName: artist.name,
                             artistAvatarUrl: artist.avatarUrl,
                             content: feed['content'] as String,
@@ -722,7 +725,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                           );
                         } else {
                           // 하이라이트 탭 - 기존 피드 스타일
-                          return _FeedPost(
+                          return ArtistFeedPost(
                             artistName: artist.name,
                             artistAvatarUrl: artist.avatarUrl,
                             content: feed['content'] as String,
@@ -754,466 +757,11 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) =>
-                      _FeedComposeSheet(artistName: artist.name),
+                      FeedComposeSheet(artistName: artist.name),
                 );
               },
               backgroundColor: AppColors.primary600,
               child: const Icon(Icons.edit, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Stat Badge Widget - Uses primary600 for WCAG compliance
-class _StatBadge extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String? change;
-
-  const _StatBadge({
-    required this.icon,
-    required this.label,
-    this.change,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.primary600,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.white),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-          if (change != null) ...[
-            const SizedBox(width: 4),
-            Text(
-              change!,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: Colors.white70,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Highlight Item Widget - Uses primary500 for active ring
-class _HighlightItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool hasRing;
-
-  const _HighlightItem({
-    required this.icon,
-    required this.label,
-    this.hasRing = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isDark ? AppColors.surfaceDark : Colors.grey[100],
-            border: hasRing
-                ? Border.all(color: AppColors.primary500, width: 2)
-                : Border.all(
-                    color: isDark ? AppColors.borderDark : Colors.grey[300]!,
-                  ),
-          ),
-          child: Icon(
-            icon,
-            size: 24,
-            color: isDark ? AppColors.textSubDark : Colors.grey[600],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Action Button Widget - Uses artist theme color for filled state
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isPrimary;
-  final Color? themeColor;
-  final VoidCallback? onTap;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    this.isPrimary = false,
-    this.themeColor,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveThemeColor = themeColor ?? AppColors.primary600;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: isPrimary
-                  ? effectiveThemeColor
-                  : (isDark ? AppColors.surfaceDark : Colors.grey[100]),
-              borderRadius: BorderRadius.circular(16),
-              border: isPrimary
-                  ? null
-                  : Border.all(
-                      color: isDark ? AppColors.borderDark : Colors.grey[300]!,
-                    ),
-            ),
-            child: Icon(
-              icon,
-              color: isPrimary
-                  ? Colors.white
-                  : (isDark ? AppColors.textSubDark : Colors.grey[600]),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Section Header Widget - Uses primary500 for trailing link
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final String? trailing;
-  final VoidCallback? onTrailingTap;
-
-  const _SectionHeader({
-    required this.title,
-    this.trailing,
-    this.onTrailingTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-            ),
-          ),
-          if (trailing != null)
-            GestureDetector(
-              onTap: onTrailingTap,
-              child: Text(
-                trailing!,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.primary500,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Drop Item Widget - Uses primary500 for price, primary100 for NEW badge
-class _DropItem extends StatelessWidget {
-  final String name;
-  final String price;
-  final bool isNew;
-  final bool isSoldOut;
-
-  const _DropItem({
-    required this.name,
-    required this.price,
-    this.isNew = false,
-    this.isSoldOut = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      width: 140,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : Colors.grey[200]!,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product Image Placeholder
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.grey[800] : Colors.grey[100],
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.checkroom,
-                    size: 40,
-                    color: isDark ? Colors.grey[600] : Colors.grey[400],
-                  ),
-                ),
-                if (isSoldOut)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.danger,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'SOLD OUT',
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                if (isNew)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary600,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'NEW',
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          // Product Info
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: isDark
-                        ? AppColors.textMainDark
-                        : AppColors.textMainLight,
-                    decoration: isSoldOut ? TextDecoration.lineThrough : null,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  price,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isSoldOut
-                        ? (isDark
-                            ? AppColors.textSubDark
-                            : AppColors.textSubLight)
-                        : AppColors.primary500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Event Card Widget - Uses primary colors consistently
-class _EventCard extends StatelessWidget {
-  final String title;
-  final String location;
-  final String date;
-  final bool isOffline;
-
-  const _EventCard({
-    required this.title,
-    required this.location,
-    required this.date,
-    this.isOffline = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : Colors.grey[200]!,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Event Image Placeholder
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: AppColors.primary100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.event,
-              color: AppColors.primary600,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isOffline ? Colors.grey[600] : AppColors.primary600,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        isOffline ? 'OFFLINE' : 'ONLINE',
-                        style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      date,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark
-                            ? AppColors.textSubDark
-                            : AppColors.textSubLight,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? AppColors.textMainDark
-                        : AppColors.textMainLight,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  location,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color:
-                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                  ),
-                ),
-              ],
             ),
           ),
         ],
