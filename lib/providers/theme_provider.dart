@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../core/utils/app_logger.dart';
 
 /// Theme mode notifier for managing app theme
 class ThemeNotifier extends StateNotifier<ThemeMode> {
@@ -23,7 +24,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
       state = ThemeMode.values[themeIndex];
     } catch (e, stackTrace) {
       // Default to system theme if loading fails
-      debugPrint('[ThemeNotifier] Failed to initialize theme: $e');
+      AppLogger.warning('Failed to initialize theme: $e', tag: 'ThemeNotifier');
       if (kDebugMode) {
         debugPrint(stackTrace.toString());
       }
@@ -39,7 +40,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
       await _settingsBox!.put(_themeKey, mode.index);
     } catch (e, stackTrace) {
       // Log storage errors instead of silently ignoring
-      debugPrint('[ThemeNotifier] Failed to save theme: $e');
+      AppLogger.warning('Failed to save theme: $e', tag: 'ThemeNotifier');
       if (kDebugMode) {
         debugPrint(stackTrace.toString());
       }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../../core/utils/safe_url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/broadcast_message.dart';
 import '../../../providers/chat_provider.dart';
+import '../../../services/media_service.dart';
 import 'full_screen_image_viewer.dart';
 
 /// KakaoTalk-style media gallery sheet with 3 tabs: Photos, Videos, Files.
@@ -235,14 +236,16 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
                 return GestureDetector(
                   onTap: () => FullScreenImageViewer.show(
                     context,
-                    imageUrl: photo.mediaUrl!,
+                    imageUrl:
+                        MediaUrlResolver.instance.resolve(photo.mediaUrl!),
                     senderName: photo.senderName,
                     date: photo.createdAt,
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(2),
                     child: CachedNetworkImage(
-                      imageUrl: photo.mediaUrl!,
+                      imageUrl:
+                          MediaUrlResolver.instance.resolve(photo.mediaUrl!),
                       fit: BoxFit.cover,
                       placeholder: (_, __) => Container(
                         color: isDark ? Colors.grey[800] : Colors.grey[200],
@@ -315,16 +318,16 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
 
   Widget _buildVideoItem(
       BuildContext context, bool isDark, BroadcastMessage video) {
-    final thumbnailUrl =
+    final rawThumbnail =
         video.mediaMetadata?['thumbnail_url'] as String? ?? video.mediaUrl!;
+    final thumbnailUrl = MediaUrlResolver.instance.resolve(rawThumbnail);
     final duration = video.mediaMetadata?['duration'] as int? ?? 0;
 
     return InkWell(
       onTap: () {
-        final uri = Uri.tryParse(video.mediaUrl!);
-        if (uri != null) {
-          launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
+        SafeUrlLauncher.launch(
+            MediaUrlResolver.instance.resolve(video.mediaUrl!),
+            context: context);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -483,10 +486,9 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
 
     return InkWell(
       onTap: () {
-        final uri = Uri.tryParse(file.mediaUrl!);
-        if (uri != null) {
-          launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
+        SafeUrlLauncher.launch(
+            MediaUrlResolver.instance.resolve(file.mediaUrl!),
+            context: context);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

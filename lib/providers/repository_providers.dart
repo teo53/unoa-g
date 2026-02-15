@@ -17,22 +17,6 @@ final chatRepositoryProvider = Provider<SupabaseChatRepository>((ref) {
   return SupabaseChatRepository();
 });
 
-/// Chat repository interface for easier testing
-abstract class IChatRepository {
-  Stream<List<dynamic>> watchMessages(String channelId);
-  Future<void> sendMessage({
-    required String channelId,
-    required String content,
-    String? mediaUrl,
-    String? mediaType,
-    String? replyToId,
-  });
-  Future<void> deleteMessage(String messageId);
-  Future<void> editMessage(String messageId, String newContent);
-  Future<void> reactToMessage(String messageId, String emoji);
-  Future<void> removeReaction(String messageId, String emoji);
-}
-
 // ============================================
 // Wallet Repository
 // ============================================

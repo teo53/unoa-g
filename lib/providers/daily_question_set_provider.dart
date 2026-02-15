@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/utils/app_logger.dart';
 import '../data/models/daily_question_set.dart';
 import '../data/repositories/question_cards_repository.dart';
 import 'auth_provider.dart';
@@ -62,7 +62,8 @@ class DailyQuestionSetNotifier extends StateNotifier<DailyQuestionSetState> {
       final set = await _repository.getOrCreateDailySet(channelId);
       state = DailyQuestionSetLoaded(set);
     } catch (e) {
-      debugPrint('[QuestionSet] Error loading for $channelId: $e');
+      AppLogger.error(e,
+          tag: 'QuestionSet', message: 'Error loading for $channelId');
       state = DailyQuestionSetError(e.toString());
     }
   }

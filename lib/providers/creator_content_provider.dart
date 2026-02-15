@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/utils/app_logger.dart';
 import '../data/models/creator_content.dart';
 import 'auth_provider.dart';
 
@@ -253,7 +254,7 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
     if (isDemoMode) {
       // 데모 모드: 저장 시뮬레이션
       await Future.delayed(const Duration(milliseconds: 500));
-      debugPrint('Demo: Content saved locally');
+      AppLogger.debug('Demo: Content saved locally', tag: 'CreatorContent');
     } else {
       try {
         final supabase = Supabase.instance.client;
@@ -300,7 +301,8 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
                   .toList(),
             );
       } catch (e) {
-        debugPrint('Content save failed: $e');
+        AppLogger.error(e,
+            tag: 'CreatorContent', message: 'Content save failed');
         rethrow;
       }
     }

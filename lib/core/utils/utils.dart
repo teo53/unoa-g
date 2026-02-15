@@ -10,3 +10,6 @@ export 'accessibility_helper.dart';
 
 // Responsive design helpers
 export 'responsive_helper.dart';
+
+// Safe URL launcher
+export 'safe_url_launcher.dart';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/broadcast_message.dart';
+import '../../../services/media_service.dart';
 
 /// Special letter-style bubble displayed in fan's chat
 /// Completely different design from regular chat bubbles
@@ -17,8 +18,11 @@ class PrivateCardBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardImageUrl =
+    final rawCardImageUrl =
         message.mediaMetadata?['card_image_url'] as String? ?? message.mediaUrl;
+    final cardImageUrl = rawCardImageUrl != null
+        ? MediaUrlResolver.instance.resolve(rawCardImageUrl)
+        : null;
     final artistName = message.senderName ?? '아티스트';
 
     return Padding(
@@ -134,13 +138,15 @@ class PrivateCardBubble extends StatelessWidget {
                   // Media attachments (only if different from card image)
                   if (message.mediaUrl != null &&
                       message.mediaUrl!.isNotEmpty &&
-                      message.mediaUrl != cardImageUrl)
+                      MediaUrlResolver.instance.resolve(message.mediaUrl!) !=
+                          cardImageUrl)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: CachedNetworkImage(
-                          imageUrl: message.mediaUrl!,
+                          imageUrl: MediaUrlResolver.instance
+                              .resolve(message.mediaUrl!),
                           fit: BoxFit.cover,
                           height: 120,
                           width: double.infinity,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/broadcast_message.dart';
+import '../../../services/media_service.dart';
 import 'star_reaction_button.dart';
 import 'public_share_badge.dart';
 
@@ -318,7 +319,8 @@ class _OwnMessageBubble extends StatelessWidget {
                 if (message.messageType == BroadcastMessageType.image &&
                     message.mediaUrl != null)
                   _MediaBubble(
-                    mediaUrl: message.mediaUrl!,
+                    mediaUrl:
+                        MediaUrlResolver.instance.resolve(message.mediaUrl!),
                     isOwnMessage: true,
                     isDark: isDark,
                   )
@@ -535,7 +537,8 @@ class _OtherMessageBubble extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         _MediaBubble(
-                          mediaUrl: message.mediaUrl!,
+                          mediaUrl: MediaUrlResolver.instance
+                              .resolve(message.mediaUrl!),
                           isOwnMessage: false,
                           isDark: isDark,
                         ),
