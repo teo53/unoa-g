@@ -307,7 +307,8 @@ void main() {
     });
 
     test('repeated characters should increase spam score', () {
-      final score = chatService.calculateSpamScore('aaaaaaa really long repeated chars');
+      final score =
+          chatService.calculateSpamScore('aaaaaaa really long repeated chars');
       expect(score, greaterThanOrEqualTo(30));
     });
 

@@ -20,8 +20,7 @@ void main() {
       // User purchases 100 DT package (₩10,000)
       // Platform takes 20%, creator gets 80%
 
-      final distribution =
-          walletService.calculateDonationDistribution(100);
+      final distribution = walletService.calculateDonationDistribution(100);
 
       expect(distribution.totalDt, 100);
       expect(distribution.creatorShareDt, 80);
@@ -32,8 +31,7 @@ void main() {
 
     test('large donation distribution should not lose DT to rounding', () {
       // For 999 DT: creator floor(999*0.8) = 799, platform 999-799 = 200
-      final distribution =
-          walletService.calculateDonationDistribution(999);
+      final distribution = walletService.calculateDonationDistribution(999);
 
       expect(distribution.creatorShareDt + distribution.platformShareDt,
           distribution.totalDt);
@@ -42,8 +40,8 @@ void main() {
     });
 
     test('minimum donation (100 DT) distribution is correct', () {
-      final distribution =
-          walletService.calculateDonationDistribution(WalletService.minimumDonationDt);
+      final distribution = walletService
+          .calculateDonationDistribution(WalletService.minimumDonationDt);
 
       expect(distribution.totalDt, 100);
       expect(distribution.creatorShareDt, 80);
@@ -57,7 +55,8 @@ void main() {
     });
 
     test('KRW to DT conversion should truncate (floor division)', () {
-      expect(walletService.krwToDt(10000), 10000 ~/ WalletService.dtUnitPriceKrw);
+      expect(
+          walletService.krwToDt(10000), 10000 ~/ WalletService.dtUnitPriceKrw);
       expect(walletService.krwToDt(0), 0);
       // Fractional remainder should be discarded
       expect(walletService.krwToDt(150), 150 ~/ WalletService.dtUnitPriceKrw);
@@ -84,7 +83,8 @@ void main() {
       expect(result, isNull);
     });
 
-    test('donation exceeding balance should fail with INSUFFICIENT_BALANCE', () {
+    test('donation exceeding balance should fail with INSUFFICIENT_BALANCE',
+        () {
       final result = walletService.validateDonation(
         amountDt: 1001,
         currentBalance: 1000,
