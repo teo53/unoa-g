@@ -764,3 +764,8 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
               child: const Icon(Icons.edit, color: Colors.white),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
