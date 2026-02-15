@@ -202,7 +202,8 @@ class RealtimeService {
     channel.subscribe((status, error) {
       AppLogger.debug('Channel $channelName status: $status', tag: 'Realtime');
       if (error != null) {
-        AppLogger.warning('Channel $channelName error: $error', tag: 'Realtime');
+        AppLogger.warning('Channel $channelName error: $error',
+            tag: 'Realtime');
       }
     });
 

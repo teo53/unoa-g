@@ -51,10 +51,8 @@ class AppConfig {
   // Development-only fallback credentials.
   // Provide real values via --dart-define=SUPABASE_URL=... at build time.
   // NEVER commit real credentials here — use CI/CD secrets.
-  static const String _devFallbackUrl =
-      'https://REPLACE-ME-dev.supabase.co';
-  static const String _devFallbackKey =
-      'dev-key-not-set--run-with-dart-define';
+  static const String _devFallbackUrl = 'https://REPLACE-ME-dev.supabase.co';
+  static const String _devFallbackKey = 'dev-key-not-set--run-with-dart-define';
 
   /// Effective Supabase URL — uses dev fallback only in development mode.
   static String get effectiveSupabaseUrl {

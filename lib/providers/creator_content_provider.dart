@@ -301,7 +301,8 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
                   .toList(),
             );
       } catch (e) {
-        AppLogger.error(e, tag: 'CreatorContent', message: 'Content save failed');
+        AppLogger.error(e,
+            tag: 'CreatorContent', message: 'Content save failed');
         rethrow;
       }
     }

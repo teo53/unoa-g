@@ -236,14 +236,16 @@ class _MediaGallerySheetState extends ConsumerState<MediaGallerySheet>
                 return GestureDetector(
                   onTap: () => FullScreenImageViewer.show(
                     context,
-                    imageUrl: MediaUrlResolver.instance.resolve(photo.mediaUrl!),
+                    imageUrl:
+                        MediaUrlResolver.instance.resolve(photo.mediaUrl!),
                     senderName: photo.senderName,
                     date: photo.createdAt,
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(2),
                     child: CachedNetworkImage(
-                      imageUrl: MediaUrlResolver.instance.resolve(photo.mediaUrl!),
+                      imageUrl:
+                          MediaUrlResolver.instance.resolve(photo.mediaUrl!),
                       fit: BoxFit.cover,
                       placeholder: (_, __) => Container(
                         color: isDark ? Colors.grey[800] : Colors.grey[200],

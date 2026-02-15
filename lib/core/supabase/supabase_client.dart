@@ -23,8 +23,7 @@ class SupabaseConfig {
       ),
     );
 
-    AppLogger.debug(
-        'Initialized with URL: ${AppConfig.effectiveSupabaseUrl}',
+    AppLogger.debug('Initialized with URL: ${AppConfig.effectiveSupabaseUrl}',
         tag: 'SupabaseConfig');
   }
 

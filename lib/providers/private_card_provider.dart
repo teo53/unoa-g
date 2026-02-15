@@ -387,7 +387,8 @@ class PrivateCardComposeNotifier
   Future<void> _sendDemoCard() async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    AppLogger.debug('Demo: Private card sent to ${state.selectedFanCount} fans', tag: 'PrivateCard');
+    AppLogger.debug('Demo: Private card sent to ${state.selectedFanCount} fans',
+        tag: 'PrivateCard');
   }
 
   Future<void> _sendSupabaseCard() async {
@@ -486,7 +487,8 @@ class PrivateCardHistoryNotifier
 
       state = state.copyWith(sentCards: cards, isLoading: false);
     } catch (e) {
-      AppLogger.error(e, tag: 'PrivateCard', message: 'Load private card history failed');
+      AppLogger.error(e,
+          tag: 'PrivateCard', message: 'Load private card history failed');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

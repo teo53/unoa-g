@@ -391,7 +391,8 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
       state = state.copyWith(incomeType: incomeType);
       return true;
     } catch (e) {
-      AppLogger.error(e, tag: 'Settlement', message: 'Income type update error');
+      AppLogger.error(e,
+          tag: 'Settlement', message: 'Income type update error');
       return false;
     }
   }

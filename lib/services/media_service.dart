@@ -98,8 +98,7 @@ class MediaUrlResolver {
   /// - External URL (non-Supabase) → return as-is (cannot normalize)
   static String normalizeToPath(String urlOrPath) {
     // Already a relative path (no scheme)
-    if (!urlOrPath.startsWith('http://') &&
-        !urlOrPath.startsWith('https://')) {
+    if (!urlOrPath.startsWith('http://') && !urlOrPath.startsWith('https://')) {
       return urlOrPath;
     }
 
@@ -138,9 +137,8 @@ class MediaUrlResolver {
 
     // Public mode: generate URL synchronously
     if (!useSignedUrls) {
-      final url = SupabaseConfig.client.storage
-          .from('chat-media')
-          .getPublicUrl(path);
+      final url =
+          SupabaseConfig.client.storage.from('chat-media').getPublicUrl(path);
       _cache[path] = _CachedUrl(
           url, DateTime.now().add(const Duration(seconds: _cacheTtlSeconds)));
       return url;
@@ -173,9 +171,7 @@ class MediaUrlResolver {
           .from('chat-media')
           .createSignedUrl(path, MediaService.signedUrlExpirationSeconds);
     } else {
-      url = SupabaseConfig.client.storage
-          .from('chat-media')
-          .getPublicUrl(path);
+      url = SupabaseConfig.client.storage.from('chat-media').getPublicUrl(path);
     }
 
     _cache[path] = _CachedUrl(
@@ -603,7 +599,8 @@ class MediaService {
       // Validate file size before loading into memory
       final fileSize = await file.length();
       if (fileSize > maxGenericFileSize) {
-        throw StateError('파일 크기가 ${maxGenericFileSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
+        throw StateError(
+            '파일 크기가 ${maxGenericFileSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
       }
       final bytes = await file.readAsBytes();
       final extension = path.extension(file.path).toLowerCase();

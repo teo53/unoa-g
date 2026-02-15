@@ -491,8 +491,9 @@ void showFancamEditDialog(
                               errorMessage = null;
                             });
                             try {
-                              final response = await http.get(Uri.parse(
-                                  'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=$videoId&format=json'))
+                              final response = await http
+                                  .get(Uri.parse(
+                                      'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=$videoId&format=json'))
                                   .timeout(const Duration(seconds: 5));
                               if (response.statusCode == 200) {
                                 final data = jsonDecode(response.body);

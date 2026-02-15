@@ -88,7 +88,8 @@ class IdentityVerificationService {
         response.data as Map<String, dynamic>,
       );
     } catch (e) {
-      AppLogger.error(e, tag: 'IdentityVerification', message: 'verifyCertification failed');
+      AppLogger.error(e,
+          tag: 'IdentityVerification', message: 'verifyCertification failed');
       return IdentityVerificationResult.error('인증 처리 중 오류가 발생했습니다.');
     }
   }
@@ -123,7 +124,9 @@ class IdentityVerificationService {
 
       return response['identity_verified'] == true;
     } catch (e) {
-      AppLogger.error(e, tag: 'IdentityVerification', message: 'isIdentityVerified check failed');
+      AppLogger.error(e,
+          tag: 'IdentityVerification',
+          message: 'isIdentityVerified check failed');
       return false;
     }
   }
@@ -150,7 +153,8 @@ class IdentityVerificationService {
         isPhoneVerified: response['phone_verified'] == true,
       );
     } catch (e) {
-      AppLogger.error(e, tag: 'IdentityVerification', message: 'getVerificationStatus failed');
+      AppLogger.error(e,
+          tag: 'IdentityVerification', message: 'getVerificationStatus failed');
       return VerificationStatus.error();
     }
   }

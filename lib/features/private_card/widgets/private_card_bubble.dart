@@ -20,8 +20,9 @@ class PrivateCardBubble extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final rawCardImageUrl =
         message.mediaMetadata?['card_image_url'] as String? ?? message.mediaUrl;
-    final cardImageUrl =
-        rawCardImageUrl != null ? MediaUrlResolver.instance.resolve(rawCardImageUrl) : null;
+    final cardImageUrl = rawCardImageUrl != null
+        ? MediaUrlResolver.instance.resolve(rawCardImageUrl)
+        : null;
     final artistName = message.senderName ?? '아티스트';
 
     return Padding(
@@ -137,13 +138,15 @@ class PrivateCardBubble extends StatelessWidget {
                   // Media attachments (only if different from card image)
                   if (message.mediaUrl != null &&
                       message.mediaUrl!.isNotEmpty &&
-                      MediaUrlResolver.instance.resolve(message.mediaUrl!) != cardImageUrl)
+                      MediaUrlResolver.instance.resolve(message.mediaUrl!) !=
+                          cardImageUrl)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: CachedNetworkImage(
-                          imageUrl: MediaUrlResolver.instance.resolve(message.mediaUrl!),
+                          imageUrl: MediaUrlResolver.instance
+                              .resolve(message.mediaUrl!),
                           fit: BoxFit.cover,
                           height: 120,
                           width: double.infinity,

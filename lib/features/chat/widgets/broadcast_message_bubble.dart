@@ -319,7 +319,8 @@ class _OwnMessageBubble extends StatelessWidget {
                 if (message.messageType == BroadcastMessageType.image &&
                     message.mediaUrl != null)
                   _MediaBubble(
-                    mediaUrl: MediaUrlResolver.instance.resolve(message.mediaUrl!),
+                    mediaUrl:
+                        MediaUrlResolver.instance.resolve(message.mediaUrl!),
                     isOwnMessage: true,
                     isDark: isDark,
                   )
@@ -536,7 +537,8 @@ class _OtherMessageBubble extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         _MediaBubble(
-                          mediaUrl: MediaUrlResolver.instance.resolve(message.mediaUrl!),
+                          mediaUrl: MediaUrlResolver.instance
+                              .resolve(message.mediaUrl!),
                           isOwnMessage: false,
                           isDark: isDark,
                         ),

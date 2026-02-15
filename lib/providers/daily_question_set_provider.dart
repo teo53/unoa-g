@@ -62,7 +62,8 @@ class DailyQuestionSetNotifier extends StateNotifier<DailyQuestionSetState> {
       final set = await _repository.getOrCreateDailySet(channelId);
       state = DailyQuestionSetLoaded(set);
     } catch (e) {
-      AppLogger.error(e, tag: 'QuestionSet', message: 'Error loading for $channelId');
+      AppLogger.error(e,
+          tag: 'QuestionSet', message: 'Error loading for $channelId');
       state = DailyQuestionSetError(e.toString());
     }
   }

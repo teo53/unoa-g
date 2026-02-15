@@ -676,7 +676,8 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
 
     if (isDemoMode) {
       // 데모 모드: 신고 접수 시뮬레이션
-      AppLogger.debug('Demo: Report submitted: $reason - $description', tag: 'Chat');
+      AppLogger.debug('Demo: Report submitted: $reason - $description',
+          tag: 'Chat');
     } else {
       try {
         final supabase = Supabase.instance.client;
@@ -1172,7 +1173,8 @@ class MessageBubbleV2 extends StatelessWidget {
         // 동영상 썸네일 + 재생 버튼 오버레이
         final thumbnailUrl = message.mediaMetadata?['thumbnail_url'] as String?;
         return GestureDetector(
-          onTap: () => _playVideo(context, MediaUrlResolver.instance.resolve(message.mediaUrl!)),
+          onTap: () => _playVideo(
+              context, MediaUrlResolver.instance.resolve(message.mediaUrl!)),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Stack(

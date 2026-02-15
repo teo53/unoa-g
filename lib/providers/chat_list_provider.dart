@@ -281,7 +281,8 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
 
       _subscribeToUpdates();
     } catch (e, stackTrace) {
-      AppLogger.error(e, tag: 'ChatListNotifier', message: 'Error loading threads');
+      AppLogger.error(e,
+          tag: 'ChatListNotifier', message: 'Error loading threads');
       if (kDebugMode) {
         debugPrint(stackTrace.toString());
       }
@@ -343,7 +344,8 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
 
       await loadChatThreads();
     } catch (e) {
-      AppLogger.error(e, tag: 'ChatListNotifier', message: 'Error toggling pin');
+      AppLogger.error(e,
+          tag: 'ChatListNotifier', message: 'Error toggling pin');
     }
   }
 
