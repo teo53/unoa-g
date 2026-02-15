@@ -23,6 +23,7 @@ import 'widgets/chat_search_bar.dart';
 import 'widgets/highlighted_text.dart';
 import 'widgets/media_gallery_sheet.dart';
 import 'widgets/full_screen_image_viewer.dart';
+import 'widgets/fullscreen_video_player.dart';
 import '../../services/media_service.dart';
 import '../private_card/widgets/private_card_bubble.dart';
 
@@ -1256,9 +1257,7 @@ class MessageBubbleV2 extends StatelessWidget {
   }
 
   void _playVideo(BuildContext context, String videoUrl) {
-    // TODO: 전체화면 비디오 플레이어 구현 (video_player 패키지 필요)
-    // 현재는 외부 브라우저에서 재생
-    SafeUrlLauncher.launch(videoUrl, context: context);
+    FullScreenVideoPlayer.show(context, videoUrl: videoUrl);
   }
 
   String _formatDuration(int seconds) {

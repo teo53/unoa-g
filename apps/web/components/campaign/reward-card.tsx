@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { RewardTierEnhanced } from '@/lib/types/database'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Check, Users, Package, Truck, AlertCircle, Bell } from 'lucide-react'
+import { Check, Users, Package, Truck, AlertCircle, Bell, BellOff, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 
 interface RewardCardProps {
   tier: RewardTierEnhanced
@@ -19,6 +20,75 @@ export function RewardCard({ tier, onSelect, isSelected, disabled }: RewardCardP
   const isSoldOut = tier.total_quantity !== null && tier.remaining_quantity === 0
   const isLimited = tier.total_quantity !== null && tier.remaining_quantity !== null
   const isClickable = !isSoldOut && !disabled && onSelect
+
+  // Waitlist state
+  const [isOnWaitlist, setIsOnWaitlist] = useState(false)
+  const [waitlistLoading, setWaitlistLoading] = useState(false)
+
+  // Check if user is already on waitlist
+  useEffect(() => {
+    if (!isSoldOut) return
+
+    const checkWaitlist = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('funding_tier_waitlist')
+        .select('id')
+        .eq('tier_id', tier.id)
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .maybeSingle()
+
+      setIsOnWaitlist(!!data)
+    }
+
+    checkWaitlist()
+  }, [isSoldOut, tier.id])
+
+  const handleWaitlistToggle = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setWaitlistLoading(true)
+
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      if (isOnWaitlist) {
+        // Cancel waitlist
+        await supabase
+          .from('funding_tier_waitlist')
+          .update({ is_active: false })
+          .eq('tier_id', tier.id)
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+
+        setIsOnWaitlist(false)
+      } else {
+        // Join waitlist
+        await supabase
+          .from('funding_tier_waitlist')
+          .insert({
+            tier_id: tier.id,
+            campaign_id: tier.campaign_id,
+            user_id: user.id,
+          })
+
+        setIsOnWaitlist(true)
+      }
+    } catch {
+      alert('처리 중 오류가 발생했습니다. 다시 시도해주세요.')
+    } finally {
+      setWaitlistLoading(false)
+    }
+  }, [isOnWaitlist, tier.id, tier.campaign_id])
 
   const getBadgeConfig = () => {
     if (!tier.badge_type) return null
@@ -185,17 +255,23 @@ export function RewardCard({ tier, onSelect, isSelected, disabled }: RewardCardP
         {/* Waitlist Button for Sold Out */}
         {isSoldOut && (
           <Button
-            variant="outline"
+            variant={isOnWaitlist ? 'default' : 'outline'}
             size="sm"
-            className="w-full mt-2"
-            onClick={(e) => {
-              e.stopPropagation()
-              // TODO: Implement waitlist functionality
-              alert('빈자리 알림 신청이 완료되었습니다!')
-            }}
+            className={cn(
+              'w-full mt-2',
+              isOnWaitlist && 'bg-pink-500 hover:bg-pink-600 text-white'
+            )}
+            disabled={waitlistLoading}
+            onClick={handleWaitlistToggle}
           >
-            <Bell className="h-4 w-4 mr-2" />
-            빈자리 알림 받기
+            {waitlistLoading ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : isOnWaitlist ? (
+              <BellOff className="h-4 w-4 mr-2" />
+            ) : (
+              <Bell className="h-4 w-4 mr-2" />
+            )}
+            {isOnWaitlist ? '알림 취소' : '빈자리 알림 받기'}
           </Button>
         )}
       </div>

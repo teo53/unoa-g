@@ -448,30 +448,48 @@ class SupabaseProfileRepository {
   }
 
   /// Setup payout info for creator
+  ///
+  /// Uses server-side RPC to encrypt bank account data before storage.
+  /// The encryption happens inside the DB function (SECURITY DEFINER),
+  /// so the client never handles encryption keys.
   Future<CreatorProfile> setupPayoutInfo({
     required String bankCode,
     required String bankAccountNumber,
     required String accountHolderName,
+    String? bankName,
+    String taxType = 'individual',
   }) async {
-    // In production, encrypt bank account number before storing
-    final last4 = bankAccountNumber.length >= 4
-        ? bankAccountNumber.substring(bankAccountNumber.length - 4)
-        : bankAccountNumber;
+    // Look up bank name if not provided
+    final resolvedBankName = bankName ?? await _lookupBankName(bankCode);
 
+    // Call RPC that encrypts and stores securely
+    await _supabase.rpc('setup_payout_account', params: {
+      'p_bank_code': bankCode,
+      'p_bank_name': resolvedBankName,
+      'p_account_holder_name': accountHolderName,
+      'p_account_number': bankAccountNumber,
+      'p_tax_type': taxType,
+    });
+
+    // Fetch updated creator profile
     final response = await _supabase
         .from('creator_profiles')
-        .update({
-          'bank_code': bankCode,
-          'bank_account_last4': last4,
-          'account_holder_name': accountHolderName,
-          // In production, store encrypted version:
-          // 'bank_account_encrypted': encryptedAccountNumber,
-        })
-        .eq('user_id', _currentUserId)
         .select()
+        .eq('user_id', _currentUserId)
         .single();
 
     return CreatorProfile.fromJson(response);
+  }
+
+  /// Look up bank name from bank_codes table
+  Future<String> _lookupBankName(String bankCode) async {
+    final response = await _supabase
+        .from('bank_codes')
+        .select('name')
+        .eq('code', bankCode)
+        .maybeSingle();
+
+    return (response?['name'] as String?) ?? bankCode;
   }
 
   // ============================================
