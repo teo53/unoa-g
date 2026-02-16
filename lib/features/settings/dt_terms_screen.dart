@@ -63,7 +63,9 @@ class DtTermsScreen extends StatelessWidget {
                 children: [
                   _buildLastUpdated(isDark),
                   const SizedBox(height: 24),
-                  _buildArticle(isDark, '제1조 (목적)',
+                  _buildArticle(
+                      isDark,
+                      '제1조 (목적)',
                       '본 약관은 UNO A(이하 "회사")가 서비스 내에서 제공하는 DT(디지털 이용권)의 '
                           '정의, 구매, 사용, 환불 및 소멸에 관한 사항을 규정함을 목적으로 합니다.'),
                   _buildArticle(isDark, '제2조 (DT의 정의 및 법적 성격)',
@@ -102,8 +104,8 @@ class DtTermsScreen extends StatelessWidget {
 ⑤ 환불은 요청일로부터 3영업일 이내에 처리되며, 원결제 수단으로 환급됩니다.
 
 ⑥ 회사가 환불 기한을 초과하는 경우, 대통령령이 정하는 지연이자율에 따른 지연배상금을 지급합니다.'''),
-                  _buildArticle(isDark, '제6조 (유효기간 및 소멸)',
-                      '''① DT의 유효기간은 구매일로부터 5년입니다.
+                  _buildArticle(
+                      isDark, '제6조 (유효기간 및 소멸)', '''① DT의 유효기간은 구매일로부터 5년입니다.
 
 ② 유효기간 만료 60일 전 앱 내 알림을 통해 안내됩니다.
 

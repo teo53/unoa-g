@@ -513,8 +513,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     );
   }
 
-  void _showDeleteConfirmation(
-      BuildContext context, GroupChatMessage message) {
+  void _showDeleteConfirmation(BuildContext context, GroupChatMessage message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

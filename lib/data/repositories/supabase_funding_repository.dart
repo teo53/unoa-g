@@ -368,10 +368,8 @@ class SupabaseFundingRepository {
   // Prelaunch Signups
   // ============================================
 
-  static const String _prelaunchSignupUserConflictKey =
-      'campaign_id,user_id';
-  static const String _prelaunchSignupEmailConflictKey =
-      'campaign_id,email';
+  static const String _prelaunchSignupUserConflictKey = 'campaign_id,user_id';
+  static const String _prelaunchSignupEmailConflictKey = 'campaign_id,email';
 
   @visibleForTesting
   static String prelaunchSignupConflictKeyFor({
@@ -424,10 +422,10 @@ class SupabaseFundingRepository {
     );
 
     await _client.from('funding_prelaunch_signups').upsert(
-      payload,
-      onConflict: conflictKey,
-      ignoreDuplicates: true,
-    );
+          payload,
+          onConflict: conflictKey,
+          ignoreDuplicates: true,
+        );
   }
 
   /// Check if user is signed up for prelaunch

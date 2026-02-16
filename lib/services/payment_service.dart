@@ -75,7 +75,8 @@ class PortOnePaymentService implements IPaymentService {
     // The checkout is initiated server-side via payment-checkout Edge Function,
     // and the webhook handles completion notification.
 
-    AppLogger.info('PortOne payment requested: ${request.merchantUid}, amount: ${request.amount}');
+    AppLogger.info(
+        'PortOne payment requested: ${request.merchantUid}, amount: ${request.amount}');
 
     // Return the merchant UID as payment ID for server-side flow
     // The actual payment verification happens via webhook

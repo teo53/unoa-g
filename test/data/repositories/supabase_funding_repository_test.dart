@@ -4,7 +4,8 @@ import 'package:uno_a_flutter/data/repositories/supabase_funding_repository.dart
 void main() {
   group('SupabaseFundingRepository prelaunch signup', () {
     test('authenticated signup uses campaign_id,user_id conflict key', () {
-      final conflictKey = SupabaseFundingRepository.prelaunchSignupConflictKeyFor(
+      final conflictKey =
+          SupabaseFundingRepository.prelaunchSignupConflictKeyFor(
         userId: 'user-1',
         email: 'fan@example.com',
       );
@@ -13,7 +14,8 @@ void main() {
     });
 
     test('anonymous signup uses campaign_id,email conflict key', () {
-      final conflictKey = SupabaseFundingRepository.prelaunchSignupConflictKeyFor(
+      final conflictKey =
+          SupabaseFundingRepository.prelaunchSignupConflictKeyFor(
         userId: null,
         email: 'fan@example.com',
       );
@@ -35,17 +37,20 @@ void main() {
     });
 
     test('duplicate signup scenario keeps same idempotent identity keys', () {
-      final firstPayload = SupabaseFundingRepository.buildPrelaunchSignupPayload(
+      final firstPayload =
+          SupabaseFundingRepository.buildPrelaunchSignupPayload(
         campaignId: 'campaign-1',
         userId: 'user-1',
         email: 'fan@example.com',
       );
-      final secondPayload = SupabaseFundingRepository.buildPrelaunchSignupPayload(
+      final secondPayload =
+          SupabaseFundingRepository.buildPrelaunchSignupPayload(
         campaignId: 'campaign-1',
         userId: 'user-1',
         email: 'fan@example.com',
       );
-      final conflictKey = SupabaseFundingRepository.prelaunchSignupConflictKeyFor(
+      final conflictKey =
+          SupabaseFundingRepository.prelaunchSignupConflictKeyFor(
         userId: 'user-1',
         email: 'fan@example.com',
       );

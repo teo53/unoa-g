@@ -466,6 +466,4 @@ class _CreatorContentScreenState extends ConsumerState<CreatorContentScreen> {
       ref.read(authProvider.notifier).updateDemoProfile(avatarUrl: image.path);
     }
   }
-
 }
-

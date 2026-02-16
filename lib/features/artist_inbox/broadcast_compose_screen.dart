@@ -23,10 +23,12 @@ class BroadcastComposeScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<BroadcastComposeScreen> createState() => _BroadcastComposeScreenState();
+  ConsumerState<BroadcastComposeScreen> createState() =>
+      _BroadcastComposeScreenState();
 }
 
-class _BroadcastComposeScreenState extends ConsumerState<BroadcastComposeScreen> {
+class _BroadcastComposeScreenState
+    extends ConsumerState<BroadcastComposeScreen> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final ImagePicker _imagePicker = ImagePicker();
@@ -62,11 +64,11 @@ class _BroadcastComposeScreenState extends ConsumerState<BroadcastComposeScreen>
 
     try {
       await ref.read(artistInboxRepositoryProvider).sendBroadcast(
-        widget.channelId ?? DemoConfig.demoChannelId,
-        _controller.text.trim(),
-        messageType: _messageType,
-        mediaUrl: _mediaUrl,
-      );
+            widget.channelId ?? DemoConfig.demoChannelId,
+            _controller.text.trim(),
+            messageType: _messageType,
+            mediaUrl: _mediaUrl,
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -343,11 +345,11 @@ class _BroadcastComposeScreenState extends ConsumerState<BroadcastComposeScreen>
 
     try {
       await ref.read(artistInboxRepositoryProvider).sendBroadcast(
-        widget.channelId ?? DemoConfig.demoChannelId,
-        caption ?? '',
-        messageType: msgType,
-        mediaUrl: mediaPath,
-      );
+            widget.channelId ?? DemoConfig.demoChannelId,
+            caption ?? '',
+            messageType: msgType,
+            mediaUrl: mediaPath,
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

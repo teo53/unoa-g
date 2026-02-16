@@ -185,8 +185,8 @@ class _CreatorAnalyticsScreenState
         .from('messages')
         .select('id, delivery_scope')
         .eq('channel_id', channelId)
-        .inFilter('delivery_scope', ['direct_reply', 'donation_message'])
-        .isFilter('deleted_at', null);
+        .inFilter('delivery_scope',
+            ['direct_reply', 'donation_message']).isFilter('deleted_at', null);
 
     final fanList = fanMessages as List;
     final totalMessages = fanList.length;
@@ -198,8 +198,8 @@ class _CreatorAnalyticsScreenState
         .from('messages')
         .select('id')
         .eq('channel_id', channelId)
-        .inFilter('delivery_scope', ['broadcast', 'donation_reply'])
-        .isFilter('deleted_at', null);
+        .inFilter('delivery_scope', ['broadcast', 'donation_reply']).isFilter(
+            'deleted_at', null);
 
     final creatorCount = (creatorMessages as List).length;
     final responseRate =
@@ -361,10 +361,12 @@ class _CreatorAnalyticsScreenState
                 Row(
                   children: [
                     Expanded(
-                        child: SkeletonLoader.card(width: double.infinity, height: 120)),
+                        child: SkeletonLoader.card(
+                            width: double.infinity, height: 120)),
                     const SizedBox(width: 16),
                     Expanded(
-                        child: SkeletonLoader.card(width: double.infinity, height: 120)),
+                        child: SkeletonLoader.card(
+                            width: double.infinity, height: 120)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -393,15 +395,17 @@ class _CreatorAnalyticsScreenState
                   Icon(
                     Icons.error_outline,
                     size: 48,
-                    color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+                    color:
+                        isDark ? AppColors.textMutedDark : AppColors.textMuted,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     _error ?? '오류가 발생했습니다',
                     style: TextStyle(
                       fontSize: 14,
-                      color:
-                          isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
                     ),
                   ),
                   const SizedBox(height: 16),

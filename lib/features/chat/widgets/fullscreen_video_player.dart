@@ -127,8 +127,7 @@ class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
             right: 0,
             child: SafeArea(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Row(
                   children: [
                     IconButton(

@@ -25,7 +25,6 @@ class ArtistInboxScreen extends ConsumerStatefulWidget {
 }
 
 class _ArtistInboxScreenState extends ConsumerState<ArtistInboxScreen> {
-
   String _filterType = 'all';
   List<BroadcastMessage> _messages = [];
   bool _isLoading = true;
@@ -40,10 +39,11 @@ class _ArtistInboxScreenState extends ConsumerState<ArtistInboxScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final messages = await ref.read(artistInboxRepositoryProvider).getFanMessages(
-        widget.channelId,
-        filterType: _filterType,
-      );
+      final messages =
+          await ref.read(artistInboxRepositoryProvider).getFanMessages(
+                widget.channelId,
+                filterType: _filterType,
+              );
       setState(() {
         _messages = messages;
         _isLoading = false;
@@ -184,7 +184,9 @@ class _ArtistInboxScreenState extends ConsumerState<ArtistInboxScreen> {
               context.push('/artist/inbox/${message.senderId}');
             },
             onHighlightTap: () async {
-              await ref.read(artistInboxRepositoryProvider).toggleHighlight(message.id);
+              await ref
+                  .read(artistInboxRepositoryProvider)
+                  .toggleHighlight(message.id);
               _loadMessages();
             },
             onReplyTap: message.deliveryScope == DeliveryScope.donationMessage
@@ -341,11 +343,13 @@ class _ArtistInboxScreenState extends ConsumerState<ArtistInboxScreen> {
                       if (content.isEmpty) return;
 
                       try {
-                        await ref.read(artistInboxRepositoryProvider).replyToDonation(
-                          widget.channelId,
-                          message.id,
-                          content,
-                        );
+                        await ref
+                            .read(artistInboxRepositoryProvider)
+                            .replyToDonation(
+                              widget.channelId,
+                              message.id,
+                              content,
+                            );
                         if (context.mounted) {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(

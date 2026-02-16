@@ -91,7 +91,8 @@ void main() {
       });
       test('commission + payout equals 100%', () {
         expect(
-          BusinessConfig.platformCommissionPercent + BusinessConfig.creatorPayoutPercent,
+          BusinessConfig.platformCommissionPercent +
+              BusinessConfig.creatorPayoutPercent,
           100.0,
         );
       });

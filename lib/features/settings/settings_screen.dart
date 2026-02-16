@@ -27,7 +27,8 @@ Future<void> _persistConsentChange(
   String consentType,
   bool newValue,
 ) async {
-  final dbConsentType = _consentTypeMapping[consentType] ?? consentType.toLowerCase().replaceAll(' ', '_');
+  final dbConsentType = _consentTypeMapping[consentType] ??
+      consentType.toLowerCase().replaceAll(' ', '_');
 
   try {
     final supabase = Supabase.instance.client;

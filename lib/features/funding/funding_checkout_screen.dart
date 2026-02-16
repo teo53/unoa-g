@@ -25,7 +25,8 @@ class FundingCheckoutScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<FundingCheckoutScreen> createState() => _FundingCheckoutScreenState();
+  ConsumerState<FundingCheckoutScreen> createState() =>
+      _FundingCheckoutScreenState();
 }
 
 class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {

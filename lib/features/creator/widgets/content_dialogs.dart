@@ -40,8 +40,7 @@ void showProfileEditDialog(
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color:
-                  isDark ? AppColors.textMainDark : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
           const SizedBox(height: 20),
@@ -88,8 +87,8 @@ void showProfileEditDialog(
               ),
               child: const Text(
                 '저장',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -126,9 +125,8 @@ void showThemeColorDialog(
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.textMainDark
-                      : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const SizedBox(height: 8),
@@ -161,8 +159,7 @@ void showThemeColorDialog(
                             color: ArtistThemeColors.presets[i],
                             border: isSelected
                                 ? Border.all(
-                                    color:
-                                        isDark ? Colors.white : Colors.black,
+                                    color: isDark ? Colors.white : Colors.black,
                                     width: 3)
                                 : null,
                           ),
@@ -176,9 +173,8 @@ void showThemeColorDialog(
                           ArtistThemeColors.names[i],
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w400,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w400,
                             color: isSelected
                                 ? ArtistThemeColors.presets[i]
                                 : (isDark
@@ -291,17 +287,14 @@ void showHighlightEditDialog(
                       ),
                       subtitle: Text(
                         h.hasRing ? '링 활성' : '링 비활성',
-                        style:
-                            TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
                             icon: Icon(
-                              h.hasRing
-                                  ? Icons.circle
-                                  : Icons.circle_outlined,
+                              h.hasRing ? Icons.circle : Icons.circle_outlined,
                               color: h.hasRing ? themeColor : Colors.grey,
                               size: 20,
                             ),
@@ -415,9 +408,7 @@ void showAddHighlightDialog(
                       border: Border.all(
                         color: isSelected
                             ? themeColor
-                            : (isDark
-                                ? Colors.grey[600]!
-                                : Colors.grey[300]!),
+                            : (isDark ? Colors.grey[600]! : Colors.grey[300]!),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -438,8 +429,7 @@ void showAddHighlightDialog(
               child: ElevatedButton(
                 onPressed: () {
                   if (labelController.text.isNotEmpty) {
-                    final id =
-                        DateTime.now().millisecondsSinceEpoch.toString();
+                    final id = DateTime.now().millisecondsSinceEpoch.toString();
                     onAdd(
                       CreatorHighlight(
                         id: id,
@@ -491,8 +481,7 @@ void showFancamManageSheet(
       title: '직캠 관리',
       items: fancams,
       itemTitle: (f) => f.title,
-      itemSubtitle: (f) =>
-          f.isPinned ? '\u{1F4CC} 고정됨' : f.formattedViewCount,
+      itemSubtitle: (f) => f.isPinned ? '\u{1F4CC} 고정됨' : f.formattedViewCount,
       onEdit: (f) {
         Navigator.pop(context);
         showFancamEditDialog(context, isDark, fancam: f, onSave: (updated) {

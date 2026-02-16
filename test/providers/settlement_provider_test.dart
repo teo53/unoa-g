@@ -6,20 +6,24 @@ void main() {
     group('commission calculation', () {
       test('20% platform fee on 100,000 KRW', () {
         const grossKrw = 100000;
-        final platformFee = (grossKrw * BusinessConfig.platformCommissionPercent / 100).round();
+        final platformFee =
+            (grossKrw * BusinessConfig.platformCommissionPercent / 100).round();
         expect(platformFee, 20000);
       });
 
       test('creator receives 80% of gross', () {
         const grossKrw = 100000;
-        final creatorShare = (grossKrw * BusinessConfig.creatorPayoutPercent / 100).round();
+        final creatorShare =
+            (grossKrw * BusinessConfig.creatorPayoutPercent / 100).round();
         expect(creatorShare, 80000);
       });
 
       test('platform fee + creator share equals gross', () {
         const grossKrw = 123456;
-        final platformFee = (grossKrw * BusinessConfig.platformCommissionPercent / 100).round();
-        final creatorShare = (grossKrw * BusinessConfig.creatorPayoutPercent / 100).round();
+        final platformFee =
+            (grossKrw * BusinessConfig.platformCommissionPercent / 100).round();
+        final creatorShare =
+            (grossKrw * BusinessConfig.creatorPayoutPercent / 100).round();
         expect(platformFee + creatorShare, grossKrw);
       });
     });
@@ -34,7 +38,8 @@ void main() {
 
       test('net payout after tax', () {
         const grossKrw = 100000;
-        final creatorShare = (grossKrw * BusinessConfig.creatorPayoutPercent / 100).round();
+        final creatorShare =
+            (grossKrw * BusinessConfig.creatorPayoutPercent / 100).round();
         const withholdingRate = 0.033;
         final tax = (creatorShare * withholdingRate).round();
         final netPayout = creatorShare - tax;
