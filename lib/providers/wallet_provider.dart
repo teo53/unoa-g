@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../core/config/demo_config.dart';
-import '../core/config/business_config.dart';
 import 'auth_provider.dart';
 
 /// Wallet data model
