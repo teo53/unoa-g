@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import '../core/config/demo_config.dart';
 import '../core/config/business_config.dart';
 import 'auth_provider.dart';
@@ -655,7 +656,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
-  /// Send a DT donation to a creator
+  /// Pending donation idempotency key (generated per UI action, kept for retry)
+  String? _pendingDonationKey;
+
+  /// Send a DT donation to a creator (atomic RPC)
   Future<Map<String, dynamic>?> sendDonation({
     required String channelId,
     required String creatorId,
@@ -677,56 +681,28 @@ class WalletNotifier extends StateNotifier<WalletState> {
       final user = _ref.read(currentUserProvider);
       if (user == null) throw Exception('User not authenticated');
 
-      final wallet = currentState.wallet;
+      // Generate idempotency key per UI action; reuse on retry
+      _pendingDonationKey ??= 'donation:${const Uuid().v4()}';
 
-      // Calculate creator share and platform fee from BusinessConfig
-      final creatorShare =
-          (amountDt * BusinessConfig.creatorPayoutPercent / 100).floor();
-      final platformFee = amountDt - creatorShare;
-
-      final idempotencyKey =
-          'donation:${wallet.id}:$channelId:${DateTime.now().millisecondsSinceEpoch}';
-
-      // Create donation record
-      final donation = await client
-          .from('dt_donations')
-          .insert({
-            'from_user_id': user.id,
-            'to_channel_id': channelId,
-            'to_creator_id': creatorId,
-            'amount_dt': amountDt,
-            'message_id': messageId,
-            'is_anonymous': isAnonymous,
-            'creator_share_dt': creatorShare,
-            'platform_fee_dt': platformFee,
-          })
-          .select()
-          .single();
-
-      // Create ledger entry
-      await client.from('ledger_entries').insert({
-        'idempotency_key': idempotencyKey,
-        'from_wallet_id': wallet.id,
-        'amount_dt': amountDt,
-        'entry_type': 'tip',
-        'reference_type': 'donation',
-        'reference_id': donation['id'],
-        'description': '후원: $amountDt DT',
-        'status': 'completed',
+      // Call atomic RPC (auth.uid() extracted internally by RPC)
+      final result = await client.rpc('process_donation_atomic', params: {
+        'p_channel_id': channelId,
+        'p_creator_id': creatorId,
+        'p_amount_dt': amountDt,
+        'p_idempotency_key': _pendingDonationKey,
+        'p_message_id': messageId,
+        'p_is_anonymous': isAnonymous,
       });
 
-      // Update wallet balance
-      await client.from('wallets').update({
-        'balance_dt': wallet.balanceDt - amountDt,
-        'lifetime_spent_dt': wallet.lifetimeSpentDt + amountDt,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', wallet.id);
+      // Clear idempotency key on success
+      _pendingDonationKey = null;
 
-      // Reload wallet
+      // Reload wallet to reflect new balance
       await loadWallet();
 
-      return donation;
+      return result as Map<String, dynamic>?;
     } catch (e) {
+      // Keep _pendingDonationKey for retry with same key
       rethrow;
     }
   }
