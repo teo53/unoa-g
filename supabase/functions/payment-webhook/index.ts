@@ -540,7 +540,7 @@ serve(async (req) => {
     }
 
     const totalDt = purchase.dt_amount + (purchase.bonus_dt || 0)
-    const idempotencyKey = `purchase:${orderId}`
+    const idempotencyKey = `toss:${orderId}`
 
     // Execute atomic transaction via stored procedure
     const { data: txResult, error: txError } = await supabase.rpc('process_payment_atomic', {
