@@ -35,7 +35,7 @@ export function RewardCard({ tier, onSelect, isSelected, disabled }: RewardCardP
       if (!user) return
 
       const { data } = await supabase
-        .from('funding_tier_waitlist')
+        .from('funding_tier_waitlist' as any)
         .select('id')
         .eq('tier_id', tier.id)
         .eq('user_id', user.id)
@@ -63,8 +63,8 @@ export function RewardCard({ tier, onSelect, isSelected, disabled }: RewardCardP
 
       if (isOnWaitlist) {
         // Cancel waitlist
-        await supabase
-          .from('funding_tier_waitlist')
+        await (supabase
+          .from('funding_tier_waitlist' as any) as any)
           .update({ is_active: false })
           .eq('tier_id', tier.id)
           .eq('user_id', user.id)
@@ -73,8 +73,8 @@ export function RewardCard({ tier, onSelect, isSelected, disabled }: RewardCardP
         setIsOnWaitlist(false)
       } else {
         // Join waitlist
-        await supabase
-          .from('funding_tier_waitlist')
+        await (supabase
+          .from('funding_tier_waitlist' as any) as any)
           .insert({
             tier_id: tier.id,
             campaign_id: tier.campaign_id,
@@ -255,7 +255,7 @@ export function RewardCard({ tier, onSelect, isSelected, disabled }: RewardCardP
         {/* Waitlist Button for Sold Out */}
         {isSoldOut && (
           <Button
-            variant={isOnWaitlist ? 'default' : 'outline'}
+            variant={isOnWaitlist ? 'secondary' : 'outline'}
             size="sm"
             className={cn(
               'w-full mt-2',
