@@ -1,8 +1,8 @@
 import { ScrollText, User } from 'lucide-react'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencyAuditLog } from '@/lib/mock/demo-agency-data'
 import { formatDateTime } from '@/lib/utils/format'
 import type { AgencyAuditEntry } from '@/lib/agency/agency-types'
+import { listAgencyAuditLog } from '@/lib/agency/agency-client'
 
 const ACTION_LABELS: Record<string, string> = {
   'creator.add': '크리에이터 등록',
@@ -24,10 +24,7 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 async function getAuditLog(): Promise<AgencyAuditEntry[]> {
-  if (DEMO_MODE) {
-    return mockAgencyAuditLog
-  }
-  return mockAgencyAuditLog
+  return listAgencyAuditLog()
 }
 
 export default async function AgencyAuditPage() {

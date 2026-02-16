@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { Wallet, Download, Clock, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencySettlements } from '@/lib/mock/demo-agency-data'
 import { formatKRW, formatDate } from '@/lib/utils/format'
 import type { AgencySettlement, SettlementStatus } from '@/lib/agency/agency-types'
+import { listAgencySettlements } from '@/lib/agency/agency-client'
 
 const STATUS_CONFIG: Record<SettlementStatus, { label: string; className: string }> = {
   draft: { label: '초안', className: 'bg-gray-100 text-gray-600' },
@@ -16,11 +16,7 @@ const STATUS_CONFIG: Record<SettlementStatus, { label: string; className: string
 }
 
 async function getSettlements(): Promise<AgencySettlement[]> {
-  if (DEMO_MODE) {
-    return mockAgencySettlements
-  }
-  // TODO: Call agency-manage Edge Function with action: settlement.list
-  return mockAgencySettlements
+  return listAgencySettlements()
 }
 
 export default async function AgencySettlementsPage() {

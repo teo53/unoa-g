@@ -1,10 +1,11 @@
 import { BarChart3, TrendingUp, Users } from 'lucide-react'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencyCreators, mockAgencySettlements } from '@/lib/mock/demo-agency-data'
+import { mockAgencySettlements } from '@/lib/mock/demo-agency-data'
 import { formatKRW } from '@/lib/utils/format'
+import { listAgencyCreators } from '@/lib/agency/agency-client'
 
 export default async function AgencyStatisticsPage() {
-  const creators = mockAgencyCreators.filter(c => c.status === 'active')
+  const creators = (await listAgencyCreators()).filter(c => c.status === 'active')
   const totalGross = mockAgencySettlements.reduce((sum, s) => sum + s.total_gross_krw, 0)
   const totalCommission = mockAgencySettlements.reduce((sum, s) => sum + s.agency_commission_krw, 0)
 

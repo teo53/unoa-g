@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Users, UserPlus, Search, Filter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencyCreators } from '@/lib/mock/demo-agency-data'
+import { listAgencyCreators } from '@/lib/agency/agency-client'
 import { formatDate } from '@/lib/utils/format'
 import type { AgencyCreator, ContractStatus } from '@/lib/agency/agency-types'
 
@@ -14,11 +14,7 @@ const STATUS_CONFIG: Record<ContractStatus, { label: string; className: string }
 }
 
 async function getCreators(): Promise<AgencyCreator[]> {
-  if (DEMO_MODE) {
-    return mockAgencyCreators
-  }
-  // TODO: Call agency-manage Edge Function with action: creator.list
-  return mockAgencyCreators
+  return listAgencyCreators()
 }
 
 export default async function AgencyCreatorsPage() {

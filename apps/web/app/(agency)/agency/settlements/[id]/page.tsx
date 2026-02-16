@@ -2,9 +2,10 @@ import Link from 'next/link'
 import { ArrowLeft, Download, Users, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencySettlements, getMockAgencySettlementIds } from '@/lib/mock/demo-agency-data'
+import { getMockAgencySettlementIds } from '@/lib/mock/demo-agency-data'
 import { formatKRW, formatDate } from '@/lib/utils/format'
 import type { AgencySettlement, SettlementStatus } from '@/lib/agency/agency-types'
+import { getAgencySettlement } from '@/lib/agency/agency-client'
 
 const STATUS_CONFIG: Record<SettlementStatus, { label: string; className: string }> = {
   draft: { label: '초안', className: 'bg-gray-100 text-gray-600' },
@@ -20,11 +21,7 @@ export async function generateStaticParams() {
 }
 
 async function getSettlement(id: string): Promise<AgencySettlement | null> {
-  if (DEMO_MODE) {
-    return mockAgencySettlements.find(s => s.id === id) || null
-  }
-  // TODO: Call agency-manage Edge Function with action: settlement.get
-  return mockAgencySettlements.find(s => s.id === id) || null
+  return getAgencySettlement(id)
 }
 
 export default async function SettlementDetailPage({ params }: { params: Promise<{ id: string }> }) {

@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, UserPlus, Shield, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencyStaff } from '@/lib/mock/demo-agency-data'
-import type { AgencyStaffRole } from '@/lib/agency/agency-types'
+import type { AgencyStaffRole, AgencyStaff } from '@/lib/agency/agency-types'
+import { listAgencyStaff, inviteStaffMember } from '@/lib/agency/agency-client'
 
 const ROLE_LABELS: Record<AgencyStaffRole, { label: string; description: string; className: string }> = {
   admin: { label: '관리자', description: '모든 권한', className: 'bg-red-100 text-red-700' },
@@ -16,10 +16,26 @@ const ROLE_LABELS: Record<AgencyStaffRole, { label: string; description: string;
 }
 
 export default function StaffManagementPage() {
-  const [staff] = useState(mockAgencyStaff)
+  const [staff, setStaff] = useState<AgencyStaff[]>([])
   const [showInvite, setShowInvite] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<AgencyStaffRole>('viewer')
+
+  useEffect(() => {
+    listAgencyStaff().then(setStaff)
+  }, [])
+
+  async function handleInvite() {
+    if (!inviteEmail) return
+    try {
+      const newStaff = await inviteStaffMember(inviteEmail, inviteRole)
+      setStaff([...staff, newStaff])
+      setInviteEmail('')
+      setShowInvite(false)
+    } catch (error) {
+      console.error('Failed to invite staff:', error)
+    }
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -74,7 +90,7 @@ export default function StaffManagementPage() {
                 <option value="admin">관리자</option>
               </select>
             </div>
-            <Button>
+            <Button onClick={handleInvite}>
               <Mail className="w-4 h-4 mr-2" />
               초대
             </Button>

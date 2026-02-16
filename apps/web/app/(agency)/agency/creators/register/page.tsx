@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Search, Check, Upload, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { mockCreators, DEMO_MODE } from '@/lib/mock/demo-data'
+import { registerCreator } from '@/lib/agency/agency-client'
 
 interface SearchResult {
   id: string
@@ -60,10 +61,21 @@ export default function CreatorRegisterPage() {
   async function handleSubmit() {
     if (!selectedCreator) return
     setIsSubmitting(true)
-    await new Promise(r => setTimeout(r, 1000))
-    // TODO: Call agency-manage Edge Function with action: creator.add
-    setIsSubmitting(false)
-    setSubmitted(true)
+    try {
+      await registerCreator({
+        creator_profile_id: selectedCreator.id,
+        contract_start_date: contractStart,
+        contract_end_date: isIndefinite ? null : contractEnd || null,
+        revenue_share_rate: Number(revenueShareRate) / 100,
+        settlement_period: settlementPeriod as 'weekly' | 'biweekly' | 'monthly',
+        notes: notes || null,
+      })
+      setSubmitted(true)
+    } catch (error) {
+      console.error('Failed to register creator:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (submitted) {

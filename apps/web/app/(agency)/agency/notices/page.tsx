@@ -1,15 +1,11 @@
 import { Megaphone, Pin } from 'lucide-react'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencyNotices } from '@/lib/mock/demo-agency-data'
 import { formatRelativeTime } from '@/lib/utils/format'
 import type { AgencyNotice } from '@/lib/agency/agency-types'
+import { listAgencyNotices } from '@/lib/agency/agency-client'
 
 async function getNotices(): Promise<AgencyNotice[]> {
-  if (DEMO_MODE) {
-    return mockAgencyNotices
-  }
-  // TODO: Call agency-manage Edge Function with action: notice.list
-  return mockAgencyNotices
+  return listAgencyNotices()
 }
 
 export default async function AgencyNoticesPage() {

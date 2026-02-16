@@ -12,33 +12,15 @@ import {
 import Link from 'next/link'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
 import {
-  mockAgencyDashboard,
-  mockAgencySettlements,
-  mockAgencyCreators,
-} from '@/lib/mock/demo-agency-data'
+  getAgencyDashboard,
+  getRecentCreators,
+  getRecentSettlements,
+} from '@/lib/agency/agency-client'
 import { formatKRW, formatDate } from '@/lib/utils/format'
 import type { AgencyDashboardSummary, AgencyCreator, AgencySettlement } from '@/lib/agency/agency-types'
 
 async function getDashboardData(): Promise<AgencyDashboardSummary> {
-  if (DEMO_MODE) {
-    return mockAgencyDashboard
-  }
-  // TODO: Call agency-manage Edge Function with action: dashboard.summary
-  return mockAgencyDashboard
-}
-
-async function getRecentCreators(): Promise<AgencyCreator[]> {
-  if (DEMO_MODE) {
-    return mockAgencyCreators
-  }
-  return mockAgencyCreators
-}
-
-async function getRecentSettlements(): Promise<AgencySettlement[]> {
-  if (DEMO_MODE) {
-    return mockAgencySettlements
-  }
-  return mockAgencySettlements
+  return getAgencyDashboard()
 }
 
 const STATUS_BADGES: Record<string, { label: string; className: string }> = {

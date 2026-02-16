@@ -2,9 +2,10 @@ import Link from 'next/link'
 import { ArrowLeft, Users, Calendar, Percent, FileText, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
-import { mockAgencyCreators, mockAgencySettlements, getMockAgencyCreatorIds } from '@/lib/mock/demo-agency-data'
+import { getMockAgencyCreatorIds, mockAgencySettlements } from '@/lib/mock/demo-agency-data'
 import { formatDate, formatKRW } from '@/lib/utils/format'
 import type { AgencyCreator, ContractStatus } from '@/lib/agency/agency-types'
+import { getAgencyCreator } from '@/lib/agency/agency-client'
 
 const STATUS_CONFIG: Record<ContractStatus, { label: string; className: string }> = {
   active: { label: '활성', className: 'bg-green-100 text-green-700' },
@@ -18,10 +19,7 @@ export async function generateStaticParams() {
 }
 
 async function getCreator(id: string): Promise<AgencyCreator | null> {
-  if (DEMO_MODE) {
-    return mockAgencyCreators.find(c => c.id === id) || null
-  }
-  return mockAgencyCreators.find(c => c.id === id) || null
+  return getAgencyCreator(id)
 }
 
 export default async function CreatorDetailPage({ params }: { params: Promise<{ id: string }> }) {
