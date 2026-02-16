@@ -10,6 +10,7 @@ const PRODUCTION_ORIGINS = [
   'https://www.unoa.app',
   'https://studio.unoa.app',
   'https://admin.unoa.app',
+  'https://agency.unoa.app',
   'https://unoa-app-demo.web.app',
   'https://unoa-app-demo.firebaseapp.com',
 ];

@@ -3,6 +3,7 @@
 /// This file exports all Riverpod providers used in the application.
 library;
 
+export 'agency_provider.dart';
 export 'auth_provider.dart';
 export 'theme_provider.dart';
 export 'wallet_provider.dart';

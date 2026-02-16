@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/accessibility_helper.dart';
+import '../../providers/agency_provider.dart';
 import '../../providers/settlement_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
@@ -15,6 +16,8 @@ class SettlementHistoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(settlementProvider);
+    final agencyState = ref.watch(agencyProvider);
+    final agencyRate = agencyState.activeContract?.revenueShareRate ?? 0.0;
 
     return AppScaffold(
       showStatusBar: true,
@@ -116,7 +119,7 @@ class SettlementHistoryScreen extends ConsumerWidget {
                     ...state.settlements.map(
                       (s) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildSettlementCard(isDark, s),
+                        child: _buildSettlementCard(isDark, s, agencyRate),
                       ),
                     ),
                 ],
@@ -227,7 +230,13 @@ class SettlementHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettlementCard(bool isDark, Settlement settlement) {
+  Widget _buildSettlementCard(
+      bool isDark, Settlement settlement, double agencyRate) {
+    // Calculate agency commission from net payout (after platform fee)
+    final netAfterPlatform =
+        settlement.totalRevenueKrw - settlement.platformFeeKrw;
+    final agencyCommissionKrw =
+        agencyRate > 0 ? (netAfterPlatform * agencyRate).floor() : 0;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -309,6 +318,14 @@ class SettlementHistoryScreen extends ConsumerWidget {
               isDark,
               '플랫폼 수수료 (${settlement.platformFeeRate.toStringAsFixed(0)}%)',
               -settlement.platformFeeKrw),
+          if (agencyCommissionKrw > 0) ...[
+            const SizedBox(height: 4),
+            _buildBreakdownRow(
+                isDark,
+                '소속사 수수료 (${(agencyRate * 100).toStringAsFixed(0)}%)',
+                -agencyCommissionKrw,
+                color: Colors.indigo),
+          ],
           const SizedBox(height: 4),
           _buildBreakdownRow(
               isDark,

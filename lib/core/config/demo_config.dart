@@ -57,6 +57,28 @@ class DemoConfig {
   static const String demoAdminBio = '데모 모드 관리자 계정입니다.';
 
   // ============================================================
+  // Demo Agency Data
+  // ============================================================
+
+  /// Demo agency ID
+  static const String demoAgencyId = 'demo_agency_001';
+
+  /// Demo agency name
+  static const String demoAgencyName = '스타빛엔터테인먼트';
+
+  /// Demo agency contract ID
+  static const String demoAgencyContractId = 'demo_contract_001';
+
+  /// Demo agency staff ID
+  static const String demoAgencyStaffId = 'demo_agency_staff_001';
+
+  /// Demo agency staff name
+  static const String demoAgencyStaffName = '김운영';
+
+  /// Demo agency commission rate (10%)
+  static const double demoAgencyCommissionRate = 0.10;
+
+  // ============================================================
   // Demo Wallet Values
   // ============================================================
 

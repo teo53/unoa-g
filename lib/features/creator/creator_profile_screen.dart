@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/utils/safe_url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/agency_provider.dart';
+import 'widgets/agency_info_card.dart';
 
 // 웹 링크 URL 상수
 const String _termsOfServiceUrl = 'https://unoa.app/terms';
@@ -68,6 +70,9 @@ class CreatorProfileScreen extends ConsumerWidget {
                 ),
 
                 const SizedBox(height: 16),
+
+                // Agency Info Section (소속사 정보)
+                _AgencySection(),
 
                 // Creator Management Section
                 if (!isDemoMode) ...[
@@ -547,6 +552,69 @@ class _MenuItem {
     required this.onTap,
     this.isExternalLink = false,
   });
+}
+
+/// Agency information section — shown when creator has an active agency contract.
+class _AgencySection extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final agencyState = ref.watch(agencyProvider);
+
+    if (agencyState.isLoading) return const SizedBox.shrink();
+
+    final widgets = <Widget>[];
+
+    // Show pending invitations
+    for (final invitation in agencyState.pendingInvitations) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: AgencyInvitationCard(
+            invitation: invitation,
+            onAccept: () => ref
+                .read(agencyProvider.notifier)
+                .acceptInvitation(invitation.contractId),
+            onReject: () => ref
+                .read(agencyProvider.notifier)
+                .rejectInvitation(invitation.contractId),
+          ),
+        ),
+      );
+    }
+
+    // Show active contract
+    if (agencyState.activeContract != null) {
+      widgets.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                '소속사 정보',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.textSubDark
+                      : AppColors.textSubLight,
+                ),
+              ),
+            ),
+            AgencyInfoCard(contract: agencyState.activeContract!),
+            const SizedBox(height: 16),
+          ],
+        ),
+      );
+    }
+
+    if (widgets.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets,
+    );
+  }
 }
 
 /// Tappable profile area that navigates to profile edit screen
