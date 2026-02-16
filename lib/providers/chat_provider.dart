@@ -756,6 +756,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   /// React to a message with an emoji
   Future<bool> reactToMessage(String messageId, String emoji) async {
     final userId = _ref.read(currentUserProvider)?.id ?? 'demo_user';
+    final authState = _ref.read(authProvider);
 
     final message = state.messages.cast<BroadcastMessage?>().firstWhere(
           (m) => m?.id == messageId,
@@ -767,7 +768,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       message.reactions?.map((k, v) => MapEntry(k, List<String>.from(v))) ?? {},
     );
 
-    // Toggle reaction
+    // Toggle reaction locally (optimistic)
     if (reactions[emoji]?.contains(userId) == true) {
       reactions[emoji]!.remove(userId);
       if (reactions[emoji]!.isEmpty) reactions.remove(emoji);
@@ -781,6 +782,22 @@ class ChatNotifier extends StateNotifier<ChatState> {
         (m) => m.copyWith(
               reactions: reactions,
             ));
+
+    // Call RPC in production mode
+    if (authState is! AuthDemoMode) {
+      try {
+        final client = _ref.read(supabaseClientProvider);
+        await client.rpc('toggle_message_reaction', params: {
+          'p_message_id': messageId,
+          'p_emoji': emoji,
+        });
+      } catch (e, stackTrace) {
+        AppLogger.error(e,
+            stackTrace: stackTrace,
+            tag: 'Chat',
+            message: 'toggle_message_reaction RPC error');
+      }
+    }
 
     return true;
   }
@@ -807,6 +824,59 @@ class ChatNotifier extends StateNotifier<ChatState> {
               isPinned: newPinned,
               pinnedAt: newPinned ? DateTime.now() : null,
             ));
+
+    // Call pin_message RPC in production mode
+    final authState = _ref.read(authProvider);
+    if (authState is! AuthDemoMode) {
+      try {
+        final client = _ref.read(supabaseClientProvider);
+        await client.rpc('pin_message', params: {
+          'p_message_id': messageId,
+        });
+      } catch (e, stackTrace) {
+        AppLogger.error(e,
+            stackTrace: stackTrace,
+            tag: 'Chat',
+            message: 'pin_message RPC error');
+      }
+    }
+
+    return true;
+  }
+
+  /// Highlight/unhighlight a message (creator only)
+  Future<bool> highlightMessage(String messageId, bool isHighlighted) async {
+    final message = state.messages.cast<BroadcastMessage?>().firstWhere(
+          (m) => m?.id == messageId,
+          orElse: () => null,
+        );
+    if (message == null) return false;
+
+    // Optimistic update
+    _updateMessageInState(
+        messageId,
+        (m) => m.copyWith(isHighlighted: isHighlighted));
+
+    final authState = _ref.read(authProvider);
+    if (authState is! AuthDemoMode) {
+      try {
+        final client = _ref.read(supabaseClientProvider);
+        await client.rpc('set_message_highlight', params: {
+          'p_message_id': messageId,
+          'p_is_highlighted': isHighlighted,
+        });
+      } catch (e, stackTrace) {
+        AppLogger.error(e,
+            stackTrace: stackTrace,
+            tag: 'Chat',
+            message: 'set_message_highlight RPC error');
+        // Revert on failure
+        _updateMessageInState(
+            messageId,
+            (m) => m.copyWith(isHighlighted: !isHighlighted));
+        return false;
+      }
+    }
 
     return true;
   }
