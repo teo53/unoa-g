@@ -165,9 +165,80 @@ serve(async (req) => {
       )
     }
 
-    // In production, integrate with actual payment provider (TossPayments, Iamport, etc.)
-    // For now, return a mock checkout URL
-    const checkoutUrl = `https://pay.example.com/checkout?orderId=${purchase.id}&amount=${pkg.priceKrw}&orderName=${encodeURIComponent(pkg.name)}`
+    // --- TossPayments Checkout Integration ---
+    const tossSecretKey = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') ?? ''
+    const appBaseUrl = Deno.env.get('APP_BASE_URL') ?? ''
+
+    if (!tossSecretKey) {
+      // Env var not configured: mark purchase as failed, return error
+      console.error('[Checkout] TOSSPAYMENTS_SECRET_KEY not configured')
+      await supabase
+        .from('dt_purchases')
+        .update({ status: 'failed' })
+        .eq('id', purchase.id)
+
+      return new Response(
+        JSON.stringify({ error: 'Payment provider not configured' }),
+        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // Call TossPayments Create Payment API
+    const tossAuth = btoa(`${tossSecretKey}:`)
+    const tossBody = {
+      method: 'CARD',
+      amount: pkg.priceKrw,
+      currency: 'KRW',
+      orderId: purchase.id,
+      orderName: pkg.name,
+      successUrl: `${appBaseUrl}/payment/success`,
+      failUrl: `${appBaseUrl}/payment/fail`,
+    }
+
+    const tossRes = await fetch('https://api.tosspayments.com/v1/payments', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${tossAuth}`,
+        'Content-Type': 'application/json',
+        'Idempotency-Key': `checkout:${purchase.id}`,
+      },
+      body: JSON.stringify(tossBody),
+    })
+
+    if (!tossRes.ok) {
+      const tossErr = await tossRes.json().catch(() => ({}))
+      console.error('[Checkout] Toss API error:', tossRes.status, tossErr)
+
+      // Mark purchase as failed
+      await supabase
+        .from('dt_purchases')
+        .update({ status: 'failed' })
+        .eq('id', purchase.id)
+
+      return new Response(
+        JSON.stringify({
+          error: 'Payment session creation failed',
+          detail: tossErr.message ?? 'Unknown PG error',
+        }),
+        { status: 502, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    const tossData = await tossRes.json()
+    const checkoutUrl = tossData.checkout?.url ?? tossData.url ?? ''
+
+    if (!checkoutUrl) {
+      console.error('[Checkout] No checkout URL in Toss response:', tossData)
+      await supabase
+        .from('dt_purchases')
+        .update({ status: 'failed' })
+        .eq('id', purchase.id)
+
+      return new Response(
+        JSON.stringify({ error: 'No checkout URL returned from payment provider' }),
+        { status: 502, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
 
     // Return checkout information
     return new Response(
