@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import '../core/config/app_config.dart';
 import '../core/utils/app_logger.dart';
 
 /// Analytics Service for GA4 / Firebase Analytics
@@ -20,8 +22,12 @@ class AnalyticsService {
   AnalyticsService._internal();
 
   bool _initialized = false;
+  FirebaseAnalytics? _analytics;
 
   bool get isInitialized => _initialized;
+
+  /// Whether analytics collection is active (production only)
+  bool get _isActive => _initialized && _analytics != null;
 
   /// Initialize Analytics service
   ///
@@ -30,22 +36,18 @@ class AnalyticsService {
     if (_initialized) return;
 
     try {
-      // Note: Requires firebase_analytics package and Firebase setup
-      // This is a template that will work once Firebase is configured
-      //
-      // import 'package:firebase_analytics/firebase_analytics.dart';
-      //
-      // _analytics = FirebaseAnalytics.instance;
-      //
-      // // Enable analytics collection
-      // await _analytics.setAnalyticsCollectionEnabled(true);
-      //
-      // debugPrint('[Analytics] Initialized');
+      if (AppConfig.enableAnalytics) {
+        _analytics = FirebaseAnalytics.instance;
+        await _analytics!.setAnalyticsCollectionEnabled(true);
+        AppLogger.info('Service initialized (Firebase Analytics active)', tag: 'Analytics');
+      } else {
+        AppLogger.info('Service initialized (no-op: analytics disabled)', tag: 'Analytics');
+      }
 
       _initialized = true;
-      AppLogger.info('Service initialized (template mode)', tag: 'Analytics');
     } catch (e) {
-      AppLogger.error(e, tag: 'Analytics', message: 'Initialization error');
+      _initialized = true;
+      AppLogger.error(e, tag: 'Analytics', message: 'Initialization error — running in no-op mode');
     }
   }
 
@@ -59,10 +61,12 @@ class AnalyticsService {
     String? screenClass,
   }) async {
     try {
-      // await _analytics.logScreenView(
-      //   screenName: screenName,
-      //   screenClass: screenClass,
-      // );
+      if (_isActive) {
+        await _analytics!.logScreenView(
+          screenName: screenName,
+          screenClass: screenClass,
+        );
+      }
       AppLogger.debug('Screen view: $screenName', tag: 'Analytics');
     } catch (e) {
       AppLogger.debug('Error logging screen view: $e', tag: 'Analytics');
@@ -76,7 +80,9 @@ class AnalyticsService {
   /// Set user ID for analytics
   Future<void> setUserId(String? userId) async {
     try {
-      // await _analytics.setUserId(id: userId);
+      if (_isActive) {
+        await _analytics!.setUserId(id: userId);
+      }
       AppLogger.debug('User ID set: ${userId ?? 'null'}', tag: 'Analytics');
     } catch (e) {
       AppLogger.debug('Error setting user ID: $e', tag: 'Analytics');
@@ -89,7 +95,9 @@ class AnalyticsService {
     required String? value,
   }) async {
     try {
-      // await _analytics.setUserProperty(name: name, value: value);
+      if (_isActive) {
+        await _analytics!.setUserProperty(name: name, value: value);
+      }
       AppLogger.debug('User property: $name = $value', tag: 'Analytics');
     } catch (e) {
       AppLogger.debug('Error setting user property: $e', tag: 'Analytics');
@@ -116,10 +124,12 @@ class AnalyticsService {
     Map<String, Object>? parameters,
   }) async {
     try {
-      // await _analytics.logEvent(
-      //   name: name,
-      //   parameters: parameters,
-      // );
+      if (_isActive) {
+        await _analytics!.logEvent(
+          name: name,
+          parameters: parameters,
+        );
+      }
       AppLogger.debug('Event: $name, params: $parameters', tag: 'Analytics');
     } catch (e) {
       AppLogger.debug('Error logging event: $e', tag: 'Analytics');
@@ -236,17 +246,23 @@ class AnalyticsService {
     );
 
     // Also log as purchase event for GA4 ecommerce
-    // await _analytics.logPurchase(
-    //   currency: 'KRW',
-    //   value: priceKrw,
-    //   items: [
-    //     AnalyticsEventItem(
-    //       itemId: packageId,
-    //       itemName: 'DT Package',
-    //       quantity: dtAmount + bonusDt,
-    //     ),
-    //   ],
-    // );
+    if (_isActive) {
+      try {
+        await _analytics!.logPurchase(
+          currency: 'KRW',
+          value: priceKrw,
+          items: [
+            AnalyticsEventItem(
+              itemId: packageId,
+              itemName: 'DT Package',
+              quantity: dtAmount + bonusDt,
+            ),
+          ],
+        );
+      } catch (e) {
+        AppLogger.debug('Error logging purchase event: $e', tag: 'Analytics');
+      }
+    }
   }
 
   /// Log DT donation
@@ -386,7 +402,11 @@ class AnalyticsService {
     required String searchTerm,
     int? resultCount,
   }) async {
-    // await _analytics.logSearch(searchTerm: searchTerm);
+    if (_isActive) {
+      try {
+        await _analytics!.logSearch(searchTerm: searchTerm);
+      } catch (_) {}
+    }
     await logEvent(
       name: 'search',
       parameters: {
@@ -402,11 +422,15 @@ class AnalyticsService {
     required String itemId,
     String? method,
   }) async {
-    // await _analytics.logShare(
-    //   contentType: contentType,
-    //   itemId: itemId,
-    //   method: method ?? 'unknown',
-    // );
+    if (_isActive) {
+      try {
+        await _analytics!.logShare(
+          contentType: contentType,
+          itemId: itemId,
+          method: method ?? 'unknown',
+        );
+      } catch (_) {}
+    }
     await logEvent(
       name: 'share',
       parameters: {
@@ -445,19 +469,31 @@ class AnalyticsService {
 
   /// Log app open
   Future<void> logAppOpen() async {
-    // await _analytics.logAppOpen();
+    if (_isActive) {
+      try {
+        await _analytics!.logAppOpen();
+      } catch (_) {}
+    }
     AppLogger.debug('App open logged', tag: 'Analytics');
   }
 
   /// Log tutorial begin
   Future<void> logTutorialBegin() async {
-    // await _analytics.logTutorialBegin();
+    if (_isActive) {
+      try {
+        await _analytics!.logTutorialBegin();
+      } catch (_) {}
+    }
     await logEvent(name: 'tutorial_begin');
   }
 
   /// Log tutorial complete
   Future<void> logTutorialComplete() async {
-    // await _analytics.logTutorialComplete();
+    if (_isActive) {
+      try {
+        await _analytics!.logTutorialComplete();
+      } catch (_) {}
+    }
     await logEvent(name: 'tutorial_complete');
   }
 
@@ -481,7 +517,9 @@ class AnalyticsService {
   /// Reset analytics data (for testing)
   Future<void> resetAnalyticsData() async {
     try {
-      // await _analytics.resetAnalyticsData();
+      if (_isActive) {
+        await _analytics!.resetAnalyticsData();
+      }
       AppLogger.debug('Analytics data reset', tag: 'Analytics');
     } catch (e) {
       AppLogger.debug('Error resetting analytics data: $e', tag: 'Analytics');
