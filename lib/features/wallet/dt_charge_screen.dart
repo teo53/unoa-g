@@ -44,7 +44,7 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
                 ),
                 const Expanded(
                   child: Text(
-                    'DT 충전',
+                    'DT 구매',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -71,7 +71,7 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
 
                   // Package Selection
                   Text(
-                    '충전할 금액을 선택하세요',
+                    '구매할 금액을 선택하세요',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -157,10 +157,10 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '• DT는 UNO A 앱 내에서만 사용 가능한 선불전자지급수단(선불 크레딧)으로, 현금 또는 법정화폐가 아닙니다\n'
+                          '• DT는 UNO A 앱 내에서만 사용 가능한 서비스 전용 디지털 이용권으로, 현금 또는 법정화폐가 아닙니다\n'
                           '• 구매 후 7일 이내 미사용 DT는 환불 요청이 가능합니다\n'
                           '• 사용된 DT 및 보너스 DT는 환불 대상에서 제외됩니다\n'
-                          '• DT 유효기간: 구매일로부터 5년 (전자금융거래법)\n'
+                          '• DT 유효기간: 구매일로부터 5년\n'
                           '• 환불 요청: 설정 > 고객센터 또는 거래내역에서 신청',
                           style: TextStyle(
                             fontSize: 12,
@@ -222,7 +222,7 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'DT 충전 시 별도의 수수료가 부과되지 않습니다',
+                      'DT 구매 시 별도의 수수료가 부과되지 않습니다',
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark
@@ -282,17 +282,17 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
             children: [
               Icon(Icons.check_circle, color: AppColors.success),
               SizedBox(width: 8),
-              Text('충전 완료'),
+              Text('구매 완료'),
             ],
           ),
           content: Text(
-            '${package.totalDt} DT가 충전되었습니다!',
+            '${package.totalDt} DT 구매가 완료되었습니다!',
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogCtx);
-                context.pop(true); // 충전 완료 결과 전달
+                context.pop(true); // 구매 완료 결과 전달
               },
               child: const Text(
                 '확인',

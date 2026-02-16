@@ -107,8 +107,8 @@ detail:   (선택) 구체적 대상
 
 | 이벤트 | 속성 | 트리거 시점 |
 |--------|------|------------|
-| `dt_charge_started` | `amount_krw`, `payment_method` | DT 충전 시작 |
-| `dt_charge_completed` | `amount_krw`, `amount_dt`, `payment_method` | 충전 완료 |
+| `dt_charge_started` | `amount_krw`, `payment_method` | DT 구매 시작 |
+| `dt_charge_completed` | `amount_krw`, `amount_dt`, `payment_method` | 구매 완료 |
 | `dt_spent` | `amount_dt`, `spend_type` (donation, subscription, funding), `recipient_id` | DT 사용 |
 
 ---

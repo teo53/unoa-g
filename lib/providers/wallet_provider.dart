@@ -128,7 +128,7 @@ class LedgerEntry {
   String get typeDisplayName {
     switch (entryType) {
       case 'purchase':
-        return '충전';
+        return '구매';
       case 'tip':
         return '선물';
       case 'paid_reply':
@@ -138,7 +138,7 @@ class LedgerEntry {
       case 'refund':
         return '환불';
       case 'payout':
-        return '출금';
+        return '정산 지급';
       case 'bonus':
         return '보너스';
       case 'subscription':
@@ -314,7 +314,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         toWalletId: demoWallet.id,
         amountDt: 1000,
         entryType: 'purchase',
-        description: 'DT 충전',
+        description: 'DT 구매',
         status: 'completed',
         createdAt: DateTime.now().subtract(const Duration(days: 7)),
       ),
@@ -395,7 +395,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
     );
   }
 
-  /// 데모 모드에서 잔액 추가 (충전 시뮬레이션)
+  /// 데모 모드에서 잔액 추가 (구매 시뮬레이션)
   void addDemoBalance(int amount) {
     final currentState = state;
     if (currentState is! WalletLoaded) return;
@@ -414,7 +414,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       toWalletId: updatedWallet.id,
       amountDt: amount,
       entryType: 'purchase',
-      description: 'DT 충전 (데모)',
+      description: 'DT 구매 (데모)',
       status: 'completed',
       createdAt: DateTime.now(),
     );

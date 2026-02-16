@@ -315,7 +315,7 @@ class MockData {
     ),
     Transaction(
       id: 'txn_2',
-      description: 'DT 충전 (스탠다드)',
+      description: 'DT 구매 (스탠다드)',
       amount: 1150,
       timestamp: DateTime.now().subtract(const Duration(days: 1)),
       type: TransactionType.credit,

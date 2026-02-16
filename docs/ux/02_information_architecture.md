@@ -33,7 +33,7 @@
 │   └── /artist/:artistId   # 아티스트 프로필 (전체화면)
 ├── /profile                # 내 프로필
 ├── /wallet                 # DT 지갑 (전체화면)
-│   ├── /wallet/charge      # DT 충전
+│   ├── /wallet/charge      # DT 구매
 │   └── /wallet/history     # 거래 내역
 ├── /settings               # 설정 (전체화면)
 │   ├── /settings/notifications  # 알림 설정
@@ -109,7 +109,7 @@
 | 메시지 전송 | `chat_input_bar_v2.dart` 전송 버튼 | 로그인 바텀시트 |
 | 펀딩 결제 | `funding_checkout_screen.dart` 결제 버튼 | 로그인 바텀시트 |
 | 구독 신청 | 아티스트 프로필 구독 버튼 | 로그인 바텀시트 |
-| DT 충전 | `/wallet/charge` 충전 버튼 | 로그인 바텀시트 |
+| DT 구매 | `/wallet/charge` 구매 버튼 | 로그인 바텀시트 |
 | 후원 메시지 | 채팅 내 후원 버튼 | 로그인 바텀시트 |
 
 **Gate 컴포넌트**: `auth_gate.dart` -- 바텀시트 형태로 로그인/회원가입/데모 옵션 제공.

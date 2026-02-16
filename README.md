@@ -61,7 +61,7 @@ unoa-g-main/
 │   │   │   ├── helpers/         # 개인화 미리보기 헬퍼
 │   │   │   └── widgets/         # 팬 뷰 미리보기, 메시지 편집 위젯
 │   │   ├── artist_inbox/        # 브로드캐스트 작성 (미디어 확인 포함)
-│   │   ├── wallet/              # 지갑 (충전, 후원)
+│   │   ├── wallet/              # 지갑 (DT 구매, 후원)
 │   │   ├── settings/            # 설정
 │   │   └── discover/            # 크리에이터 탐색
 │   ├── providers/                # Riverpod Providers
@@ -250,7 +250,7 @@ flutter analyze
 | `Subscription` | 구독 정보 |
 | `BroadcastMessage` | 채팅 메시지 |
 | `ReplyQuota` | 일일 답장 쿼터 |
-| `DtPackage` | DT 충전 패키지 |
+| `DtPackage` | DT 구매 패키지 |
 
 ## 보안
 

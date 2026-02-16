@@ -84,7 +84,7 @@ BEGIN
     'purchase',
     'purchase',
     p_order_id,
-    format('DT 충전: %s DT + %s 보너스', p_dt_amount, p_bonus_dt),
+    format('DT 구매: %s DT + %s 보너스', p_dt_amount, p_bonus_dt),
     'completed',
     NOW()
   );

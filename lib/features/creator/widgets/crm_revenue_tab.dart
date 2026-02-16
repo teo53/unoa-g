@@ -200,7 +200,7 @@ class _TotalEarningsCard extends StatelessWidget {
           const Row(
             children: [
               _EarningsStat(
-                label: '출금 가능',
+                label: '지급 가능',
                 value: '845,000 DT',
               ),
               SizedBox(width: 24),

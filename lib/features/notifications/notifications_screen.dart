@@ -85,8 +85,8 @@ class NotificationsScreen extends StatelessWidget {
                 ),
                 _NotificationItem(
                   avatarUrl: '',
-                  title: 'DT 충전 완료',
-                  message: '1,000 DT가 충전되었습니다',
+                  title: 'DT 구매 완료',
+                  message: '1,000 DT 구매가 완료되었습니다',
                   time: '3시간 전',
                   isUnread: false,
                   type: NotificationType.system,

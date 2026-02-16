@@ -140,7 +140,7 @@ class LedgerEntry {
   String get displayTitle {
     switch (entryType) {
       case 'purchase':
-        return 'DT 충전';
+        return 'DT 구매';
       case 'tip':
         return '후원';
       case 'paid_reply':

@@ -102,9 +102,9 @@ class HelpCenterScreen extends StatelessWidget {
 
                   const _FaqCategory(
                     icon: Icons.diamond_outlined,
-                    title: 'DT 충전 및 사용',
+                    title: 'DT 구매 및 사용',
                     questions: [
-                      'DT는 어떻게 충전하나요?',
+                      'DT는 어떻게 구매하나요?',
                       'DT 환불이 가능한가요?',
                       'DT 유효기간이 있나요?',
                     ],

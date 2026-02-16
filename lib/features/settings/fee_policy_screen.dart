@@ -61,7 +61,7 @@ class FeePolicyScreen extends StatelessWidget {
                   _buildSectionTitle(isDark, '제1조 이용자(팬) 수수료'),
                   const SizedBox(height: 12),
                   _buildFeeTable(isDark, [
-                    const _FeeRow('DT 충전', '무료', '결제 금액 = 충전 금액'),
+                    const _FeeRow('DT 구매', '무료', '결제 금액 = 구매 금액'),
                     const _FeeRow('구독 결제', '무료', '구독료 외 추가 수수료 없음'),
                     const _FeeRow('펀딩 참여', '무료', '후원 금액 외 추가 수수료 없음'),
                     const _FeeRow('DT 환불', '무료', '환불 수수료 없음'),

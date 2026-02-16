@@ -953,7 +953,7 @@ class EmptyState extends StatelessWidget {
 
   factory EmptyState.noTransactions() => const EmptyState(
     title: '거래 내역이 없어요',
-    message: 'DT를 충전하면 여기에 표시됩니다',
+    message: 'DT를 구매하면 여기에 표시됩니다',
     icon: Icons.receipt_long_outlined,
   );
 

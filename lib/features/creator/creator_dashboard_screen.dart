@@ -448,7 +448,7 @@ class _CreatorDashboardScreenState
         if (!isDemoMode)
           _QuickActionCard(
             icon: Icons.account_balance_wallet_rounded,
-            label: '출금',
+            label: '정산 지급',
             color: Colors.green,
             isDark: isDark,
             onTap: () => context.push('/creator/crm'),

@@ -24,8 +24,8 @@ enum PaymentConsentItem {
   ),
   paymentServiceTerms(
     'payment_service_terms',
-    'PG 서비스 이용약관',
-    '토스페이먼츠 전자금융거래 이용약관에 동의합니다.',
+    '결제대행 서비스 이용약관',
+    '토스페이먼츠 결제대행 서비스 이용약관에 동의합니다.',
     true,
   ),
   crossBorderTransfer(

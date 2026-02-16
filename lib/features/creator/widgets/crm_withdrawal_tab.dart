@@ -95,7 +95,7 @@ class _BalanceCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '출금 가능 잔액',
+                '지급 가능 잔액',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -140,7 +140,7 @@ class _BalanceCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '정산 대기 중: 400,000 DT (7일 후 출금 가능)',
+                    '정산 대기 중: 400,000 DT (7일 후 지급 가능)',
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark
@@ -170,7 +170,7 @@ class _WithdrawButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: () => _showWithdrawSheet(context, isDark),
         icon: const Icon(Icons.account_balance_rounded),
-        label: const Text('출금 신청하기'),
+        label: const Text('지급 신청하기'),
         style: ElevatedButton.styleFrom(
           backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
           foregroundColor: AppColors.primary,
@@ -204,7 +204,7 @@ class _WithdrawButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '출금 신청',
+              '지급 신청',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -214,7 +214,7 @@ class _WithdrawButton extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              '출금 가능 금액',
+              '지급 가능 금액',
               style: TextStyle(
                 fontSize: 13,
                 color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
@@ -248,7 +248,7 @@ class _WithdrawButton extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _WithdrawInfoRow(
-                    label: '출금 수수료',
+                    label: '지급 수수료',
                     value: '0 DT (무료)',
                     isDark: isDark,
                   ),
@@ -269,7 +269,7 @@ class _WithdrawButton extends StatelessWidget {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('출금 신청이 완료되었습니다'),
+                      content: Text('지급 신청이 완료되었습니다'),
                       backgroundColor: AppColors.success,
                     ),
                   );
@@ -282,7 +282,7 @@ class _WithdrawButton extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  '전액 출금 신청',
+                  '전액 지급 신청',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -371,7 +371,7 @@ class _WithdrawalHistoryCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '출금 내역',
+                    '지급 내역',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -383,7 +383,7 @@ class _WithdrawalHistoryCard extends StatelessWidget {
                 ],
               ),
               Text(
-                '총 출금: ${formatNumber(1050000)} DT',
+                '총 지급: ${formatNumber(1050000)} DT',
                 style: TextStyle(
                   fontSize: 12,
                   color:
@@ -444,7 +444,7 @@ class _WithdrawalHistoryTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${formatNumber(withdrawal.amount)} DT 출금',
+                  '${formatNumber(withdrawal.amount)} DT 지급',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -520,10 +520,10 @@ class _PendingEarningsCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '• 후원 수익은 7일 후 출금 가능합니다\n'
+            '• 후원 수익은 7일 후 지급 가능합니다\n'
             '• 구독 수익은 매월 1일에 정산됩니다\n'
-            '• 출금 수수료는 무료입니다\n'
-            '• 최소 출금 금액은 10,000 DT입니다',
+            '• 지급 수수료는 무료입니다\n'
+            '• 최소 지급 금액은 10,000 DT입니다',
             style: TextStyle(
               fontSize: 13,
               height: 1.6,

@@ -7,7 +7,7 @@ void main() {
       test('round-trips all fields correctly', () {
         final json = {
           'id': 'tx-1',
-          'description': 'DT 충전',
+          'description': 'DT 구매',
           'amount': 5000,
           'timestamp': '2024-01-15T10:30:00.000Z',
           'type': 'credit',
@@ -17,7 +17,7 @@ void main() {
         final restored = Transaction.fromJson(tx.toJson());
 
         expect(restored.id, equals('tx-1'));
-        expect(restored.description, equals('DT 충전'));
+        expect(restored.description, equals('DT 구매'));
         expect(restored.amount, equals(5000));
         expect(restored.type, equals(TransactionType.credit));
         expect(restored.status, equals(TransactionStatus.completed));
@@ -55,7 +55,7 @@ void main() {
       test('returns +N DT for credit', () {
         final tx = Transaction.fromJson({
           'id': 'tx-1',
-          'description': '충전',
+          'description': '구매',
           'amount': 5000,
           'timestamp': '2024-01-15T10:00:00.000Z',
           'type': 'credit',

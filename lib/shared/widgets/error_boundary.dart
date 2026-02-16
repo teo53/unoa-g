@@ -389,7 +389,7 @@ class EmptyState extends StatelessWidget {
   /// Preset: No wallet transactions
   factory EmptyState.noTransactions() => const EmptyState(
         title: '거래 내역이 없어요',
-        message: 'DT를 충전하거나 사용하면 여기에 표시됩니다',
+        message: 'DT를 구매하거나 사용하면 여기에 표시됩니다',
         icon: Icons.receipt_long_outlined,
       );
 

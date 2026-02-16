@@ -497,7 +497,7 @@ class _TransactionList extends ConsumerWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('환불 요청'),
         content: Text(
-          '${txn.amountDt} DT 충전 내역을 환불 요청하시겠습니까?\n\n'
+          '${txn.amountDt} DT 구매 내역을 환불 요청하시겠습니까?\n\n'
           '• 환불은 영업일 기준 3-5일 소요됩니다.\n'
           '• 보너스 DT는 회수됩니다.\n'
           '• 환불 수수료가 발생할 수 있습니다.',

@@ -135,7 +135,7 @@ class WalletScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     child: const Text(
-                                      '충전하기',
+                                      'DT 구매',
                                       style: TextStyle(
                                           fontWeight: FontWeight.w700),
                                     ),
@@ -193,7 +193,7 @@ class WalletScreen extends ConsumerWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'DT는 UNO A 앱 내에서만 사용 가능한 선불 충전 크레딧이며, 현금 또는 법정화폐가 아닙니다.',
+                            'DT는 UNO A 앱 내에서만 사용 가능한 서비스 전용 디지털 이용권이며, 현금 또는 법정화폐가 아닙니다.',
                             style: TextStyle(
                               fontSize: 12,
                               height: 1.4,
@@ -216,7 +216,7 @@ class WalletScreen extends ConsumerWidget {
 
                   // DT Packages
                   Text(
-                    'DT 충전',
+                    'DT 구매',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,

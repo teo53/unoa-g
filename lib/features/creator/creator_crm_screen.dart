@@ -189,7 +189,7 @@ class _CreatorCRMScreenState extends ConsumerState<CreatorCRMScreen>
           Tab(text: '수익'),
           Tab(text: '팬 분석'),
           Tab(text: '콘텐츠'),
-          Tab(text: '출금'),
+          Tab(text: '정산 지급'),
         ],
       ),
     );
@@ -238,8 +238,8 @@ class _CreatorCRMScreenState extends ConsumerState<CreatorCRMScreen>
             ),
             _InfoItem(
               icon: Icons.account_balance_wallet_rounded,
-              title: '출금',
-              description: '수익을 출금하고 내역을 확인하세요',
+              title: '정산 지급',
+              description: '수익을 지급받고 내역을 확인하세요',
               isDark: isDark,
             ),
             SizedBox(height: MediaQuery.of(context).padding.bottom),

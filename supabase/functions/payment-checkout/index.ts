@@ -131,7 +131,8 @@ serve(async (req) => {
     const refundEligibleUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
     // VAT 계산 (부가가치세법 §29① + 서면법규과-823)
-    // 선불전자지급수단은 충전 시점에 부가세 과세
+    // DT 구매 시점: 계약부채(선수금) 인식. DT 사용(서비스 제공) 시점: 매출 인식 및 VAT 과세(공급시기)
+    // 결제 시점에는 총액 기준으로 PG 전표 발행, 세금계산서는 사용 시점에 발행
     // 공급가액 = price_krw × 10/11 (원 미만 절사)
     // 부가세 = price_krw - 공급가액
     const supplyAmountKrw = Math.floor(pkg.priceKrw * 10 / 11)

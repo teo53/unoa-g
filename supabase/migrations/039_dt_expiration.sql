@@ -1,7 +1,7 @@
 -- ============================================
 -- Migration: 039_dt_expiration.sql
 -- Purpose: DT 만료 처리 시스템
--- Description: 전자금융거래법 준수를 위한 DT 유효기간(5년) 및 만료 처리
+-- Description: 서비스 정책에 따른 DT 유효기간(5년) 및 만료 처리
 -- ============================================
 
 -- ============================================
@@ -191,7 +191,7 @@ GRANT EXECUTE ON FUNCTION process_dt_expiration TO service_role;
 
 COMMENT ON FUNCTION process_dt_expiration IS
 '월 1회 실행: 유효기간(5년) 경과한 DT 구매 건의 미사용 잔여 DT를 만료 처리.
-전자금융거래법 준수. SKIP LOCKED으로 동시 실행 안전.';
+서비스 정책 준수. SKIP LOCKED으로 동시 실행 안전.';
 
 -- ============================================
 -- 5. 만료 예정 DT 조회 헬퍼 (사용자 알림용)
