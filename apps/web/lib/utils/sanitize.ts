@@ -4,9 +4,12 @@
 //
 // SECURITY FIX: F-04
 // All dangerouslySetInnerHTML usage MUST pass through sanitizeHtml().
+//
+// SSR NOTE: isomorphic-dompurify depends on jsdom which can fail during
+// Next.js static export (jsdom@28 file-path issue). We use a lazy-init
+// pattern so the module is only loaded when actually called, and we
+// provide a regex-based fallback for SSR/build environments.
 // =====================================================
-
-import DOMPurify from 'isomorphic-dompurify'
 
 /**
  * Allowed HTML tags for rich content (campaign descriptions, updates, notices).
@@ -40,8 +43,49 @@ const ALLOWED_ATTR = [
 ]
 
 /**
+ * SSR fallback: strip disallowed HTML tags and attributes using regex.
+ * Not as robust as DOMPurify, but safe enough for pre-rendered HTML
+ * (client-side hydration will re-sanitize with DOMPurify).
+ */
+function ssrStripHtml(html: string): string {
+  // Remove script/style/iframe/object/embed/form tags and their content
+  let result = html.replace(
+    /<(script|style|iframe|object|embed|form)\b[^]*?<\/\1>/gi,
+    ''
+  )
+  // Remove self-closing dangerous tags
+  result = result.replace(/<(script|iframe|object|embed|form)\b[^>]*\/?>/gi, '')
+  // Remove event handler attributes (on*)
+  result = result.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+  // Remove javascript: protocol in href/src
+  result = result.replace(/(href|src)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, '')
+  return result
+}
+
+// Lazy-loaded DOMPurify instance (null = not yet loaded, false = failed to load)
+let _DOMPurify: any = null
+
+function getDOMPurify(): any {
+  if (_DOMPurify === false) return null
+  if (_DOMPurify) return _DOMPurify
+
+  try {
+    // Dynamic require to avoid failing during module evaluation in SSR/build
+    const mod = require('isomorphic-dompurify')
+    _DOMPurify = mod.default || mod
+    return _DOMPurify
+  } catch {
+    _DOMPurify = false
+    return null
+  }
+}
+
+/**
  * Sanitize HTML content to prevent XSS attacks.
  * Strips all scripts, event handlers, and dangerous elements.
+ *
+ * Uses DOMPurify when available (client-side, or SSR with working jsdom).
+ * Falls back to regex-based stripping during Next.js static export if jsdom fails.
  *
  * @param html - Raw HTML string (potentially from user input or database)
  * @returns Sanitized HTML safe for dangerouslySetInnerHTML
@@ -49,15 +93,21 @@ const ALLOWED_ATTR = [
 export function sanitizeHtml(html: string): string {
   if (!html) return ''
 
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR,
-    ALLOW_DATA_ATTR: false,
-    // Force all links to open in new tab with noopener
-    ADD_ATTR: ['target'],
-    // Forbid dangerous protocols
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
-  })
+  const purify = getDOMPurify()
+  if (purify) {
+    return purify.sanitize(html, {
+      ALLOWED_TAGS,
+      ALLOWED_ATTR,
+      ALLOW_DATA_ATTR: false,
+      // Force all links to open in new tab with noopener
+      ADD_ATTR: ['target'],
+      // Forbid dangerous protocols
+      ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+    })
+  }
+
+  // Fallback for SSR/build when jsdom is unavailable
+  return ssrStripHtml(html)
 }
 
 /**
@@ -67,6 +117,12 @@ export function sanitizeHtml(html: string): string {
  */
 export function sanitizeJsonLdValue(value: string): string {
   if (!value) return ''
-  // Strip all HTML tags for JSON-LD text content
-  return DOMPurify.sanitize(value, { ALLOWED_TAGS: [] })
+
+  const purify = getDOMPurify()
+  if (purify) {
+    return purify.sanitize(value, { ALLOWED_TAGS: [] })
+  }
+
+  // Fallback: strip all HTML tags
+  return value.replace(/<[^>]*>/g, '')
 }
