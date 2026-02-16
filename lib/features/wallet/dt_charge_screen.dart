@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
@@ -261,47 +263,55 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
     });
 
     try {
-      // Simulate payment processing (데모 모드)
-      // 프로덕션에서는 Supabase Edge Function 호출로 대체
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (!mounted) return;
-
-      setState(() {
-        _isProcessing = false;
-      });
-
+      final isDemoMode = ref.read(isDemoModeProvider);
       final packages = ref.read(dtPackagesProvider);
       final package = packages[_selectedPackageIndex!];
 
-      showDialog(
+      if (isDemoMode) {
+        // Demo mode: simulate payment with 2-second delay
+        await Future.delayed(const Duration(seconds: 2));
+
+        if (!mounted) return;
+
+        setState(() => _isProcessing = false);
+
+        _showSuccessDialog(context, package.totalDt);
+        return;
+      }
+
+      // Production: call checkout Edge Function → open Toss payment URL
+      final walletNotifier = ref.read(walletProvider.notifier);
+      final checkoutUrl =
+          await walletNotifier.createPurchaseCheckout(package.id);
+
+      if (!mounted) return;
+
+      if (checkoutUrl == null || checkoutUrl.isEmpty) {
+        setState(() => _isProcessing = false);
         // ignore: use_build_context_synchronously
-        context: context,
-        builder: (dialogCtx) => AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.check_circle, color: AppColors.success),
-              SizedBox(width: 8),
-              Text('구매 완료'),
-            ],
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('결제 세션 생성에 실패했습니다. 다시 시도해주세요.'),
+            backgroundColor: AppColors.danger,
           ),
-          content: Text(
-            '${package.totalDt} DT 구매가 완료되었습니다!',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                context.pop(true); // 구매 완료 결과 전달
-              },
-              child: const Text(
-                '확인',
-                style: TextStyle(color: AppColors.primary600),
-              ),
-            ),
-          ],
-        ),
-      );
+        );
+        return;
+      }
+
+      // Open Toss payment window
+      final uri = Uri.parse(checkoutUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+
+      // After returning from payment window, reload wallet to reflect changes
+      // (confirm/webhook may have credited DT while user was in Toss window)
+      setState(() => _isProcessing = false);
+
+      // Reload wallet after a short delay to allow confirm/webhook to process
+      await Future.delayed(const Duration(seconds: 3));
+      if (!mounted) return;
+      await walletNotifier.loadWallet();
     } catch (e) {
       if (!mounted) return;
 
@@ -322,6 +332,36 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
         ),
       );
     }
+  }
+
+  void _showSuccessDialog(BuildContext context, int totalDt) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: AppColors.success),
+            SizedBox(width: 8),
+            Text('구매 완료'),
+          ],
+        ),
+        content: Text(
+          '$totalDt DT 구매가 완료되었습니다!',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogCtx);
+              context.pop(true);
+            },
+            child: const Text(
+              '확인',
+              style: TextStyle(color: AppColors.primary600),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
