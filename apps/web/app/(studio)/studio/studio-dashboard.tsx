@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { Plus, Edit2, Eye, Clock, CheckCircle, XCircle, Megaphone } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { formatDT, formatDate, formatPercent } from '@/lib/utils/format'
+import { formatFundingAmount, formatDate, formatPercent } from '@/lib/utils/format'
 import { DEMO_MODE, mockCampaigns } from '@/lib/mock/demo-data'
+import { businessConfig } from '@/lib/config'
 import type { Campaign } from '@/lib/types/database'
 
 function getStatusBadge(status: Campaign['status']) {
@@ -89,8 +90,8 @@ export default function StudioDashboard() {
     <div className="max-w-6xl mx-auto">
       {/* Demo Mode Banner */}
       {DEMO_MODE && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm">
-          🎭 데모 모드: 샘플 캠페인 데이터가 표시됩니다
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm">
+          데모 모드 — 샘플 캠페인 데이터가 표시됩니다
         </div>
       )}
 
@@ -120,7 +121,7 @@ export default function StudioDashboard() {
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="text-sm text-gray-500 mb-1">총 모금액</div>
-          <div className="text-2xl font-bold text-gray-900">{formatDT(stats.totalRaised)}</div>
+          <div className="text-2xl font-bold text-gray-900">{formatFundingAmount(stats.totalRaised)}</div>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="text-sm text-gray-500 mb-1">총 후원자</div>
@@ -135,18 +136,50 @@ export default function StudioDashboard() {
         </div>
 
         {campaigns.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Megaphone className="w-8 h-8 text-gray-400" />
+          <div className="p-8">
+            {/* Onboarding Card */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Megaphone className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">아직 캠페인이 없어요</h3>
+              <p className="text-gray-500 mb-6">첫 번째 펀딩 캠페인을 만들어보세요</p>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">아직 캠페인이 없어요</h3>
-            <p className="text-gray-500 mb-4">첫 번째 펀딩 캠페인을 만들어보세요</p>
-            <Link href="/studio/campaigns/new">
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                캠페인 만들기
-              </Button>
-            </Link>
+
+            {/* Getting Started Steps */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mb-3 text-sm font-bold">1</div>
+                <h4 className="font-medium text-gray-900 mb-1">캠페인 생성</h4>
+                <p className="text-sm text-gray-500">제목, 설명, 커버 이미지를 작성하세요</p>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mb-3 text-sm font-bold">2</div>
+                <h4 className="font-medium text-gray-900 mb-1">리워드 설정</h4>
+                <p className="text-sm text-gray-500">후원자에게 제공할 리워드를 구성하세요</p>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mb-3 text-sm font-bold">3</div>
+                <h4 className="font-medium text-gray-900 mb-1">심사 제출</h4>
+                <p className="text-sm text-gray-500">운영팀 심사 후 캠페인이 게시됩니다</p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <Link href="/studio/campaigns/new">
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  캠페인 만들기
+                </Button>
+              </Link>
+            </div>
+
+            {/* Revenue Info */}
+            <div className="mt-6 bg-blue-50 rounded-lg p-4 text-sm text-blue-800">
+              <span className="font-medium">수익 안내:</span>{' '}
+              크리에이터는 총 매출의 {businessConfig.creatorPayoutPercent}%를 정산받습니다.
+              플랫폼 수수료 {businessConfig.platformCommissionPercent}%가 적용됩니다.
+            </div>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">

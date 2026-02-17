@@ -1,5 +1,24 @@
 {
   "projects": {
     "default": "unoa-demo"
-  }
+  },
+  "targets": {
+    "unoa-demo": {
+      "hosting": {
+        "web": [
+          "unoa-web"
+        ],
+        "agency": [
+          "unoa-agency"
+        ],
+        "studio": [
+          "unoa-studio"
+        ],
+        "admin": [
+          "unoa-admin"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

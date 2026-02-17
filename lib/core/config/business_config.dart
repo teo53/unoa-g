@@ -2,6 +2,10 @@
 ///
 /// Centralized configuration for business rules, limits, and constants.
 /// These values define the core business logic of the UNO A platform.
+
+/// Purchase platform for pricing differentiation.
+enum PurchasePlatform { web, android, ios }
+
 class BusinessConfig {
   BusinessConfig._();
 
@@ -25,6 +29,65 @@ class BusinessConfig {
     'STANDARD': 9900,
     'VIP': 19900,
   };
+
+  /// Tier prices by purchase platform (VAT 포함).
+  ///
+  /// - web: 최저가 (PG 수수료 수준)
+  /// - android/ios: 인앱결제 수수료를 반영한 표시가
+  ///
+  /// NOTE: 실제 과금/정산은 구매 시점의 결제 레코드 기준이며,
+  /// 여기 값은 "표시" 및 "결제 요청 검증"의 단일 소스입니다.
+  static const Map<PurchasePlatform, Map<String, int>> tierPricesByPlatform = {
+    PurchasePlatform.web: {'BASIC': 4900, 'STANDARD': 9900, 'VIP': 19900},
+    PurchasePlatform.android: {'BASIC': 5900, 'STANDARD': 11900, 'VIP': 22900},
+    PurchasePlatform.ios: {'BASIC': 6900, 'STANDARD': 13900, 'VIP': 27900},
+  };
+
+  /// DT packages with platform-specific prices.
+  ///
+  /// IMPORTANT: `id` must match `dt_packages.id` and Edge Function validation.
+  static const List<Map<String, dynamic>> dtPackagesByPlatform = [
+    {'id': 'dt_10', 'dt': 10, 'bonus': 0, 'web': 1000, 'android': 1200, 'ios': 1400},
+    {'id': 'dt_50', 'dt': 50, 'bonus': 0, 'web': 5000, 'android': 5900, 'ios': 6900},
+    {'id': 'dt_100', 'dt': 100, 'bonus': 5, 'web': 10000, 'android': 11900, 'ios': 13900},
+    {'id': 'dt_500', 'dt': 500, 'bonus': 50, 'web': 50000, 'android': 59000, 'ios': 69000},
+    {'id': 'dt_1000', 'dt': 1000, 'bonus': 150, 'web': 100000, 'android': 119000, 'ios': 139000},
+    {'id': 'dt_5000', 'dt': 5000, 'bonus': 1000, 'web': 500000, 'android': 590000, 'ios': 690000},
+  ];
+
+  static String _platformKey(PurchasePlatform platform) {
+    switch (platform) {
+      case PurchasePlatform.ios:
+        return 'ios';
+      case PurchasePlatform.android:
+        return 'android';
+      case PurchasePlatform.web:
+        return 'web';
+    }
+  }
+
+  /// Get tier price for a specific platform.
+  /// Falls back to `tierPricesKrw` to keep backward compatibility.
+  static int getTierPrice(String tier, PurchasePlatform platform) {
+    final key = tier.toUpperCase();
+    return tierPricesByPlatform[platform]?[key] ?? tierPricesKrw[key] ?? 0;
+  }
+
+  /// Get DT package price for a specific platform.
+  static int getDtPackagePrice(String packageId, PurchasePlatform platform) {
+    final platformKey = _platformKey(platform);
+    final pkg = dtPackagesByPlatform
+        .cast<Map<String, Object?>>()
+        .where((p) => (p['id'] as String?) == packageId)
+        .toList(growable: false);
+
+    if (pkg.isEmpty) return 0;
+    final map = pkg.first;
+    final value = map[platformKey];
+    if (value is int) return value;
+    final webValue = map['web'];
+    return webValue is int ? webValue : 0;
+  }
 
   /// Tier benefits descriptions
   static const Map<String, List<String>> tierBenefits = {

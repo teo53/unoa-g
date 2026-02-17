@@ -56,6 +56,9 @@ class _CreatorProfileEditScreenState
   String _tiktokLink = '';
   String _twitterLink = '';
 
+  // Pricing policy
+  String _selectedPricingPreset = 'standard'; // 'support' | 'standard' | 'premium'
+
   // Content lists
   List<CreatorDrop> _drops = [];
   List<CreatorEvent> _events = [];
@@ -1258,8 +1261,155 @@ class _CreatorProfileEditScreenState
               _onFieldChanged();
             },
           ),
+
+          const SizedBox(height: 32),
+
+          // 구독 가격 설정 섹션
+          _buildSectionTitle('구독 가격 설정', isDark),
+          const SizedBox(height: 8),
+          Text(
+            '팬에게 적용되는 구독 가격 정책을 선택하세요.',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildPricingPresetSelector(isDark),
         ],
       ),
+    );
+  }
+
+  Widget _buildPricingPresetSelector(bool isDark) {
+    const presets = [
+      {
+        'key': 'support',
+        'label': '팬 우선',
+        'desc': '기본가 대비 10% 할인',
+        'multiplier': '0.9x',
+        'icon': Icons.favorite_outline,
+        'color': Colors.pink,
+      },
+      {
+        'key': 'standard',
+        'label': '기본가',
+        'desc': '표준 구독 가격',
+        'multiplier': '1.0x',
+        'icon': Icons.balance,
+        'color': Colors.blue,
+      },
+      {
+        'key': 'premium',
+        'label': '프리미엄',
+        'desc': '기본가 대비 10% 추가',
+        'multiplier': '1.1x',
+        'icon': Icons.diamond_outlined,
+        'color': Colors.orange,
+      },
+    ];
+
+    return Column(
+      children: presets.map((p) {
+        final isSelected = _selectedPricingPreset == p['key'];
+        final presetColor = p['color'] as Color;
+        return GestureDetector(
+          onTap: () {
+            setState(() => _selectedPricingPreset = p['key'] as String);
+            _onFieldChanged();
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected
+                    ? presetColor
+                    : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: presetColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    p['icon'] as IconData,
+                    color: presetColor,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        p['label'] as String,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.textMainDark
+                              : AppColors.textMainLight,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        p['desc'] as String,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? AppColors.textMutedDark
+                              : AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? presetColor.withValues(alpha: 0.1)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    p['multiplier'] as String,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected
+                          ? presetColor
+                          : (isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: isSelected
+                      ? presetColor
+                      : (isDark ? AppColors.iconMutedDark : AppColors.iconMuted),
+                  size: 22,
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 

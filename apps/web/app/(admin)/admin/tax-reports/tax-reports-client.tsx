@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { FileText, Download, TrendingUp, Calculator, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { formatKRW } from '@/lib/utils/format'
+import { formatKRW, formatTaxRate } from '@/lib/utils/format'
 import { useToast } from '@/components/ops/ops-toast'
+import { businessConfig } from '@/lib/config'
 
 // =====================================================
 // Tax Reports Client Component
@@ -37,11 +38,11 @@ interface TaxReportsClientProps {
 function getIncomeTypeBadge(type: string) {
   switch (type) {
     case 'business_income':
-      return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">사업소득 3.3%</Badge>
+      return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">사업소득 {formatTaxRate(businessConfig.taxRates.businessIncome)}</Badge>
     case 'other_income':
-      return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">기타소득 8.8%</Badge>
+      return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">기타소득 {formatTaxRate(businessConfig.taxRates.otherIncome)}</Badge>
     case 'invoice':
-      return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">세금계산서 0%</Badge>
+      return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">세금계산서 {formatTaxRate(businessConfig.taxRates.invoice)}</Badge>
     default:
       return <Badge variant="outline">{type}</Badge>
   }
@@ -87,20 +88,30 @@ export default function TaxReportsClient({
   const handleExportWithholding = () => {
     const headers = [
       '크리에이터명',
+      '크리에이터ID',
       '소득유형',
+      '세율(%)',
+      '총수익',
+      '플랫폼수수료',
       '과세소득',
       '소득세',
       '지방소득세',
       '원천징수 합계',
+      '순지급액',
     ]
 
     const rows = summaries.map(s => [
       s.creator_name,
+      s.creator_id,
       getIncomeTypeLabel(s.income_type),
+      s.tax_rate.toString(),
+      s.total_revenue_krw.toString(),
+      s.platform_fee_krw.toString(),
       s.taxable_krw.toString(),
       s.income_tax_krw.toString(),
       s.local_tax_krw.toString(),
       s.withholding_total_krw.toString(),
+      s.net_payout_krw.toString(),
     ])
 
     const csvContent = [
@@ -116,16 +127,24 @@ export default function TaxReportsClient({
   const handleExportIncomeSummary = () => {
     const headers = [
       '크리에이터명',
+      '크리에이터ID',
+      '소득유형',
       '총수익',
-      '플랫폼 수수료',
+      `플랫폼 수수료(${businessConfig.platformCommissionPercent}%)`,
+      '과세소득',
+      '원천징수합계',
       '순지급액',
       '정산건수',
     ]
 
     const rows = summaries.map(s => [
       s.creator_name,
+      s.creator_id,
+      getIncomeTypeLabel(s.income_type),
       s.total_revenue_krw.toString(),
       s.platform_fee_krw.toString(),
+      s.taxable_krw.toString(),
+      s.withholding_total_krw.toString(),
       s.net_payout_krw.toString(),
       s.settlement_count.toString(),
     ])
@@ -239,9 +258,9 @@ export default function TaxReportsClient({
           const creators = summaries.filter(s => s.income_type === type)
           const typeTotal = creators.reduce((sum, s) => sum + s.withholding_total_krw, 0)
           const labels: Record<string, string> = {
-            business_income: '사업소득 (3.3%)',
-            other_income: '기타소득 (8.8%)',
-            invoice: '세금계산서 (0%)',
+            business_income: `사업소득 (${formatTaxRate(businessConfig.taxRates.businessIncome)})`,
+            other_income: `기타소득 (${formatTaxRate(businessConfig.taxRates.otherIncome)})`,
+            invoice: `세금계산서 (${formatTaxRate(businessConfig.taxRates.invoice)})`,
           }
           return (
             <div key={type} className="bg-white rounded-xl p-4 border border-gray-200">
@@ -350,17 +369,17 @@ export default function TaxReportsClient({
         <h3 className="font-semibold text-blue-900 mb-3">원천징수 안내</h3>
         <div className="grid grid-cols-3 gap-6 text-sm text-blue-800">
           <div>
-            <div className="font-medium mb-1">사업소득 (3.3%)</div>
+            <div className="font-medium mb-1">사업소득 ({formatTaxRate(businessConfig.taxRates.businessIncome)})</div>
             <p className="text-blue-600">소득세 3.0% + 지방소득세 0.3%</p>
             <p className="text-blue-600">개인 크리에이터 기본 적용</p>
           </div>
           <div>
-            <div className="font-medium mb-1">기타소득 (8.8%)</div>
+            <div className="font-medium mb-1">기타소득 ({formatTaxRate(businessConfig.taxRates.otherIncome)})</div>
             <p className="text-blue-600">소득세 8.0% + 지방소득세 0.8%</p>
             <p className="text-blue-600">일회성/비정기 소득에 적용</p>
           </div>
           <div>
-            <div className="font-medium mb-1">세금계산서 (0%)</div>
+            <div className="font-medium mb-1">세금계산서 ({formatTaxRate(businessConfig.taxRates.invoice)})</div>
             <p className="text-blue-600">사업자 등록 크리에이터</p>
             <p className="text-blue-600">원천징수 없이 세금계산서 발행</p>
           </div>

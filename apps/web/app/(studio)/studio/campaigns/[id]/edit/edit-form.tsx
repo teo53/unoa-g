@@ -148,7 +148,7 @@ export default function EditForm({ id }: EditFormProps) {
   const [eventSchedule, setEventSchedule] = useState<EventSchedule>({})
   const [benefits, setBenefits] = useState<Benefit[]>([])
   const [stretchGoals, setStretchGoals] = useState<StretchGoal[]>([])
-  const [budgetInfo, setBudgetInfo] = useState<BudgetInfo>({ items: [], total: 0, currency: 'DT' })
+  const [budgetInfo, setBudgetInfo] = useState<BudgetInfo>({ items: [], total: 0, currency: 'KRW' })
   const [scheduleInfo, setScheduleInfo] = useState<ScheduleMilestone[]>([])
   const [teamInfo, setTeamInfo] = useState<TeamInfo>({ members: [] })
   const [notices, setNotices] = useState<Notice[]>([])
@@ -186,7 +186,7 @@ export default function EditForm({ id }: EditFormProps) {
         setEventSchedule(campaignData.event_schedule || {})
         setBenefits(campaignData.benefits || [])
         setStretchGoals(campaignData.stretch_goals || [])
-        setBudgetInfo(campaignData.budget_info || { items: [], total: 0, currency: 'DT' })
+        setBudgetInfo(campaignData.budget_info || { items: [], total: 0, currency: 'KRW' })
         setScheduleInfo(campaignData.schedule_info || [])
         setTeamInfo(campaignData.team_info || { members: [] })
         setNotices(campaignData.notices || [])
@@ -246,7 +246,7 @@ export default function EditForm({ id }: EditFormProps) {
       setEventSchedule(typedCampaign.event_schedule || {})
       setBenefits(typedCampaign.benefits || [])
       setStretchGoals(typedCampaign.stretch_goals || [])
-      setBudgetInfo(typedCampaign.budget_info || { items: [], total: 0, currency: 'DT' })
+      setBudgetInfo(typedCampaign.budget_info || { items: [], total: 0, currency: 'KRW' })
       setScheduleInfo(typedCampaign.schedule_info || [])
       setTeamInfo(typedCampaign.team_info || { members: [] })
       setNotices(typedCampaign.notices || [])
@@ -624,7 +624,7 @@ export default function EditForm({ id }: EditFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  목표 금액 (DT) *
+                  목표 금액 (원) *
                 </label>
                 <input
                   type="number"
@@ -732,7 +732,7 @@ export default function EditForm({ id }: EditFormProps) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-gray-900">{tier.title}</span>
-                            <span className="text-sm text-pink-600 font-bold">{tier.price_dt.toLocaleString()} DT</span>
+                            <span className="text-sm text-pink-600 font-bold">{tier.price_dt.toLocaleString()}원</span>
                             {tier.badge_type && (
                               <span className="text-xs px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full">
                                 {tier.badge_label || tier.badge_type}
@@ -777,13 +777,13 @@ export default function EditForm({ id }: EditFormProps) {
                               />
                             </div>
                             <div>
-                              <label className="block text-xs text-gray-500 mb-1">가격 (DT) *</label>
+                              <label className="block text-xs text-gray-500 mb-1">가격 (원) *</label>
                               <input
                                 type="number"
                                 value={tier.price_dt}
                                 onChange={(e) => updateTier(tier.id, { price_dt: parseInt(e.target.value) || 0 })}
                                 className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="가격 (DT)"
+                                placeholder="가격 (원)"
                                 min={1}
                               />
                             </div>

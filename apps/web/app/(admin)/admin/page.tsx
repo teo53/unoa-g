@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { Clock, CheckCircle, XCircle, Eye, Wallet, CreditCard, Calculator } from 'lucide-react'
 import { DEMO_MODE, mockCampaigns } from '@/lib/mock/demo-data'
 import { Button } from '@/components/ui/button'
-import { formatDate, formatDT, formatKRW } from '@/lib/utils/format'
+import { formatDate, formatFundingAmount, formatKRW } from '@/lib/utils/format'
+import { businessConfig } from '@/lib/config'
 
 interface Campaign {
   id: string
@@ -131,6 +132,24 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
+      {/* Platform Revenue Summary */}
+      <div className="bg-white rounded-xl p-4 border border-gray-200 mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm text-gray-500 mb-1">플랫폼 수수료 수입 (수수료율 {businessConfig.platformCommissionPercent}%)</div>
+            <div className="text-xs text-gray-400">
+              크리에이터 정산률 {businessConfig.creatorPayoutPercent}% · 사업소득 원천징수 {businessConfig.taxRates.businessIncome}% · 기타소득 {businessConfig.taxRates.otherIncome}%
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-gray-500">구독 티어</div>
+            <div className="text-xs text-gray-400 mt-0.5">
+              BASIC {formatKRW(businessConfig.tierPrices.BASIC)} / STANDARD {formatKRW(businessConfig.tierPrices.STANDARD)} / VIP {formatKRW(businessConfig.tierPrices.VIP)}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Quick Links */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <Link href="/admin/settlements" className="bg-white rounded-xl p-4 border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group">
@@ -208,7 +227,7 @@ export default async function AdminDashboardPage() {
                       {campaign.title}
                     </h3>
                     <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                      <span>목표: {campaign.goal_amount_krw ? formatKRW(campaign.goal_amount_krw) : formatDT(campaign.goal_amount_dt)}</span>
+                      <span>목표: {campaign.goal_amount_krw ? formatKRW(campaign.goal_amount_krw) : formatFundingAmount(campaign.goal_amount_dt)}</span>
                       {campaign.submitted_at && (
                         <span>제출: {formatDate(campaign.submitted_at)}</span>
                       )}

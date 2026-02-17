@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[8525],{8525:(e,_,n)=>{n.r(_),n.d(_,{createClient:()=>E});var r=n(5417),t=n(5704);function E(){return(0,r.createBrowserClient)(t.env.NEXT_PUBLIC_SUPABASE_URL,t.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)}}}]);

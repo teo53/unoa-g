@@ -84,7 +84,7 @@ export function CampaignSidebar({
             <div>
               <p className="text-gray-500">모인 금액</p>
               <p className="font-bold text-gray-900">
-                {campaign.current_amount_dt.toLocaleString()} DT
+                {campaign.current_amount_dt.toLocaleString()}원
               </p>
             </div>
             <div>
@@ -105,7 +105,7 @@ export function CampaignSidebar({
                 <span className="font-medium text-gray-900">{selectedTier.title}</span>
               </div>
               <span className="font-bold text-pink-600">
-                {selectedTier.price_dt.toLocaleString()} DT
+                {selectedTier.price_dt.toLocaleString()}원
               </span>
             </div>
           </div>
@@ -210,7 +210,7 @@ export function CampaignSidebar({
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold text-gray-900">
-                  {tier.price_dt.toLocaleString()} DT
+                  {tier.price_dt.toLocaleString()}원
                 </span>
                 {tier.badge_type && (
                   <Badge variant="secondary" className="text-xs">

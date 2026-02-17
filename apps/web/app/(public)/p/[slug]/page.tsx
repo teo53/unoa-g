@@ -200,7 +200,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
     offers: tiers.map((tier) => ({
       '@type': 'Offer',
       name: tier.title,
-      price: tier.price_dt * 100, // Convert to KRW (1 DT = 100 KRW approx)
+      price: tier.price_dt,
       priceCurrency: 'KRW',
       availability: tier.remaining_quantity === 0 ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
     })),

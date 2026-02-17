@@ -110,7 +110,7 @@ export default async function AgencyDashboardPage() {
         </div>
 
         {/* Monthly DT */}
-        <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <div className="bg-white rounded-xl p-4 border border-gray-200 group relative">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-purple-600" />
@@ -121,6 +121,11 @@ export default async function AgencyDashboardPage() {
               </div>
               <div className="text-sm text-gray-500">이번달 DT</div>
             </div>
+          </div>
+          {/* DT Tooltip */}
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-10">
+            DT = 플랫폼 내 디지털 이용권 (채팅 도네이션 등에 사용)
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
           </div>
         </div>
 

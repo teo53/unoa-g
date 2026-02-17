@@ -56,3 +56,66 @@ export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text
   return text.slice(0, maxLength) + '...'
 }
+
+// ============================================================
+// 펀딩/정산 포맷터 (businessConfig 참조)
+// ============================================================
+
+/**
+ * 펀딩 금액 포맷 (KRW 표시)
+ * @example formatFundingAmount(500000) → "500,000원"
+ */
+export function formatFundingAmount(amount: number): string {
+  return new Intl.NumberFormat('ko-KR').format(amount) + '원'
+}
+
+/**
+ * 정산 금액 포맷 (KRW 통화 기호 포함)
+ * @example formatSettlementAmount(1250000) → "₩1,250,000"
+ */
+export function formatSettlementAmount(amount: number): string {
+  return new Intl.NumberFormat('ko-KR', {
+    style: 'currency',
+    currency: 'KRW',
+  }).format(amount)
+}
+
+/**
+ * 세율 포맷
+ * @example formatTaxRate(3.3) → "3.3%"
+ */
+export function formatTaxRate(rate: number): string {
+  return `${rate}%`
+}
+
+/**
+ * 계좌번호 마스킹
+ * @example formatAccountNumber('123456789012') → '****9012'
+ */
+export function formatAccountNumber(account: string): string {
+  if (account.length < 4) return '****'
+  return '****' + account.slice(-4)
+}
+
+/**
+ * 큰 수 포맷 (만 단위)
+ * @example formatLargeNumber(12500000) → "1,250만"
+ */
+export function formatLargeNumber(amount: number): string {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억`
+  }
+  if (amount >= 10000) {
+    return `${new Intl.NumberFormat('ko-KR').format(Math.floor(amount / 10000))}만`
+  }
+  return new Intl.NumberFormat('ko-KR').format(amount)
+}
+
+/**
+ * 수수료 금액 계산 및 포맷
+ * @example formatCommission(100000, 20) → "20,000원 (20%)"
+ */
+export function formatCommission(amount: number, commissionPercent: number): string {
+  const commission = Math.floor(amount * commissionPercent / 100)
+  return `${new Intl.NumberFormat('ko-KR').format(commission)}원 (${commissionPercent}%)`
+}

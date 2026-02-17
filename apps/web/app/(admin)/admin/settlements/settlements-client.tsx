@@ -4,7 +4,8 @@ import { useState, useCallback } from 'react'
 import { Clock, CheckCircle, FileText, Download, Eye, X, ChevronDown, Calendar, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { formatKRW, formatDate } from '@/lib/utils/format'
+import { formatKRW, formatDate, formatSettlementAmount, formatTaxRate } from '@/lib/utils/format'
+import { businessConfig } from '@/lib/config'
 
 // =====================================================
 // Settlement Client Component
@@ -248,7 +249,7 @@ export default function SettlementsClient({
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-500">플랫폼 수수료</span>
-              <span className="text-gray-900">총매출의 20%</span>
+              <span className="text-gray-900">총매출의 {businessConfig.platformCommissionPercent}%</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">PG 수수료</span>
@@ -256,11 +257,11 @@ export default function SettlementsClient({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">사업소득 원천징수</span>
-              <span className="text-gray-900">3.3%</span>
+              <span className="text-gray-900">{formatTaxRate(businessConfig.taxRates.businessIncome)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">기타소득 원천징수</span>
-              <span className="text-gray-900">8.8%</span>
+              <span className="text-gray-900">{formatTaxRate(businessConfig.taxRates.otherIncome)}</span>
             </div>
           </div>
         </div>
@@ -350,17 +351,17 @@ export default function SettlementsClient({
                             </thead>
                             <tbody className="text-gray-700">
                               <tr>
-                                <td className="py-0.5">BASIC (₩4,900)</td>
+                                <td className="py-0.5">BASIC ({formatSettlementAmount(businessConfig.tierPrices.BASIC)})</td>
                                 <td className="text-right">{s.subscription_basic_count}건</td>
                                 <td className="text-right">{formatKRW(s.subscription_basic_krw)}</td>
                               </tr>
                               <tr>
-                                <td className="py-0.5">STANDARD (₩9,900)</td>
+                                <td className="py-0.5">STANDARD ({formatSettlementAmount(businessConfig.tierPrices.STANDARD)})</td>
                                 <td className="text-right">{s.subscription_standard_count}건</td>
                                 <td className="text-right">{formatKRW(s.subscription_standard_krw)}</td>
                               </tr>
                               <tr>
-                                <td className="py-0.5">VIP (₩19,900)</td>
+                                <td className="py-0.5">VIP ({formatSettlementAmount(businessConfig.tierPrices.VIP)})</td>
                                 <td className="text-right">{s.subscription_vip_count}건</td>
                                 <td className="text-right">{formatKRW(s.subscription_vip_krw)}</td>
                               </tr>
@@ -479,15 +480,15 @@ export default function SettlementsClient({
                   </div>
                   <div className="ml-4 space-y-1 text-xs text-gray-500">
                     <div className="flex justify-between">
-                      <span>BASIC ({detailModal.subscription_basic_count}건 x ₩4,900)</span>
+                      <span>BASIC ({detailModal.subscription_basic_count}건 x {formatSettlementAmount(businessConfig.tierPrices.BASIC)})</span>
                       <span>{formatKRW(detailModal.subscription_basic_krw)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>STANDARD ({detailModal.subscription_standard_count}건 x ₩9,900)</span>
+                      <span>STANDARD ({detailModal.subscription_standard_count}건 x {formatSettlementAmount(businessConfig.tierPrices.STANDARD)})</span>
                       <span>{formatKRW(detailModal.subscription_standard_krw)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>VIP ({detailModal.subscription_vip_count}건 x ₩19,900)</span>
+                      <span>VIP ({detailModal.subscription_vip_count}건 x {formatSettlementAmount(businessConfig.tierPrices.VIP)})</span>
                       <span>{formatKRW(detailModal.subscription_vip_krw)}</span>
                     </div>
                   </div>
@@ -515,7 +516,7 @@ export default function SettlementsClient({
                     <span>{formatKRW(detailModal.total_revenue_krw)}</span>
                   </div>
                   <div className="flex justify-between text-red-500">
-                    <span>플랫폼 수수료 (20%)</span>
+                    <span>플랫폼 수수료 ({businessConfig.platformCommissionPercent}%)</span>
                     <span>-{formatKRW(detailModal.platform_fee_krw)}</span>
                   </div>
                   <div className="flex justify-between">
@@ -582,9 +583,9 @@ function getStatusBadge(status: string) {
 
 function getIncomeTypeLabel(type: string) {
   switch (type) {
-    case 'business_income': return '사업소득 3.3%'
-    case 'other_income': return '기타소득 8.8%'
-    case 'invoice': return '세금계산서 0%'
+    case 'business_income': return `사업소득 ${businessConfig.taxRates.businessIncome}%`
+    case 'other_income': return `기타소득 ${businessConfig.taxRates.otherIncome}%`
+    case 'invoice': return `세금계산서 ${businessConfig.taxRates.invoice}%`
     default: return type
   }
 }

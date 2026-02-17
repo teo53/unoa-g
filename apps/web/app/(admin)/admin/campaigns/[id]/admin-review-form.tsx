@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, XCircle, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { formatDT, formatDate } from '@/lib/utils/format'
+import { formatFundingAmount, formatDate } from '@/lib/utils/format'
 import { DEMO_MODE, getCampaignById, getTiersByCampaignId } from '@/lib/mock/demo-data'
 import type { CampaignWithTiers } from '@/lib/types/database'
 
@@ -247,7 +247,7 @@ export default function AdminReviewForm({ id }: AdminReviewFormProps) {
               </div>
               <div>
                 <dt className="text-sm text-gray-500">목표 금액</dt>
-                <dd className="font-medium">{formatDT(campaign.goal_amount_dt)}</dd>
+                <dd className="font-medium">{formatFundingAmount(campaign.goal_amount_dt)}</dd>
               </div>
               <div>
                 <dt className="text-sm text-gray-500">종료일</dt>
@@ -283,7 +283,7 @@ export default function AdminReviewForm({ id }: AdminReviewFormProps) {
                   <div key={tier.id} className="p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">{tier.title}</span>
-                      <span className="font-bold text-primary-500">{formatDT(tier.price_dt)}</span>
+                      <span className="font-bold text-primary-500">{formatFundingAmount(tier.price_dt)}</span>
                     </div>
                     {tier.description && (
                       <p className="text-sm text-gray-600">{tier.description}</p>

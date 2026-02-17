@@ -131,7 +131,7 @@ export const mockCampaigns: CampaignEnhanced[] = [
         { name: '배송비', amount: 25000, percentage: 5, description: '국내/해외 배송' },
       ],
       total: 500000,
-      currency: 'DT',
+      currency: 'KRW',
     },
 
     // Schedule Info (Tumblbug style)
@@ -276,7 +276,7 @@ export const mockCampaigns: CampaignEnhanced[] = [
         { name: '굿즈 제작', amount: 100000, percentage: 10 },
       ],
       total: 1000000,
-      currency: 'DT',
+      currency: 'KRW',
     },
 
     schedule_info: [
@@ -378,7 +378,7 @@ export const mockCampaigns: CampaignEnhanced[] = [
         { name: '배송비', amount: 50000, percentage: 17 },
       ],
       total: 300000,
-      currency: 'DT',
+      currency: 'KRW',
     },
 
     schedule_info: [

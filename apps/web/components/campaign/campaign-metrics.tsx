@@ -62,7 +62,7 @@ export function CampaignMetrics({ campaign }: CampaignMetricsProps) {
           <p className="text-2xl font-bold text-gray-900">
             {formatAmount(campaign.current_amount_dt)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">모인 금액 (DT)</p>
+          <p className="text-xs text-gray-500 mt-1">모인 금액 (원)</p>
         </div>
 
         {/* Backers */}
@@ -89,7 +89,7 @@ export function CampaignMetrics({ campaign }: CampaignMetricsProps) {
         <div className="flex justify-between text-sm">
           <span className="text-gray-500">목표 금액</span>
           <span className="font-medium text-gray-900">
-            {campaign.goal_amount_dt.toLocaleString()} DT
+            {campaign.goal_amount_dt.toLocaleString()}원
           </span>
         </div>
       </div>

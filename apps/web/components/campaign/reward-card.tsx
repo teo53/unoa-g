@@ -141,7 +141,7 @@ export function RewardCard({ tier, onSelect, isSelected, disabled }: RewardCardP
         <div className="flex items-baseline justify-between">
           <span className="text-2xl font-bold text-gray-900">
             {tier.price_dt.toLocaleString()}
-            <span className="text-sm font-normal text-gray-500 ml-1">DT</span>
+            <span className="text-sm font-normal text-gray-500 ml-1">원</span>
           </span>
           {isSelected && (
             <div className="h-6 w-6 rounded-full bg-pink-500 flex items-center justify-center">

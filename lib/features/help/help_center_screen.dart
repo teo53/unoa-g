@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/search_field.dart';
+import 'widgets/faq_answer_sheet.dart';
 
 class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
@@ -319,9 +320,7 @@ class _FaqCategory extends StatelessWidget {
                         isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
                   ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('FAQ: $q')),
-                    );
+                    FaqAnswerSheet.show(context, question: q);
                   },
                 ),
               )

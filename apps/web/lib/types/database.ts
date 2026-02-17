@@ -643,7 +643,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventSchedule = {}
 export const DEFAULT_BUDGET_INFO: BudgetInfo = {
   items: [],
   total: 0,
-  currency: 'DT'
+  currency: 'KRW'
 }
 
 export const DEFAULT_TEAM_INFO: TeamInfo = {

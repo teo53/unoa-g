@@ -55,7 +55,7 @@ export function CampaignDetailClient({
   const handlePledge = () => {
     if (selectedTier) {
       // In demo mode, just show alert
-      alert(`"${selectedTier.title}" 리워드로 ${selectedTier.price_dt.toLocaleString()} DT 후원을 진행합니다.`)
+      alert(`"${selectedTier.title}" 리워드로 ${selectedTier.price_dt.toLocaleString()}원 후원을 진행합니다.`)
     }
   }
 

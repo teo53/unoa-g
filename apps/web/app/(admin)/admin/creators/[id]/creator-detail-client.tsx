@@ -16,6 +16,7 @@ import {
   DollarSign,
 } from 'lucide-react'
 import { formatKRW, formatDate, formatDateTime } from '@/lib/utils/format'
+import { businessConfig } from '@/lib/config'
 
 type Category = 'VTuber' | 'K-POP' | 'Idol'
 type ActivityLevel = 'high' | 'medium' | 'low'
@@ -344,7 +345,7 @@ export default function CreatorDetailClient({ id }: { id: string }) {
               {creator.basic_count}
             </div>
             <div className="text-xs text-blue-600 mt-1">
-              {formatKRW(creator.basic_count * 4900)}
+              {formatKRW(creator.basic_count * businessConfig.tierPrices.BASIC)}
             </div>
           </div>
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -353,7 +354,7 @@ export default function CreatorDetailClient({ id }: { id: string }) {
               {creator.standard_count}
             </div>
             <div className="text-xs text-purple-600 mt-1">
-              {formatKRW(creator.standard_count * 9900)}
+              {formatKRW(creator.standard_count * businessConfig.tierPrices.STANDARD)}
             </div>
           </div>
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -362,7 +363,7 @@ export default function CreatorDetailClient({ id }: { id: string }) {
               {creator.vip_count}
             </div>
             <div className="text-xs text-orange-600 mt-1">
-              {formatKRW(creator.vip_count * 19900)}
+              {formatKRW(creator.vip_count * businessConfig.tierPrices.VIP)}
             </div>
           </div>
         </div>

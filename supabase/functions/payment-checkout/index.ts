@@ -3,19 +3,25 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders } from '../_shared/cors.ts'
+import { getCorsHeaders, isAllowedOrigin } from '../_shared/cors.ts'
 import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
 
-// DT Package definitions (should match database)
-const DT_PACKAGES: Record<string, { dt: number; bonus: number; priceKrw: number; name: string }> = {
-  'dt_10': { dt: 10, bonus: 0, priceKrw: 1000, name: '10 DT' },
-  'dt_50': { dt: 50, bonus: 0, priceKrw: 5000, name: '50 DT' },
-  'dt_100': { dt: 100, bonus: 5, priceKrw: 10000, name: '100 DT' },
-  'dt_500': { dt: 500, bonus: 50, priceKrw: 50000, name: '500 DT' },
-  'dt_1000': { dt: 1000, bonus: 150, priceKrw: 100000, name: '1,000 DT' },
-  'dt_5000': { dt: 5000, bonus: 1000, priceKrw: 500000, name: '5,000 DT' },
+type PlatformKey = 'web' | 'android' | 'ios'
+
+// DT Package definitions with platform-specific pricing
+// Web = base price, Android ≈ +20%, iOS ≈ +30% (IAP commission offset)
+const DT_PACKAGES: Record<string, {
+  dt: number; bonus: number; name: string;
+  prices: Record<PlatformKey, number>;
+}> = {
+  'dt_10':   { dt: 10,   bonus: 0,    name: '10 DT',    prices: { web: 1000,   android: 1200,   ios: 1400   } },
+  'dt_50':   { dt: 50,   bonus: 0,    name: '50 DT',    prices: { web: 5000,   android: 5900,   ios: 6900   } },
+  'dt_100':  { dt: 100,  bonus: 5,    name: '100 DT',   prices: { web: 10000,  android: 11900,  ios: 13900  } },
+  'dt_500':  { dt: 500,  bonus: 50,   name: '500 DT',   prices: { web: 50000,  android: 59000,  ios: 69000  } },
+  'dt_1000': { dt: 1000, bonus: 150,  name: '1,000 DT', prices: { web: 100000, android: 119000, ios: 139000 } },
+  'dt_5000': { dt: 5000, bonus: 1000, name: '5,000 DT', prices: { web: 500000, android: 590000, ios: 690000 } },
 }
 
 serve(async (req) => {
@@ -49,7 +55,23 @@ serve(async (req) => {
 
     // userId comes from verified JWT — body userId is ignored for security
     const userId = user.id
-    const { packageId, paymentMethod = 'card' } = await req.json()
+    const { packageId, paymentMethod = 'card', platform = 'web' } = await req.json()
+
+    // Validate platform
+    const validPlatforms: PlatformKey[] = ['web', 'android', 'ios']
+    const platformKey: PlatformKey = validPlatforms.includes(platform) ? platform : 'web'
+
+    // SECURITY: Origin validation for web platform
+    // Prevents price manipulation by ensuring web requests come from allowed origins
+    if (platformKey === 'web') {
+      const origin = req.headers.get('Origin')
+      if (!isAllowedOrigin(origin)) {
+        return new Response(
+          JSON.stringify({ error: 'Origin not allowed' }),
+          { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+        )
+      }
+    }
 
     // Validate inputs
     if (!packageId) {
@@ -66,6 +88,9 @@ serve(async (req) => {
         { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )
     }
+
+    // Resolve platform-specific price
+    const priceKrw = pkg.prices[platformKey]
 
     // Initialize Supabase client with service role
     const supabase = createClient(
@@ -135,8 +160,8 @@ serve(async (req) => {
     // 결제 시점에는 총액 기준으로 PG 전표 발행, 세금계산서는 사용 시점에 발행
     // 공급가액 = price_krw × 10/11 (원 미만 절사)
     // 부가세 = price_krw - 공급가액
-    const supplyAmountKrw = Math.floor(pkg.priceKrw * 10 / 11)
-    const vatAmountKrw = pkg.priceKrw - supplyAmountKrw
+    const supplyAmountKrw = Math.floor(priceKrw * 10 / 11)
+    const vatAmountKrw = priceKrw - supplyAmountKrw
 
     // Create pending purchase record
     const { data: purchase, error: purchaseError } = await supabase
@@ -146,11 +171,11 @@ serve(async (req) => {
         package_id: packageId,
         dt_amount: pkg.dt,
         bonus_dt: pkg.bonus,
-        price_krw: pkg.priceKrw,
+        price_krw: priceKrw,
         supply_amount_krw: supplyAmountKrw,
         vat_amount_krw: vatAmountKrw,
         payment_method: paymentMethod,
-        payment_provider: 'tosspayments', // Default provider
+        payment_provider: `tosspayments|${platformKey}`, // Audit trail: PG|platform
         status: 'pending',
         refund_eligible_until: refundEligibleUntil,
       })
@@ -187,7 +212,7 @@ serve(async (req) => {
     const tossAuth = btoa(`${tossSecretKey}:`)
     const tossBody = {
       method: 'CARD',
-      amount: pkg.priceKrw,
+      amount: priceKrw,
       currency: 'KRW',
       orderId: purchase.id,
       orderName: pkg.name,
@@ -252,7 +277,8 @@ serve(async (req) => {
           dtAmount: pkg.dt,
           bonusDt: pkg.bonus,
           totalDt: pkg.dt + pkg.bonus,
-          priceKrw: pkg.priceKrw,
+          priceKrw: priceKrw,
+          platform: platformKey,
         },
         expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes
       }),

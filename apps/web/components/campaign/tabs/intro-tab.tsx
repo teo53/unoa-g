@@ -106,7 +106,7 @@ function IntroContent({ campaign }: { campaign: CampaignEnhanced }) {
                       'text-sm font-bold',
                       isReached ? 'text-green-600' : 'text-gray-500'
                     )}>
-                      {goal.amount_dt.toLocaleString()} DT
+                      {goal.amount_dt.toLocaleString()}원
                       {isReached && ' ✓'}
                     </span>
                   </div>
@@ -212,7 +212,7 @@ function BudgetContent({ campaign }: { campaign: CampaignEnhanced }) {
                 </div>
                 <div className="text-right">
                   <span className="font-medium text-gray-900">
-                    {item.amount.toLocaleString()} {budgetInfo.currency || 'DT'}
+                    {item.amount.toLocaleString()} {budgetInfo.currency || '원'}
                   </span>
                   <span className="text-gray-500 text-sm ml-2">({item.percentage}%)</span>
                 </div>
@@ -225,7 +225,7 @@ function BudgetContent({ campaign }: { campaign: CampaignEnhanced }) {
         <div className="mt-4 pt-4 border-t-2 border-gray-300 flex justify-between">
           <span className="font-bold text-gray-900">합계</span>
           <span className="font-bold text-pink-600">
-            {budgetInfo.total.toLocaleString()} {budgetInfo.currency || 'DT'}
+            {budgetInfo.total.toLocaleString()} {budgetInfo.currency || '원'}
           </span>
         </div>
       </div>

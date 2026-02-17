@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../core/config/business_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/accessibility_helper.dart';
+import '../../core/utils/platform_pricing.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/error_boundary.dart';
+import 'widgets/tier_comparison_sheet.dart';
 
 class SubscriptionsScreen extends ConsumerWidget {
   const SubscriptionsScreen({super.key});
@@ -134,7 +138,13 @@ class SubscriptionsScreen extends ConsumerWidget {
                         isExpiringSoon: sub.isExpiringSoon,
                         onTap: () => context.push('/artist/${sub.artistId}'),
                         onManage: () {
-                          _showManageSheet(context, sub);
+                          _showManageSheet(
+                            context,
+                            sub,
+                            platform: ref.read(purchasePlatformProvider),
+                            isDemoMode: ref.read(isDemoModeProvider),
+                            currentTier: sub.tier,
+                          );
                         },
                       );
                     },
@@ -145,7 +155,13 @@ class SubscriptionsScreen extends ConsumerWidget {
     );
   }
 
-  void _showManageSheet(BuildContext context, dynamic subscription) {
+  void _showManageSheet(
+    BuildContext context,
+    dynamic subscription, {
+    required PurchasePlatform platform,
+    required bool isDemoMode,
+    required String currentTier,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
@@ -184,8 +200,11 @@ class SubscriptionsScreen extends ConsumerWidget {
               subtitle: '더 많은 혜택을 누려보세요',
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('구독 등급 변경 기능 준비 중')),
+                TierComparisonSheet.show(
+                  context,
+                  platform: platform,
+                  currentTier: currentTier,
+                  isDemoMode: isDemoMode,
                 );
               },
             ),
