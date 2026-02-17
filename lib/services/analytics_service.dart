@@ -39,15 +39,19 @@ class AnalyticsService {
       if (AppConfig.enableAnalytics) {
         _analytics = FirebaseAnalytics.instance;
         await _analytics!.setAnalyticsCollectionEnabled(true);
-        AppLogger.info('Service initialized (Firebase Analytics active)', tag: 'Analytics');
+        AppLogger.info('Service initialized (Firebase Analytics active)',
+            tag: 'Analytics');
       } else {
-        AppLogger.info('Service initialized (no-op: analytics disabled)', tag: 'Analytics');
+        AppLogger.info('Service initialized (no-op: analytics disabled)',
+            tag: 'Analytics');
       }
 
       _initialized = true;
     } catch (e) {
       _initialized = true;
-      AppLogger.error(e, tag: 'Analytics', message: 'Initialization error — running in no-op mode');
+      AppLogger.error(e,
+          tag: 'Analytics',
+          message: 'Initialization error — running in no-op mode');
     }
   }
 

@@ -854,8 +854,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // Optimistic update
     _updateMessageInState(
-        messageId,
-        (m) => m.copyWith(isHighlighted: isHighlighted));
+        messageId, (m) => m.copyWith(isHighlighted: isHighlighted));
 
     final authState = _ref.read(authProvider);
     if (authState is! AuthDemoMode) {
@@ -872,8 +871,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
             message: 'set_message_highlight RPC error');
         // Revert on failure
         _updateMessageInState(
-            messageId,
-            (m) => m.copyWith(isHighlighted: !isHighlighted));
+            messageId, (m) => m.copyWith(isHighlighted: !isHighlighted));
         return false;
       }
     }

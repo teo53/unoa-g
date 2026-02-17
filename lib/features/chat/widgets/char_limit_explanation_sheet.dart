@@ -113,10 +113,14 @@ class CharLimitExplanationSheet {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.surfaceAltDark : AppColors.surfaceAlt,
+                    color: isDark
+                        ? AppColors.surfaceAltDark
+                        : AppColors.surfaceAlt,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: (isDark ? AppColors.borderDark : AppColors.borderLight)
+                      color: (isDark
+                              ? AppColors.borderDark
+                              : AppColors.borderLight)
                           .withValues(alpha: 0.6),
                     ),
                   ),
@@ -140,7 +144,9 @@ class CharLimitExplanationSheet {
                             : '다음 단계: ${nextLimit}자 (약 ${daysLeft}일 후)',
                         style: TextStyle(
                           fontSize: 13,
-                          color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                          color: isDark
+                              ? AppColors.textSubDark
+                              : AppColors.textSubLight,
                         ),
                       ),
                     ],
@@ -179,7 +185,8 @@ class CharLimitExplanationSheet {
                           child: Icon(
                             reached ? Icons.check : Icons.schedule,
                             size: 14,
-                            color: reached ? AppColors.success : AppColors.primary,
+                            color:
+                                reached ? AppColors.success : AppColors.primary,
                           ),
                         ),
                         const SizedBox(width: 10),

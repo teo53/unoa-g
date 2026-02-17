@@ -164,8 +164,7 @@ class _HideFanDialogState extends State<HideFanDialog> {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline,
-                    size: 16, color: Colors.orange[700]),
+                Icon(Icons.info_outline, size: 16, color: Colors.orange[700]),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

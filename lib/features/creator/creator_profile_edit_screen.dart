@@ -57,7 +57,8 @@ class _CreatorProfileEditScreenState
   String _twitterLink = '';
 
   // Pricing policy
-  String _selectedPricingPreset = 'standard'; // 'support' | 'standard' | 'premium'
+  String _selectedPricingPreset =
+      'standard'; // 'support' | 'standard' | 'premium'
 
   // Content lists
   List<CreatorDrop> _drops = [];
@@ -1402,7 +1403,9 @@ class _CreatorProfileEditScreenState
                       : Icons.radio_button_unchecked,
                   color: isSelected
                       ? presetColor
-                      : (isDark ? AppColors.iconMutedDark : AppColors.iconMuted),
+                      : (isDark
+                          ? AppColors.iconMutedDark
+                          : AppColors.iconMuted),
                   size: 22,
                 ),
               ],

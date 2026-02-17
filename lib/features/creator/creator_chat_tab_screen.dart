@@ -734,8 +734,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   fanName: originalMessage.fanName,
                   onHidden: () {
                     setState(() {
-                      _messages.removeWhere(
-                          (m) => m.fanId == originalMessage.fanId);
+                      _messages
+                          .removeWhere((m) => m.fanId == originalMessage.fanId);
                     });
                   },
                 );
@@ -751,8 +751,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               ),
               style: TextButton.styleFrom(
                 alignment: Alignment.centerLeft,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               ),
             ),
           ],

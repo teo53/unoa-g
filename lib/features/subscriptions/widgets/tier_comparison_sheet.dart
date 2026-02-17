@@ -94,13 +94,17 @@ class TierComparisonSheet {
                     separatorBuilder: (_, __) => const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final tier = _tiers[index];
-                      final isCurrent = tier.toUpperCase() == currentTier.toUpperCase();
-                      final basePrice = BusinessConfig.getTierPrice(tier, platform);
+                      final isCurrent =
+                          tier.toUpperCase() == currentTier.toUpperCase();
+                      final basePrice =
+                          BusinessConfig.getTierPrice(tier, platform);
                       final priceKrw = multiplier == 1.0
                           ? basePrice
                           : ((basePrice * multiplier / 100).round() * 100);
                       final tokens = BusinessConfig.getTokensForTier(tier);
-                      final benefits = BusinessConfig.tierBenefits[tier.toUpperCase()] ?? const <String>[];
+                      final benefits =
+                          BusinessConfig.tierBenefits[tier.toUpperCase()] ??
+                              const <String>[];
 
                       return _TierCard(
                         tier: tier,
@@ -119,7 +123,8 @@ class TierComparisonSheet {
                                     context: context,
                                     builder: (c) => AlertDialog(
                                       title: const Text('데모 모드'),
-                                      content: Text('"$tier" 등급으로 변경된 것으로 처리됩니다.'),
+                                      content:
+                                          Text('"$tier" 등급으로 변경된 것으로 처리됩니다.'),
                                       actions: [
                                         TextButton(
                                           onPressed: () => Navigator.pop(c),
@@ -148,7 +153,8 @@ class TierComparisonSheet {
                   style: TextStyle(
                     fontSize: 13,
                     height: 1.4,
-                    color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
                   ),
                 ),
               ],
@@ -212,13 +218,15 @@ class _TierCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
-                  color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                  color:
+                      isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
               const Spacer(),
               if (isCurrent)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.primary600.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(999),
@@ -263,7 +271,6 @@ class _TierCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-
           Row(
             children: [
               Icon(
@@ -276,13 +283,13 @@ class _TierCard extends StatelessWidget {
                 '답글 토큰: ${tokens}개/브로드캐스트',
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  color:
+                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-
           Expanded(
             child: ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
@@ -292,7 +299,8 @@ class _TierCard extends StatelessWidget {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.check_circle, size: 16, color: AppColors.success),
+                    const Icon(Icons.check_circle,
+                        size: 16, color: AppColors.success),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -311,14 +319,15 @@ class _TierCard extends StatelessWidget {
               },
             ),
           ),
-
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: onSelect,
               style: FilledButton.styleFrom(
-                backgroundColor: isCurrent ? (isDark ? AppColors.borderDark : AppColors.borderLight) : AppColors.primary600,
+                backgroundColor: isCurrent
+                    ? (isDark ? AppColors.borderDark : AppColors.borderLight)
+                    : AppColors.primary600,
                 minimumSize: const Size.fromHeight(44),
                 shape: RoundedRectangleBorder(borderRadius: AppRadius.baseBR),
               ),

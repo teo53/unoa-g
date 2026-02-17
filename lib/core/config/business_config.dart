@@ -47,12 +47,54 @@ class BusinessConfig {
   ///
   /// IMPORTANT: `id` must match `dt_packages.id` and Edge Function validation.
   static const List<Map<String, dynamic>> dtPackagesByPlatform = [
-    {'id': 'dt_10', 'dt': 10, 'bonus': 0, 'web': 1000, 'android': 1200, 'ios': 1400},
-    {'id': 'dt_50', 'dt': 50, 'bonus': 0, 'web': 5000, 'android': 5900, 'ios': 6900},
-    {'id': 'dt_100', 'dt': 100, 'bonus': 5, 'web': 10000, 'android': 11900, 'ios': 13900},
-    {'id': 'dt_500', 'dt': 500, 'bonus': 50, 'web': 50000, 'android': 59000, 'ios': 69000},
-    {'id': 'dt_1000', 'dt': 1000, 'bonus': 150, 'web': 100000, 'android': 119000, 'ios': 139000},
-    {'id': 'dt_5000', 'dt': 5000, 'bonus': 1000, 'web': 500000, 'android': 590000, 'ios': 690000},
+    {
+      'id': 'dt_10',
+      'dt': 10,
+      'bonus': 0,
+      'web': 1000,
+      'android': 1200,
+      'ios': 1400
+    },
+    {
+      'id': 'dt_50',
+      'dt': 50,
+      'bonus': 0,
+      'web': 5000,
+      'android': 5900,
+      'ios': 6900
+    },
+    {
+      'id': 'dt_100',
+      'dt': 100,
+      'bonus': 5,
+      'web': 10000,
+      'android': 11900,
+      'ios': 13900
+    },
+    {
+      'id': 'dt_500',
+      'dt': 500,
+      'bonus': 50,
+      'web': 50000,
+      'android': 59000,
+      'ios': 69000
+    },
+    {
+      'id': 'dt_1000',
+      'dt': 1000,
+      'bonus': 150,
+      'web': 100000,
+      'android': 119000,
+      'ios': 139000
+    },
+    {
+      'id': 'dt_5000',
+      'dt': 5000,
+      'bonus': 1000,
+      'web': 500000,
+      'android': 590000,
+      'ios': 690000
+    },
   ];
 
   static String _platformKey(PurchasePlatform platform) {
@@ -193,6 +235,16 @@ class BusinessConfig {
     50000,
     100000,
   ];
+
+  // ============================================================
+  // DT Refund & Expiry Policy
+  // ============================================================
+
+  /// Refund window (days after purchase) for unused DT
+  static const int dtRefundWindowDays = 7;
+
+  /// DT expiry period (years from purchase/grant)
+  static const int dtExpiryYears = 5;
 
   // ============================================================
   // Donation System
