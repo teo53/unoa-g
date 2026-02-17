@@ -88,7 +88,7 @@ export function StretchGoalsEditor({ goals, currentAmountDt, onChange }: Stretch
       </div>
 
       <p className="text-sm text-gray-600">
-        현재 모금액: <span className="font-bold text-pink-600">{currentAmountDt.toLocaleString()} DT</span>
+        현재 모금액: <span className="font-bold text-pink-600">{currentAmountDt.toLocaleString()}원</span>
       </p>
 
       {goals.length === 0 ? (
@@ -130,7 +130,7 @@ export function StretchGoalsEditor({ goals, currentAmountDt, onChange }: Stretch
                     {/* Amount and Status */}
                     <div className="flex items-center gap-3">
                       <div className="flex-1">
-                        <Label className="text-xs text-gray-500">목표 금액 (DT)</Label>
+                        <Label className="text-xs text-gray-500">목표 금액 (원)</Label>
                         <Input
                           type="number"
                           placeholder="300000"

@@ -54,7 +54,7 @@ export function BudgetEditor({ budget, onChange }: BudgetEditorProps) {
     onChange({
       items: updatedItems,
       total,
-      currency: 'DT'
+      currency: 'KRW'
     })
   }
 
@@ -86,7 +86,7 @@ export function BudgetEditor({ budget, onChange }: BudgetEditorProps) {
               />
             </div>
             <div className="w-32">
-              <Label className="text-xs text-gray-500">금액 (DT)</Label>
+              <Label className="text-xs text-gray-500">금액 (원)</Label>
               <Input
                 type="number"
                 placeholder="0"
@@ -154,7 +154,7 @@ export function BudgetEditor({ budget, onChange }: BudgetEditorProps) {
       <div className="flex items-center justify-between p-4 bg-pink-50 rounded-lg">
         <span className="font-medium text-gray-700">총 예산</span>
         <span className="text-xl font-bold text-pink-600">
-          {total.toLocaleString()} DT
+          {total.toLocaleString()}원
         </span>
       </div>
 
