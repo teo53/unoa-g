@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/config/app_config.dart';
+import '../../core/config/business_config.dart';
 import '../../core/supabase/supabase_client.dart';
 
 /// User profile model
@@ -353,13 +354,18 @@ class SupabaseProfileRepository {
     required String consentType,
     required bool agreed,
   }) async {
-    await _supabase.from('user_consents').upsert({
-      'user_id': _currentUserId,
-      'consent_type': consentType,
-      'agreed': agreed,
-      'agreed_at': agreed ? DateTime.now().toIso8601String() : null,
-      'updated_at': DateTime.now().toIso8601String(),
-    });
+    await _supabase.from('user_consents').upsert(
+      {
+        'user_id': _currentUserId,
+        'consent_type': consentType,
+        'version': BusinessConfig.currentConsentVersion,
+        'agreed': agreed,
+        'agreed_at': agreed ? DateTime.now().toIso8601String() : null,
+        'revoked_at': !agreed ? DateTime.now().toIso8601String() : null,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      onConflict: 'user_id,consent_type,version',
+    );
   }
 
   // ============================================

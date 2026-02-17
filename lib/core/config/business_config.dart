@@ -337,4 +337,14 @@ class BusinessConfig {
 
   /// Days before a celebration event expires
   static const int celebrationExpiryDays = 7;
+
+  // ============================================================
+  // Consent System
+  // ============================================================
+
+  /// Current consent document version.
+  ///
+  /// Increment this when terms/privacy policy changes require re-consent.
+  /// Maps to `user_consents.version` (VARCHAR(20) NOT NULL, migration 018).
+  static const String currentConsentVersion = 'v1.0.0';
 }

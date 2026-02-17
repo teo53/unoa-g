@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/config/business_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
 import '../../providers/auth_provider.dart';
@@ -35,13 +36,18 @@ Future<void> _persistConsentChange(
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) return; // Demo mode or not authenticated
 
-    await supabase.from('user_consents').upsert({
-      'user_id': userId,
-      'consent_type': dbConsentType,
-      'agreed': newValue,
-      'agreed_at': newValue ? DateTime.now().toIso8601String() : null,
-      'updated_at': DateTime.now().toIso8601String(),
-    });
+    await supabase.from('user_consents').upsert(
+      {
+        'user_id': userId,
+        'consent_type': dbConsentType,
+        'version': BusinessConfig.currentConsentVersion,
+        'agreed': newValue,
+        'agreed_at': newValue ? DateTime.now().toIso8601String() : null,
+        'revoked_at': !newValue ? DateTime.now().toIso8601String() : null,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      onConflict: 'user_id,consent_type,version',
+    );
   } catch (e) {
     AppLogger.error(
       e,
