@@ -10,12 +10,15 @@
 
 ## 환경 설정
 
-- [ ] `config/beta.json` 또는 `config/prod.json` 값 확인
-- [ ] `SUPABASE_URL` 실제 프로젝트 URL로 설정
+- [ ] `config/prod.json` 값 채움 (또는 CI 시크릿 설정) — 상세: `config/README.md`
+- [ ] `SUPABASE_URL`이 실제 `https://xxx.supabase.co` URL인지 확인
 - [ ] `SUPABASE_ANON_KEY` 실제 키로 설정
-- [ ] `SENTRY_DSN` 설정 확인
-- [ ] `ENABLE_DEMO=false` (프로덕션 빌드 시)
+- [ ] `SENTRY_DSN`이 실제 `https://xxx@sentry.io/xxx`인지 확인
+- [ ] `FIREBASE_PROJECT_ID` 실제 프로젝트 ID
+- [ ] `ENABLE_DEMO=false` 확인 (**프로덕션 필수**)
 - [ ] `ENABLE_ANALYTICS=true` (프로덕션 빌드 시)
+- [ ] `PRIVACY_POLICY_URL` 설정 (공개 URL, 스토어 필수)
+- [ ] `TERMS_URL` 설정 (공개 URL, 스토어 필수)
 
 ## Android 서명
 
@@ -56,6 +59,21 @@ flutter build ios --release --dart-define-from-file=config/prod.json
 # Xcode Archive → App Store Connect 업로드
 ```
 
+## 스토어 제출
+
+### Google Play Store
+- [ ] Data Safety 설문 작성 (상세: `docs/STORE_PRIVACY_CHECKLIST.md`)
+- [ ] 개인정보 처리방침 URL 등록
+- [ ] 서비스 이용약관 URL 등록
+- [ ] 앱 스크린샷 (한국어, 최소 2장)
+- [ ] 연령 등급 설문 완료
+
+### Apple App Store
+- [ ] App Privacy Details 작성
+- [ ] 개인정보 처리방침 URL 등록
+- [ ] 앱 스크린샷 (한국어, iPhone + iPad)
+- [ ] 연령 등급 설정
+
 ## 배포 후 확인
 
 - [ ] Sentry에서 에러 수신 정상 동작
@@ -63,7 +81,9 @@ flutter build ios --release --dart-define-from-file=config/prod.json
 - [ ] Analytics 이벤트 수신 확인
 - [ ] 주요 화면 이동 흐름 확인 (홈 → 채팅 → 프로필 → 설정)
 - [ ] 다크 모드 전환 정상
+- [ ] 결제 플로우 정상 (DT 충전 → 잔액 확인)
 - [ ] 크래시 없이 5분 이상 사용 가능
+- [ ] 24시간 모니터링 시작 (상세: `docs/LAUNCH_RC_FREEZE.md`)
 
 ## 롤백 계획
 
