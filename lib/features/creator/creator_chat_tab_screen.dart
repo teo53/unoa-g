@@ -12,6 +12,7 @@ import '../chat/widgets/chat_search_bar.dart';
 import '../chat/widgets/media_gallery_sheet.dart';
 import '../chat/widgets/daily_question_cards_panel.dart';
 import 'widgets/poll_suggestion_sheet.dart';
+import 'widgets/hide_fan_dialog.dart';
 import '../../data/models/poll_draft.dart';
 import 'widgets/group_chat_bubble.dart';
 import 'widgets/chat_room_tile.dart';
@@ -719,6 +720,40 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
+            // 팬 숨기기 버튼
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                HideFanDialog.show(
+                  context,
+                  fanId: originalMessage.fanId,
+                  fanName: originalMessage.fanName,
+                  onHidden: () {
+                    setState(() {
+                      _messages.removeWhere(
+                          (m) => m.fanId == originalMessage.fanId);
+                    });
+                  },
+                );
+              },
+              icon: Icon(Icons.visibility_off_outlined,
+                  size: 18, color: Colors.orange[700]),
+              label: Text(
+                '${originalMessage.fanName}님 숨기기',
+                style: TextStyle(
+                  color: Colors.orange[700],
+                  fontSize: 13,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                alignment: Alignment.centerLeft,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              ),
             ),
           ],
         ),
