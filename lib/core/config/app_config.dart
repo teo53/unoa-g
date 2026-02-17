@@ -157,6 +157,22 @@ class AppConfig {
   );
 
   // ============================================================
+  // Legal URLs
+  // ============================================================
+
+  /// Public privacy policy URL (required for store submission)
+  static const String privacyPolicyUrl = String.fromEnvironment(
+    'PRIVACY_POLICY_URL',
+    defaultValue: '',
+  );
+
+  /// Public terms of service URL (required for store submission)
+  static const String termsOfServiceUrl = String.fromEnvironment(
+    'TERMS_URL',
+    defaultValue: '',
+  );
+
+  // ============================================================
   // App Info
   // ============================================================
 
