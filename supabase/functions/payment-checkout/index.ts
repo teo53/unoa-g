@@ -250,6 +250,23 @@ serve(async (req) => {
     }
 
     const tossData = await tossRes.json()
+
+    // S-P1-1: Cross-verify amount returned by PG matches our request
+    if (tossData.totalAmount != null && tossData.totalAmount !== priceKrw) {
+      console.error(
+        `[Checkout] Amount mismatch: requested=${priceKrw}, PG returned=${tossData.totalAmount}`
+      )
+      await supabase
+        .from('dt_purchases')
+        .update({ status: 'failed' })
+        .eq('id', purchase.id)
+
+      return new Response(
+        JSON.stringify({ error: 'Payment amount verification failed' }),
+        { status: 502, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
     const checkoutUrl = tossData.checkout?.url ?? tossData.url ?? ''
 
     if (!checkoutUrl) {

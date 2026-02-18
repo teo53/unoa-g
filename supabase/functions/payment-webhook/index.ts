@@ -370,6 +370,27 @@ serve(async (req) => {
       )
     }
 
+    // S-P1-1: Cross-verify PG amount matches purchase record
+    const pgAmount = verification?.amount ?? paymentData.totalAmount ?? paymentData.amount
+    if (pgAmount != null && purchase.price_krw != null && pgAmount !== purchase.price_krw) {
+      console.error(
+        `[Webhook] Amount mismatch: purchase.price_krw=${purchase.price_krw}, PG amount=${pgAmount}, orderId=${orderId}`
+      )
+      logEntry.error_message = `Amount mismatch: expected=${purchase.price_krw}, got=${pgAmount}`
+      logEntry.processed_status = 'failed'
+      await logWebhookEvent(supabase, logEntry)
+
+      await supabase
+        .from('dt_purchases')
+        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .eq('id', orderId)
+
+      return new Response(
+        JSON.stringify({ error: 'Payment amount verification failed' }),
+        { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Handle cancellation/refund
     if (isPaymentCancelled) {
       const { error: cancelError } = await supabase
