@@ -251,8 +251,8 @@ class _CampaignList extends ConsumerWidget {
 
     if (campaigns.isEmpty) {
       return const EmptyState(
-        title: '진행 중인 펀딩이 없습니다',
-        message: '새로운 크리에이터의 펀딩 캠페인을 기다려주세요',
+        title: '진행 중인 펀딩이 없어요',
+        message: '새로운 펀딩 프로젝트가 곧 시작됩니다!',
         icon: Icons.campaign_outlined,
       );
     }

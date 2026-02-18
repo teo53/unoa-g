@@ -7,6 +7,7 @@ import '../../core/config/demo_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/repository_providers.dart';
 import '../../data/repositories/chat_repository.dart';
+import '../../shared/widgets/skeleton_loader.dart';
 import 'widgets/todays_voted_question_section.dart';
 import 'widgets/ai_reply_suggestion_sheet.dart';
 import 'widgets/celebration_queue_section.dart';
@@ -681,11 +682,19 @@ class _CreatorDashboardScreenState
 
   Widget _buildStatsGrid(bool isDark) {
     if (_isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(),
-        ),
+      return GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.1,
+        children: const [
+          SkeletonCard(width: double.infinity, height: 120),
+          SkeletonCard(width: double.infinity, height: 120),
+          SkeletonCard(width: double.infinity, height: 120),
+          SkeletonCard(width: double.infinity, height: 120),
+        ],
       );
     }
 
