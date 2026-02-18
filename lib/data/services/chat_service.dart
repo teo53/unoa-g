@@ -1,4 +1,5 @@
 import '../models/reply_quota.dart';
+import '../../core/utils/app_logger.dart';
 
 /// Result type for chat operations
 class ChatSendResult {
@@ -61,6 +62,23 @@ class ChatService {
 
   /// Get character limit based on subscription days
   int getCharacterLimit(int daysSubscribed) {
+    // F-P1-2: Bounds validation
+    if (daysSubscribed < 0) {
+      AppLogger.warning(
+        'Invalid daysSubscribed: $daysSubscribed (negative). Returning base limit.',
+        tag: 'ChatService',
+      );
+      return 50; // Base limit
+    }
+
+    if (daysSubscribed > 3650) {
+      AppLogger.warning(
+        'daysSubscribed out of bounds: $daysSubscribed (>10 years). Clamping to 3650.',
+        tag: 'ChatService',
+      );
+      return ReplyQuota.getCharacterLimitForDays(3650);
+    }
+
     return ReplyQuota.getCharacterLimitForDays(daysSubscribed);
   }
 

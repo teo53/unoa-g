@@ -290,7 +290,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// 데모 모드용 지갑 로드
   void _loadDemoWallet() {
     final authState = _ref.read(authProvider);
-    if (authState is! AuthDemoMode) return;
+    if (authState is! AuthDemoMode) {
+      AppLogger.warning(
+        'Demo wallet load attempted but auth is not in AuthDemoMode',
+        tag: 'WalletProvider',
+      );
+      return;
+    }
 
     final isCreator = authState.demoProfile.isCreator;
 
@@ -403,10 +409,22 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// 데모 모드에서 잔액 추가 (구매 시뮬레이션)
   void addDemoBalance(int amount) {
     final currentState = state;
-    if (currentState is! WalletLoaded) return;
+    if (currentState is! WalletLoaded) {
+      AppLogger.warning(
+        'Demo balance add attempted but wallet not loaded',
+        tag: 'WalletProvider',
+      );
+      return;
+    }
 
     final authState = _ref.read(authProvider);
-    if (authState is! AuthDemoMode) return;
+    if (authState is! AuthDemoMode) {
+      AppLogger.warning(
+        'Demo balance add attempted but auth is not in AuthDemoMode',
+        tag: 'WalletProvider',
+      );
+      return;
+    }
 
     final updatedWallet = currentState.wallet.copyWith(
       balanceDt: currentState.wallet.balanceDt + amount,
@@ -434,12 +452,30 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// 데모 모드에서 잔액 차감 (후원/구독 시뮬레이션)
   bool spendDemoBalance(int amount, String type, String description) {
     final currentState = state;
-    if (currentState is! WalletLoaded) return false;
+    if (currentState is! WalletLoaded) {
+      AppLogger.warning(
+        'Demo balance spend attempted but wallet not loaded',
+        tag: 'WalletProvider',
+      );
+      return false;
+    }
 
     final authState = _ref.read(authProvider);
-    if (authState is! AuthDemoMode) return false;
+    if (authState is! AuthDemoMode) {
+      AppLogger.warning(
+        'Demo balance spend attempted but auth is not in AuthDemoMode',
+        tag: 'WalletProvider',
+      );
+      return false;
+    }
 
-    if (currentState.wallet.balanceDt < amount) return false;
+    if (currentState.wallet.balanceDt < amount) {
+      AppLogger.warning(
+        'Demo balance insufficient: need $amount DT, have ${currentState.wallet.balanceDt} DT',
+        tag: 'WalletProvider',
+      );
+      return false;
+    }
 
     final updatedWallet = currentState.wallet.copyWith(
       balanceDt: currentState.wallet.balanceDt - amount,
