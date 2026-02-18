@@ -1,9 +1,20 @@
-/// KRDS-inspired border radius system (UNO A 톤 절충)
+/// KRDS-inspired border radius reference values (설계 문서 전용).
 ///
+/// ⚠️ 실제 앱 코드에서는 이 파일을 직접 import하지 마세요.
+/// 대신 `app_spacing.dart`의 `AppRadius` 클래스를 사용하세요.
+///
+/// 이 파일은 KRDS 디자인 시스템 참조값을 보존하기 위한 것입니다.
 /// KRDS 기준: XSmall 2px, Small 4px, Medium 6-8px, Large 10px, XLarge 12px
 /// UNO A 절충: K-pop 팬 앱의 부드러운 느낌을 유지하면서 KRDS 구조 도입
-class AppRadius {
-  AppRadius._();
+///
+/// 실제 사용: `import '../../core/theme/app_spacing.dart';`
+/// ```dart
+/// AppRadius.baseBR  // BorderRadius.circular(12)
+/// AppRadius.lgBR    // BorderRadius.circular(16)
+/// ```
+
+class KrdsRadiusReference {
+  KrdsRadiusReference._();
 
   /// 4px - 작은 칩, 배지, 태그
   static const double xs = 4;
