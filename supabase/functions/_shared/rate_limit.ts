@@ -4,8 +4,7 @@
  * Provides rate limiting without Redis, using the rate_limit_counters
  * table and a stored procedure for atomic check-and-increment.
  *
- * Default: fail-closed (deny on error). Use failMode: 'open' only
- * for system endpoints where availability > security.
+ * S-P0-3: Always fail-closed (deny on error) for security.
  *
  * Usage:
  *   const result = await checkRateLimit(supabase, {
@@ -30,8 +29,6 @@ interface RateLimitOptions {
   limit: number
   /** Window duration in seconds */
   windowSeconds: number
-  /** Fail mode: 'closed' (default, deny on error) or 'open' (allow on error, system endpoints only) */
-  failMode?: 'closed' | 'open'
 }
 
 interface RateLimitResult {
@@ -48,22 +45,18 @@ interface RateLimitResult {
 /**
  * Check and increment rate limit counter atomically.
  * Uses the check_and_increment_rate_limit stored procedure.
+ * S-P0-3: Always fails closed (denies on error) for security.
  */
 export async function checkRateLimit(
   supabase: SupabaseClient,
   options: RateLimitOptions
 ): Promise<RateLimitResult> {
-  const { key, limit, windowSeconds, failMode = 'closed' } = options
+  const { key, limit, windowSeconds } = options
 
-  // Fail-closed response: deny the request
+  // S-P0-3: Fail-closed response (deny the request) - always used on error
   const failClosedResult: RateLimitResult = {
     allowed: false, remaining: 0, limit, retryAfterSeconds: 60,
   }
-  // Fail-open response: allow the request
-  const failOpenResult: RateLimitResult = {
-    allowed: true, remaining: limit, limit, retryAfterSeconds: 0,
-  }
-  const errorFallback = failMode === 'open' ? failOpenResult : failClosedResult
 
   try {
     const { data, error } = await supabase.rpc('check_and_increment_rate_limit', {
@@ -74,13 +67,13 @@ export async function checkRateLimit(
 
     if (error) {
       console.error('[RateLimit] RPC error:', error.message)
-      return errorFallback
+      return failClosedResult
     }
 
     const result = Array.isArray(data) ? data[0] : data
     if (!result) {
       console.error('[RateLimit] Null result from RPC')
-      return errorFallback
+      return failClosedResult
     }
 
     const currentCount = result.current_count || 0
@@ -96,7 +89,7 @@ export async function checkRateLimit(
     }
   } catch (err) {
     console.error('[RateLimit] Unexpected error:', err)
-    return errorFallback
+    return failClosedResult
   }
 }
 
