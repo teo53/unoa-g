@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../core/config/demo_config.dart';
+import '../core/utils/app_logger.dart';
 import 'auth_provider.dart';
 
 /// Wallet data model
@@ -262,6 +264,9 @@ class WalletNotifier extends StateNotifier<WalletState> {
   }
 
   void _initialize() {
+    // Restore any pending donation idempotency key from previous session
+    _restorePendingDonationKey();
+
     _ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthAuthenticated) {
         loadWallet();
@@ -655,8 +660,57 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
+  /// Hive box name and key for persisting idempotency keys
+  static const _hiveBoxName = 'wallet_ops';
+  static const _hiveIdempotencyKey = 'pending_donation_key';
+  static const _hiveIdempotencyTimestamp = 'pending_donation_ts';
+
   /// Pending donation idempotency key (generated per UI action, kept for retry)
   String? _pendingDonationKey;
+
+  /// Load persisted idempotency key (call once at init)
+  Future<void> _restorePendingDonationKey() async {
+    try {
+      final box = await Hive.openBox(_hiveBoxName);
+      final savedKey = box.get(_hiveIdempotencyKey) as String?;
+      final savedTs = box.get(_hiveIdempotencyTimestamp) as int?;
+      if (savedKey != null && savedTs != null) {
+        final age = DateTime.now().millisecondsSinceEpoch - savedTs;
+        // Expire keys older than 1 hour
+        if (age < const Duration(hours: 1).inMilliseconds) {
+          _pendingDonationKey = savedKey;
+        } else {
+          await box.delete(_hiveIdempotencyKey);
+          await box.delete(_hiveIdempotencyTimestamp);
+        }
+      }
+    } catch (e) {
+      AppLogger.debug('Failed to restore donation key: $e', tag: 'Wallet');
+    }
+  }
+
+  /// Persist idempotency key to survive app restart
+  Future<void> _persistDonationKey(String key) async {
+    try {
+      final box = await Hive.openBox(_hiveBoxName);
+      await box.put(_hiveIdempotencyKey, key);
+      await box.put(_hiveIdempotencyTimestamp,
+          DateTime.now().millisecondsSinceEpoch);
+    } catch (e) {
+      AppLogger.debug('Failed to persist donation key: $e', tag: 'Wallet');
+    }
+  }
+
+  /// Clear persisted idempotency key after success
+  Future<void> _clearPersistedDonationKey() async {
+    try {
+      final box = await Hive.openBox(_hiveBoxName);
+      await box.delete(_hiveIdempotencyKey);
+      await box.delete(_hiveIdempotencyTimestamp);
+    } catch (e) {
+      AppLogger.debug('Failed to clear donation key: $e', tag: 'Wallet');
+    }
+  }
 
   /// Send a DT donation to a creator (atomic RPC)
   Future<Map<String, dynamic>?> sendDonation({
@@ -681,7 +735,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
       if (user == null) throw Exception('User not authenticated');
 
       // Generate idempotency key per UI action; reuse on retry
-      _pendingDonationKey ??= 'donation:${const Uuid().v4()}';
+      if (_pendingDonationKey == null) {
+        _pendingDonationKey = 'donation:${const Uuid().v4()}';
+        await _persistDonationKey(_pendingDonationKey!);
+      }
 
       // Call atomic RPC (auth.uid() extracted internally by RPC)
       final result = await client.rpc('process_donation_atomic', params: {
@@ -695,6 +752,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
       // Clear idempotency key on success
       _pendingDonationKey = null;
+      await _clearPersistedDonationKey();
 
       // Reload wallet to reflect new balance
       await loadWallet();
