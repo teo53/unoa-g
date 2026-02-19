@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
+import '../../core/config/app_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
@@ -25,6 +26,7 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final packages = ref.watch(dtPackagesProvider);
+    const dtPurchaseEnabled = AppConfig.enableDtPurchase;
 
     return AppScaffold(
       showStatusBar: true,
@@ -234,17 +236,37 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
                     ),
                     const SizedBox(height: 12),
                   ],
+                  if (!dtPurchaseEnabled) ...[
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        '현재 결제가 비활성화되어 있습니다. 운영 준비 후 다시 열립니다.',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
                   SizedBox(
                     width: double.infinity,
                     child: PrimaryButton.premium(
-                      label: _isProcessing
+                      label: !dtPurchaseEnabled
+                          ? '결제 준비 중'
+                          : _isProcessing
                           ? '처리 중...'
                           : (_selectedPackageIndex != null
                               ? '${packages[_selectedPackageIndex!].formattedPrice} 결제하기'
                               : '패키지를 선택하세요'),
                       isLoading: _isProcessing,
-                      onPressed: _selectedPackageIndex != null && !_isProcessing
-                          ? () => _processPayment(context)
+                      onPressed: dtPurchaseEnabled &&
+                              _selectedPackageIndex != null &&
+                              !_isProcessing
+                          ? () => _processPayment()
                           : null,
                     ),
                   ),
@@ -257,7 +279,17 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
     );
   }
 
-  void _processPayment(BuildContext context) async {
+  void _processPayment() async {
+    if (!AppConfig.enableDtPurchase) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('현재 결제가 비활성화되어 있습니다.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
     });
@@ -327,7 +359,7 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
           action: SnackBarAction(
             label: '재시도',
             textColor: Colors.white,
-            onPressed: () => _processPayment(context),
+            onPressed: _processPayment,
           ),
         ),
       );

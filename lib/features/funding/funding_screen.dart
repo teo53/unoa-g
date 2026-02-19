@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/funding_provider.dart';
+import '../../providers/ops_config_provider.dart';
+import '../../shared/widgets/native_ad_card.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 import '../../shared/widgets/error_boundary.dart';
 import 'funding_detail_screen.dart';
@@ -46,6 +48,12 @@ class _FundingScreenState extends ConsumerState<FundingScreen>
           children: [
             _buildHeader(isDark),
             _buildTabBar(isDark),
+            // Funding Top Ad Slot
+            Consumer(builder: (_, r, __) {
+              final banners = r.watch(opsBannersProvider('funding_top'));
+              if (banners.isEmpty) return const SizedBox.shrink();
+              return NativeAdCard(banner: banners.first);
+            }),
             Expanded(
               child: TabBarView(
                 controller: _tabController,

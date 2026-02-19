@@ -14,6 +14,10 @@ export const ROUTES = {
   store: {
     dt: '/store/dt',
   },
+  payment: {
+    success: '/payment/success',
+    fail: '/payment/fail',
+  },
   campaign: (slug: string) => `/p/${slug}`,
 
   // ============================================================

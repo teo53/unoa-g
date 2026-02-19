@@ -9,6 +9,13 @@ import 'auth_provider.dart';
 
 // ── Models ──
 
+/// Banner source type — 정렬 우선순위: ops > fan_ad > creator_promo
+enum BannerSourceType {
+  ops,          // 운영자 발행 배너
+  fanAd,        // 팬 유료 광고 (fan_ads 테이블)
+  creatorPromo, // 크리에이터 자체 홍보 (미래 확장용)
+}
+
 /// A published banner from app_public_config
 class OpsPublishedBanner {
   final String id;
@@ -19,6 +26,10 @@ class OpsPublishedBanner {
   final String linkType;
   final int priority;
   final String targetAudience;
+  /// 배너 출처 구분 (정렬 및 렌더링 분기에 사용)
+  final BannerSourceType sourceType;
+  /// fan_ads.id — sourceType == fanAd 일 때만 non-null
+  final String? fanAdId;
 
   const OpsPublishedBanner({
     required this.id,
@@ -29,9 +40,17 @@ class OpsPublishedBanner {
     required this.linkType,
     required this.priority,
     required this.targetAudience,
+    this.sourceType = BannerSourceType.ops,
+    this.fanAdId,
   });
 
   factory OpsPublishedBanner.fromJson(Map<String, dynamic> json) {
+    final sourceRaw = json['source_type'] as String? ?? 'ops';
+    final sourceType = switch (sourceRaw) {
+      'fan_ad'        => BannerSourceType.fanAd,
+      'creator_promo' => BannerSourceType.creatorPromo,
+      _               => BannerSourceType.ops,
+    };
     return OpsPublishedBanner(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
@@ -41,6 +60,8 @@ class OpsPublishedBanner {
       linkType: json['link_type'] as String? ?? 'none',
       priority: json['priority'] as int? ?? 0,
       targetAudience: json['target_audience'] as String? ?? 'all',
+      sourceType: sourceType,
+      fanAdId: json['fan_ad_id'] as String?,
     );
   }
 }
@@ -88,10 +109,20 @@ class OpsConfig {
         fetchedAt: DateTime.now(),
       );
 
-  /// Get banners for a specific placement
+  /// Get banners for a specific placement.
+  /// 정렬 기준: 1차 sourceType (ops > fan_ad > creator_promo), 2차 priority 내림차순.
   List<OpsPublishedBanner> bannersForPlacement(String placement) {
+    int sourceOrder(BannerSourceType t) => switch (t) {
+          BannerSourceType.ops          => 0,
+          BannerSourceType.fanAd        => 1,
+          BannerSourceType.creatorPromo => 2,
+        };
     return banners.where((b) => b.placement == placement).toList()
-      ..sort((a, b) => b.priority.compareTo(a.priority));
+      ..sort((a, b) {
+        final srcCmp = sourceOrder(a.sourceType).compareTo(sourceOrder(b.sourceType));
+        if (srcCmp != 0) return srcCmp;
+        return b.priority.compareTo(a.priority);
+      });
   }
 
   /// Check if a feature flag is enabled

@@ -10,6 +10,8 @@ import '../../providers/discover_provider.dart';
 import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/skeleton_loader.dart';
+import '../../shared/widgets/native_ad_card.dart';
+import '../../providers/ops_config_provider.dart';
 
 class DiscoverScreen extends ConsumerStatefulWidget {
   const DiscoverScreen({super.key});
@@ -285,7 +287,16 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 8),
+
+        // Discover Top Ad Slot (discover_top placement)
+        Consumer(builder: (_, r, __) {
+          final banners = r.watch(opsBannersProvider('discover_top'));
+          if (banners.isEmpty) return const SizedBox.shrink();
+          return NativeAdCard(banner: banners.first);
+        }),
+
+        const SizedBox(height: 16),
 
         // Featured Artist Banner
         SlideFadeAnimation.fromBottom(

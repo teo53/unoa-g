@@ -303,8 +303,31 @@ serve(async (req) => {
 
     // --- 6a. 결제 성공 ---
     if (isPaymentSuccess) {
-      // funding_payment가 이미 paid 상태면 스킵
-      if (fundingPayment.status === 'paid') {
+      // 원자적 처리: process_funding_payment_atomic RPC
+      // funding_payments + funding_pledges 를 단일 트랜잭션으로 업데이트.
+      // 크래시 시 부분 업데이트 방지.
+      const { data: atomicResult, error: atomicError } = await supabase.rpc(
+        'process_funding_payment_atomic',
+        {
+          p_funding_payment_id: fundingPayment.id,
+          p_pledge_id: fundingPayment.pledge_id,
+          p_pg_transaction_id: paymentData.transactionId || paymentData.pgTxId || pgPaymentId || null,
+          p_pg_payment_id: pgPaymentId || null,
+          p_pg_response: paymentData,
+        }
+      )
+
+      if (atomicError) {
+        logEntry.error_message = `Atomic payment processing failed: ${atomicError.message}`
+        logEntry.processed_status = 'failed'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ error: 'Failed to process payment atomically' }),
+          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (atomicResult?.already_processed) {
         logEntry.processed_status = 'duplicate'
         await logWebhookEvent(supabase, logEntry)
         return new Response(
@@ -313,37 +336,7 @@ serve(async (req) => {
         )
       }
 
-      // funding_payments 상태 업데이트
-      const { error: updatePaymentError } = await supabase
-        .from('funding_payments')
-        .update({
-          status: 'paid',
-          pg_transaction_id: paymentData.transactionId || paymentData.pgTxId || pgPaymentId,
-          pg_payment_id: pgPaymentId,
-          paid_at: new Date().toISOString(),
-          pg_response: paymentData,
-        })
-        .eq('id', fundingPayment.id)
-
-      if (updatePaymentError) {
-        logEntry.error_message = `Failed to update payment: ${updatePaymentError.message}`
-        logEntry.processed_status = 'failed'
-        await logWebhookEvent(supabase, logEntry)
-        return new Response(
-          JSON.stringify({ error: 'Failed to update payment status' }),
-          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      // pledge 상태도 confirmed로
-      if (fundingPayment.funding_pledges?.status === 'pending') {
-        await supabase
-          .from('funding_pledges')
-          .update({ status: 'confirmed' })
-          .eq('id', fundingPayment.pledge_id)
-      }
-
-      console.log(`Funding payment confirmed: ${orderId}, amount=${fundingPayment.amount_krw} KRW`)
+      console.log(`Funding payment confirmed (atomic): ${orderId}, amount=${fundingPayment.amount_krw} KRW`)
 
       logEntry.processed_status = 'success'
       await logWebhookEvent(supabase, logEntry)

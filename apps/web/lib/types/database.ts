@@ -321,6 +321,71 @@ export interface Database {
           updated_at?: string
         }
       }
+      fan_ads: {
+        Row: {
+          id: string
+          fan_user_id: string
+          artist_channel_id: string
+          title: string
+          body: string | null
+          image_url: string | null
+          link_url: string | null
+          link_type: 'internal' | 'external' | 'none'
+          start_at: string
+          end_at: string
+          payment_amount_krw: number
+          payment_status: 'pending' | 'paid' | 'refunded' | 'failed'
+          status: 'pending_review' | 'approved' | 'rejected' | 'active' | 'completed' | 'cancelled'
+          rejection_reason: string | null
+          impressions: number
+          clicks: number
+          ops_banner_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          fan_user_id: string
+          artist_channel_id: string
+          title: string
+          body?: string | null
+          image_url?: string | null
+          link_url?: string | null
+          link_type?: 'internal' | 'external' | 'none'
+          start_at: string
+          end_at: string
+          payment_amount_krw: number
+          payment_status?: 'pending' | 'paid' | 'refunded' | 'failed'
+          status?: 'pending_review' | 'approved' | 'rejected' | 'active' | 'completed' | 'cancelled'
+          rejection_reason?: string | null
+          impressions?: number
+          clicks?: number
+          ops_banner_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          fan_user_id?: string
+          artist_channel_id?: string
+          title?: string
+          body?: string | null
+          image_url?: string | null
+          link_url?: string | null
+          link_type?: 'internal' | 'external' | 'none'
+          start_at?: string
+          end_at?: string
+          payment_amount_krw?: number
+          payment_status?: 'pending' | 'paid' | 'refunded' | 'failed'
+          status?: 'pending_review' | 'approved' | 'rejected' | 'active' | 'completed' | 'cancelled'
+          rejection_reason?: string | null
+          impressions?: number
+          clicks?: number
+          ops_banner_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

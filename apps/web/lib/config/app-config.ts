@@ -27,6 +27,7 @@ export const appConfig = {
   // Feature Flags
   enableAnalytics: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true',
   enableCrashReporting: process.env.NEXT_PUBLIC_ENABLE_CRASH_REPORTING === 'true',
+  dtPurchaseEnabled: process.env.NEXT_PUBLIC_DT_PURCHASE_ENABLED === 'true',
 
   // Firebase Hosting Sites
   sites: {

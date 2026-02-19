@@ -18,6 +18,7 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '
 const PORTONE_API_SECRET = Deno.env.get('PORTONE_API_SECRET') || ''
 const PORTONE_WEBHOOK_SECRET = Deno.env.get('PORTONE_WEBHOOK_SECRET') || ''
 const TOSSPAYMENTS_SECRET_KEY = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') || ''
+const DT_PURCHASE_ENABLED = (Deno.env.get('DT_PURCHASE_ENABLED') ?? '').toLowerCase() === 'true'
 
 const webhookCorsHeaders = getWebhookCorsHeaders()
 
@@ -30,6 +31,16 @@ interface WebhookLogEntry {
   signature_valid: boolean
   processed_status: 'pending' | 'success' | 'failed' | 'duplicate'
   error_message?: string
+  cross_verified?: boolean
+  cross_verification_result?: Record<string, unknown> | null
+}
+
+interface ProviderVerification {
+  valid: boolean
+  amount?: number
+  status?: string
+  orderId?: string
+  verificationReason?: string
 }
 
 // PortOne V2 Webhook Signature Verification
@@ -108,14 +119,13 @@ async function verifyTossPaymentsSignature(
   signature: string,
   payload: string
 ): Promise<boolean> {
-  // No signature provided and no secret configured — rely on API cross-verification
-  if (!signature && !TOSSPAYMENTS_WEBHOOK_SECRET) {
-    console.log('TossPayments: no signature header, will use API cross-verification')
-    return true // Signature check passes; caller must do API cross-verify
+  // Standard payment webhooks may not include signature header.
+  if (!signature) {
+    return true
   }
 
   // Signature header present — verify it
-  if (signature && TOSSPAYMENTS_WEBHOOK_SECRET) {
+  if (TOSSPAYMENTS_WEBHOOK_SECRET) {
     try {
       const encoder = new TextEncoder()
       const key = await crypto.subtle.importKey(
@@ -151,14 +161,9 @@ async function verifyTossPaymentsSignature(
     }
   }
 
-  // Signature present but no secret configured — cannot verify, reject
-  if (signature && !TOSSPAYMENTS_WEBHOOK_SECRET) {
-    console.error('TossPayments: signature present but TOSSPAYMENTS_WEBHOOK_SECRET not configured')
-    return false
-  }
-
-  // No signature, but secret is configured — allow (payment events don't include signature)
-  return true
+  // Signature present but no webhook secret configured — reject.
+  console.error('TossPayments: signature present but TOSSPAYMENTS_WEBHOOK_SECRET not configured')
+  return false
 }
 
 // Cross-verify payment with PortOne V2 API
@@ -214,6 +219,8 @@ async function logWebhookEvent(
         signature_valid: entry.signature_valid,
         processed_status: entry.processed_status,
         error_message: entry.error_message,
+        cross_verified: entry.cross_verified ?? null,
+        cross_verification_result: entry.cross_verification_result ?? null,
         processed_at: entry.processed_status !== 'pending' ? new Date().toISOString() : null,
       },
       { onConflict: 'webhook_id' }
@@ -254,6 +261,33 @@ serve(async (req) => {
       webhook_payload: payload,
       signature_valid: false,
       processed_status: 'pending',
+    }
+
+    // Fail-closed: Toss 결제 경로는 런타임 플래그와 PG secret이 준비되지 않으면 처리 금지
+    if (provider === 'tosspayments' && !DT_PURCHASE_ENABLED) {
+      logEntry.error_message = 'PAYMENTS_DISABLED'
+      logEntry.processed_status = 'failed'
+      await logWebhookEvent(supabase, logEntry)
+      return new Response(
+        JSON.stringify({
+          error: 'Payments are disabled',
+          errorCode: 'PAYMENTS_DISABLED',
+        }),
+        { status: 503, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (provider === 'tosspayments' && !TOSSPAYMENTS_SECRET_KEY) {
+      logEntry.error_message = 'PAYMENT_PROVIDER_NOT_READY'
+      logEntry.processed_status = 'failed'
+      await logWebhookEvent(supabase, logEntry)
+      return new Response(
+        JSON.stringify({
+          error: 'Payment provider not configured',
+          errorCode: 'PAYMENT_PROVIDER_NOT_READY',
+        }),
+        { status: 503, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Idempotency check: only skip if previously succeeded or marked duplicate.
@@ -328,10 +362,13 @@ serve(async (req) => {
     }
 
     // Cross-verify payment with provider API
-    let verification: { valid: boolean; amount?: number; status?: string; orderId?: string } | undefined
+    let verification: ProviderVerification | undefined
 
     if (provider === 'portone' && paymentId) {
-      verification = await verifyPaymentWithPortOne(paymentId)
+      verification = {
+        ...(await verifyPaymentWithPortOne(paymentId)),
+        verificationReason: 'verified_with_portone_api',
+      }
       if (!verification.valid) {
         logEntry.error_message = 'Payment cross-verification failed'
         logEntry.processed_status = 'failed'
@@ -353,8 +390,8 @@ serve(async (req) => {
       }
     }
 
-    // TossPayments API cross-verification (essential when no webhook signature)
-    if (provider === 'tosspayments' && orderId && TOSSPAYMENTS_SECRET_KEY) {
+    // TossPayments API cross-verification (always required for Toss path)
+    if (provider === 'tosspayments') {
       try {
         const tossAuth = btoa(`${TOSSPAYMENTS_SECRET_KEY}:`)
         const tossVerifyRes = await fetch(
@@ -368,34 +405,74 @@ serve(async (req) => {
           }
         )
 
-        if (tossVerifyRes.ok) {
-          const tossVerifyData = await tossVerifyRes.json()
-          verification = {
-            valid: true,
-            amount: tossVerifyData.totalAmount,
-            status: tossVerifyData.status,
-            orderId: tossVerifyData.orderId,
-          }
-        } else {
-          console.error(`[Webhook] TossPayments API verification failed: ${tossVerifyRes.status}`)
-          logEntry.error_message = 'TossPayments cross-verification failed'
+        if (!tossVerifyRes.ok) {
+          const statusText = `TossPayments API verification failed: ${tossVerifyRes.status}`
+          console.error(`[Webhook] ${statusText}`)
+          logEntry.error_message = statusText
           logEntry.processed_status = 'failed'
           await logWebhookEvent(supabase, logEntry)
+
+          const isRetryable = tossVerifyRes.status >= 500
           return new Response(
-            JSON.stringify({ error: 'Payment verification failed' }),
-            { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+            JSON.stringify({
+              error: isRetryable ? 'Payment verification temporarily unavailable' : 'Payment verification failed',
+              errorCode: isRetryable ? 'PAYMENT_VERIFICATION_UNAVAILABLE' : 'PAYMENT_VERIFICATION_FAILED',
+            }),
+            {
+              status: isRetryable ? 503 : 400,
+              headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' },
+            }
           )
+        }
+
+        const tossVerifyData = await tossVerifyRes.json()
+        const rawAmount = tossVerifyData.totalAmount
+        const parsedAmount = typeof rawAmount === 'number' ? rawAmount : Number(rawAmount)
+        verification = {
+          valid: true,
+          amount: Number.isFinite(parsedAmount) ? parsedAmount : undefined,
+          status: typeof tossVerifyData.status === 'string' ? tossVerifyData.status : undefined,
+          orderId: typeof tossVerifyData.orderId === 'string' ? tossVerifyData.orderId : undefined,
+          verificationReason: 'verified_with_toss_api',
         }
       } catch (error) {
         console.error('[Webhook] TossPayments API verification error:', error)
-        // SECURITY: Fail-closed on network errors — return 503 so PG retries
+        // Fail-closed on network errors — return 503 so PG retries.
         logEntry.error_message = `TossPayments API network error: ${error}`
         logEntry.processed_status = 'failed'
         await logWebhookEvent(supabase, logEntry)
         return new Response(
-          JSON.stringify({ error: 'Payment verification temporarily unavailable' }),
+          JSON.stringify({
+            error: 'Payment verification temporarily unavailable',
+            errorCode: 'PAYMENT_VERIFICATION_UNAVAILABLE',
+          }),
           { status: 503, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
+      }
+
+      if (!verification?.orderId || verification.orderId !== orderId) {
+        logEntry.error_message = 'Order ID mismatch between webhook payload and payment provider'
+        logEntry.processed_status = 'failed'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({
+            error: 'Order ID mismatch',
+            errorCode: 'PAYMENT_VERIFICATION_FAILED',
+          }),
+          { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // Record cross-verification outcome (schema 017: cross_verified, cross_verification_result)
+    if (verification !== undefined) {
+      logEntry.cross_verified = verification.valid
+      logEntry.cross_verification_result = {
+        valid: verification.valid,
+        amount: verification.amount,
+        status: verification.status,
+        orderId: verification.orderId,
+        verification_reason: verification.verificationReason,
       }
     }
 
@@ -443,12 +520,14 @@ serve(async (req) => {
     }
 
     // S-P1-1: Cross-verify PG amount matches purchase record
-    const pgAmount = verification?.amount ?? paymentData.totalAmount ?? paymentData.amount
-    if (pgAmount != null && purchase.price_krw != null && pgAmount !== purchase.price_krw) {
+    const pgAmountRaw = verification?.amount ?? paymentData.totalAmount ?? paymentData.amount
+    const pgAmount = pgAmountRaw == null ? null : Number(pgAmountRaw)
+    const expectedAmount = purchase.price_krw == null ? null : Number(purchase.price_krw)
+    if (pgAmount != null && expectedAmount != null && pgAmount !== expectedAmount) {
       console.error(
-        `[Webhook] Amount mismatch: purchase.price_krw=${purchase.price_krw}, PG amount=${pgAmount}, orderId=${orderId}`
+        `[Webhook] Amount mismatch: purchase.price_krw=${expectedAmount}, PG amount=${pgAmount}, orderId=${orderId}`
       )
-      logEntry.error_message = `Amount mismatch: expected=${purchase.price_krw}, got=${pgAmount}`
+      logEntry.error_message = `Amount mismatch: expected=${expectedAmount}, got=${pgAmount}`
       logEntry.processed_status = 'failed'
       await logWebhookEvent(supabase, logEntry)
 
@@ -461,6 +540,45 @@ serve(async (req) => {
         JSON.stringify({ error: 'Payment amount verification failed' }),
         { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
+    }
+
+    const normalizedWebhookStatus = typeof paymentData.status === 'string'
+      ? paymentData.status.toUpperCase()
+      : ''
+    const normalizedVerifiedStatus = typeof verification?.status === 'string'
+      ? verification.status.toUpperCase()
+      : ''
+
+    let canProcessAtomic = true
+    let verificationReason = 'ok'
+
+    if (provider === 'tosspayments' && isPaymentSuccess) {
+      const isVerifiedSuccessStatus =
+        normalizedVerifiedStatus === 'DONE' || normalizedVerifiedStatus === 'PAID'
+
+      if (!verification?.valid) {
+        canProcessAtomic = false
+        verificationReason = 'cross_verification_missing'
+      } else if (!isVerifiedSuccessStatus) {
+        canProcessAtomic = false
+        verificationReason = `provider_status_${normalizedVerifiedStatus || 'unknown'}`
+      } else if (normalizedWebhookStatus && normalizedWebhookStatus !== normalizedVerifiedStatus) {
+        canProcessAtomic = false
+        verificationReason = `status_mismatch:${normalizedWebhookStatus}!=${normalizedVerifiedStatus}`
+      } else if (pgAmount == null || expectedAmount == null) {
+        canProcessAtomic = false
+        verificationReason = 'missing_amount_for_verification'
+      } else if (pgAmount !== expectedAmount) {
+        canProcessAtomic = false
+        verificationReason = `amount_mismatch:${pgAmount}!=${expectedAmount}`
+      }
+
+      if (logEntry.cross_verification_result) {
+        logEntry.cross_verification_result = {
+          ...logEntry.cross_verification_result,
+          verification_reason: verificationReason,
+        }
+      }
     }
 
     // Handle cancellation/refund
@@ -600,6 +718,28 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ success: true, message: 'Payment failure recorded' }),
         { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Final fail-closed gate before atomic credit.
+    // DONE/PAID events only pass when cross-verification/order/amount/status checks are all satisfied.
+    if (!canProcessAtomic) {
+      logEntry.error_message = `verification_failed:${verificationReason}`
+      logEntry.processed_status = 'failed'
+      await logWebhookEvent(supabase, logEntry)
+
+      await supabase
+        .from('dt_purchases')
+        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .eq('id', orderId)
+
+      return new Response(
+        JSON.stringify({
+          error: 'Payment verification failed',
+          errorCode: 'PAYMENT_VERIFICATION_FAILED',
+          verificationReason,
+        }),
+        { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 

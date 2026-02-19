@@ -55,6 +55,8 @@ import '../features/admin/admin_dashboard_screen.dart';
 import '../features/admin/admin_creators_screen.dart';
 import '../features/admin/admin_settlements_screen.dart';
 import '../features/admin/admin_settings_screen.dart';
+import '../features/fan_ads/fan_ad_purchase_screen.dart';
+import '../features/fan_ads/my_ads_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/widgets/creator_bottom_nav_bar.dart';
@@ -116,6 +118,10 @@ class AppRoutes {
   static const String adminCreators = '/admin/creators';
   static const String adminSettlements = '/admin/settlements';
   static const String adminSettings = '/admin/settings';
+
+  // Fan Ad Routes (full screen)
+  static const String fanAdsPurchase = '/fan-ads/purchase';
+  static const String myAds = '/my-ads';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -606,6 +612,22 @@ final appRouter = GoRouter(
       builder: (context, state) => CreateCampaignScreen(
         campaignId: state.pathParameters['campaignId'],
       ),
+    ),
+
+    // Fan Ad Purchase (full screen)
+    GoRoute(
+      path: '/fan-ads/purchase',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => FanAdPurchaseScreen(
+        artistId: state.uri.queryParameters['artistId'],
+      ),
+    ),
+
+    // My Ads (full screen)
+    GoRoute(
+      path: '/my-ads',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MyAdsScreen(),
     ),
   ],
 );

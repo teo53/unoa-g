@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/utils/safe_url_launcher.dart';
+import '../../core/utils/share_utils.dart';
 import '../../core/theme/app_colors.dart';
+import '../../providers/ops_config_provider.dart';
 import '../../data/models/artist.dart';
 import '../../data/models/creator_content.dart';
 import '../../providers/discover_provider.dart';
@@ -161,7 +163,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
     );
   }
 
-  void _showMoreOptions(BuildContext context) {
+  void _showMoreOptions(BuildContext context, String artistName) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
@@ -169,7 +171,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => SafeArea(
+      builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -177,9 +179,16 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
               leading: const Icon(Icons.share_outlined),
               title: const Text('프로필 공유'),
               onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('공유 기능 준비 중')),
+                Navigator.pop(ctx);
+                final flagPayload = ref
+                    .read(opsConfigProvider)
+                    .config
+                    .getFlagPayload('share_links');
+                ShareUtils.shareArtistProfile(
+                  context: context,
+                  artistId: widget.artistId,
+                  artistName: artistName,
+                  flagPayload: flagPayload,
                 );
               },
             ),
@@ -323,7 +332,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                               ),
                               IconButton(
                                 onPressed: () {
-                                  _showMoreOptions(context);
+                                  _showMoreOptions(context, artist.name);
                                 },
                                 icon: const Icon(
                                   Icons.more_vert,
@@ -472,14 +481,12 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                                   context.push('/chat/${widget.artistId}'),
                             ),
                             ProfileActionButton(
-                              icon: Icons.card_giftcard,
-                              label: '드롭',
+                              icon: Icons.campaign_outlined,
+                              label: '광고 구매',
                               themeColor: _artistThemeColor,
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('드롭 스토어 준비 중')),
-                                );
-                              },
+                              onTap: () => context.push(
+                                '/fan-ads/purchase?artistId=${widget.artistId}',
+                              ),
                             ),
                             ProfileActionButton(
                               icon: Icons.groups,

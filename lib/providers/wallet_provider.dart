@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
+import '../core/config/app_config.dart';
 import '../core/config/demo_config.dart';
 import '../core/utils/app_logger.dart';
 import 'auth_provider.dart';
@@ -648,6 +649,14 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// Request checkout URL for DT purchase
   Future<String?> createPurchaseCheckout(String packageId) async {
     try {
+      if (!AppConfig.enableDtPurchase) {
+        AppLogger.warning(
+          'WalletNotifier.createPurchaseCheckout: DT purchase disabled by flag',
+          tag: 'Wallet',
+        );
+        return null;
+      }
+
       final client = _ref.read(supabaseClientProvider);
       final user = _ref.read(currentUserProvider);
       if (user == null) throw Exception('User not authenticated');
