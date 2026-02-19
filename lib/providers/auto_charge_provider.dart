@@ -14,12 +14,12 @@ final autoChargeConfigProvider =
 
   if (authState is AuthDemoMode) {
     // 데모 모드: 비활성화 상태 반환
-    return AutoChargeConfig(
-      id: 'demo_config',
-      userId: authState.user.id,
-      isEnabled: false,
-      thresholdDt: 100,
-      chargeAmountDt: 1000,
+      return AutoChargeConfig(
+        id: 'demo_config',
+        userId: authState.demoProfile.id,
+        isEnabled: false,
+        thresholdDt: 100,
+        chargeAmountDt: 1000,
       maxMonthlyCharges: 5,
       chargesThisMonth: 0,
       createdAt: DateTime.now(),

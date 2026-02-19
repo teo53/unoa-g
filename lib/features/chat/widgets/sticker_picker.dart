@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../data/models/sticker.dart';
 import '../../../providers/sticker_provider.dart';
 
@@ -201,7 +200,7 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
           child: Container(
             decoration: BoxDecoration(
               color: isDark ? Colors.white10 : Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(AppRadius.button),
+              borderRadius: BorderRadius.circular(AppRadius.base),
             ),
             padding: const EdgeInsets.all(8),
             child: CachedNetworkImage(
