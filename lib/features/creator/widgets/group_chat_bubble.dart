@@ -14,6 +14,7 @@ class GroupChatBubble extends StatelessWidget {
   final bool isHearted;
   final VoidCallback onHeartTap;
   final VoidCallback? onLongPress;
+  final void Function(String fanId)? onAvatarTap;
 
   const GroupChatBubble({
     super.key,
@@ -22,6 +23,7 @@ class GroupChatBubble extends StatelessWidget {
     required this.isHearted,
     required this.onHeartTap,
     this.onLongPress,
+    this.onAvatarTap,
   });
 
   @override
@@ -69,25 +71,31 @@ class GroupChatBubble extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isDark ? Colors.grey[800] : Colors.grey[200],
-                border: Border.all(
-                  color: _getTierColor(message.fanTier).withValues(alpha: 0.5),
-                  width: 2,
+            // Avatar (탭 → 팬 프로필 바텀시트)
+            GestureDetector(
+              onTap: onAvatarTap != null
+                  ? () => onAvatarTap!(message.fanId)
+                  : null,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                  border: Border.all(
+                    color:
+                        _getTierColor(message.fanTier).withValues(alpha: 0.5),
+                    width: 2,
+                  ),
                 ),
-              ),
-              child: Center(
-                child: Text(
-                  message.fanName.isNotEmpty ? message.fanName[0] : '?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                child: Center(
+                  child: Text(
+                    message.fanName.isNotEmpty ? message.fanName[0] : '?',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
                   ),
                 ),
               ),
@@ -402,7 +410,7 @@ class GroupChatBubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 메시지 타입 배지 (1:1 답장 / 전체)
+                  // 메시지 타입 배지 (1:1 답장 / 전체 / 티어 제한)
                   Container(
                     margin: const EdgeInsets.fromLTRB(10, 6, 10, 0),
                     padding: const EdgeInsets.symmetric(
@@ -419,13 +427,19 @@ class GroupChatBubble extends StatelessWidget {
                         Icon(
                           isDirectReply
                               ? Icons.person
-                              : Icons.campaign_outlined,
+                              : message.minTierRequired != null
+                                  ? Icons.lock_outlined
+                                  : Icons.campaign_outlined,
                           size: 12,
                           color: Colors.white.withValues(alpha: 0.9),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          isDirectReply ? '1:1 답장' : '전체',
+                          isDirectReply
+                              ? '1:1 답장'
+                              : message.minTierRequired != null
+                                  ? '${message.minTierRequired}+'
+                                  : '전체',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -618,6 +632,8 @@ class GroupChatMessage {
   // 편집/삭제 상태
   final bool isEdited;
   final bool isDeleted;
+  // 티어별 접근제어
+  final String? minTierRequired;
 
   GroupChatMessage({
     required this.id,
@@ -638,6 +654,7 @@ class GroupChatMessage {
     this.pollData,
     this.isEdited = false,
     this.isDeleted = false,
+    this.minTierRequired,
   });
 
   GroupChatMessage copyWith({
@@ -664,6 +681,7 @@ class GroupChatMessage {
       pollData: pollData,
       isEdited: isEdited ?? this.isEdited,
       isDeleted: isDeleted ?? this.isDeleted,
+      minTierRequired: minTierRequired,
     );
   }
 }

@@ -498,6 +498,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         return msg.senderId == userId;
       case DeliveryScope.donationReply:
       case DeliveryScope.privateCard:
+      case DeliveryScope.welcome:
         return msg.targetUserId == userId || msg.senderId == userId;
     }
   }

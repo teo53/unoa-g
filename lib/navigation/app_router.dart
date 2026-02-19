@@ -48,6 +48,9 @@ import '../features/settings/fee_policy_screen.dart';
 import '../features/settings/funding_terms_screen.dart';
 import '../features/settings/moderation_policy_screen.dart';
 import '../features/settings/consent_history_screen.dart';
+import '../features/settings/blocked_users_screen.dart';
+import '../features/moments/moments_screen.dart';
+import '../features/challenges/challenges_screen.dart';
 import '../features/admin/admin_dashboard_screen.dart';
 import '../features/admin/admin_creators_screen.dart';
 import '../features/admin/admin_settlements_screen.dart';
@@ -104,6 +107,7 @@ class AppRoutes {
   static const String guardianConsent = '/guardian-consent';
   static const String settingsModerationPolicy = '/settings/moderation-policy';
   static const String settingsConsentHistory = '/settings/consent-history';
+  static const String settingsBlockedUsers = '/settings/blocked-users';
   static const String settingsTax = '/settings/tax';
   static const String creatorSettlement = '/creator/settlement';
 
@@ -466,6 +470,23 @@ final appRouter = GoRouter(
       path: '/settings/consent-history',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConsentHistoryScreen(),
+    ),
+    GoRoute(
+      path: '/settings/blocked-users',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const BlockedUsersScreen(),
+    ),
+    GoRoute(
+      path: '/moments',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MomentsScreen(),
+    ),
+    GoRoute(
+      path: '/challenges',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => ChallengesScreen(
+        channelId: state.uri.queryParameters['channelId'],
+      ),
     ),
     GoRoute(
       path: '/notifications',

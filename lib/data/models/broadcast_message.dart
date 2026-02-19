@@ -20,6 +20,9 @@ enum DeliveryScope {
 
   /// Private card from artist to selected fans (letter-style special message)
   privateCard,
+
+  /// Auto-welcome message sent to new subscriber (1:1, from artist)
+  welcome,
 }
 
 enum BroadcastMessageType {
@@ -28,6 +31,7 @@ enum BroadcastMessageType {
   video,
   emoji,
   voice,
+  sticker,
 }
 
 /// 메시지 수정 이력
@@ -116,6 +120,9 @@ class BroadcastMessage {
   final bool hasReacted;
   final Map<String, List<String>>? reactions;
 
+  // 티어별 콘텐츠 접근제어
+  final String? minTierRequired; // 'BASIC', 'STANDARD', 'VIP', null=all
+
   // 고정 메시지
   final bool isPinned;
   final DateTime? pinnedAt;
@@ -151,6 +158,7 @@ class BroadcastMessage {
     this.senderTier,
     this.senderDaysSubscribed,
     this.templateContent,
+    this.minTierRequired,
     this.isEdited = false,
     this.lastEditedAt,
     this.editHistory,
@@ -203,6 +211,20 @@ class BroadcastMessage {
       deliveryScope == DeliveryScope.donationReply;
   bool get isPublicShare =>
       deliveryScope == DeliveryScope.publicShare || isPublicShared;
+  bool get isWelcome => deliveryScope == DeliveryScope.welcome;
+  bool get isTierGated => minTierRequired != null;
+
+  /// Check if a given tier meets the minimum tier requirement.
+  /// SECURITY: Unknown tiers are denied (fail-closed) to prevent bypass.
+  bool canViewWithTier(String? userTier) {
+    if (minTierRequired == null) return true;
+    const tierOrder = ['BASIC', 'STANDARD', 'VIP'];
+    final requiredIndex = tierOrder.indexOf(minTierRequired!);
+    if (requiredIndex < 0) return false; // unknown required tier → deny
+    final userIndex = tierOrder.indexOf(userTier ?? '');
+    if (userIndex < 0) return false; // unknown user tier → deny
+    return userIndex >= requiredIndex;
+  }
 
   factory BroadcastMessage.fromJson(Map<String, dynamic> json) {
     return BroadcastMessage(
@@ -239,6 +261,7 @@ class BroadcastMessage {
       senderTier: json['sender_tier'] as String?,
       senderDaysSubscribed: json['sender_days_subscribed'] as int?,
       templateContent: json['template_content'] as String?,
+      minTierRequired: json['min_tier_required'] as String?,
       isEdited: json['is_edited'] as bool? ?? false,
       lastEditedAt: json['last_edited_at'] != null
           ? DateTime.parse(json['last_edited_at'] as String)
@@ -288,6 +311,7 @@ class BroadcastMessage {
       'updated_at': updatedAt?.toIso8601String(),
       'deleted_at': deletedAt?.toIso8601String(),
       'template_content': templateContent,
+      'min_tier_required': minTierRequired,
       'is_edited': isEdited,
       'last_edited_at': lastEditedAt?.toIso8601String(),
       'edit_history': editHistory?.map((e) => e.toJson()).toList(),
@@ -328,6 +352,7 @@ class BroadcastMessage {
     String? senderTier,
     int? senderDaysSubscribed,
     String? templateContent,
+    String? minTierRequired,
     bool? isEdited,
     DateTime? lastEditedAt,
     List<MessageEditHistory>? editHistory,
@@ -366,6 +391,7 @@ class BroadcastMessage {
       senderTier: senderTier ?? this.senderTier,
       senderDaysSubscribed: senderDaysSubscribed ?? this.senderDaysSubscribed,
       templateContent: templateContent ?? this.templateContent,
+      minTierRequired: minTierRequired ?? this.minTierRequired,
       isEdited: isEdited ?? this.isEdited,
       lastEditedAt: lastEditedAt ?? this.lastEditedAt,
       editHistory: editHistory ?? this.editHistory,
@@ -394,6 +420,8 @@ class BroadcastMessage {
         return DeliveryScope.publicShare;
       case 'private_card':
         return DeliveryScope.privateCard;
+      case 'welcome':
+        return DeliveryScope.welcome;
       default:
         return DeliveryScope.broadcast;
     }
@@ -413,6 +441,8 @@ class BroadcastMessage {
         return 'public_share';
       case DeliveryScope.privateCard:
         return 'private_card';
+      case DeliveryScope.welcome:
+        return 'welcome';
     }
   }
 
@@ -426,6 +456,8 @@ class BroadcastMessage {
         return BroadcastMessageType.emoji;
       case 'voice':
         return BroadcastMessageType.voice;
+      case 'sticker':
+        return BroadcastMessageType.sticker;
       default:
         return BroadcastMessageType.text;
     }
@@ -443,6 +475,8 @@ class BroadcastMessage {
         return 'emoji';
       case BroadcastMessageType.voice:
         return 'voice';
+      case BroadcastMessageType.sticker:
+        return 'sticker';
     }
   }
 }

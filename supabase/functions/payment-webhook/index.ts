@@ -100,48 +100,65 @@ async function verifyPortOneSignature(
 }
 
 // TossPayments Webhook Signature Verification
+// NOTE: TossPayments only sends `tosspayments-webhook-signature` on payout/seller events.
+// For standard payment webhooks, signature is NOT included — use API cross-verification instead.
+const TOSSPAYMENTS_WEBHOOK_SECRET = Deno.env.get('TOSSPAYMENTS_WEBHOOK_SECRET') || ''
+
 async function verifyTossPaymentsSignature(
   signature: string,
   payload: string
 ): Promise<boolean> {
-  if (!TOSSPAYMENTS_SECRET_KEY) {
-    console.error('Payment gateway credentials not configured')
-    return false
+  // No signature provided and no secret configured — rely on API cross-verification
+  if (!signature && !TOSSPAYMENTS_WEBHOOK_SECRET) {
+    console.log('TossPayments: no signature header, will use API cross-verification')
+    return true // Signature check passes; caller must do API cross-verify
   }
 
-  try {
-    const encoder = new TextEncoder()
-    const key = await crypto.subtle.importKey(
-      'raw',
-      encoder.encode(TOSSPAYMENTS_SECRET_KEY),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    )
+  // Signature header present — verify it
+  if (signature && TOSSPAYMENTS_WEBHOOK_SECRET) {
+    try {
+      const encoder = new TextEncoder()
+      const key = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(TOSSPAYMENTS_WEBHOOK_SECRET),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      )
 
-    const signatureBuffer = await crypto.subtle.sign(
-      'HMAC',
-      key,
-      encoder.encode(payload)
-    )
+      const signatureBuffer = await crypto.subtle.sign(
+        'HMAC',
+        key,
+        encoder.encode(payload)
+      )
 
-    const computedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)))
+      const computedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)))
 
-    // Timing-safe comparison
-    if (computedSignature.length !== signature.length) {
+      // Timing-safe comparison
+      if (computedSignature.length !== signature.length) {
+        return false
+      }
+
+      let result = 0
+      for (let i = 0; i < computedSignature.length; i++) {
+        result |= computedSignature.charCodeAt(i) ^ signature.charCodeAt(i)
+      }
+
+      return result === 0
+    } catch (error) {
+      console.error('TossPayments signature verification error:', error)
       return false
     }
+  }
 
-    let result = 0
-    for (let i = 0; i < computedSignature.length; i++) {
-      result |= computedSignature.charCodeAt(i) ^ signature.charCodeAt(i)
-    }
-
-    return result === 0
-  } catch (error) {
-    console.error('TossPayments signature verification error:', error)
+  // Signature present but no secret configured — cannot verify, reject
+  if (signature && !TOSSPAYMENTS_WEBHOOK_SECRET) {
+    console.error('TossPayments: signature present but TOSSPAYMENTS_WEBHOOK_SECRET not configured')
     return false
   }
+
+  // No signature, but secret is configured — allow (payment events don't include signature)
+  return true
 }
 
 // Cross-verify payment with PortOne V2 API
@@ -181,23 +198,26 @@ async function verifyPaymentWithPortOne(paymentId: string): Promise<{
   }
 }
 
-// Log webhook event to database
+// Log webhook event to database (UPSERT to handle retries safely)
 async function logWebhookEvent(
   supabase: ReturnType<typeof createClient>,
   entry: WebhookLogEntry
 ): Promise<void> {
   try {
-    await supabase.from('payment_webhook_logs').insert({
-      event_type: entry.event_type,
-      payment_provider: entry.payment_provider,
-      payment_order_id: entry.payment_order_id,
-      webhook_id: entry.webhook_id,
-      webhook_payload: entry.webhook_payload,
-      signature_valid: entry.signature_valid,
-      processed_status: entry.processed_status,
-      error_message: entry.error_message,
-      processed_at: entry.processed_status !== 'pending' ? new Date().toISOString() : null,
-    })
+    await supabase.from('payment_webhook_logs').upsert(
+      {
+        event_type: entry.event_type,
+        payment_provider: entry.payment_provider,
+        payment_order_id: entry.payment_order_id,
+        webhook_id: entry.webhook_id,
+        webhook_payload: entry.webhook_payload,
+        signature_valid: entry.signature_valid,
+        processed_status: entry.processed_status,
+        error_message: entry.error_message,
+        processed_at: entry.processed_status !== 'pending' ? new Date().toISOString() : null,
+      },
+      { onConflict: 'webhook_id' }
+    )
   } catch (error) {
     // Don't fail the webhook if logging fails, but do log the error
     console.error('Failed to log webhook event:', error)
@@ -224,7 +244,7 @@ serve(async (req) => {
     // Extract webhook identification
     const webhookId = req.headers.get('webhook-id') || payload.webhookId || payload.eventId || `${provider}-${Date.now()}`
     const webhookTimestamp = req.headers.get('webhook-timestamp') || ''
-    const webhookSignature = req.headers.get('webhook-signature') || req.headers.get('x-webhook-signature') || ''
+    const webhookSignature = req.headers.get('webhook-signature') || req.headers.get('tosspayments-webhook-signature') || req.headers.get('x-webhook-signature') || ''
 
     // Initialize log entry
     const logEntry: WebhookLogEntry = {
@@ -236,7 +256,8 @@ serve(async (req) => {
       processed_status: 'pending',
     }
 
-    // Check idempotency first (before signature verification to save compute)
+    // Idempotency check: only skip if previously succeeded or marked duplicate.
+    // If a previous attempt failed, allow reprocessing (retry).
     const { data: existingWebhook } = await supabase
       .from('payment_webhook_logs')
       .select('id, processed_status')
@@ -244,13 +265,17 @@ serve(async (req) => {
       .single()
 
     if (existingWebhook) {
-      console.log(`Webhook already processed: ${webhookId}`)
-      logEntry.processed_status = 'duplicate'
-      await logWebhookEvent(supabase, logEntry)
-      return new Response(
-        JSON.stringify({ success: true, message: 'Already processed' }),
-        { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
-      )
+      if (existingWebhook.processed_status === 'success' || existingWebhook.processed_status === 'duplicate') {
+        console.log(`Webhook already processed (${existingWebhook.processed_status}): ${webhookId}`)
+        logEntry.processed_status = 'duplicate'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ success: true, message: 'Already processed' }),
+          { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      // Previous attempt failed — allow retry
+      console.log(`Retrying previously failed webhook: ${webhookId} (was: ${existingWebhook.processed_status})`)
     }
 
     // Verify signature based on provider
@@ -302,9 +327,11 @@ serve(async (req) => {
       )
     }
 
-    // Cross-verify payment with PortOne API (if PortOne provider)
+    // Cross-verify payment with provider API
+    let verification: { valid: boolean; amount?: number; status?: string; orderId?: string } | undefined
+
     if (provider === 'portone' && paymentId) {
-      const verification = await verifyPaymentWithPortOne(paymentId)
+      verification = await verifyPaymentWithPortOne(paymentId)
       if (!verification.valid) {
         logEntry.error_message = 'Payment cross-verification failed'
         logEntry.processed_status = 'failed'
@@ -315,7 +342,6 @@ serve(async (req) => {
         )
       }
 
-      // Verify amount matches if applicable
       if (verification.orderId && verification.orderId !== orderId) {
         logEntry.error_message = 'Order ID mismatch between webhook payload and payment provider'
         logEntry.processed_status = 'failed'
@@ -323,6 +349,52 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ error: 'Order ID mismatch' }),
           { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // TossPayments API cross-verification (essential when no webhook signature)
+    if (provider === 'tosspayments' && orderId && TOSSPAYMENTS_SECRET_KEY) {
+      try {
+        const tossAuth = btoa(`${TOSSPAYMENTS_SECRET_KEY}:`)
+        const tossVerifyRes = await fetch(
+          `https://api.tosspayments.com/v1/payments/orders/${orderId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Basic ${tossAuth}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        if (tossVerifyRes.ok) {
+          const tossVerifyData = await tossVerifyRes.json()
+          verification = {
+            valid: true,
+            amount: tossVerifyData.totalAmount,
+            status: tossVerifyData.status,
+            orderId: tossVerifyData.orderId,
+          }
+        } else {
+          console.error(`[Webhook] TossPayments API verification failed: ${tossVerifyRes.status}`)
+          logEntry.error_message = 'TossPayments cross-verification failed'
+          logEntry.processed_status = 'failed'
+          await logWebhookEvent(supabase, logEntry)
+          return new Response(
+            JSON.stringify({ error: 'Payment verification failed' }),
+            { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      } catch (error) {
+        console.error('[Webhook] TossPayments API verification error:', error)
+        // SECURITY: Fail-closed on network errors — return 503 so PG retries
+        logEntry.error_message = `TossPayments API network error: ${error}`
+        logEntry.processed_status = 'failed'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ error: 'Payment verification temporarily unavailable' }),
+          { status: 503, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
     }

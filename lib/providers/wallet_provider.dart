@@ -701,13 +701,19 @@ class WalletNotifier extends StateNotifier<WalletState> {
   static const _hiveIdempotencyKey = 'pending_donation_key';
   static const _hiveIdempotencyTimestamp = 'pending_donation_ts';
 
+  /// Cached Hive box to avoid repeated openBox() async overhead
+  Box? _hiveBox;
+  Future<Box> _getHiveBox() async {
+    return _hiveBox ??= await Hive.openBox(_hiveBoxName);
+  }
+
   /// Pending donation idempotency key (generated per UI action, kept for retry)
   String? _pendingDonationKey;
 
   /// Load persisted idempotency key (call once at init)
   Future<void> _restorePendingDonationKey() async {
     try {
-      final box = await Hive.openBox(_hiveBoxName);
+      final box = await _getHiveBox();
       final savedKey = box.get(_hiveIdempotencyKey) as String?;
       final savedTs = box.get(_hiveIdempotencyTimestamp) as int?;
       if (savedKey != null && savedTs != null) {
@@ -728,10 +734,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// Persist idempotency key to survive app restart
   Future<void> _persistDonationKey(String key) async {
     try {
-      final box = await Hive.openBox(_hiveBoxName);
+      final box = await _getHiveBox();
       await box.put(_hiveIdempotencyKey, key);
-      await box.put(_hiveIdempotencyTimestamp,
-          DateTime.now().millisecondsSinceEpoch);
+      await box.put(
+          _hiveIdempotencyTimestamp, DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
       AppLogger.debug('Failed to persist donation key: $e', tag: 'Wallet');
     }
@@ -740,7 +746,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// Clear persisted idempotency key after success
   Future<void> _clearPersistedDonationKey() async {
     try {
-      final box = await Hive.openBox(_hiveBoxName);
+      final box = await _getHiveBox();
       await box.delete(_hiveIdempotencyKey);
       await box.delete(_hiveIdempotencyTimestamp);
     } catch (e) {

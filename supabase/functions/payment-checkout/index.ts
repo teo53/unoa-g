@@ -59,18 +59,26 @@ serve(async (req) => {
 
     // Validate platform
     const validPlatforms: PlatformKey[] = ['web', 'android', 'ios']
-    const platformKey: PlatformKey = validPlatforms.includes(platform) ? platform : 'web'
+    const requestedPlatform: PlatformKey = validPlatforms.includes(platform) ? platform : 'web'
 
-    // SECURITY: Origin validation for web platform
-    // Prevents price manipulation by ensuring web requests come from allowed origins
-    if (platformKey === 'web') {
-      const origin = req.headers.get('Origin')
-      if (!isAllowedOrigin(origin)) {
-        return new Response(
-          JSON.stringify({ error: 'Origin not allowed' }),
-          { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
-        )
-      }
+    // SECURITY: Cross-validate platform claim against request origin
+    // Prevents price manipulation where native apps claim 'web' to get lower pricing
+    const origin = req.headers.get('Origin')
+    let platformKey: PlatformKey
+
+    if (origin && isAllowedOrigin(origin)) {
+      // Request has valid web origin → force web pricing regardless of claim
+      platformKey = 'web'
+    } else if (origin) {
+      // Unknown origin → reject (possible spoofing attempt)
+      return new Response(
+        JSON.stringify({ error: 'Origin not allowed' }),
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    } else {
+      // No origin (native app) → trust platform claim but cannot be 'web'
+      // Native apps should claim 'android' or 'ios', not 'web'
+      platformKey = requestedPlatform === 'web' ? 'android' : requestedPlatform
     }
 
     // Validate inputs

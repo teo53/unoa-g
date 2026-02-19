@@ -243,6 +243,157 @@ void main() {
     });
   });
 
+  group('Welcome delivery scope', () {
+    test('parses welcome correctly', () {
+      final json = _createMessageJson(deliveryScope: 'welcome');
+      final message = BroadcastMessage.fromJson(json);
+      expect(message.deliveryScope, equals(DeliveryScope.welcome));
+    });
+
+    test('isWelcome returns true for welcome scope', () {
+      final json = _createMessageJson(deliveryScope: 'welcome');
+      final message = BroadcastMessage.fromJson(json);
+      expect(message.isWelcome, isTrue);
+    });
+
+    test('isWelcome returns false for broadcast scope', () {
+      final json = _createMessageJson(deliveryScope: 'broadcast');
+      final message = BroadcastMessage.fromJson(json);
+      expect(message.isWelcome, isFalse);
+    });
+
+    test('welcome toJson produces correct value', () {
+      final message = BroadcastMessage(
+        id: 'msg-1',
+        channelId: 'channel-1',
+        senderId: 'sender-1',
+        senderType: 'artist',
+        deliveryScope: DeliveryScope.welcome,
+        createdAt: DateTime.now(),
+      );
+      final json = message.toJson();
+      expect(json['delivery_scope'], equals('welcome'));
+    });
+
+    test('parses public_share correctly', () {
+      final json = _createMessageJson(deliveryScope: 'public_share');
+      final message = BroadcastMessage.fromJson(json);
+      expect(message.deliveryScope, equals(DeliveryScope.publicShare));
+    });
+
+    test('parses private_card correctly', () {
+      final json = _createMessageJson(deliveryScope: 'private_card');
+      final message = BroadcastMessage.fromJson(json);
+      expect(message.deliveryScope, equals(DeliveryScope.privateCard));
+    });
+  });
+
+  group('Tier-gated content', () {
+    test('isTierGated returns true when minTierRequired is set', () {
+      final json = _createMessageJson();
+      json['min_tier_required'] = 'VIP';
+      final message = BroadcastMessage.fromJson(json);
+      expect(message.isTierGated, isTrue);
+      expect(message.minTierRequired, equals('VIP'));
+    });
+
+    test('isTierGated returns false when minTierRequired is null', () {
+      final json = _createMessageJson();
+      final message = BroadcastMessage.fromJson(json);
+      expect(message.isTierGated, isFalse);
+      expect(message.minTierRequired, isNull);
+    });
+
+    test('canViewWithTier returns true when user tier meets requirement', () {
+      final json = _createMessageJson();
+      json['min_tier_required'] = 'STANDARD';
+      final message = BroadcastMessage.fromJson(json);
+
+      expect(message.canViewWithTier('VIP'), isTrue);
+      expect(message.canViewWithTier('STANDARD'), isTrue);
+      expect(message.canViewWithTier('BASIC'), isFalse);
+    });
+
+    test('canViewWithTier returns true when no tier requirement', () {
+      final json = _createMessageJson();
+      final message = BroadcastMessage.fromJson(json);
+
+      expect(message.canViewWithTier('BASIC'), isTrue);
+      expect(message.canViewWithTier('VIP'), isTrue);
+      expect(message.canViewWithTier(null), isTrue);
+    });
+
+    test('canViewWithTier denies null userTier (fail-closed security)', () {
+      final json = _createMessageJson();
+      json['min_tier_required'] = 'BASIC';
+      final message = BroadcastMessage.fromJson(json);
+
+      // SECURITY: null/unknown tier → denied (fail-closed)
+      expect(message.canViewWithTier(null), isFalse);
+    });
+
+    test('canViewWithTier denies unknown tier values (fail-closed security)', () {
+      // Unknown min_tier_required → deny all
+      final json1 = _createMessageJson();
+      json1['min_tier_required'] = 'INVALID_TIER';
+      final msg1 = BroadcastMessage.fromJson(json1);
+      expect(msg1.canViewWithTier('VIP'), isFalse);
+      expect(msg1.canViewWithTier('BASIC'), isFalse);
+
+      // Valid required tier, unknown user tier → deny
+      final json2 = _createMessageJson();
+      json2['min_tier_required'] = 'STANDARD';
+      final msg2 = BroadcastMessage.fromJson(json2);
+      expect(msg2.canViewWithTier('UNKNOWN'), isFalse);
+      expect(msg2.canViewWithTier(''), isFalse);
+    });
+
+    test('canViewWithTier VIP requirement', () {
+      final json = _createMessageJson();
+      json['min_tier_required'] = 'VIP';
+      final message = BroadcastMessage.fromJson(json);
+
+      expect(message.canViewWithTier('VIP'), isTrue);
+      expect(message.canViewWithTier('STANDARD'), isFalse);
+      expect(message.canViewWithTier('BASIC'), isFalse);
+    });
+
+    test('minTierRequired round-trips via toJson/fromJson', () {
+      final original = BroadcastMessage(
+        id: 'msg-1',
+        channelId: 'channel-1',
+        senderId: 'sender-1',
+        senderType: 'artist',
+        deliveryScope: DeliveryScope.broadcast,
+        createdAt: DateTime.now(),
+        minTierRequired: 'STANDARD',
+      );
+
+      final json = original.toJson();
+      expect(json['min_tier_required'], equals('STANDARD'));
+
+      final restored = BroadcastMessage.fromJson(json);
+      expect(restored.minTierRequired, equals('STANDARD'));
+      expect(restored.isTierGated, isTrue);
+    });
+
+    test('copyWith updates minTierRequired', () {
+      final original = BroadcastMessage(
+        id: 'msg-1',
+        channelId: 'channel-1',
+        senderId: 'sender-1',
+        senderType: 'artist',
+        deliveryScope: DeliveryScope.broadcast,
+        createdAt: DateTime.now(),
+      );
+
+      final updated = original.copyWith(minTierRequired: 'VIP');
+      expect(updated.minTierRequired, equals('VIP'));
+      expect(updated.isTierGated, isTrue);
+      expect(original.minTierRequired, isNull);
+    });
+  });
+
   group('BroadcastMessage copyWith', () {
     test('preserves unchanged values', () {
       final original = BroadcastMessage(
@@ -299,6 +450,7 @@ Map<String, dynamic> _createMessageJson({
   Map<String, dynamic>? mediaMetadata,
   String? donationId,
   int? donationAmount,
+  String? minTierRequired,
 }) {
   return {
     'id': 'msg-${DateTime.now().millisecondsSinceEpoch}',
@@ -312,6 +464,7 @@ Map<String, dynamic> _createMessageJson({
     if (mediaMetadata != null) 'media_metadata': mediaMetadata,
     if (donationId != null) 'donation_id': donationId,
     if (donationAmount != null) 'donation_amount': donationAmount,
+    if (minTierRequired != null) 'min_tier_required': minTierRequired,
     'created_at': DateTime.now().toIso8601String(),
   };
 }

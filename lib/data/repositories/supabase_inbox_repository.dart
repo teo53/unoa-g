@@ -120,49 +120,74 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
     String content, {
     BroadcastMessageType messageType = BroadcastMessageType.text,
     String? mediaUrl,
+    String? minTierRequired,
   }) async {
     // Verify the artist owns this channel
     await _verifyChannelOwnership(channelId);
 
     // Insert broadcast message
-    final response = await _supabase
-        .from('messages')
-        .insert({
-          'channel_id': channelId,
-          'sender_id': _currentUserId,
-          'sender_type': 'artist',
-          'delivery_scope': 'broadcast',
-          'content': content,
-          'message_type': _messageTypeToString(messageType),
-          'media_url': mediaUrl,
-        })
-        .select()
-        .single();
+    final insertData = <String, dynamic>{
+      'channel_id': channelId,
+      'sender_id': _currentUserId,
+      'sender_type': 'artist',
+      'delivery_scope': 'broadcast',
+      'content': content,
+      'message_type': _messageTypeToString(messageType),
+      'media_url': mediaUrl,
+    };
+
+    // Add tier gating if specified
+    if (minTierRequired != null) {
+      insertData['min_tier_required'] = minTierRequired;
+    }
+
+    final response =
+        await _supabase.from('messages').insert(insertData).select().single();
 
     final message = BroadcastMessage.fromJson(response);
 
-    // Create delivery records for all active subscribers
-    await _createDeliveryRecords(channelId, message.id);
+    // Create delivery records (filtered by tier if tier-gated)
+    await _createDeliveryRecords(channelId, message.id,
+        minTier: minTierRequired);
 
-    // Update quotas for all subscribers (grant 3 tokens)
+    // Update quotas for eligible subscribers (grant 3 tokens)
     await _refreshSubscriberQuotas(channelId, message.id);
 
     return message;
   }
 
   Future<void> _createDeliveryRecords(
-      String channelId, String messageId) async {
-    // Get all active subscribers
-    final subscribers = await _supabase
+    String channelId,
+    String messageId, {
+    String? minTier,
+  }) async {
+    // Get active subscribers, optionally filtered by tier
+    var query = _supabase
         .from('subscriptions')
-        .select('user_id')
+        .select('user_id, tier')
         .eq('channel_id', channelId)
         .eq('is_active', true);
 
+    final subscribers = await query;
     if (subscribers.isEmpty) return;
 
+    // Filter by tier if tier-gated
+    // SECURITY: Unknown tiers are excluded (fail-closed) to prevent bypass
+    const tierOrder = ['BASIC', 'STANDARD', 'VIP'];
+    final minTierIndex = minTier != null ? tierOrder.indexOf(minTier) : -1;
+    final eligible = minTier != null
+        ? subscribers.where((s) {
+            final subTier = s['tier'] as String? ?? '';
+            final subIndex = tierOrder.indexOf(subTier);
+            // Unknown tier → exclude (fail-closed)
+            return minTierIndex >= 0 && subIndex >= 0 && subIndex >= minTierIndex;
+          }).toList()
+        : subscribers;
+
+    if (eligible.isEmpty) return;
+
     // Create delivery records
-    final deliveries = subscribers
+    final deliveries = eligible
         .map((s) => {
               'message_id': messageId,
               'user_id': s['user_id'],
@@ -542,6 +567,8 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
         return 'voice';
       case BroadcastMessageType.video:
         return 'video';
+      case BroadcastMessageType.sticker:
+        return 'sticker';
     }
   }
 }

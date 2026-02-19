@@ -135,24 +135,27 @@ async function verifyPaymentWithPortOne(paymentId: string): Promise<{
 }
 
 /**
- * 웹훅 이벤트 로깅
+ * 웹훅 이벤트 로깅 (UPSERT to handle retries safely)
  */
 async function logWebhookEvent(
   supabase: ReturnType<typeof createClient>,
   entry: WebhookLogEntry
 ): Promise<void> {
   try {
-    await supabase.from('payment_webhook_logs').insert({
-      event_type: entry.event_type,
-      payment_provider: entry.payment_provider,
-      payment_order_id: entry.payment_order_id,
-      webhook_id: entry.webhook_id,
-      webhook_payload: entry.webhook_payload,
-      signature_valid: entry.signature_valid,
-      processed_status: entry.processed_status,
-      error_message: entry.error_message,
-      processed_at: entry.processed_status !== 'pending' ? new Date().toISOString() : null,
-    })
+    await supabase.from('payment_webhook_logs').upsert(
+      {
+        event_type: entry.event_type,
+        payment_provider: entry.payment_provider,
+        payment_order_id: entry.payment_order_id,
+        webhook_id: entry.webhook_id,
+        webhook_payload: entry.webhook_payload,
+        signature_valid: entry.signature_valid,
+        processed_status: entry.processed_status,
+        error_message: entry.error_message,
+        processed_at: entry.processed_status !== 'pending' ? new Date().toISOString() : null,
+      },
+      { onConflict: 'webhook_id' }
+    )
   } catch (error) {
     console.error('Failed to log webhook event:', error)
   }
@@ -184,6 +187,8 @@ serve(async (req) => {
     }
 
     // === 1. 멱등성 체크 ===
+    // Only skip if previously succeeded or marked duplicate.
+    // If a previous attempt failed, allow reprocessing (retry).
     const { data: existingWebhook } = await supabase
       .from('payment_webhook_logs')
       .select('id, processed_status')
@@ -191,12 +196,17 @@ serve(async (req) => {
       .single()
 
     if (existingWebhook) {
-      logEntry.processed_status = 'duplicate'
-      await logWebhookEvent(supabase, logEntry)
-      return new Response(
-        JSON.stringify({ success: true, message: 'Already processed' }),
-        { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
-      )
+      if (existingWebhook.processed_status === 'success' || existingWebhook.processed_status === 'duplicate') {
+        console.log(`Webhook already processed (${existingWebhook.processed_status}): ${webhookId}`)
+        logEntry.processed_status = 'duplicate'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ success: true, message: 'Already processed' }),
+          { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      // Previous attempt failed — allow retry
+      console.log(`Retrying previously failed webhook: ${webhookId} (was: ${existingWebhook.processed_status})`)
     }
 
     // === 2. 서명 검증 ===
