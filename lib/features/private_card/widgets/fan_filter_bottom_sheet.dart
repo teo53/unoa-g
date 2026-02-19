@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/fan_filter.dart';
 
@@ -20,7 +21,7 @@ class FanFilterBottomSheet extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => FanFilterBottomSheet(
-        onFilterSelected: (filter) => Navigator.pop(context, filter),
+        onFilterSelected: (filter) => context.pop(filter),
       ),
     );
   }
@@ -59,7 +60,7 @@ class FanFilterBottomSheet extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   icon: Icon(
                     Icons.close,
                     color: isDark ? Colors.white : AppColors.text,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/premium_effects.dart';
 import '../../../data/models/reply_quota.dart';
@@ -379,7 +380,7 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
                   ],
                 ),
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   icon: Icon(
                     Icons.close,
                     color:
@@ -669,7 +670,7 @@ class _DtGiftSheetState extends State<_DtGiftSheet> {
         _isSending = false;
       });
 
-      Navigator.pop(context);
+      context.pop();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

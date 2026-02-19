@@ -340,7 +340,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 sublabel: '24시간 이내',
                 isDark: isDark,
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
                   _showEditDialog(context, message, isDark);
                 },
               ),
@@ -352,7 +352,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               isDark: isDark,
               isDanger: true,
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 _showDeleteConfirmation(context, message);
               },
             ),
@@ -364,7 +364,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               isDark: isDark,
               onTap: () {
                 Clipboard.setData(ClipboardData(text: message.content));
-                Navigator.pop(context);
+                context.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('메시지가 복사되었습니다'),
@@ -382,7 +382,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
               label: '취소',
               isDark: isDark,
               isCancel: true,
-              onTap: () => Navigator.pop(context),
+              onTap: () => context.pop(),
             ),
 
             SizedBox(height: MediaQuery.of(context).padding.bottom),
@@ -481,7 +481,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('취소'),
           ),
           TextButton(
@@ -505,7 +505,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   );
                 }
               }
-              Navigator.pop(context);
+              context.pop();
             },
             child: const Text('저장'),
           ),
@@ -524,7 +524,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('취소'),
           ),
           TextButton(
@@ -542,7 +542,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ),
                 );
               }
-              Navigator.pop(context);
+              context.pop();
             },
             style: TextButton.styleFrom(
               foregroundColor: AppColors.danger,
@@ -595,7 +595,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                   ),
                 ),
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   icon: Icon(Icons.close,
                       color: isDark ? Colors.grey[400] : Colors.grey[600]),
                 ),
@@ -680,7 +680,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.pop(context);
+                      context.pop();
                       setState(() {
                         _replyingTo = originalMessage;
                         _isReplyDirect = true;
@@ -702,7 +702,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.pop(context);
+                      context.pop();
                       setState(() {
                         _replyingTo = originalMessage;
                         _isReplyDirect = false;

@@ -8,6 +8,7 @@ library;
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -172,7 +173,7 @@ void showDropEditDialog(
                           : null,
                     );
                     onSave(newDrop);
-                    Navigator.pop(context);
+                    context.pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -390,7 +391,7 @@ void showEventEditDialog(
                       imageUrl: selectedImage?.path ?? existingImageUrl,
                     );
                     onSave(newEvent);
-                    Navigator.pop(context);
+                    context.pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -595,7 +596,7 @@ void showFancamEditDialog(
                           isPinned: fancam?.isPinned ?? false,
                         );
                         onSave(newFancam);
-                        Navigator.pop(context);
+                        context.pop();
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: fetchedTitle.isEmpty
@@ -690,7 +691,7 @@ void showSocialLinksEditDialog(
                     twitter:
                         twController.text.isNotEmpty ? twController.text : null,
                   ));
-                  Navigator.pop(context);
+                  context.pop();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
@@ -726,13 +727,13 @@ void showDeleteConfirmDialog(
       content: Text('"$itemName"을(를) 삭제하시겠습니까?'),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
           child: const Text('취소'),
         ),
         TextButton(
           onPressed: () {
             onConfirm();
-            Navigator.pop(context);
+            context.pop();
           },
           child: const Text('삭제', style: TextStyle(color: AppColors.danger)),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/broadcast_message.dart';
 
@@ -178,7 +179,7 @@ class MessageActionSheet extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              Navigator.pop(context);
+              context.pop();
               onReact?.call(reaction.emoji);
             },
             child: Column(
@@ -243,7 +244,7 @@ class MessageActionSheet extends StatelessWidget {
         icon: Icons.copy_rounded,
         label: '복사',
         onTap: () {
-          Navigator.pop(context);
+          context.pop();
           onCopy?.call();
         },
       ));
@@ -255,7 +256,7 @@ class MessageActionSheet extends StatelessWidget {
         icon: Icons.edit_rounded,
         label: '수정',
         onTap: () {
-          Navigator.pop(context);
+          context.pop();
           onEdit?.call();
         },
       ));
@@ -268,7 +269,7 @@ class MessageActionSheet extends StatelessWidget {
             message.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
         label: message.isPinned ? '공지 해제' : '공지 등록',
         onTap: () {
-          Navigator.pop(context);
+          context.pop();
           onPin?.call();
         },
       ));
@@ -281,7 +282,7 @@ class MessageActionSheet extends StatelessWidget {
         label: '삭제',
         isDestructive: true,
         onTap: () {
-          Navigator.pop(context);
+          context.pop();
           onDelete?.call();
         },
       ));

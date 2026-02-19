@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/app_config.dart';
@@ -164,7 +165,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
     if (_selectedDraft == null) return;
 
     setState(() => _isSending = true);
-    Navigator.pop(context);
+    context.pop();
     widget.onSend(
       _selectedDraft!,
       _commentController.text.trim().isEmpty
@@ -218,7 +219,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
       createdAt: DateTime.now(),
     );
 
-    Navigator.pop(context);
+    context.pop();
     widget.onSend(
       draft,
       _customCommentController.text.trim().isEmpty
@@ -320,7 +321,7 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
             ),
           ),
           IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             icon: const Icon(Icons.close),
             iconSize: 22,
           ),

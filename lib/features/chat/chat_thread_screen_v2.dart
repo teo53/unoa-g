@@ -1266,7 +1266,8 @@ class MessageBubbleV2 extends StatelessWidget {
   }
 
   String _formatTime(DateTime time) {
-    final hour = time.hour > 12 ? time.hour - 12 : time.hour;
+    final hour =
+        time.hour == 0 ? 12 : (time.hour > 12 ? time.hour - 12 : time.hour);
     final period = time.hour >= 12 ? '오후' : '오전';
     final minute = time.minute.toString().padLeft(2, '0');
     return '$period $hour:$minute';

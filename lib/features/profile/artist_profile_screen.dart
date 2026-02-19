@@ -8,6 +8,7 @@ import '../../data/models/artist.dart';
 import '../../data/models/creator_content.dart';
 import '../../providers/discover_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import '../../shared/utils/share_utils.dart';
 import 'widgets/artist_profile_feed_widgets.dart';
 import 'widgets/artist_profile_fancam_widgets.dart';
 import 'widgets/artist_profile_info_widgets.dart';
@@ -148,7 +149,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                   return FancamListItem(
                     fancam: fancam,
                     onTap: () {
-                      Navigator.pop(context);
+                      context.pop();
                       _openYouTubeVideo(fancam.videoUrl);
                     },
                   );
@@ -177,9 +178,19 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
               leading: const Icon(Icons.share_outlined),
               title: const Text('프로필 공유'),
               onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('공유 기능 준비 중')),
+                context.pop();
+                final artists = ref.read(trendingArtistsProvider);
+                final artist = artists.isNotEmpty
+                    ? artists.firstWhere(
+                        (a) => a.id == widget.artistId,
+                        orElse: () => artists.first,
+                      )
+                    : null;
+                shareArtistProfile(
+                  artistId: widget.artistId,
+                  artistName: artist?.name ?? '아티스트',
+                  context: context,
+                  ref: ref,
                 );
               },
             ),
@@ -187,7 +198,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
               leading: const Icon(Icons.notifications_outlined),
               title: const Text('알림 설정'),
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('알림 설정 준비 중')),
                 );
@@ -199,7 +210,7 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
               title:
                   const Text('신고하기', style: TextStyle(color: AppColors.danger)),
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('신고 기능 준비 중')),
                 );
@@ -668,6 +679,31 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
                         ),
                       ),
 
+                      const SizedBox(height: 16),
+
+                      // Fan Ad - Support This Artist
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            context.push('/fan-ads/purchase?artistId=${widget.artistId}');
+                          },
+                          icon: const Icon(Icons.campaign_outlined, size: 18),
+                          label: const Text('이 아티스트 응원 광고하기'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary600,
+                            side: BorderSide(
+                              color: AppColors.primary500.withValues(alpha: 0.5),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            minimumSize: const Size(double.infinity, 44),
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 24),
 
                       // Tab Bar
@@ -769,3 +805,16 @@ class _ArtistProfileScreenState extends ConsumerState<ArtistProfileScreen>
     );
   }
 }
+
+// Note: Widget classes (ProfileStatBadge, ProfileHighlightItem, ProfileActionButton,
+// ProfileSectionHeader, ProfileDropItem, ProfileEventCard, ArtistFeedPost,
+// AnnouncementPost, OtaLetterPost, FeedComposeSheet, FancamCard, FancamListItem,
+// SocialLinksSection) are defined in:
+//   - widgets/artist_profile_info_widgets.dart
+//   - widgets/artist_profile_feed_widgets.dart
+//   - widgets/artist_profile_fancam_widgets.dart
+//
+// The following duplicate definitions from a merge conflict have been removed.
+// DO NOT add private widget classes here — use the widget files above.
+
+// --- Duplicate classes removed (merge conflict cleanup) ---

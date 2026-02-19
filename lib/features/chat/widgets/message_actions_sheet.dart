@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/broadcast_message.dart';
 import 'report_dialog.dart';
@@ -102,7 +103,7 @@ class MessageActionsSheet extends StatelessWidget {
 
   void _copyToClipboard(BuildContext context) {
     Clipboard.setData(ClipboardData(text: message.content ?? ''));
-    Navigator.pop(context);
+    context.pop();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('메시지가 복사되었습니다'),
@@ -113,12 +114,12 @@ class MessageActionsSheet extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context) {
-    Navigator.pop(context);
+    context.pop();
     onEdit?.call();
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    Navigator.pop(context);
+    context.pop();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -128,12 +129,12 @@ class MessageActionsSheet extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
               onDelete?.call();
             },
             style: TextButton.styleFrom(
@@ -147,7 +148,7 @@ class MessageActionsSheet extends StatelessWidget {
   }
 
   void _showReportDialog(BuildContext context) {
-    Navigator.pop(context);
+    context.pop();
     if (onReport == null) return;
 
     ReportDialog.show(
@@ -169,7 +170,7 @@ class MessageActionsSheet extends StatelessWidget {
   }
 
   void _showBlockConfirmation(BuildContext context) {
-    Navigator.pop(context);
+    context.pop();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -179,12 +180,12 @@ class MessageActionsSheet extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
               onBlock?.call();
             },
             style: TextButton.styleFrom(
@@ -198,7 +199,7 @@ class MessageActionsSheet extends StatelessWidget {
   }
 
   void _showPublicShareConfirmation(BuildContext context) {
-    Navigator.pop(context);
+    context.pop();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -208,12 +209,12 @@ class MessageActionsSheet extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
               onPublicShare?.call();
             },
             style: TextButton.styleFrom(
@@ -227,7 +228,7 @@ class MessageActionsSheet extends StatelessWidget {
   }
 
   void _showUnshareConfirmation(BuildContext context) {
-    Navigator.pop(context);
+    context.pop();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -237,12 +238,12 @@ class MessageActionsSheet extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              context.pop();
               onUnshare?.call();
             },
             child: const Text('공개 취소'),
@@ -324,7 +325,7 @@ class MessageActionsSheet extends StatelessWidget {
               icon: Icons.reply_rounded,
               label: '답장',
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 onReply!.call();
               },
             ),
@@ -396,7 +397,7 @@ class MessageActionsSheet extends StatelessWidget {
           _ActionTile(
             icon: Icons.close,
             label: '취소',
-            onTap: () => Navigator.pop(context),
+            onTap: () => context.pop(),
             isCancel: true,
           ),
 

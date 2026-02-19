@@ -441,7 +441,7 @@ class _TransactionList extends ConsumerWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    context.pop();
                     _confirmRefund(context, txn);
                   },
                   style: ElevatedButton.styleFrom(

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/config/demo_config.dart';
 import '../core/supabase/supabase_client.dart';
 import 'auth_provider.dart';
 import 'repository_providers.dart';
@@ -656,7 +657,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
     final myCampaigns = [
       Campaign(
         id: 'demo_my_campaign_1',
-        creatorId: 'demo_creator_001',
+        creatorId: DemoConfig.demoCreatorId,
         title: '나의 첫 미니앨범 "Dream" 제작 펀딩',
         subtitle: '팬 여러분과 함께 만드는 앨범',
         description: '팬 여러분과 함께 만드는 첫 앨범입니다.',
@@ -672,7 +673,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
       ),
       Campaign(
         id: 'demo_my_campaign_draft',
-        creatorId: 'demo_creator_001',
+        creatorId: DemoConfig.demoCreatorId,
         title: '새 콘서트 굿즈 제작 (준비중)',
         subtitle: '',
         category: '굿즈',
@@ -682,7 +683,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
       ),
       Campaign(
         id: 'demo_my_campaign_ended',
-        creatorId: 'demo_creator_001',
+        creatorId: DemoConfig.demoCreatorId,
         title: '팬미팅 "Together" 개최 펀딩',
         subtitle: '성공적으로 마감되었습니다!',
         description: '성공적으로 종료된 팬미팅 펀딩입니다.',
@@ -879,7 +880,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
     if (isDemoMode) {
       final newCampaign = Campaign(
         id: 'demo_new_${DateTime.now().millisecondsSinceEpoch}',
-        creatorId: 'demo_creator_001',
+        creatorId: DemoConfig.demoCreatorId,
         title: title,
         subtitle: subtitle,
         description: description,

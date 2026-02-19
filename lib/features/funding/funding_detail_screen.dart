@@ -71,7 +71,7 @@ class _FundingDetailScreenState extends ConsumerState<FundingDetailScreen> {
               ),
               const SizedBox(height: 12),
               FilledButton.icon(
-                onPressed: () => setState(() {}),
+                onPressed: () => _loadTiers(),
                 icon: const Icon(Icons.refresh, size: 18),
                 label: const Text('다시 시도'),
                 style: FilledButton.styleFrom(

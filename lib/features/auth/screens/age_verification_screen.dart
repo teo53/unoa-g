@@ -333,12 +333,12 @@ class _AgeVerificationScreenState extends ConsumerState<AgeVerificationScreen> {
                         ),
                         actions: [
                           TextButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => context.pop(),
                             child: const Text('아니오'),
                           ),
                           FilledButton(
                             onPressed: () {
-                              Navigator.pop(context);
+                              context.pop();
                               context.go('/login');
                             },
                             child: const Text('예'),

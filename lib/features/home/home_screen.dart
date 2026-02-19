@@ -62,24 +62,8 @@ class _LoggedInHomeScreen extends ConsumerWidget {
                           : AppColors.textMainLight,
                     ),
                   ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isDark
-                              ? AppColors.backgroundDark
-                              : AppColors.backgroundLight,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Notification dot hidden until real notification system is wired
+                  const SizedBox.shrink(),
                 ],
               ),
             ],
@@ -537,13 +521,22 @@ class _FeatureCard extends StatelessWidget {
 }
 
 /// Home banner section — displays published banners from Ops CRM
-class _HomeBannerSection extends ConsumerWidget {
+class _HomeBannerSection extends ConsumerStatefulWidget {
   final bool isDark;
 
   const _HomeBannerSection({required this.isDark});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_HomeBannerSection> createState() => _HomeBannerSectionState();
+}
+
+class _HomeBannerSectionState extends ConsumerState<_HomeBannerSection> {
+  int _currentPage = 0;
+
+  bool get isDark => widget.isDark;
+
+  @override
+  Widget build(BuildContext context) {
     final banners = ref.watch(opsBannersProvider('home_top'));
 
     if (banners.isEmpty) return const SizedBox.shrink();
@@ -554,6 +547,7 @@ class _HomeBannerSection extends ConsumerWidget {
           height: 160,
           child: PageView.builder(
             itemCount: banners.length,
+            onPageChanged: (index) => setState(() => _currentPage = index),
             itemBuilder: (context, index) {
               final banner = banners[index];
               return GestureDetector(
@@ -644,7 +638,7 @@ class _HomeBannerSection extends ConsumerWidget {
                   height: 6,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: i == 0
+                    color: i == _currentPage
                         ? AppColors.primary500
                         : (isDark
                             ? AppColors.borderDark

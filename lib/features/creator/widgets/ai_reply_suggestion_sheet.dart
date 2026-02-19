@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../data/mock/reply_templates.dart';
@@ -154,7 +155,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
       );
       return;
     }
-    Navigator.pop(context);
+    context.pop();
     widget.onInsert(text);
   }
 
@@ -306,7 +307,7 @@ class _AiReplySuggestionSheetState extends State<AiReplySuggestionSheet> {
             ),
           ),
           IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             icon: const Icon(Icons.close),
             iconSize: 22,
           ),
