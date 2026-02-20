@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/wallet_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
+import '../../shared/widgets/error_boundary.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -170,25 +171,10 @@ class _TransactionList extends ConsumerWidget {
     }).toList();
 
     if (transactions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.receipt_long_outlined,
-              size: 64,
-              color: isDark ? AppColors.iconMutedDark : AppColors.iconMuted,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '거래 내역이 없습니다',
-              style: TextStyle(
-                fontSize: 15,
-                color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
-              ),
-            ),
-          ],
-        ),
+      return const EmptyState(
+        title: '거래 내역이 없어요',
+        message: 'DT를 충전하거나 사용하면 여기에 표시됩니다',
+        icon: Icons.receipt_long_outlined,
       );
     }
 

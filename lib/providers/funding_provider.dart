@@ -3,12 +3,37 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/demo_config.dart';
 import '../core/supabase/supabase_client.dart';
+import '../core/utils/app_logger.dart';
 import 'auth_provider.dart';
 import 'repository_providers.dart';
 
 // ============================================================================
 // Models
 // ============================================================================
+
+/// F-P1-5: Safe DateTime parsing with null fallback
+DateTime? _parseDateTime(dynamic value) {
+  if (value == null) return null;
+  try {
+    if (value is String) {
+      final parsed = DateTime.tryParse(value);
+      if (parsed == null) {
+        AppLogger.warning(
+          'Failed to parse DateTime from string: "$value"',
+          tag: 'FundingProvider',
+        );
+      }
+      return parsed;
+    }
+    return null;
+  } catch (e) {
+    AppLogger.warning(
+      'Exception parsing DateTime: $value, error: $e',
+      tag: 'FundingProvider',
+    );
+    return null;
+  }
+}
 
 /// Campaign status enum
 enum CampaignStatus {
@@ -128,12 +153,8 @@ class Campaign {
       currentAmountKrw: currentAmount,
       fundingPercent: percent,
       backerCount: (json['backer_count'] as num?)?.toInt() ?? 0,
-      startAt: json['start_at'] != null
-          ? DateTime.tryParse(json['start_at'] as String)
-          : null,
-      endAt: json['end_at'] != null
-          ? DateTime.tryParse(json['end_at'] as String)
-          : null,
+      startAt: _parseDateTime(json['start_at']),
+      endAt: _parseDateTime(json['end_at']),
       targetArtist: json['target_artist'] as String?,
       detailImages: json['detail_images'] != null
           ? List<String>.from(json['detail_images'] as List)
@@ -171,7 +192,14 @@ class Campaign {
   }
 
   int get daysLeft {
-    if (endAt == null) return 0;
+    // F-P1-5: Null-safe endAt handling
+    if (endAt == null) {
+      AppLogger.debug(
+        'Campaign $id has null endAt, returning 0 daysLeft',
+        tag: 'Campaign',
+      );
+      return 0;
+    }
     final diff = endAt!.difference(DateTime.now()).inDays;
     return diff < 0 ? 0 : diff;
   }

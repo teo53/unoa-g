@@ -16,6 +16,9 @@ import 'widgets/hide_fan_dialog.dart';
 import '../../data/models/poll_draft.dart';
 import 'widgets/group_chat_bubble.dart';
 import 'widgets/chat_room_tile.dart';
+import 'widgets/fan_profile_sheet.dart';
+import 'widgets/welcome_chat_settings.dart';
+import '../chat/widgets/tier_locked_overlay.dart';
 
 /// 크리에이터 채팅 탭 화면
 ///
@@ -68,6 +71,10 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
 
   // 미디어 메뉴 상태
   bool _isMediaMenuOpen = false;
+
+  // 티어별 전송 선택 (null = 전체)
+  String? _selectedTier;
+  bool _showTierSelector = false;
 
   // 답장 상태
   GroupChatMessage? _replyingTo;
@@ -188,6 +195,8 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
 
     final isReply = _replyingTo != null;
 
+    final tierLabel = _selectedTier;
+
     setState(() {
       _messages.add(GroupChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -204,16 +213,32 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         replyToFanId: _replyingTo?.fanId,
         replyToFanName: _replyingTo?.fanName,
         replyToContent: _replyingTo?.content,
+        minTierRequired: tierLabel,
       ));
       _messageController.clear();
       _replyingTo = null;
       _isMediaMenuOpen = false;
+      _selectedTier = null;
+      _showTierSelector = false;
     });
 
     // Scroll to bottom
     _scrollToBottom();
 
-    if (isReply) {
+    final sentContent = _messages.last.content;
+    final hasPersonalization = sentContent.contains('{fanName}') ||
+        sentContent.contains('{subscribeDays}') ||
+        sentContent.contains('{tier}');
+
+    if (hasPersonalization) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🎯 이름부르기 메시지로 전송됨 — 각 팬에게 개인화됩니다'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } else if (isReply) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -821,6 +846,131 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   // 미디어 메뉴 핸들러
   // =========================================================================
 
+  /// 입력바에 개인화 변수({fanName}) 삽입
+  void _insertPersonalizationTag() {
+    _showPersonalizationMenu();
+  }
+
+  void _showPersonalizationMenu() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        final tags = [
+          ('{fanName}', '팬 이름', '구독자의 닉네임이 들어갑니다'),
+          ('{subscribeDays}', '구독 일수', '구독 시작 후 경과 일수'),
+          ('{tier}', '구독 티어', 'BASIC / STANDARD / VIP'),
+        ];
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(
+                  '이름부르기 변수 삽입',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  '메시지에 변수를 삽입하면 각 팬에게 개인화된 메시지가 전달됩니다.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.white54 : Colors.grey.shade600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...tags.map(
+                (tag) => ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00BCD4).withAlpha(25),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.person_pin_outlined,
+                      color: Color(0xFF00BCD4),
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    tag.$2,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  subtitle: Text(
+                    tag.$3,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white38 : Colors.grey.shade500,
+                    ),
+                  ),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white10 : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      tag.$1,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'monospace',
+                        color: isDark ? Colors.white70 : Colors.black54,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _insertTagAtCursor(tag.$1);
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _insertTagAtCursor(String tag) {
+    final text = _messageController.text;
+    final selection = _messageController.selection;
+    final cursorPos =
+        selection.baseOffset >= 0 ? selection.baseOffset : text.length;
+
+    final before = text.substring(0, cursorPos);
+    final after = text.substring(cursorPos);
+    final newText = '$before$tag$after';
+
+    _messageController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: cursorPos + tag.length),
+    );
+  }
+
   void _handleMediaAction(String actionName) {
     setState(() {
       _isMediaMenuOpen = false;
@@ -941,6 +1091,55 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                       ),
                     ],
                   ),
+                ),
+                // 채널 설정 메뉴
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color:
+                        isDark ? AppColors.textSubDark : AppColors.textSubLight,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'welcome') {
+                      WelcomeChatSettings.show(
+                        context: context,
+                        autoWelcomeEnabled: true,
+                        welcomeMessage:
+                            '안녕하세요 {nickname}님! 제 채널에 오신 것을 환영합니다 🎉',
+                        welcomeMediaUrl: null,
+                        onSave: (enabled, message, mediaUrl) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                enabled
+                                    ? '웰컴 메시지가 저장되었습니다'
+                                    : '웰컴 메시지가 비활성화되었습니다',
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'welcome',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.waving_hand_outlined,
+                            size: 18,
+                            color: isDark
+                                ? AppColors.textSubDark
+                                : AppColors.textSubLight,
+                          ),
+                          const SizedBox(width: 10),
+                          const Text('웰컴 메시지 설정'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1096,6 +1295,13 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                           isDark: isDark,
                           isHearted: _heartedMessages.contains(message.id),
                           onHeartTap: () => _toggleHeart(message.id),
+                          onAvatarTap: message.isFromCreator
+                              ? null
+                              : (fanId) => FanProfileSheet.show(
+                                    context,
+                                    ref,
+                                    fanId,
+                                  ),
                           onLongPress: message.isDeleted
                               ? null
                               : message.isFromCreator
@@ -1212,6 +1418,18 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     onTap: () => _handleMediaAction('카메라 촬영'),
                   ),
                   _buildMediaMenuButton(
+                    icon: Icons.lock_outlined,
+                    label: '티어',
+                    color: const Color(0xFF607D8B),
+                    isDark: isDark,
+                    onTap: () {
+                      setState(() {
+                        _isMediaMenuOpen = false;
+                        _showTierSelector = !_showTierSelector;
+                      });
+                    },
+                  ),
+                  _buildMediaMenuButton(
                     icon: Icons.poll_outlined,
                     label: '투표',
                     color: const Color(0xFFE91E63),
@@ -1285,6 +1503,42 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                       );
                     },
                   ),
+                  _buildMediaMenuButton(
+                    icon: Icons.person_pin_outlined,
+                    label: '이름',
+                    color: const Color(0xFF00BCD4),
+                    isDark: isDark,
+                    onTap: () {
+                      setState(() => _isMediaMenuOpen = false);
+                      _insertPersonalizationTag();
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+          // 티어 선택 바 (접근제어)
+          if (_showTierSelector)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TierSelector(
+                      selectedTier: _selectedTier,
+                      onChanged: (tier) => setState(() => _selectedTier = tier),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    onPressed: () => setState(() {
+                      _showTierSelector = false;
+                      _selectedTier = null;
+                    }),
+                    padding: EdgeInsets.zero,
+                    constraints:
+                        const BoxConstraints(minWidth: 28, minHeight: 28),
+                  ),
                 ],
               ),
             ),
@@ -1330,7 +1584,9 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                     decoration: InputDecoration(
                       hintText: _replyingTo != null
                           ? '${_isReplyDirect ? '1:1' : '전체'} 답장 입력...'
-                          : '모든 팬에게 메시지 보내기...',
+                          : _selectedTier != null
+                              ? '$_selectedTier 이상 팬에게 메시지 보내기...'
+                              : '모든 팬에게 메시지 보내기...',
                       hintStyle: TextStyle(
                         color: isDark ? Colors.grey[500] : Colors.grey[400],
                       ),

@@ -167,6 +167,17 @@ serve(async (req) => {
       )
     }
 
+    // S-P1-3: Validate amount is integer within reasonable bounds
+    if (!Number.isInteger(amountKrw) || amountKrw < 1000 || amountKrw > 10_000_000) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Amount must be an integer between 1,000 and 10,000,000 KRW',
+        }),
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
     const totalAmountKrw = amountKrw
 
     // Check idempotency

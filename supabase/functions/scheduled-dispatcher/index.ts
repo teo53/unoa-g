@@ -136,11 +136,27 @@ serve(async (req) => {
       console.log('Failed to clean up typing indicators:', cleanupError)
     }
 
+    // 월 1일 00:xx UTC — auto-charge 카운트 리셋
+    // migration 078에 함수 존재, dispatcher 실행 시 매분 체크
+    const nowDate = new Date()
+    let monthlyReset = false
+    if (nowDate.getUTCDate() === 1 && nowDate.getUTCHours() === 0) {
+      const { error: resetErr } = await supabase.rpc('reset_monthly_auto_charge_counts')
+      if (resetErr) {
+        console.error('Monthly auto-charge reset failed:', resetErr)
+        results.errors.push(`monthly_reset: ${resetErr.message}`)
+      } else {
+        monthlyReset = true
+        console.log('Monthly auto-charge counts reset successfully')
+      }
+    }
+
     console.log('Scheduled message processing complete:', results)
 
     return new Response(
       JSON.stringify({
         success: true,
+        monthly_reset: monthlyReset,
         ...results,
       }),
       { status: 200, headers: jsonHeaders }

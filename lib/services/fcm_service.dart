@@ -23,6 +23,10 @@ class FcmService {
   String? _token;
   bool _initialized = false;
 
+  /// Feature flag: set to true once user_push_tokens table exists and
+  /// Firebase is fully configured. When false, all DB calls are no-op.
+  static const bool _enablePush = false;
+
   /// Current FCM token
   String? get token => _token;
   bool get isInitialized => _initialized;
@@ -93,6 +97,8 @@ class FcmService {
 
   /// Save FCM token to Supabase
   Future<void> saveTokenToServer(String token) async {
+    if (!_enablePush) return; // No-op until push is enabled
+
     try {
       final user = SupabaseConfig.client.auth.currentUser;
       if (user == null) {
@@ -117,6 +123,8 @@ class FcmService {
 
   /// Remove FCM token from server (on logout)
   Future<void> removeTokenFromServer() async {
+    if (!_enablePush) return; // No-op until push is enabled
+
     try {
       if (_token == null) return;
 

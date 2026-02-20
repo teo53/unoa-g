@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/error_boundary.dart';
 import 'crm_revenue_tab.dart' show formatNumber;
 
 /// Fan CRM tab for Creator CRM
@@ -351,11 +352,22 @@ class _TopDonorsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ...donors.asMap().entries.map((entry) => _DonorTile(
-                rank: entry.key + 1,
-                donor: entry.value,
-                isDark: isDark,
-              )),
+          if (donors.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: EmptyState(
+                title: '아직 팬이 없어요',
+                message: '채널을 시작하면 팬 관리가 여기에 표시됩니다',
+                icon: Icons.group_outlined,
+                compact: true,
+              ),
+            )
+          else
+            ...donors.asMap().entries.map((entry) => _DonorTile(
+                  rank: entry.key + 1,
+                  donor: entry.value,
+                  isDark: isDark,
+                )),
         ],
       ),
     );

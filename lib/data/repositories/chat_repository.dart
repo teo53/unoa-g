@@ -80,12 +80,13 @@ abstract class IArtistInboxRepository {
   /// Watch fan messages in real-time
   Stream<List<BroadcastMessage>> watchFanMessages(String channelId);
 
-  /// Send a broadcast to all subscribers
+  /// Send a broadcast to all subscribers (optionally tier-gated)
   Future<BroadcastMessage> sendBroadcast(
     String channelId,
     String content, {
     BroadcastMessageType messageType = BroadcastMessageType.text,
     String? mediaUrl,
+    String? minTierRequired,
   });
 
   /// Reply to a donation message (1:1)

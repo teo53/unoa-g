@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/config/business_config.dart';
 import '../data/mock/mock_data.dart';
 import 'auth_provider.dart';
 
@@ -25,8 +26,9 @@ class SubscriptionInfo {
   });
 
   factory SubscriptionInfo.fromJson(Map<String, dynamic> json) {
+    // DB column: expires_at (nullable timestamp)
     final nextBilling = DateTime.tryParse(
-          json['current_period_end'] as String? ?? '',
+          json['expires_at'] as String? ?? '',
         ) ??
         DateTime.now().add(const Duration(days: 30));
 
@@ -35,13 +37,17 @@ class SubscriptionInfo {
     // Extract channel info from joined data
     final channel = json['channels'] as Map<String, dynamic>?;
 
+    // Derive price from tier via BusinessConfig (no price_krw column in subscriptions)
+    final tier = json['tier'] as String? ?? 'BASIC';
+    final price = BusinessConfig.tierPricesKrw[tier.toUpperCase()] ?? 0;
+
     return SubscriptionInfo(
       id: json['id'] as String,
       artistId: json['channel_id'] as String? ?? '',
       artistName: channel?['name'] as String? ?? '',
       avatarUrl: channel?['avatar_url'] as String? ?? '',
-      tier: json['tier'] as String? ?? 'BASIC',
-      price: json['price_krw'] as int? ?? 0,
+      tier: tier,
+      price: price,
       nextBillingDate: nextBilling,
       isExpiringSoon: daysUntilExpiry <= 7,
     );
@@ -132,8 +138,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
           .from('subscriptions')
           .select('*, channels!channel_id(*)')
           .eq('user_id', uid)
-          .eq('status', 'active')
-          .or('expires_at.is.null,expires_at.gt.${DateTime.now().toUtc().toIso8601String()}')
+          .eq('is_active', true)
           .order('created_at', ascending: false);
 
       final subs = (response as List)

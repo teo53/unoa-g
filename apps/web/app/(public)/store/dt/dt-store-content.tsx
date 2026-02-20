@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
+import { appConfig } from '@/lib/config/app-config'
 import {
   businessConfig,
   getDtPackagePrice,
@@ -33,6 +34,11 @@ export function DtStoreContent() {
 
   async function handleBuy(packageId: string) {
     if (processingId) return
+
+    if (!appConfig.dtPurchaseEnabled) {
+      alert('현재 결제가 비활성화되어 있습니다.')
+      return
+    }
 
     if (DEMO_MODE) {
       alert('데모 모드: 결제는 진행되지 않습니다. (UI 확인용)')
@@ -144,16 +150,28 @@ export function DtStoreContent() {
 
                   <Button
                     className="w-full"
-                    disabled={processingId === p.id}
+                    disabled={processingId === p.id || !appConfig.dtPurchaseEnabled}
                     onClick={() => handleBuy(p.id)}
                   >
-                    {processingId === p.id ? '처리 중...' : 'DT 구매하기'}
+                    {!appConfig.dtPurchaseEnabled
+                      ? '결제 준비 중'
+                      : processingId === p.id
+                        ? '처리 중...'
+                        : 'DT 구매하기'}
                   </Button>
                 </div>
               )
             })}
           </div>
         </section>
+
+        {!appConfig.dtPurchaseEnabled && (
+          <section className="pb-2">
+            <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+              현재 결제 기능이 비활성화되어 있습니다. 운영 준비 완료 후 다시 열립니다.
+            </div>
+          </section>
+        )}
 
         {/* How to use */}
         <section className="py-10">

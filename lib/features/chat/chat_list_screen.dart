@@ -9,6 +9,8 @@ import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/avatar_with_badge.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 import '../../shared/widgets/error_boundary.dart';
+import '../../shared/widgets/native_ad_card.dart';
+import '../../providers/ops_config_provider.dart';
 import 'widgets/chat_list_tile.dart';
 
 class ChatListScreen extends ConsumerWidget {
@@ -72,7 +74,12 @@ class ChatListScreen extends ConsumerWidget {
           child: SearchField(),
         ),
 
-        const SizedBox(height: 16),
+        // Chat List Native Ad Slot
+        Builder(builder: (ctx) {
+          final banners = ref.watch(opsBannersProvider('chat_list'));
+          if (banners.isEmpty) return const SizedBox(height: 8);
+          return NativeAdCard(banner: banners.first);
+        }),
 
         // Stories Row
         SizedBox(

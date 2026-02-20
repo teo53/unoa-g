@@ -246,3 +246,89 @@ body {
   overflow: hidden;
   background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
 }
+
+/* ─── Landing Page Dark Theme ─── */
+
+/* Background glow orb */
+.hero-orb {
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  will-change: transform;
+}
+
+/* Hero entrance animations */
+.hero-text-enter {
+  animation: heroTextEnter 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-visual-enter {
+  animation: heroVisualEnter 1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+@keyframes heroTextEnter {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroVisualEnter {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Floating card animations */
+.floating-card {
+  animation: floatCard 5s ease-in-out infinite;
+}
+
+.floating-card-delay {
+  animation: floatCard 5s ease-in-out 2.5s infinite;
+}
+
+@keyframes floatCard {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Campaign card hover glow */
+.campaign-card:hover {
+  border-color: rgba(255, 59, 48, 0.25) !important;
+  box-shadow: 0 8px 40px rgba(255, 59, 48, 0.12), 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Dark stats counter text overrides */
+.dark-stats p:first-child {
+  color: #ffffff;
+}
+.dark-stats p:last-child {
+  color: #6b6b7b;
+}
+
+/* Stats section dividers */
+.dark-stats-divider > * + * {
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Ping animation (used in hero badge) */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}

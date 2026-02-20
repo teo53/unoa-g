@@ -145,6 +145,12 @@ class AppConfig {
     defaultValue: '',
   );
 
+  /// Enable DT purchase flow (checkout/confirm/webhook gate alignment)
+  static const bool enableDtPurchase = bool.fromEnvironment(
+    'ENABLE_DT_PURCHASE',
+    defaultValue: false,
+  );
+
   // ============================================================
   // Storage Configuration
   // ============================================================
@@ -201,6 +207,7 @@ class AppConfig {
     debugLog('=== AppConfig ===\n'
         'Environment: $environment\n'
         'Demo Mode: $enableDemoMode\n'
+        'DT Purchase Enabled: $enableDtPurchase\n'
         'Analytics: $enableAnalytics\n'
         'Supabase URL: $effectiveSupabaseUrl\n'
         'Firebase Project: $firebaseProjectId\n'

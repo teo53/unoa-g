@@ -15,6 +15,9 @@ class Channel {
   /// 아티스트 테마 색상 인덱스 (0-5, ArtistThemeColors.presets 참조)
   final int themeColorIndex;
 
+  /// 캡처 방지 설정 (true: 앱 내에서 스크린샷/녹화 방지 활성화)
+  final bool screenshotWarningEnabled;
+
   // Optional joined data
   final int? subscriberCount;
   final int? unreadCount;
@@ -31,6 +34,7 @@ class Channel {
     required this.createdAt,
     required this.updatedAt,
     this.themeColorIndex = 0,
+    this.screenshotWarningEnabled = true,
     this.subscriberCount,
     this.unreadCount,
     this.lastMessagePreview,
@@ -48,6 +52,8 @@ class Channel {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       themeColorIndex: json['theme_color_index'] as int? ?? 0,
+      screenshotWarningEnabled:
+          json['screenshot_warning_enabled'] as bool? ?? true,
       subscriberCount: json['subscriber_count'] as int?,
       unreadCount: json['unread_count'] as int?,
       lastMessagePreview: json['last_message_preview'] as String?,
@@ -68,6 +74,7 @@ class Channel {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'theme_color_index': themeColorIndex,
+      'screenshot_warning_enabled': screenshotWarningEnabled,
     };
   }
 
@@ -81,6 +88,7 @@ class Channel {
     DateTime? createdAt,
     DateTime? updatedAt,
     int? themeColorIndex,
+    bool? screenshotWarningEnabled,
     int? subscriberCount,
     int? unreadCount,
     String? lastMessagePreview,
@@ -96,6 +104,8 @@ class Channel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       themeColorIndex: themeColorIndex ?? this.themeColorIndex,
+      screenshotWarningEnabled:
+          screenshotWarningEnabled ?? this.screenshotWarningEnabled,
       subscriberCount: subscriberCount ?? this.subscriberCount,
       unreadCount: unreadCount ?? this.unreadCount,
       lastMessagePreview: lastMessagePreview ?? this.lastMessagePreview,

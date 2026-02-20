@@ -24,7 +24,9 @@ import 'widgets/media_gallery_sheet.dart';
 import 'widgets/full_screen_image_viewer.dart';
 import 'widgets/fullscreen_video_player.dart';
 import '../../services/media_service.dart';
+import '../../services/screen_protection_service.dart';
 import '../private_card/widgets/private_card_bubble.dart';
+import 'widgets/tier_locked_overlay.dart';
 
 /// Chat thread screen showing 1:1 conversation with an artist
 /// Uses Riverpod for state management with Supabase backend
@@ -70,6 +72,9 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     // Add scroll listener for pagination
     _scrollController.addListener(_onScroll);
 
+    // Enable screen capture prevention
+    _enableScreenProtection();
+
     // Show push notification prompt on first chat entry
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkPushPermissionPrompt();
@@ -91,8 +96,17 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
     }
   }
 
+  /// Enable screen protection for this chat thread
+  Future<void> _enableScreenProtection() async {
+    // Screen protection is enabled by default for all chat threads.
+    // Channels can opt out via screenshotWarningEnabled = false.
+    await ScreenProtectionService().enableProtection();
+  }
+
   @override
   void dispose() {
+    // Disable screen protection when leaving the chat
+    ScreenProtectionService().disableProtection();
     _scrollController.dispose();
     _fadeController.dispose();
     super.dispose();
@@ -449,12 +463,49 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
         final isPrivateCard =
             message.deliveryScope == DeliveryScope.privateCard;
 
+        // 티어별 접근제어: 팬의 구독 티어가 메시지 최소 티어보다 낮으면 잠금
+        final userTier = chatState.subscription?.tier ?? 'BASIC';
+        final isTierLocked = message.isTierGated &&
+            !message.canViewWithTier(userTier) &&
+            !isOwnMessage;
+
         return Column(
           children: [
             if (dateSeparator != null) dateSeparator,
             if (isPrivateCard)
               PrivateCardBubble(
                 message: message,
+              )
+            else if (isTierLocked)
+              TierLockedOverlay(
+                requiredTier: message.minTierRequired ?? 'VIP',
+                onUpgradeTap: () {
+                  // Navigate to subscription upgrade
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '${message.minTierRequired} 이상 구독이 필요합니다',
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                      action: SnackBarAction(
+                        label: '업그레이드',
+                        onPressed: () =>
+                            context.push('/artist/${widget.channelId}'),
+                      ),
+                    ),
+                  );
+                },
+                child: MessageBubbleV2(
+                  message: message,
+                  isArtist: message.isFromArtist,
+                  artistAvatarUrl: chatState.channel?.avatarUrl,
+                  artistName: chatState.channel?.name ?? '',
+                  showAvatar: _shouldShowAvatar(message, previousMessage),
+                  isOwnMessage: isOwnMessage,
+                  searchQuery: _searchQuery.isNotEmpty ? _searchQuery : null,
+                  allMessages: messages,
+                  accentColor: accentColor,
+                ),
               )
             else
               MessageBubbleV2(
@@ -818,6 +869,11 @@ class MessageBubbleV2 extends StatelessWidget {
       );
     }
 
+    // Welcome message with special styling
+    if (message.isWelcome) {
+      return _buildWelcomeBubble(context, isDark);
+    }
+
     if (isArtist) {
       return GestureDetector(
         onLongPress: onLongPress,
@@ -1100,6 +1156,81 @@ class MessageBubbleV2 extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  /// 웰컴 메시지 특별 버블 (구독 환영 메시지)
+  Widget _buildWelcomeBubble(BuildContext context, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+            accentColor.withValues(alpha: isDark ? 0.05 : 0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Column(
+        children: [
+          // 환영 아이콘
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.celebration_outlined,
+              color: accentColor,
+              size: 22,
+            ),
+          ),
+          const SizedBox(height: 10),
+          // 환영 라벨
+          Text(
+            '환영 메시지',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: accentColor,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // 메시지 내용
+          Text(
+            message.content ?? '',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+              height: 1.5,
+            ),
+          ),
+          // 미디어 (있는 경우)
+          if (message.mediaUrl != null) ...[
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                message.mediaUrl!,
+                width: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          ],
         ],
       ),
     );

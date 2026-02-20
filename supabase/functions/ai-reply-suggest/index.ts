@@ -201,11 +201,12 @@ serve(async (req) => {
     const idempotencyKey = `idem_${hashString(idempotencyInput)}`
     const jobCorrelationId = correlation_id || `corr_${crypto.randomUUID().substring(0, 8)}`
 
-    // Check ai_draft_jobs cache (DB-level idempotency)
+    // S-P1-4: Check ai_draft_jobs cache (DB-level idempotency) with creator_id isolation
     const { data: cachedJob } = await adminClient
       .from('ai_draft_jobs')
       .select('cached_suggestions, status')
       .eq('idempotency_key', idempotencyKey)
+      .eq('creator_id', user.id)
       .eq('status', 'success')
       .gt('expires_at', new Date().toISOString())
       .single()
@@ -351,6 +352,37 @@ serve(async (req) => {
   }
 })
 
+/**
+ * S-P0-1: Sanitize user-provided text to prevent prompt injection.
+ * Removes common injection patterns while preserving actual message content.
+ */
+function sanitizeForPrompt(text: string): string {
+  if (!text) return ''
+
+  // Remove text that looks like system instructions or role-playing attempts
+  const injectionPatterns = [
+    /ignore\s+(previous|all|above|prior)\s+(instructions|rules|prompts|commands)/gi,
+    /forget\s+(everything|all|previous|prior)/gi,
+    /disregard\s+(previous|all|above|prior)/gi,
+    /override\s+(previous|all|system)/gi,
+    /bypass\s+(security|safety|rules)/gi,
+    /you\s+are\s+(now|a|an)\s+/gi,
+    /act\s+as\s+(if|a|an)\s+/gi,
+    /pretend\s+(to\s+be|you\s+are)/gi,
+    /system:/gi,
+    /assistant:/gi,
+    /\[INST\]/gi,
+    /\[\/INST\]/gi,
+  ]
+
+  let sanitized = text
+  for (const pattern of injectionPatterns) {
+    sanitized = sanitized.replace(pattern, '[filtered]')
+  }
+
+  return sanitized
+}
+
 function analyzeCreatorPatterns(messages: { content: string }[]): string {
   if (messages.length === 0) return '(데이터 없음)'
 
@@ -394,14 +426,14 @@ function analyzeCreatorPatterns(messages: { content: string }[]): string {
   if (avgLength < 30) styles.push('짧고 간결한 스타일')
   if (avgLength > 80) styles.push('상세하게 답변하는 스타일')
 
-  // 예시 메시지 (최대 5개, 다양한 길이)
+  // S-P0-1: 예시 메시지 (최대 5개, 다양한 길이) - sanitized and wrapped in XML tags
   const sorted = [...messages].sort((a, b) => a.content.length - b.content.length)
   const examples: string[] = []
-  if (sorted.length > 0) examples.push(sorted[0].content) // 짧은
-  if (sorted.length > 2) examples.push(sorted[Math.floor(sorted.length / 2)].content) // 중간
-  if (sorted.length > 1) examples.push(sorted[sorted.length - 1].content) // 긴
+  if (sorted.length > 0) examples.push(sanitizeForPrompt(sorted[0].content)) // 짧은
+  if (sorted.length > 2) examples.push(sanitizeForPrompt(sorted[Math.floor(sorted.length / 2)].content)) // 중간
+  if (sorted.length > 1) examples.push(sanitizeForPrompt(sorted[sorted.length - 1].content)) // 긴
   // 최신 2개
-  examples.push(...messages.slice(0, 2).map(m => m.content))
+  examples.push(...messages.slice(0, 2).map(m => sanitizeForPrompt(m.content)))
   const uniqueExamples = [...new Set(examples)].slice(0, 5)
 
   return `[크리에이터 답변 패턴 분석 (${total}개 메시지 기반)]
@@ -410,7 +442,7 @@ function analyzeCreatorPatterns(messages: { content: string }[]): string {
 ${styles.length > 0 ? `- 스타일 특징: ${styles.join(', ')}` : ''}
 
 [최근 답변 예시 (톤/스타일 참조용)]
-${uniqueExamples.map(e => `- "${e}"`).join('\n')}
+${uniqueExamples.map(e => `- <example>"${e}"</example>`).join('\n')}
 
 ⚠️ 위 패턴을 참조하여 크리에이터의 실제 답변 스타일과 유사하게 초안을 작성하세요.`
 }
@@ -427,17 +459,22 @@ function buildPrompt(
   const categories = creator?.category?.join(', ') || '엔터테인먼트'
   const patternAnalysis = analyzeCreatorPatterns(recentMessages)
 
-  // Build conversation context section
+  // S-P0-1: Build conversation context section with XML tag boundaries and sanitization
   let contextSection = ''
   if (conversationHistory.length > 0) {
-    const contextLines = conversationHistory.map(m =>
-      m.sender_type === 'artist' ? `[크리에이터] "${m.content}"` : `[팬] "${m.content}"`
-    ).join('\n')
+    const contextLines = conversationHistory.map(m => {
+      const sanitizedContent = sanitizeForPrompt(m.content)
+      const tag = m.sender_type === 'artist' ? 'creator_message' : 'fan_message'
+      return `<${tag}>"${sanitizedContent}"</${tag}>`
+    }).join('\n')
     contextSection = `[대화 맥락 (최근 대화 흐름)]
 ${contextLines}
 
 `
   }
+
+  // S-P0-1: Sanitize fan message and wrap in XML tag
+  const sanitizedFanMessage = sanitizeForPrompt(fanMessage)
 
   return `
 당신은 K-pop/엔터테인먼트 크리에이터의 팬 메시지 답글 초안을 작성하는 도우미입니다.
@@ -449,7 +486,7 @@ ${contextLines}
 ${patternAnalysis}
 
 ${contextSection}[팬 메시지]
-"${fanMessage}"
+<user_message>"${sanitizedFanMessage}"</user_message>
 
 [메시지 유형 분석]
 먼저 팬 메시지의 유형을 파악하세요 (질문/감사/축하/일상대화/요청/동의/감탄).
@@ -479,6 +516,7 @@ ${contextSection}[팬 메시지]
 }
 
 async function callAnthropic(prompt: string, apiKey: string): Promise<{ suggestions: string[], model: string }> {
+  // S-P0-2: Claude Sonnet 4.5 stable (Anthropic production model)
   const model = 'claude-sonnet-4-5-20250929'
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {

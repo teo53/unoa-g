@@ -27,18 +27,26 @@ class AppSpacing {
   static const double cardGap = 12.0;
 }
 
+/// Canonical AppRadius — 모든 코드가 이 클래스를 사용합니다.
+/// (app_radius.dart의 KRDS 참조값은 설계 문서 전용)
 class AppRadius {
   AppRadius._();
 
+  static const double xs = 4.0;
   static const double sm = 4.0;
   static const double md = 8.0;
   static const double base = 12.0;
   static const double lg = 16.0;
   static const double xl = 20.0;
+  static const double xxl = 24.0;
+  static const double full = 999.0;
 
+  static BorderRadius get xsBR => BorderRadius.circular(xs);
   static BorderRadius get smBR => BorderRadius.circular(sm);
   static BorderRadius get mdBR => BorderRadius.circular(md);
   static BorderRadius get baseBR => BorderRadius.circular(base);
   static BorderRadius get lgBR => BorderRadius.circular(lg);
   static BorderRadius get xlBR => BorderRadius.circular(xl);
+  static BorderRadius get xxlBR => BorderRadius.circular(xxl);
+  static BorderRadius get fullBR => BorderRadius.circular(full);
 }

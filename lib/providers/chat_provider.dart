@@ -85,6 +85,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   StreamSubscription? _messagesSubscription;
   StreamSubscription? _quotaSubscription;
   StreamSubscription? _presenceSubscription;
+  bool _mounted = true;
 
   ChatNotifier(this.channelId, this._ref)
       : super(ChatState(channelId: channelId)) {
@@ -444,15 +445,43 @@ class ChatNotifier extends StateNotifier<ChatState> {
         .stream(primaryKey: ['id'])
         .eq('channel_id', channelId)
         .order('created_at')
-        .listen((data) {
-          final newMessages = data
-              .map((json) => BroadcastMessage.fromJson(json))
-              .where((msg) => msg.deletedAt == null)
-              .where((msg) => _isMessageVisibleToUser(msg, userId))
-              .toList();
+        .listen(
+          (data) {
+            try {
+              final newMessages = data
+                  .map((json) {
+                    try {
+                      return BroadcastMessage.fromJson(json);
+                    } catch (e) {
+                      AppLogger.warning(
+                        'Skipping malformed message: $e',
+                        tag: 'Chat',
+                      );
+                      return null;
+                    }
+                  })
+                  .whereType<BroadcastMessage>()
+                  .where((msg) => msg.deletedAt == null)
+                  .where((msg) => _isMessageVisibleToUser(msg, userId))
+                  .toList();
 
-          state = state.copyWith(messages: newMessages);
-        });
+              state = state.copyWith(messages: newMessages, error: null);
+            } catch (e) {
+              AppLogger.error(e,
+                  tag: 'Chat', message: 'Message stream processing error');
+              state = state.copyWith(
+                error: '메시지를 불러오는 중 오류가 발생했습니다.',
+              );
+            }
+          },
+          onError: (error) {
+            AppLogger.error(error,
+                tag: 'Chat', message: 'Message stream error');
+            state = state.copyWith(
+              error: '실시간 메시지 연결에 실패했습니다.',
+            );
+          },
+        );
   }
 
   /// Client-side message visibility filter (safety net for real-time stream).
@@ -471,6 +500,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         return msg.senderId == userId;
       case DeliveryScope.donationReply:
       case DeliveryScope.privateCard:
+      case DeliveryScope.welcome:
         return msg.targetUserId == userId || msg.senderId == userId;
     }
   }
@@ -530,14 +560,20 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }).subscribe();
   }
 
-  /// Safely cleanup presence channel to prevent memory leaks
+  /// Safely cleanup presence channel to prevent memory leaks.
+  /// Explicitly unsubscribes before removing to ensure no dangling listeners.
   void _cleanupPresenceChannel() {
     if (_presenceChannel != null) {
+      try {
+        _presenceChannel!.unsubscribe();
+      } catch (e) {
+        AppLogger.debug('Presence unsubscribe error: $e', tag: 'Chat');
+      }
       try {
         final client = _ref.read(supabaseClientProvider);
         client.removeChannel(_presenceChannel!);
       } catch (e) {
-        AppLogger.debug('Presence channel cleanup error: $e', tag: 'Chat');
+        AppLogger.debug('Presence channel removal error: $e', tag: 'Chat');
       }
       _presenceChannel = null;
     }
@@ -549,12 +585,16 @@ class ChatNotifier extends StateNotifier<ChatState> {
   // Pagination retry tracking
   int _paginationRetryCount = 0;
   static const int _maxPaginationRetries = 3;
-  bool _isPaginating = false;
+  Completer<void>? _paginationCompleter;
 
   /// Load more messages (pagination)
   Future<void> loadMoreMessages() async {
-    if (!state.hasMoreMessages || state.isLoading || _isPaginating) return;
-    _isPaginating = true;
+    if (!state.hasMoreMessages || state.isLoading) return;
+    // Atomic guard: skip if a pagination request is already in flight
+    if (_paginationCompleter != null && !_paginationCompleter!.isCompleted) {
+      return;
+    }
+    _paginationCompleter = Completer<void>();
 
     try {
       // Prevent infinite retry loops
@@ -600,7 +640,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         );
       }
     } finally {
-      _isPaginating = false;
+      _paginationCompleter?.complete();
     }
   }
 
@@ -707,8 +747,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
       clearReplyingTo: true,
     );
 
-    // Simulate artist reply after a delay
+    // Simulate artist reply after a delay (check mounted to avoid disposed access)
     Future.delayed(const Duration(seconds: 2), () {
+      if (!_mounted) return;
       try {
         _addDemoArtistReply();
       } catch (_) {
@@ -1166,6 +1207,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   @override
   void dispose() {
+    _mounted = false;
     _messagesSubscription?.cancel();
     _quotaSubscription?.cancel();
     _presenceSubscription?.cancel();

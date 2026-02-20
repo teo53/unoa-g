@@ -8,8 +8,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/ops_config_provider.dart';
 import '../../core/utils/animation_utils.dart';
 import '../../shared/widgets/search_field.dart';
-import '../../shared/widgets/feature_hub_sheet.dart';
 import '../../shared/widgets/section_header.dart';
+import '../../shared/widgets/native_ad_card.dart';
 import 'widgets/trending_artist_card.dart';
 import 'widgets/subscription_tile.dart';
 
@@ -52,21 +52,8 @@ class _LoggedInHomeScreen extends ConsumerWidget {
                     : 'assets/images/logo.png',
                 height: 28,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Stack(
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      final isCreator = ref.read(isCreatorProvider);
-                      FeatureHubSheet.show(context, isCreator: isCreator);
-                    },
-                    icon: Icon(
-                      Icons.grid_view_rounded,
-                      color: isDark
-                          ? AppColors.textMainDark
-                          : AppColors.textMainLight,
-                    ),
-                  ),
                   IconButton(
                     onPressed: () => context.push('/notifications'),
                     icon: Icon(
@@ -74,6 +61,24 @@ class _LoggedInHomeScreen extends ConsumerWidget {
                       color: isDark
                           ? AppColors.textMainDark
                           : AppColors.textMainLight,
+                    ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.backgroundDark
+                              : AppColors.backgroundLight,
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -132,6 +137,9 @@ class _LoggedInHomeScreen extends ConsumerWidget {
                     },
                   ),
                 ),
+
+                // Native Ad Slot (home_top placement — source: fan_ad only)
+                _HomeNativeAdSlot(isDark: isDark),
 
                 const SizedBox(height: 32),
 
@@ -533,23 +541,17 @@ class _FeatureCard extends StatelessWidget {
 }
 
 /// Home banner section — displays published banners from Ops CRM
-class _HomeBannerSection extends ConsumerStatefulWidget {
+class _HomeBannerSection extends ConsumerWidget {
   final bool isDark;
 
   const _HomeBannerSection({required this.isDark});
 
   @override
-  ConsumerState<_HomeBannerSection> createState() => _HomeBannerSectionState();
-}
-
-class _HomeBannerSectionState extends ConsumerState<_HomeBannerSection> {
-  int _currentPage = 0;
-
-  bool get isDark => widget.isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    final banners = ref.watch(opsBannersProvider('home_top'));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final banners = ref
+        .watch(opsBannersProvider('home_top'))
+        .where((b) => b.sourceType == BannerSourceType.ops)
+        .toList();
 
     if (banners.isEmpty) return const SizedBox.shrink();
 
@@ -559,7 +561,6 @@ class _HomeBannerSectionState extends ConsumerState<_HomeBannerSection> {
           height: 160,
           child: PageView.builder(
             itemCount: banners.length,
-            onPageChanged: (index) => setState(() => _currentPage = index),
             itemBuilder: (context, index) {
               final banner = banners[index];
               return GestureDetector(
@@ -650,7 +651,7 @@ class _HomeBannerSectionState extends ConsumerState<_HomeBannerSection> {
                   height: 6,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: i == _currentPage
+                    color: i == 0
                         ? AppColors.primary500
                         : (isDark
                             ? AppColors.borderDark
@@ -663,6 +664,23 @@ class _HomeBannerSectionState extends ConsumerState<_HomeBannerSection> {
         const SizedBox(height: 24),
       ],
     );
+  }
+}
+
+/// 홈 화면 네이티브 광고 슬롯 — home_top placement 첫 번째 배너 표시
+class _HomeNativeAdSlot extends ConsumerWidget {
+  final bool isDark;
+  const _HomeNativeAdSlot({required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final banners = ref.watch(opsBannersProvider('home_top'));
+    // 기존 _HomeBannerSection이 home_top을 사용하므로 여기서는
+    // fan_ad 출처 배너만 추가 슬롯으로 노출
+    final adBanners =
+        banners.where((b) => b.sourceType == BannerSourceType.fanAd).toList();
+    if (adBanners.isEmpty) return const SizedBox.shrink();
+    return NativeAdCard(banner: adBanners.first);
   }
 }
 

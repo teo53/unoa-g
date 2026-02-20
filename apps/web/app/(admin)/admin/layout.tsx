@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, FileCheck, Flag, LogOut, Wallet, CreditCard, Calculator, Image, ToggleLeft, ScrollText, Users, Megaphone, ShieldAlert, Globe, Lock } from 'lucide-react'
+import { LayoutDashboard, FileCheck, Flag, LogOut, Wallet, CreditCard, Calculator, Image, ToggleLeft, ScrollText, Users, Megaphone, ShieldAlert, Globe, Lock, RadioTower } from 'lucide-react'
 import { OpsToastProvider } from '@/components/ops/ops-toast'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
 import { createClient } from '@/lib/supabase/client'
@@ -282,6 +282,13 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             >
               <Megaphone className="w-5 h-5" />
               <span>Ops 대시보드</span>
+            </Link>
+            <Link
+              href="/admin/fan-ads"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <RadioTower className="w-5 h-5" />
+              <span>팬 광고 심사</span>
             </Link>
             <Link
               href="/admin/ops/banners"

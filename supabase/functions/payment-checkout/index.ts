@@ -9,6 +9,7 @@ import { emitMwEvent } from '../_shared/mw_metrics.ts'
 import { maskUserId } from '../_shared/logger.ts'
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
+const DT_PURCHASE_ENABLED = (Deno.env.get('DT_PURCHASE_ENABLED') ?? '').toLowerCase() === 'true'
 
 type PlatformKey = 'web' | 'android' | 'ios'
 
@@ -61,18 +62,26 @@ serve(async (req) => {
 
     // Validate platform
     const validPlatforms: PlatformKey[] = ['web', 'android', 'ios']
-    const platformKey: PlatformKey = validPlatforms.includes(platform) ? platform : 'web'
+    const requestedPlatform: PlatformKey = validPlatforms.includes(platform) ? platform : 'web'
 
-    // SECURITY: Origin validation for web platform
-    // Prevents price manipulation by ensuring web requests come from allowed origins
-    if (platformKey === 'web') {
-      const origin = req.headers.get('Origin')
-      if (!isAllowedOrigin(origin)) {
-        return new Response(
-          JSON.stringify({ error: 'Origin not allowed' }),
-          { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
-        )
-      }
+    // SECURITY: Cross-validate platform claim against request origin
+    // Prevents price manipulation where native apps claim 'web' to get lower pricing
+    const origin = req.headers.get('Origin')
+    let platformKey: PlatformKey
+
+    if (origin && isAllowedOrigin(origin)) {
+      // Request has valid web origin → force web pricing regardless of claim
+      platformKey = 'web'
+    } else if (origin) {
+      // Unknown origin → reject (possible spoofing attempt)
+      return new Response(
+        JSON.stringify({ error: 'Origin not allowed' }),
+        { status: 403, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    } else {
+      // No origin (native app) → trust platform claim but cannot be 'web'
+      // Native apps should claim 'android' or 'ios', not 'web'
+      platformKey = requestedPlatform === 'web' ? 'android' : requestedPlatform
     }
 
     // Validate inputs
@@ -160,6 +169,30 @@ serve(async (req) => {
       )
     }
 
+    // Fail-closed: 결제 게이트가 닫혀 있으면 주문 생성 자체를 차단
+    if (!DT_PURCHASE_ENABLED) {
+      return new Response(
+        JSON.stringify({
+          error: 'Payments are disabled',
+          errorCode: 'PAYMENTS_DISABLED',
+        }),
+        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    const tossSecretKey = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') ?? ''
+    const appBaseUrl = Deno.env.get('APP_BASE_URL') ?? ''
+    if (!tossSecretKey) {
+      console.error('[Checkout] TOSSPAYMENTS_SECRET_KEY not configured')
+      return new Response(
+        JSON.stringify({
+          error: 'Payment provider not configured',
+          errorCode: 'PAYMENT_PROVIDER_NOT_READY',
+        }),
+        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
     // Calculate refund eligibility (7 days from now)
     const refundEligibleUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
@@ -199,22 +232,6 @@ serve(async (req) => {
     }
 
     // --- TossPayments Checkout Integration ---
-    const tossSecretKey = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') ?? ''
-    const appBaseUrl = Deno.env.get('APP_BASE_URL') ?? ''
-
-    if (!tossSecretKey) {
-      // Env var not configured: mark purchase as failed, return error
-      console.error('[Checkout] TOSSPAYMENTS_SECRET_KEY not configured')
-      await supabase
-        .from('dt_purchases')
-        .update({ status: 'failed' })
-        .eq('id', purchase.id)
-
-      return new Response(
-        JSON.stringify({ error: 'Payment provider not configured' }),
-        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
-      )
-    }
 
     // Call TossPayments Create Payment API
     const tossAuth = btoa(`${tossSecretKey}:`)
@@ -258,6 +275,23 @@ serve(async (req) => {
     }
 
     const tossData = await tossRes.json()
+
+    // S-P1-1: Cross-verify amount returned by PG matches our request
+    if (tossData.totalAmount != null && tossData.totalAmount !== priceKrw) {
+      console.error(
+        `[Checkout] Amount mismatch: requested=${priceKrw}, PG returned=${tossData.totalAmount}`
+      )
+      await supabase
+        .from('dt_purchases')
+        .update({ status: 'failed' })
+        .eq('id', purchase.id)
+
+      return new Response(
+        JSON.stringify({ error: 'Payment amount verification failed' }),
+        { status: 502, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
     const checkoutUrl = tossData.checkout?.url ?? tossData.url ?? ''
 
     if (!checkoutUrl) {
