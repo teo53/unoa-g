@@ -173,7 +173,9 @@ serve(async (req) => {
     const payload = JSON.parse(body)
 
     // Extract webhook headers
-    const webhookId = req.headers.get('webhook-id') || payload.webhookId || `funding-${Date.now()}`
+    const webhookId = req.headers.get('webhook-id')
+      || payload.webhookId
+      || `funding:${payload.data?.paymentId || payload.data?.orderId || 'unknown'}:${payload.type || 'unknown'}`
     const webhookTimestamp = req.headers.get('webhook-timestamp') || ''
     const webhookSignature = req.headers.get('webhook-signature') || ''
 

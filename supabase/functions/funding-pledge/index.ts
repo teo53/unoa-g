@@ -383,8 +383,11 @@ serve(async (req) => {
       }
 
       console.error('Payment record insert error:', paymentInsertError)
-      // Pledge was created successfully, payment record is supplementary
-      // Don't fail the whole transaction for this
+      // Payment record is required for audit trail — fail the transaction
+      return new Response(
+        JSON.stringify({ success: false, error: 'Payment record creation failed. Please contact support.' }),
+        { status: 500, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
     }
 
     const response: PledgeResponse = {

@@ -420,7 +420,7 @@ class FundingState {
     this.allCampaigns = const [],
     this.myCampaigns = const [],
     this.myPledges = const [],
-    this.demoWalletBalance = 500000,
+    this.demoWalletBalance = DemoConfig.initialDtBalance,
     this.isLoading = false,
     this.error,
     this.searchQuery = '',
@@ -1216,7 +1216,11 @@ class FundingNotifier extends StateNotifier<FundingState> {
         targetArtist: targetArtist,
         detailImages: detailImages,
       );
-      return getCampaignById(existingCampaignId)!;
+      final updated = getCampaignById(existingCampaignId);
+      if (updated == null) {
+        throw Exception('Campaign not found after update: $existingCampaignId');
+      }
+      return updated;
     }
 
     return createCampaign(

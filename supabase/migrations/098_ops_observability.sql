@@ -1,4 +1,4 @@
--- 087_ops_observability.sql
+-- 098_ops_observability.sql (renumbered from 087)
 -- ==========================================
 -- Observability Tables: Incidents, Jobs, Middleware Events
 -- Uses UUID for IDs to be compatible with ops_audit_log entity_id
@@ -94,21 +94,25 @@ create policy "ops update mw events" on public.ops_mw_events
 create policy "ops delete mw events" on public.ops_mw_events
   for delete to authenticated using (public.is_ops_staff('admin'));
 
--- ========== GRANTS ==========
+-- ========== GRANTS (least-privilege: authenticated=SELECT, service_role=full) ==========
 revoke all on public.ops_incidents from authenticated;
-grant select, insert, update, delete on public.ops_incidents to authenticated;
+grant select on public.ops_incidents to authenticated;
+grant insert, update, delete on public.ops_incidents to service_role;
 
 revoke all on public.ops_jobs from authenticated;
-grant select, insert, update, delete on public.ops_jobs to authenticated;
+grant select on public.ops_jobs to authenticated;
+grant insert, update, delete on public.ops_jobs to service_role;
 
 revoke all on public.ops_mw_events from authenticated;
-grant select, insert, update, delete on public.ops_mw_events to authenticated;
+grant select on public.ops_mw_events to authenticated;
+grant insert, update, delete on public.ops_mw_events to service_role;
 
 -- ========== Triggers for Audit Logging ==========
 create or replace function public.trg_ops_incidents_audit()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   if tg_op = 'INSERT' then
@@ -133,6 +137,7 @@ create or replace function public.trg_ops_jobs_audit()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   if tg_op = 'INSERT' then
@@ -157,6 +162,7 @@ create or replace function public.trg_ops_mw_events_audit()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   if tg_op = 'INSERT' then

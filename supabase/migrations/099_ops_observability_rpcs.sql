@@ -1,11 +1,19 @@
--- 088_ops_observability_rpcs.sql
+-- 099_ops_observability_rpcs.sql (renumbered from 088)
+-- Converted from SQL to PL/pgSQL to add is_ops_staff() authorization check
 
 create or replace function public.ops_get_daily_summary()
 returns jsonb
-language sql
+language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  result jsonb;
+begin
+  if not public.is_ops_staff() then
+    raise exception 'ops_access_denied: not authorized';
+  end if;
+
   select jsonb_build_object(
     'open_incidents', (
       select coalesce(jsonb_agg(row_to_json(t)), '[]'::jsonb)
@@ -41,15 +49,25 @@ as $$
         order by cnt desc
       ) t
     )
-  );
+  ) into result;
+
+  return result;
+end;
 $$;
 
 create or replace function public.ops_get_weekly_trend()
 returns jsonb
-language sql
+language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  result jsonb;
+begin
+  if not public.is_ops_staff() then
+    raise exception 'ops_access_denied: not authorized';
+  end if;
+
   select jsonb_build_object(
     'incidents_trend', (
       select coalesce(jsonb_agg(row_to_json(t)), '[]'::jsonb)
@@ -90,7 +108,10 @@ as $$
         order by 1,3 desc
       ) t
     )
-  );
+  ) into result;
+
+  return result;
+end;
 $$;
 
 grant execute on function public.ops_get_daily_summary() to authenticated;
