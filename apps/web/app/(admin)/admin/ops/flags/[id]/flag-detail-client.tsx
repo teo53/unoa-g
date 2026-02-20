@@ -37,7 +37,6 @@ export default function FlagDetailClient({ id }: { id: string }) {
     } finally {
       setLoading(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => { loadFlag() }, [loadFlag])

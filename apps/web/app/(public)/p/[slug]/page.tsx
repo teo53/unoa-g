@@ -31,6 +31,8 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+const IS_DEMO_BUILD = process.env.NEXT_PUBLIC_DEMO_BUILD === 'true'
+
 function toSafeJsonLdScript(data: unknown): string {
   return JSON.stringify(data)
     .replace(/</g, '\\u003c')
@@ -166,26 +168,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // Generate static params for popular campaigns
 export async function generateStaticParams() {
   // Demo mode: return mock slugs
-  if (DEMO_MODE) {
+  if (DEMO_MODE || IS_DEMO_BUILD) {
     return mockCampaigns.map((campaign) => ({
       slug: campaign.slug,
     }))
   }
-
-  // Production mode: use Supabase
-  const { createClient } = await import('@/lib/supabase/server')
-  const supabase = await createClient()
-
-  const { data } = await supabase
-    .from('funding_campaigns')
-    .select('slug')
-    .in('status', ['active', 'completed'])
-    .order('backer_count', { ascending: false })
-    .limit(50)
-
-  return (data || []).map((campaign: { slug: string }) => ({
-    slug: campaign.slug,
-  }))
+  return []
 }
 
 export const revalidate = 60

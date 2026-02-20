@@ -20,6 +20,7 @@ interface ArtistData {
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const IS_DEMO_BUILD = process.env.NEXT_PUBLIC_DEMO_BUILD === 'true'
 
 async function getArtistData(artistId: string): Promise<ArtistData | null> {
   const decoded = decodeURIComponent(artistId)
@@ -81,22 +82,10 @@ async function getArtistData(artistId: string): Promise<ArtistData | null> {
 }
 
 export async function generateStaticParams() {
-  if (DEMO_MODE) {
+  if (DEMO_MODE || IS_DEMO_BUILD) {
     return Object.keys(mockCreators).map((id) => ({ artistId: id }))
   }
-
-  const { createClient } = await import('@/lib/supabase/server')
-  const supabase = await createClient()
-
-  const { data } = await (supabase as any)
-    .from('channels')
-    .select('id')
-    .eq('is_active', true)
-    .limit(100)
-
-  return ((data as Array<{ id: string }>) || []).map((row) => ({
-    artistId: row.id,
-  }))
+  return []
 }
 
 export const revalidate = 3600

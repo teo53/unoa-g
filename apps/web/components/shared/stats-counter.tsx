@@ -44,7 +44,6 @@ export function StatsCounter({
     const el = ref.current
     if (el) observer.observe(el)
     return () => { if (el) observer.unobserve(el) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasAnimated])
 
   function animateCount() {
