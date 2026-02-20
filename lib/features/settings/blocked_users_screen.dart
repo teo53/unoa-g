@@ -97,6 +97,7 @@ class BlockedUsersScreen extends ConsumerWidget {
         children: [
           IconButton(
             onPressed: () => context.pop(),
+            tooltip: '뒤로가기',
             icon: Icon(
               Icons.arrow_back_ios_new,
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
@@ -306,21 +307,25 @@ class _BlockedUserTile extends StatelessWidget {
           ),
 
           // Unblock button
-          TextButton(
-            onPressed: onUnblock,
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: BorderSide(
-                  color: AppColors.primary.withValues(alpha: 0.3),
+          Tooltip(
+            message: '차단 해제',
+            child: TextButton(
+              onPressed: onUnblock,
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                  ),
                 ),
               ),
-            ),
-            child: const Text(
-              '해제',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              child: const Text(
+                '해제',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
             ),
           ),
         ],

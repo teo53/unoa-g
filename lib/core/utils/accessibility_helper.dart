@@ -165,7 +165,7 @@ class AccessibleTapTarget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget tappable = GestureDetector(
+    final Widget tappable = GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: ConstrainedBox(

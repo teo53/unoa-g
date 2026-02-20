@@ -128,7 +128,7 @@ class CharLimitExplanationSheet {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '현재 한도: ${currentLimit}자',
+                        '현재 한도: $currentLimit자',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -141,7 +141,7 @@ class CharLimitExplanationSheet {
                       Text(
                         nextDays == null
                             ? '이미 최대 한도(${BusinessConfig.maxCharacterLimit}자)에 도달했습니다.'
-                            : '다음 단계: ${nextLimit}자 (약 ${daysLeft}일 후)',
+                            : '다음 단계: $nextLimit자 (약 $daysLeft일 후)',
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark

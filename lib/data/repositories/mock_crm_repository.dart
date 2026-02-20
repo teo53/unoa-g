@@ -17,19 +17,19 @@ class MockCrmRepository implements ICrmRepository {
 
   // 목 팬 프로필 데이터 (creator_chat_tab_screen.dart의 fan_1/2/3 매칭)
   static final Map<String, _MockFanData> _fanData = {
-    'fan_1': _MockFanData(
+    'fan_1': const _MockFanData(
       name: '하늘덕후',
       tier: 'VIP',
       subscribedDays: 245,
       totalDtSpent: 125000,
     ),
-    'fan_2': _MockFanData(
+    'fan_2': const _MockFanData(
       name: '별빛팬',
       tier: 'STANDARD',
       subscribedDays: 89,
       totalDtSpent: 34500,
     ),
-    'fan_3': _MockFanData(
+    'fan_3': const _MockFanData(
       name: '달빛소녀',
       tier: 'VIP',
       subscribedDays: 312,
@@ -42,7 +42,7 @@ class MockCrmRepository implements ICrmRepository {
   }
 
   void _initDefaultTags() {
-    final creatorId = DemoConfig.demoCreatorId;
+    const creatorId = DemoConfig.demoCreatorId;
     final now = DateTime.now();
 
     final defaultTags = [

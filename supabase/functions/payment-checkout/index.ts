@@ -150,6 +150,18 @@ serve(async (req) => {
       }
     }
 
+    // Fail-closed: 결제 게이트가 닫혀 있으면 주문 생성 자체를 차단
+    // Fix 2.7: Feature gate checked BEFORE rate limit to avoid consuming tokens for disabled payments
+    if (!DT_PURCHASE_ENABLED) {
+      return new Response(
+        JSON.stringify({
+          error: 'Payments are disabled',
+          errorCode: 'PAYMENTS_DISABLED',
+        }),
+        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
     // B6: Pending order limit — max 10 pending orders per hour per user
     const rlResult = await checkRateLimit(supabase, {
       key: `checkout:${userId}`,
@@ -169,17 +181,6 @@ serve(async (req) => {
       )
     }
 
-    // Fail-closed: 결제 게이트가 닫혀 있으면 주문 생성 자체를 차단
-    if (!DT_PURCHASE_ENABLED) {
-      return new Response(
-        JSON.stringify({
-          error: 'Payments are disabled',
-          errorCode: 'PAYMENTS_DISABLED',
-        }),
-        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
-      )
-    }
-
     const tossSecretKey = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') ?? ''
     const appBaseUrl = Deno.env.get('APP_BASE_URL') ?? ''
     if (!tossSecretKey) {
@@ -188,6 +189,18 @@ serve(async (req) => {
         JSON.stringify({
           error: 'Payment provider not configured',
           errorCode: 'PAYMENT_PROVIDER_NOT_READY',
+        }),
+        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // Fix 2.2: Validate APP_BASE_URL — required for TossPayments redirect URLs
+    if (!appBaseUrl) {
+      console.error('[Checkout] APP_BASE_URL not configured')
+      return new Response(
+        JSON.stringify({
+          error: 'Payment configuration incomplete',
+          errorCode: 'PAYMENT_CONFIG_INCOMPLETE',
         }),
         { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )

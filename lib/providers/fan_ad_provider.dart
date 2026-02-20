@@ -120,13 +120,25 @@ class FanAdDraft {
     );
   }
 
-  bool get isValid =>
-      artistChannelId != null &&
-      title.trim().isNotEmpty &&
-      startAt != null &&
-      endAt != null &&
-      endAt!.isAfter(startAt!) &&
-      paymentAmountKrw > 0;
+  bool get isValid {
+    if (artistChannelId == null ||
+        title.trim().isEmpty ||
+        startAt == null ||
+        endAt == null ||
+        !endAt!.isAfter(startAt!) ||
+        paymentAmountKrw <= 0) {
+      return false;
+    }
+    // URL 스킴 검증 — javascript:/data: 등 위험 스킴 차단
+    if (linkUrl != null && linkUrl!.isNotEmpty) {
+      final uri = Uri.tryParse(linkUrl!);
+      if (uri == null ||
+          !['http', 'https'].contains(uri.scheme.toLowerCase())) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
 // ── State ──
@@ -239,6 +251,19 @@ class FanAdNotifier extends StateNotifier<FanAdState> {
   /// 반환: 생성된 fan_ad id (성공), null (실패)
   Future<String?> createAd(FanAdDraft draft) async {
     if (!draft.isValid) return null;
+
+    // 서버 전송 직전 URL 스킴 이중 검증 (defense-in-depth)
+    if (draft.linkUrl != null && draft.linkUrl!.isNotEmpty) {
+      final uri = Uri.tryParse(draft.linkUrl!);
+      if (uri == null ||
+          !['http', 'https'].contains(uri.scheme.toLowerCase())) {
+        AppLogger.error(
+          'FanAdNotifier.createAd: unsafe URL scheme blocked: ${draft.linkUrl}',
+          tag: 'FanAd',
+        );
+        return null;
+      }
+    }
 
     if (_isDemoMode) {
       AppLogger.debug('Demo: createAd skipped', tag: 'FanAd');

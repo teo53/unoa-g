@@ -160,7 +160,7 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
     String? minTier,
   }) async {
     // Get active subscribers, optionally filtered by tier
-    var query = _supabase
+    final query = _supabase
         .from('subscriptions')
         .select('user_id, tier')
         .eq('channel_id', channelId)

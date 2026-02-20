@@ -280,7 +280,7 @@ class _TierCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '답글 토큰: ${tokens}개/브로드캐스트',
+                '답글 토큰: $tokens개/브로드캐스트',
                 style: TextStyle(
                   fontSize: 13,
                   color:

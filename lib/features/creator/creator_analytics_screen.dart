@@ -354,9 +354,9 @@ class _CreatorAnalyticsScreenState
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: _buildHeader(context, isDark)),
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             child: Column(
               children: [
                 Row(
@@ -364,15 +364,15 @@ class _CreatorAnalyticsScreenState
                     Expanded(
                         child: SkeletonLoader.card(
                             width: double.infinity, height: 120)),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     Expanded(
                         child: SkeletonLoader.card(
                             width: double.infinity, height: 120)),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SkeletonLoader.card(width: double.infinity, height: 200),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SkeletonLoader.card(width: double.infinity, height: 150),
               ],
             ),

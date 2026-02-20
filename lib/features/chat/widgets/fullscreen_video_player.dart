@@ -72,19 +72,19 @@ class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
         allowFullScreen: false,
         allowMuting: true,
         errorBuilder: (context, errorMessage) {
-          return Center(
+          return const Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.error_outline,
                   color: Colors.white54,
                   size: 48,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   '동영상을 재생할 수 없습니다',
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),

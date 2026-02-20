@@ -37,10 +37,10 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
     return Container(
       height: 280,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         border: Border(
           top: BorderSide(
-            color: isDark ? Colors.white10 : Colors.grey.shade200,
+            color: isDark ? Colors.white10 : AppColors.borderLight,
           ),
         ),
       ),
@@ -83,7 +83,7 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black87,
+              color: isDark ? Colors.white : AppColors.textMainLight,
             ),
           ),
           const Spacer(),
@@ -91,6 +91,7 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
             icon: const Icon(Icons.close, size: 20),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            tooltip: '스티커 닫기',
             onPressed: widget.onClose,
           ),
         ],
@@ -109,64 +110,69 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
           final set = sets[index];
           final isSelected = _selectedSetIndex == index;
 
-          return GestureDetector(
-            onTap: () {
-              if (!set.isPurchased && !set.isFree) {
-                _showPurchaseDialog(set);
-              } else {
-                setState(() => _selectedSetIndex = index);
-              }
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primary500.withAlpha(25)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
+          return Semantics(
+            label: '${set.name} 스티커 팩',
+            button: true,
+            child: GestureDetector(
+              onTap: () {
+                if (!set.isPurchased && !set.isFree) {
+                  _showPurchaseDialog(set);
+                } else {
+                  setState(() => _selectedSetIndex = index);
+                }
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primary500
-                      : isDark
-                          ? Colors.white12
-                          : Colors.grey.shade300,
+                      ? AppColors.primary500.withAlpha(25)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.primary500
+                        : isDark
+                            ? Colors.white12
+                            : AppColors.borderLight,
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (set.thumbnailUrl != null)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: CachedNetworkImage(
-                        imageUrl: set.thumbnailUrl!,
-                        width: 20,
-                        height: 20,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (set.thumbnailUrl != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: CachedNetworkImage(
+                          imageUrl: set.thumbnailUrl!,
+                          width: 20,
+                          height: 20,
+                        ),
+                      ),
+                    Text(
+                      set.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color: isSelected
+                            ? AppColors.primary500
+                            : isDark
+                                ? Colors.white70
+                                : AppColors.textMainLight,
                       ),
                     ),
-                  Text(
-                    set.name,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
-                      color: isSelected
-                          ? AppColors.primary500
-                          : isDark
-                              ? Colors.white70
-                              : Colors.black87,
-                    ),
-                  ),
-                  if (!set.isPurchased && !set.isFree) ...[
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.lock_outlined,
-                      size: 12,
-                      color: isDark ? Colors.white38 : Colors.grey.shade500,
-                    ),
+                    if (!set.isPurchased && !set.isFree) ...[
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.lock_outlined,
+                        size: 12,
+                        color: isDark ? Colors.white38 : AppColors.textMuted,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           );
@@ -195,21 +201,25 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
       itemCount: stickers.length,
       itemBuilder: (context, index) {
         final sticker = stickers[index];
-        return GestureDetector(
-          onTap: () => widget.onStickerSelected(sticker),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? Colors.white10 : Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(AppRadius.base),
-            ),
-            padding: const EdgeInsets.all(8),
-            child: CachedNetworkImage(
-              imageUrl: sticker.imageUrl,
-              fit: BoxFit.contain,
-              placeholder: (_, __) => const SizedBox.shrink(),
-              errorWidget: (_, __, ___) => Icon(
-                Icons.emoji_emotions_outlined,
-                color: isDark ? Colors.white24 : Colors.grey.shade300,
+        return Semantics(
+          label: '${sticker.name} 스티커 전송',
+          button: true,
+          child: GestureDetector(
+            onTap: () => widget.onStickerSelected(sticker),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white10 : AppColors.surfaceAlt,
+                borderRadius: BorderRadius.circular(AppRadius.base),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: CachedNetworkImage(
+                imageUrl: sticker.imageUrl,
+                fit: BoxFit.contain,
+                placeholder: (_, __) => const SizedBox.shrink(),
+                errorWidget: (_, __, ___) => Icon(
+                  Icons.emoji_emotions_outlined,
+                  color: isDark ? Colors.white24 : AppColors.border,
+                ),
               ),
             ),
           ),
@@ -226,14 +236,14 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
           Icon(
             Icons.lock_outlined,
             size: 32,
-            color: isDark ? Colors.white38 : Colors.grey.shade400,
+            color: isDark ? Colors.white38 : AppColors.textMuted,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             '${set.priceDt} DT로 구매',
             style: TextStyle(
               fontSize: 14,
-              color: isDark ? Colors.white54 : Colors.grey.shade600,
+              color: isDark ? Colors.white54 : AppColors.textMuted,
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -262,14 +272,14 @@ class _StickerPickerState extends ConsumerState<StickerPicker> {
           Icon(
             Icons.emoji_emotions_outlined,
             size: 40,
-            color: isDark ? Colors.white24 : Colors.grey.shade300,
+            color: isDark ? Colors.white24 : AppColors.border,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             '스티커가 없습니다',
             style: TextStyle(
               fontSize: 14,
-              color: isDark ? Colors.white38 : Colors.grey.shade500,
+              color: isDark ? Colors.white38 : AppColors.textMuted,
             ),
           ),
         ],

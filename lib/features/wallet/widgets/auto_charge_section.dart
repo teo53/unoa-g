@@ -94,7 +94,7 @@ class AutoChargeSection extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     '이번 달 충전 횟수: ${config.chargesThisMonth}/${config.maxMonthlyCharges}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textMuted,
                     ),
@@ -128,7 +128,7 @@ class AutoChargeSection extends ConsumerWidget {
             ...options.map((o) => ListTile(
                   title: Text('$o DT 이하'),
                   trailing: current == o
-                      ? Icon(Icons.check, color: AppColors.success)
+                      ? const Icon(Icons.check, color: AppColors.success)
                       : null,
                   onTap: () {
                     Navigator.pop(ctx);
@@ -166,7 +166,7 @@ class AutoChargeSection extends ConsumerWidget {
             ...options.map((o) => ListTile(
                   title: Text('$o DT'),
                   trailing: current == o
-                      ? Icon(Icons.check, color: AppColors.success)
+                      ? const Icon(Icons.check, color: AppColors.success)
                       : null,
                   onTap: () {
                     Navigator.pop(ctx);
@@ -217,7 +217,7 @@ class _SettingChip extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            Icon(
+            const Icon(
               Icons.edit_outlined,
               size: 14,
               color: AppColors.textMuted,

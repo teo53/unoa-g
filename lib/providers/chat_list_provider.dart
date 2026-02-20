@@ -226,8 +226,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
                 'user_id, stage_name, stage_name_en, profile_image_url, verification_status')
             .inFilter('user_id', artistIds);
         for (final p in (profilesResp as List)) {
-          creatorProfiles[p['user_id'] as String] =
-              p as Map<String, dynamic>;
+          creatorProfiles[p['user_id'] as String] = p as Map<String, dynamic>;
         }
       }
 

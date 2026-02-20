@@ -100,7 +100,7 @@ class _ChallengesScreenState extends ConsumerState<ChallengesScreen> {
                       ),
                     );
                   },
-                  loading: () => Center(
+                  loading: () => const Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primary500,
                     ),
@@ -532,7 +532,7 @@ class _ChallengeDetailSheet extends ConsumerWidget {
               child: submissionsAsync.when(
                 data: (submissions) {
                   if (submissions.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: Text(
                         '아직 제출물이 없어요\n첫 번째 참여자가 되어보세요!',
                         textAlign: TextAlign.center,

@@ -128,11 +128,11 @@ class _AdminSettlementsScreenState
   }
 
   void _showDetail(Map<String, dynamic> settlement) {
-    final commissionRate = BusinessConfig.platformCommissionPercent;
+    const commissionRate = BusinessConfig.platformCommissionPercent;
     final totalRevenue = settlement['totalRevenue'] as int;
     final platformFee = (totalRevenue * commissionRate / 100).round();
     final taxableIncome = totalRevenue - platformFee;
-    final taxRate = 3.3;
+    const taxRate = 3.3;
     final tax = (taxableIncome * taxRate / 100).round();
     final netPayout = taxableIncome - tax;
 

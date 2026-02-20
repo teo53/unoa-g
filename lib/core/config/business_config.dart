@@ -2,6 +2,7 @@
 ///
 /// Centralized configuration for business rules, limits, and constants.
 /// These values define the core business logic of the UNO A platform.
+library;
 
 /// Purchase platform for pricing differentiation.
 enum PurchasePlatform { web, android, ios }

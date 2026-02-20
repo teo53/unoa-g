@@ -96,22 +96,22 @@ class AdminSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Admin info section
-          _SectionTitle(title: '관리자 정보'),
+          const _SectionTitle(title: '관리자 정보'),
           const SizedBox(height: 8),
           _InfoCard(
             isDark: isDark,
-            children: [
+            children: const [
               _InfoRow(label: '계정 ID', value: DemoConfig.demoAdminId),
-              const Divider(height: 1),
+              Divider(height: 1),
               _InfoRow(label: '역할', value: '관리자 (Admin)'),
-              const Divider(height: 1),
+              Divider(height: 1),
               _InfoRow(label: '권한 범위', value: '전체 관리'),
             ],
           ),
           const SizedBox(height: 24),
 
           // Quick links section
-          _SectionTitle(title: 'CRM 바로가기'),
+          const _SectionTitle(title: 'CRM 바로가기'),
           const SizedBox(height: 8),
           _InfoCard(
             isDark: isDark,
@@ -131,15 +131,15 @@ class AdminSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // App info
-          _SectionTitle(title: '앱 정보'),
+          const _SectionTitle(title: '앱 정보'),
           const SizedBox(height: 8),
           _InfoCard(
             isDark: isDark,
-            children: [
+            children: const [
               _InfoRow(label: '앱 버전', value: '1.0.0 (데모)'),
-              const Divider(height: 1),
+              Divider(height: 1),
               _InfoRow(label: 'Flutter', value: '3.38.x'),
-              const Divider(height: 1),
+              Divider(height: 1),
               _InfoRow(label: '환경', value: '데모 모드'),
             ],
           ),

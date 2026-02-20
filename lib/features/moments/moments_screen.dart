@@ -96,7 +96,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                 }
                 return _buildMomentGrid(moments, isDark);
               },
-              loading: () => Center(
+              loading: () => const Center(
                 child: CircularProgressIndicator(
                   color: AppColors.primary500,
                 ),
@@ -377,7 +377,7 @@ class _MomentCard extends StatelessWidget {
                             moment.artistName ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 10,
                               color: AppColors.textMuted,
                             ),
@@ -385,7 +385,7 @@ class _MomentCard extends StatelessWidget {
                         ),
                         Text(
                           _formatDate(moment.collectedAt),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
                             color: AppColors.textMuted,
                           ),
@@ -512,7 +512,7 @@ class _MomentDetailSheet extends StatelessWidget {
                       ),
                       child: Text(
                         moment.sourceLabel,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary500,
@@ -640,7 +640,7 @@ class _MomentDetailSheet extends StatelessWidget {
                               ),
                               Text(
                                 _formatFullDate(moment.collectedAt),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.textMuted,
                                 ),

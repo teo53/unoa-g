@@ -119,8 +119,13 @@ async function verifyTossPaymentsSignature(
   signature: string,
   payload: string
 ): Promise<boolean> {
-  // Standard payment webhooks may not include signature header.
+  // 웹훅 시크릿이 설정된 경우 서명 필수 (fail-closed)
   if (!signature) {
+    if (TOSSPAYMENTS_WEBHOOK_SECRET) {
+      console.error('TossPayments: webhook secret configured but no signature header — rejecting')
+      return false
+    }
+    // 시크릿 미설정 시에만 서명 없는 웹훅 허용 (API 교차검증에 의존)
     return true
   }
 

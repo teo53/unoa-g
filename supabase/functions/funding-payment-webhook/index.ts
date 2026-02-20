@@ -274,8 +274,8 @@ serve(async (req) => {
         )
       }
 
-      // 금액 불일치 체크
-      if (verification.amount && verification.amount !== fundingPayment.amount_krw) {
+      // 금액 불일치 체크 (explicit null check — 0원도 정상 검증)
+      if (verification.amount != null && verification.amount !== fundingPayment.amount_krw) {
         logEntry.error_message = `Amount mismatch: expected=${fundingPayment.amount_krw}, actual=${verification.amount}`
         logEntry.processed_status = 'failed'
         await logWebhookEvent(supabase, logEntry)
@@ -284,6 +284,15 @@ serve(async (req) => {
           { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
         )
       }
+    } else {
+      // Fail-closed: pgPaymentId 없으면 교차 검증 불가 — 거부
+      logEntry.error_message = 'Missing pgPaymentId — cross-verification required'
+      logEntry.processed_status = 'failed'
+      await logWebhookEvent(supabase, logEntry)
+      return new Response(
+        JSON.stringify({ error: 'Payment ID required for verification' }),
+        { status: 400, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // === 6. 이벤트별 처리 ===

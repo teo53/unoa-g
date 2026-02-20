@@ -3,6 +3,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/utils/app_logger.dart';
 import '../data/models/challenge.dart';
 import '../data/repositories/challenge_repository.dart';
 import '../data/repositories/supabase_challenge_repository.dart';
@@ -170,25 +171,31 @@ class ChallengeActionsNotifier extends StateNotifier<AsyncValue<void>> {
     required SubmissionStatus status,
     String? comment,
   }) async {
+    state = const AsyncLoading();
     try {
       await _repo.reviewSubmission(
         submissionId: submissionId,
         status: status,
         comment: comment,
       );
+      state = const AsyncData(null);
       _ref.invalidate(challengeSubmissionsProvider);
-    } catch (_) {
-      // 에러 무시
+    } catch (e, st) {
+      AppLogger.error(e, tag: 'Challenge', message: 'reviewSubmission failed');
+      state = AsyncError(e, st);
     }
   }
 
   /// 투표
   Future<void> vote(String submissionId) async {
+    state = const AsyncLoading();
     try {
       await _repo.vote(submissionId);
+      state = const AsyncData(null);
       _ref.invalidate(challengeSubmissionsProvider);
-    } catch (_) {
-      // 이미 투표한 경우
+    } catch (e, st) {
+      AppLogger.error(e, tag: 'Challenge', message: 'vote failed');
+      state = AsyncError(e, st);
     }
   }
 }

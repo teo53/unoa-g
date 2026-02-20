@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/fan_ad_provider.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/app_toast.dart'
@@ -125,6 +126,13 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
     _updateDraftFromFields();
     if (!_draft.isValid) {
       showAppInfo(context, '입력 내용을 확인해주세요');
+      return;
+    }
+
+    // 프로덕션: PG 결제 미연동 — 데모 모드에서만 허용
+    final authState = ref.read(authProvider);
+    if (authState is! AuthDemoMode) {
+      showAppInfo(context, '광고 결제 기능이 준비 중입니다. 곧 오픈 예정이에요!');
       return;
     }
 
@@ -278,10 +286,10 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [
+              const Row(children: [
                 Icon(Icons.campaign_outlined,
                     size: 16, color: AppColors.primary500),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text('팬 광고',
                     style:
                         TextStyle(fontSize: 11, color: AppColors.primary500)),
@@ -434,7 +442,8 @@ class _PreviewRow extends StatelessWidget {
           SizedBox(
             width: 80,
             child: Text(label,
-                style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                style:
+                    const TextStyle(fontSize: 13, color: AppColors.textMuted)),
           ),
           Expanded(
             child: Text(value, style: const TextStyle(fontSize: 13)),

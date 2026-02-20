@@ -12,6 +12,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
 const DT_PURCHASE_ENABLED = (Deno.env.get('DT_PURCHASE_ENABLED') ?? '').toLowerCase() === 'true'
@@ -43,6 +44,23 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Invalid or expired token' }),
         { status: 401, headers: { ...corsHeaders, ...jsonHeaders } }
+      )
+    }
+
+    // Fix 2.6: Rate limit confirm attempts — prevents abuse of the confirm endpoint
+    const supabaseRl = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+    const rlResult = await checkRateLimit(supabaseRl, {
+      key: `confirm:${user.id}`,
+      limit: 10,
+      windowSeconds: 3600,
+    })
+    if (!rlResult.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Too many requests', retryAfter: rlResult.retryAfterSeconds }),
+        { status: 429, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json', ...rateLimitHeaders(rlResult) } }
       )
     }
 
