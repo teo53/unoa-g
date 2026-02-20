@@ -41,7 +41,8 @@ class NativeAdCard extends StatelessWidget {
         try {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } catch (e) {
-          AppLogger.error('NativeAdCard: internal->external fallback failed — $e',
+          AppLogger.error(
+              'NativeAdCard: internal->external fallback failed — $e',
               tag: 'Ad');
         }
         return;
@@ -80,24 +81,22 @@ class NativeAdCard extends StatelessWidget {
           children: [
             if (banner.imageUrl.isNotEmpty)
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
                 child: AspectRatio(
                   aspectRatio: 5 / 1,
                   child: CachedNetworkImage(
                     imageUrl: banner.imageUrl,
                     fit: BoxFit.cover,
                     errorWidget: (_, __, ___) => Container(
-                      color: isDark
-                          ? AppColors.borderDark
-                          : AppColors.surfaceAlt,
+                      color:
+                          isDark ? AppColors.borderDark : AppColors.surfaceAlt,
                     ),
                   ),
                 ),
               ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
                   if (isFanAd) ...[
@@ -106,9 +105,8 @@ class NativeAdCard extends StatelessWidget {
                   ] else ...[
                     _AdBadge(
                         label: '광고',
-                        color: isDark
-                            ? AppColors.textMuted
-                            : AppColors.iconMuted),
+                        color:
+                            isDark ? AppColors.textMuted : AppColors.iconMuted),
                     const SizedBox(width: 6),
                   ],
                   Expanded(
@@ -129,9 +127,7 @@ class NativeAdCard extends StatelessWidget {
                     Icon(
                       Icons.chevron_right,
                       size: 16,
-                      color: isDark
-                          ? AppColors.textMuted
-                          : AppColors.iconMuted,
+                      color: isDark ? AppColors.textMuted : AppColors.iconMuted,
                     ),
                 ],
               ),
@@ -159,8 +155,8 @@ class _AdBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-            fontSize: 10, color: color, fontWeight: FontWeight.w600),
+        style:
+            TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w600),
       ),
     );
   }

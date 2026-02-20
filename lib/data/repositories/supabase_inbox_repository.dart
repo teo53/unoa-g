@@ -180,7 +180,9 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
             final subTier = s['tier'] as String? ?? '';
             final subIndex = tierOrder.indexOf(subTier);
             // Unknown tier → exclude (fail-closed)
-            return minTierIndex >= 0 && subIndex >= 0 && subIndex >= minTierIndex;
+            return minTierIndex >= 0 &&
+                subIndex >= 0 &&
+                subIndex >= minTierIndex;
           }).toList()
         : subscribers;
 

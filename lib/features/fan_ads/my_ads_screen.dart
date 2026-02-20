@@ -31,8 +31,7 @@ class _MyAdsScreenState extends ConsumerState<MyAdsScreen>
   void initState() {
     super.initState();
     _tabs = TabController(length: _statusTabs.length, vsync: this);
-    Future.microtask(
-        () => ref.read(fanAdProvider.notifier).loadMyAds());
+    Future.microtask(() => ref.read(fanAdProvider.notifier).loadMyAds());
   }
 
   @override
@@ -53,8 +52,7 @@ class _MyAdsScreenState extends ConsumerState<MyAdsScreen>
               child: const Text('아니오')),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: Text('취소하기',
-                  style: TextStyle(color: AppColors.danger))),
+              child: Text('취소하기', style: TextStyle(color: AppColors.danger))),
         ],
       ),
     );
@@ -84,9 +82,7 @@ class _MyAdsScreenState extends ConsumerState<MyAdsScreen>
         bottom: TabBar(
           controller: _tabs,
           isScrollable: true,
-          tabs: _statusTabs
-              .map((t) => Tab(text: t.label))
-              .toList(),
+          tabs: _statusTabs.map((t) => Tab(text: t.label)).toList(),
         ),
       ),
       body: adState.loading
@@ -94,14 +90,12 @@ class _MyAdsScreenState extends ConsumerState<MyAdsScreen>
           : adState.error != null
               ? ErrorDisplay(
                   error: adState.error ?? 'Unknown error',
-                  onRetry: () =>
-                      ref.read(fanAdProvider.notifier).loadMyAds(),
+                  onRetry: () => ref.read(fanAdProvider.notifier).loadMyAds(),
                 )
               : TabBarView(
                   controller: _tabs,
                   children: _statusTabs.map((t) {
-                    final ads = ref.watch(
-                        myAdsByStatusProvider(t.status));
+                    final ads = ref.watch(myAdsByStatusProvider(t.status));
                     if (ads.isEmpty) {
                       return const EmptyState(
                         title: '광고가 없어요',
@@ -113,11 +107,9 @@ class _MyAdsScreenState extends ConsumerState<MyAdsScreen>
                       onRefresh: () =>
                           ref.read(fanAdProvider.notifier).loadMyAds(),
                       child: ListView.separated(
-                        padding:
-                            const EdgeInsets.all(AppSpacing.md),
+                        padding: const EdgeInsets.all(AppSpacing.md),
                         itemCount: ads.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 8),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemBuilder: (_, i) => _AdCard(
                           ad: ads[i],
                           isDark: isDark,
@@ -184,9 +176,7 @@ class _AdCard extends StatelessWidget {
               ad.body!,
               style: TextStyle(
                   fontSize: 13,
-                  color: isDark
-                      ? AppColors.iconMuted
-                      : AppColors.textMuted),
+                  color: isDark ? AppColors.iconMuted : AppColors.textMuted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -196,23 +186,19 @@ class _AdCard extends StatelessWidget {
             children: [
               Icon(Icons.calendar_today_outlined,
                   size: 12,
-                  color: isDark
-                      ? AppColors.textMuted
-                      : AppColors.iconMuted),
+                  color: isDark ? AppColors.textMuted : AppColors.iconMuted),
               const SizedBox(width: 4),
               Text(
                 '${fmt.format(ad.startAt)} ~ ${fmt.format(ad.endAt)}',
                 style: TextStyle(
                     fontSize: 12,
-                    color: isDark
-                        ? AppColors.textMuted
-                        : AppColors.textMuted),
+                    color: isDark ? AppColors.textMuted : AppColors.textMuted),
               ),
               const Spacer(),
               Text(
                 '${numFmt.format(ad.paymentAmountKrw)}원',
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -221,11 +207,9 @@ class _AdCard extends StatelessWidget {
             Row(
               children: [
                 _StatChip(
-                    icon: Icons.visibility_outlined,
-                    value: ad.impressions),
+                    icon: Icons.visibility_outlined, value: ad.impressions),
                 const SizedBox(width: 8),
-                _StatChip(
-                    icon: Icons.ads_click, value: ad.clicks),
+                _StatChip(icon: Icons.ads_click, value: ad.clicks),
               ],
             ),
           ],
@@ -233,8 +217,7 @@ class _AdCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '거절 사유: ${ad.rejectionReason}',
-              style: TextStyle(
-                  fontSize: 12, color: AppColors.danger),
+              style: TextStyle(fontSize: 12, color: AppColors.danger),
             ),
           ],
           if (onCancel != null) ...[
@@ -243,10 +226,8 @@ class _AdCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: onCancel,
-                style: TextButton.styleFrom(
-                    foregroundColor: AppColors.danger),
-                child: const Text('취소',
-                    style: TextStyle(fontSize: 13)),
+                style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+                child: const Text('취소', style: TextStyle(fontSize: 13)),
               ),
             ),
           ],
@@ -270,11 +251,11 @@ class _StatusBadge extends StatelessWidget {
   };
 
   Color _color() => switch (status) {
-        'active'         => AppColors.success,
-        'rejected'       => AppColors.danger,
-        'cancelled'      => AppColors.textMuted,
-        'completed'      => AppColors.textMuted,
-        _                => AppColors.warning,
+        'active' => AppColors.success,
+        'rejected' => AppColors.danger,
+        'cancelled' => AppColors.textMuted,
+        'completed' => AppColors.textMuted,
+        _ => AppColors.warning,
       };
 
   @override
@@ -309,8 +290,7 @@ class _StatChip extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           NumberFormat('#,###').format(value),
-          style:
-              TextStyle(fontSize: 12, color: AppColors.textMuted),
+          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
       ],
     );

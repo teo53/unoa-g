@@ -332,7 +332,8 @@ void main() {
       expect(message.canViewWithTier(null), isFalse);
     });
 
-    test('canViewWithTier denies unknown tier values (fail-closed security)', () {
+    test('canViewWithTier denies unknown tier values (fail-closed security)',
+        () {
       // Unknown min_tier_required → deny all
       final json1 = _createMessageJson();
       json1['min_tier_required'] = 'INVALID_TIER';

@@ -677,9 +677,8 @@ class _HomeNativeAdSlot extends ConsumerWidget {
     final banners = ref.watch(opsBannersProvider('home_top'));
     // 기존 _HomeBannerSection이 home_top을 사용하므로 여기서는
     // fan_ad 출처 배너만 추가 슬롯으로 노출
-    final adBanners = banners
-        .where((b) => b.sourceType == BannerSourceType.fanAd)
-        .toList();
+    final adBanners =
+        banners.where((b) => b.sourceType == BannerSourceType.fanAd).toList();
     if (adBanners.isEmpty) return const SizedBox.shrink();
     return NativeAdCard(banner: adBanners.first);
   }

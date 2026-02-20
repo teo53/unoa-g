@@ -258,10 +258,10 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
                       label: !dtPurchaseEnabled
                           ? '결제 준비 중'
                           : _isProcessing
-                          ? '처리 중...'
-                          : (_selectedPackageIndex != null
-                              ? '${packages[_selectedPackageIndex!].formattedPrice} 결제하기'
-                              : '패키지를 선택하세요'),
+                              ? '처리 중...'
+                              : (_selectedPackageIndex != null
+                                  ? '${packages[_selectedPackageIndex!].formattedPrice} 결제하기'
+                                  : '패키지를 선택하세요'),
                       isLoading: _isProcessing,
                       onPressed: dtPurchaseEnabled &&
                               _selectedPackageIndex != null &&

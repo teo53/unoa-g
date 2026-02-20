@@ -264,19 +264,23 @@ class FanAdNotifier extends StateNotifier<FanAdState> {
         return null;
       }
 
-      final row = await client.from('fan_ads').insert({
-        'fan_user_id': fanUserId,
-        'artist_channel_id': resolvedChannelId,
-        'title': draft.title.trim(),
-        'body': draft.body.trim().isEmpty ? null : draft.body.trim(),
-        'image_url': draft.imageUrl,
-        'link_url': draft.linkUrl,
-        'link_type': draft.linkType,
-        'start_at': draft.startAt!.toIso8601String(),
-        'end_at': draft.endAt!.toIso8601String(),
-        'payment_amount_krw': draft.paymentAmountKrw,
-        // RLS가 status='pending_review', payment_status='pending' 강제
-      }).select().single();
+      final row = await client
+          .from('fan_ads')
+          .insert({
+            'fan_user_id': fanUserId,
+            'artist_channel_id': resolvedChannelId,
+            'title': draft.title.trim(),
+            'body': draft.body.trim().isEmpty ? null : draft.body.trim(),
+            'image_url': draft.imageUrl,
+            'link_url': draft.linkUrl,
+            'link_type': draft.linkType,
+            'start_at': draft.startAt!.toIso8601String(),
+            'end_at': draft.endAt!.toIso8601String(),
+            'payment_amount_krw': draft.paymentAmountKrw,
+            // RLS가 status='pending_review', payment_status='pending' 강제
+          })
+          .select()
+          .single();
 
       await loadMyAds();
       return row['id'] as String;
@@ -359,8 +363,7 @@ class FanAdNotifier extends StateNotifier<FanAdState> {
 
 // ── Providers ──
 
-final fanAdProvider =
-    StateNotifierProvider<FanAdNotifier, FanAdState>((ref) {
+final fanAdProvider = StateNotifierProvider<FanAdNotifier, FanAdState>((ref) {
   return FanAdNotifier(ref);
 });
 

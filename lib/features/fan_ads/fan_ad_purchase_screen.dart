@@ -7,7 +7,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../providers/fan_ad_provider.dart';
 import '../../shared/widgets/primary_button.dart';
-import '../../shared/widgets/app_toast.dart' show showAppSuccess, showAppError, showAppInfo;
+import '../../shared/widgets/app_toast.dart'
+    show showAppSuccess, showAppError, showAppInfo;
 
 // ── 구매 플로우 단계 ──
 
@@ -61,8 +62,7 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
       linkUrl: _linkUrlController.text.trim().isEmpty
           ? null
           : _linkUrlController.text.trim(),
-      linkType:
-          _linkUrlController.text.trim().isEmpty ? 'none' : 'external',
+      linkType: _linkUrlController.text.trim().isEmpty ? 'none' : 'external',
       startAt: _startAt,
       endAt: _endAt,
       paymentAmountKrw: _selectedPriceKrw,
@@ -73,8 +73,7 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
     final now = DateTime.now();
     final initial = isStart
         ? (_startAt ?? now.add(const Duration(days: 1)))
-        : (_endAt ??
-            (_startAt ?? now).add(const Duration(days: 7)));
+        : (_endAt ?? (_startAt ?? now).add(const Duration(days: 7)));
 
     final picked = await showDatePicker(
       context: context,
@@ -163,9 +162,9 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: switch (_step) {
-                _PurchaseStep.setup    => _buildSetupStep(isDark),
-                _PurchaseStep.preview  => _buildPreviewStep(isDark),
-                _PurchaseStep.payment  => _buildPaymentStep(isDark),
+                _PurchaseStep.setup => _buildSetupStep(isDark),
+                _PurchaseStep.preview => _buildPreviewStep(isDark),
+                _PurchaseStep.payment => _buildPaymentStep(isDark),
               },
             ),
           ),
@@ -251,11 +250,9 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
           children: _priceTiers.map((price) {
             final selected = price == _selectedPriceKrw;
             return ChoiceChip(
-              label: Text(
-                  '${NumberFormat('#,###').format(price)}원'),
+              label: Text('${NumberFormat('#,###').format(price)}원'),
               selected: selected,
-              onSelected: (_) =>
-                  setState(() => _selectedPriceKrw = price),
+              onSelected: (_) => setState(() => _selectedPriceKrw = price),
             );
           }).toList(),
         ),
@@ -286,8 +283,8 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
                     size: 16, color: AppColors.primary500),
                 const SizedBox(width: 4),
                 Text('팬 광고',
-                    style: TextStyle(
-                        fontSize: 11, color: AppColors.primary500)),
+                    style:
+                        TextStyle(fontSize: 11, color: AppColors.primary500)),
               ]),
               const SizedBox(height: 6),
               Text(_titleController.text,
@@ -304,8 +301,8 @@ class _FanAdPurchaseScreenState extends ConsumerState<FanAdPurchaseScreen> {
         const SizedBox(height: AppSpacing.lg),
         _PreviewRow('노출 기간',
             '${_startAt != null ? fmt.format(_startAt!) : '-'} ~ ${_endAt != null ? fmt.format(_endAt!) : '-'}'),
-        _PreviewRow('광고 요금',
-            '${NumberFormat('#,###').format(_selectedPriceKrw)}원'),
+        _PreviewRow(
+            '광고 요금', '${NumberFormat('#,###').format(_selectedPriceKrw)}원'),
         if (_linkUrlController.text.trim().isNotEmpty)
           _PreviewRow('링크', _linkUrlController.text.trim()),
       ],
@@ -366,9 +363,8 @@ class _StepIndicator extends StatelessWidget {
             return Expanded(
               child: Container(
                 height: 1,
-                color: i ~/ 2 < current
-                    ? AppColors.primary500
-                    : AppColors.border,
+                color:
+                    i ~/ 2 < current ? AppColors.primary500 : AppColors.border,
               ),
             );
           }
@@ -382,9 +378,8 @@ class _StepIndicator extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: done || active
-                      ? AppColors.primary500
-                      : AppColors.border,
+                  color:
+                      done || active ? AppColors.primary500 : AppColors.border,
                 ),
                 child: Center(
                   child: done
@@ -392,18 +387,16 @@ class _StepIndicator extends StatelessWidget {
                       : Text('${idx + 1}',
                           style: TextStyle(
                               fontSize: 12,
-                              color: active
-                                  ? Colors.white
-                                  : AppColors.textMuted)),
+                              color:
+                                  active ? Colors.white : AppColors.textMuted)),
                 ),
               ),
               const SizedBox(height: 4),
               Text(steps[idx],
                   style: TextStyle(
                       fontSize: 11,
-                      color: active
-                          ? AppColors.primary500
-                          : AppColors.textMuted)),
+                      color:
+                          active ? AppColors.primary500 : AppColors.textMuted)),
             ],
           );
         }),
@@ -441,12 +434,10 @@ class _PreviewRow extends StatelessWidget {
           SizedBox(
             width: 80,
             child: Text(label,
-                style: TextStyle(
-                    fontSize: 13, color: AppColors.textMuted)),
+                style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
           ),
           Expanded(
-            child: Text(value,
-                style: const TextStyle(fontSize: 13)),
+            child: Text(value, style: const TextStyle(fontSize: 13)),
           ),
         ],
       ),
@@ -475,9 +466,7 @@ class _BottomBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: PrimaryButton(
           onPressed: isLast ? onSubmit : onNext,
-          label: isLast
-              ? '${NumberFormat('#,###').format(price)}원 결제하기'
-              : '다음',
+          label: isLast ? '${NumberFormat('#,###').format(price)}원 결제하기' : '다음',
         ),
       ),
     );
