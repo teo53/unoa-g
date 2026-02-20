@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
+import '../core/config/app_config.dart';
 import '../core/config/demo_config.dart';
+import '../core/utils/app_logger.dart';
 import 'auth_provider.dart';
 
 /// Wallet data model
@@ -262,6 +265,9 @@ class WalletNotifier extends StateNotifier<WalletState> {
   }
 
   void _initialize() {
+    // Restore any pending donation idempotency key from previous session
+    _restorePendingDonationKey();
+
     _ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthAuthenticated) {
         loadWallet();
@@ -285,7 +291,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// 데모 모드용 지갑 로드
   void _loadDemoWallet() {
     final authState = _ref.read(authProvider);
-    if (authState is! AuthDemoMode) return;
+    if (authState is! AuthDemoMode) {
+      AppLogger.warning(
+        'Demo wallet load attempted but auth is not in AuthDemoMode',
+        tag: 'WalletProvider',
+      );
+      return;
+    }
 
     final isCreator = authState.demoProfile.isCreator;
 
@@ -398,10 +410,22 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// 데모 모드에서 잔액 추가 (구매 시뮬레이션)
   void addDemoBalance(int amount) {
     final currentState = state;
-    if (currentState is! WalletLoaded) return;
+    if (currentState is! WalletLoaded) {
+      AppLogger.warning(
+        'Demo balance add attempted but wallet not loaded',
+        tag: 'WalletProvider',
+      );
+      return;
+    }
 
     final authState = _ref.read(authProvider);
-    if (authState is! AuthDemoMode) return;
+    if (authState is! AuthDemoMode) {
+      AppLogger.warning(
+        'Demo balance add attempted but auth is not in AuthDemoMode',
+        tag: 'WalletProvider',
+      );
+      return;
+    }
 
     final updatedWallet = currentState.wallet.copyWith(
       balanceDt: currentState.wallet.balanceDt + amount,
@@ -429,12 +453,30 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// 데모 모드에서 잔액 차감 (후원/구독 시뮬레이션)
   bool spendDemoBalance(int amount, String type, String description) {
     final currentState = state;
-    if (currentState is! WalletLoaded) return false;
+    if (currentState is! WalletLoaded) {
+      AppLogger.warning(
+        'Demo balance spend attempted but wallet not loaded',
+        tag: 'WalletProvider',
+      );
+      return false;
+    }
 
     final authState = _ref.read(authProvider);
-    if (authState is! AuthDemoMode) return false;
+    if (authState is! AuthDemoMode) {
+      AppLogger.warning(
+        'Demo balance spend attempted but auth is not in AuthDemoMode',
+        tag: 'WalletProvider',
+      );
+      return false;
+    }
 
-    if (currentState.wallet.balanceDt < amount) return false;
+    if (currentState.wallet.balanceDt < amount) {
+      AppLogger.warning(
+        'Demo balance insufficient: need $amount DT, have ${currentState.wallet.balanceDt} DT',
+        tag: 'WalletProvider',
+      );
+      return false;
+    }
 
     final updatedWallet = currentState.wallet.copyWith(
       balanceDt: currentState.wallet.balanceDt - amount,
@@ -607,6 +649,14 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// Request checkout URL for DT purchase
   Future<String?> createPurchaseCheckout(String packageId) async {
     try {
+      if (!AppConfig.enableDtPurchase) {
+        AppLogger.warning(
+          'WalletNotifier.createPurchaseCheckout: DT purchase disabled by flag',
+          tag: 'Wallet',
+        );
+        return null;
+      }
+
       final client = _ref.read(supabaseClientProvider);
       final user = _ref.read(currentUserProvider);
       if (user == null) throw Exception('User not authenticated');
@@ -655,8 +705,63 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
+  /// Hive box name and key for persisting idempotency keys
+  static const _hiveBoxName = 'wallet_ops';
+  static const _hiveIdempotencyKey = 'pending_donation_key';
+  static const _hiveIdempotencyTimestamp = 'pending_donation_ts';
+
+  /// Cached Hive box to avoid repeated openBox() async overhead
+  Box? _hiveBox;
+  Future<Box> _getHiveBox() async {
+    return _hiveBox ??= await Hive.openBox(_hiveBoxName);
+  }
+
   /// Pending donation idempotency key (generated per UI action, kept for retry)
   String? _pendingDonationKey;
+
+  /// Load persisted idempotency key (call once at init)
+  Future<void> _restorePendingDonationKey() async {
+    try {
+      final box = await _getHiveBox();
+      final savedKey = box.get(_hiveIdempotencyKey) as String?;
+      final savedTs = box.get(_hiveIdempotencyTimestamp) as int?;
+      if (savedKey != null && savedTs != null) {
+        final age = DateTime.now().millisecondsSinceEpoch - savedTs;
+        // Expire keys older than 1 hour
+        if (age < const Duration(hours: 1).inMilliseconds) {
+          _pendingDonationKey = savedKey;
+        } else {
+          await box.delete(_hiveIdempotencyKey);
+          await box.delete(_hiveIdempotencyTimestamp);
+        }
+      }
+    } catch (e) {
+      AppLogger.debug('Failed to restore donation key: $e', tag: 'Wallet');
+    }
+  }
+
+  /// Persist idempotency key to survive app restart
+  Future<void> _persistDonationKey(String key) async {
+    try {
+      final box = await _getHiveBox();
+      await box.put(_hiveIdempotencyKey, key);
+      await box.put(
+          _hiveIdempotencyTimestamp, DateTime.now().millisecondsSinceEpoch);
+    } catch (e) {
+      AppLogger.debug('Failed to persist donation key: $e', tag: 'Wallet');
+    }
+  }
+
+  /// Clear persisted idempotency key after success
+  Future<void> _clearPersistedDonationKey() async {
+    try {
+      final box = await _getHiveBox();
+      await box.delete(_hiveIdempotencyKey);
+      await box.delete(_hiveIdempotencyTimestamp);
+    } catch (e) {
+      AppLogger.debug('Failed to clear donation key: $e', tag: 'Wallet');
+    }
+  }
 
   /// Send a DT donation to a creator (atomic RPC)
   Future<Map<String, dynamic>?> sendDonation({
@@ -681,7 +786,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
       if (user == null) throw Exception('User not authenticated');
 
       // Generate idempotency key per UI action; reuse on retry
-      _pendingDonationKey ??= 'donation:${const Uuid().v4()}';
+      if (_pendingDonationKey == null) {
+        _pendingDonationKey = 'donation:${const Uuid().v4()}';
+        await _persistDonationKey(_pendingDonationKey!);
+      }
 
       // Call atomic RPC (auth.uid() extracted internally by RPC)
       final result = await client.rpc('process_donation_atomic', params: {
@@ -695,6 +803,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
       // Clear idempotency key on success
       _pendingDonationKey = null;
+      await _clearPersistedDonationKey();
 
       // Reload wallet to reflect new balance
       await loadWallet();

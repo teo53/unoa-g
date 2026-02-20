@@ -550,6 +550,7 @@ class MockArtistInboxRepository implements IArtistInboxRepository {
     String content, {
     BroadcastMessageType messageType = BroadcastMessageType.text,
     String? mediaUrl,
+    String? minTierRequired,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
 
@@ -570,6 +571,7 @@ class MockArtistInboxRepository implements IArtistInboxRepository {
       createdAt: DateTime.now(),
       // Store template if it has placeholders
       templateContent: hasPlaceholders ? content : null,
+      minTierRequired: minTierRequired,
     );
   }
 

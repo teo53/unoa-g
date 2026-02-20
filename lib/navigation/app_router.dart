@@ -48,10 +48,15 @@ import '../features/settings/fee_policy_screen.dart';
 import '../features/settings/funding_terms_screen.dart';
 import '../features/settings/moderation_policy_screen.dart';
 import '../features/settings/consent_history_screen.dart';
+import '../features/settings/blocked_users_screen.dart';
+import '../features/moments/moments_screen.dart';
+import '../features/challenges/challenges_screen.dart';
 import '../features/admin/admin_dashboard_screen.dart';
 import '../features/admin/admin_creators_screen.dart';
 import '../features/admin/admin_settlements_screen.dart';
 import '../features/admin/admin_settings_screen.dart';
+import '../features/fan_ads/fan_ad_purchase_screen.dart';
+import '../features/fan_ads/my_ads_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/widgets/creator_bottom_nav_bar.dart';
@@ -104,6 +109,7 @@ class AppRoutes {
   static const String guardianConsent = '/guardian-consent';
   static const String settingsModerationPolicy = '/settings/moderation-policy';
   static const String settingsConsentHistory = '/settings/consent-history';
+  static const String settingsBlockedUsers = '/settings/blocked-users';
   static const String settingsTax = '/settings/tax';
   static const String creatorSettlement = '/creator/settlement';
 
@@ -112,6 +118,10 @@ class AppRoutes {
   static const String adminCreators = '/admin/creators';
   static const String adminSettlements = '/admin/settlements';
   static const String adminSettings = '/admin/settings';
+
+  // Fan Ad Routes (full screen)
+  static const String fanAdsPurchase = '/fan-ads/purchase';
+  static const String myAds = '/my-ads';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -468,6 +478,23 @@ final appRouter = GoRouter(
       builder: (context, state) => const ConsentHistoryScreen(),
     ),
     GoRoute(
+      path: '/settings/blocked-users',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const BlockedUsersScreen(),
+    ),
+    GoRoute(
+      path: '/moments',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MomentsScreen(),
+    ),
+    GoRoute(
+      path: '/challenges',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => ChallengesScreen(
+        channelId: state.uri.queryParameters['channelId'],
+      ),
+    ),
+    GoRoute(
       path: '/notifications',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const NotificationsScreen(),
@@ -585,6 +612,22 @@ final appRouter = GoRouter(
       builder: (context, state) => CreateCampaignScreen(
         campaignId: state.pathParameters['campaignId'],
       ),
+    ),
+
+    // Fan Ad Purchase (full screen)
+    GoRoute(
+      path: '/fan-ads/purchase',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => FanAdPurchaseScreen(
+        artistId: state.uri.queryParameters['artistId'],
+      ),
+    ),
+
+    // My Ads (full screen)
+    GoRoute(
+      path: '/my-ads',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MyAdsScreen(),
     ),
   ],
 );

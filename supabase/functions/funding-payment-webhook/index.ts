@@ -135,24 +135,27 @@ async function verifyPaymentWithPortOne(paymentId: string): Promise<{
 }
 
 /**
- * 웹훅 이벤트 로깅
+ * 웹훅 이벤트 로깅 (UPSERT to handle retries safely)
  */
 async function logWebhookEvent(
   supabase: ReturnType<typeof createClient>,
   entry: WebhookLogEntry
 ): Promise<void> {
   try {
-    await supabase.from('payment_webhook_logs').insert({
-      event_type: entry.event_type,
-      payment_provider: entry.payment_provider,
-      payment_order_id: entry.payment_order_id,
-      webhook_id: entry.webhook_id,
-      webhook_payload: entry.webhook_payload,
-      signature_valid: entry.signature_valid,
-      processed_status: entry.processed_status,
-      error_message: entry.error_message,
-      processed_at: entry.processed_status !== 'pending' ? new Date().toISOString() : null,
-    })
+    await supabase.from('payment_webhook_logs').upsert(
+      {
+        event_type: entry.event_type,
+        payment_provider: entry.payment_provider,
+        payment_order_id: entry.payment_order_id,
+        webhook_id: entry.webhook_id,
+        webhook_payload: entry.webhook_payload,
+        signature_valid: entry.signature_valid,
+        processed_status: entry.processed_status,
+        error_message: entry.error_message,
+        processed_at: entry.processed_status !== 'pending' ? new Date().toISOString() : null,
+      },
+      { onConflict: 'webhook_id' }
+    )
   } catch (error) {
     console.error('Failed to log webhook event:', error)
   }
@@ -184,6 +187,8 @@ serve(async (req) => {
     }
 
     // === 1. 멱등성 체크 ===
+    // Only skip if previously succeeded or marked duplicate.
+    // If a previous attempt failed, allow reprocessing (retry).
     const { data: existingWebhook } = await supabase
       .from('payment_webhook_logs')
       .select('id, processed_status')
@@ -191,12 +196,17 @@ serve(async (req) => {
       .single()
 
     if (existingWebhook) {
-      logEntry.processed_status = 'duplicate'
-      await logWebhookEvent(supabase, logEntry)
-      return new Response(
-        JSON.stringify({ success: true, message: 'Already processed' }),
-        { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
-      )
+      if (existingWebhook.processed_status === 'success' || existingWebhook.processed_status === 'duplicate') {
+        console.log(`Webhook already processed (${existingWebhook.processed_status}): ${webhookId}`)
+        logEntry.processed_status = 'duplicate'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ success: true, message: 'Already processed' }),
+          { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      // Previous attempt failed — allow retry
+      console.log(`Retrying previously failed webhook: ${webhookId} (was: ${existingWebhook.processed_status})`)
     }
 
     // === 2. 서명 검증 ===
@@ -293,8 +303,31 @@ serve(async (req) => {
 
     // --- 6a. 결제 성공 ---
     if (isPaymentSuccess) {
-      // funding_payment가 이미 paid 상태면 스킵
-      if (fundingPayment.status === 'paid') {
+      // 원자적 처리: process_funding_payment_atomic RPC
+      // funding_payments + funding_pledges 를 단일 트랜잭션으로 업데이트.
+      // 크래시 시 부분 업데이트 방지.
+      const { data: atomicResult, error: atomicError } = await supabase.rpc(
+        'process_funding_payment_atomic',
+        {
+          p_funding_payment_id: fundingPayment.id,
+          p_pledge_id: fundingPayment.pledge_id,
+          p_pg_transaction_id: paymentData.transactionId || paymentData.pgTxId || pgPaymentId || null,
+          p_pg_payment_id: pgPaymentId || null,
+          p_pg_response: paymentData,
+        }
+      )
+
+      if (atomicError) {
+        logEntry.error_message = `Atomic payment processing failed: ${atomicError.message}`
+        logEntry.processed_status = 'failed'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ error: 'Failed to process payment atomically' }),
+          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (atomicResult?.already_processed) {
         logEntry.processed_status = 'duplicate'
         await logWebhookEvent(supabase, logEntry)
         return new Response(
@@ -303,37 +336,7 @@ serve(async (req) => {
         )
       }
 
-      // funding_payments 상태 업데이트
-      const { error: updatePaymentError } = await supabase
-        .from('funding_payments')
-        .update({
-          status: 'paid',
-          pg_transaction_id: paymentData.transactionId || paymentData.pgTxId || pgPaymentId,
-          pg_payment_id: pgPaymentId,
-          paid_at: new Date().toISOString(),
-          pg_response: paymentData,
-        })
-        .eq('id', fundingPayment.id)
-
-      if (updatePaymentError) {
-        logEntry.error_message = `Failed to update payment: ${updatePaymentError.message}`
-        logEntry.processed_status = 'failed'
-        await logWebhookEvent(supabase, logEntry)
-        return new Response(
-          JSON.stringify({ error: 'Failed to update payment status' }),
-          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      // pledge 상태도 confirmed로
-      if (fundingPayment.funding_pledges?.status === 'pending') {
-        await supabase
-          .from('funding_pledges')
-          .update({ status: 'confirmed' })
-          .eq('id', fundingPayment.pledge_id)
-      }
-
-      console.log(`Funding payment confirmed: ${orderId}, amount=${fundingPayment.amount_krw} KRW`)
+      console.log(`Funding payment confirmed (atomic): ${orderId}, amount=${fundingPayment.amount_krw} KRW`)
 
       logEntry.processed_status = 'success'
       await logWebhookEvent(supabase, logEntry)

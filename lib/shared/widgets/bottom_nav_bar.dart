@@ -97,7 +97,7 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     const activeColor = AppColors.primary;
-    final inactiveColor = isDark ? Colors.grey[500] : Colors.grey[400];
+    final inactiveColor = isDark ? Colors.grey[400] : Colors.grey[600];
 
     return Semantics(
       label: '$label 탭',

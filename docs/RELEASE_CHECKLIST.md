@@ -40,6 +40,13 @@
 - [ ] Edge Functions 배포
 - [ ] Storage bucket 권한 설정
 
+## Sentry 릴리스 (소스맵)
+
+- [ ] `.sentryclirc`에 유효한 auth token 설정
+- [ ] `sentry-cli info` 로 인증 확인
+- [ ] 빌드 후 소스맵 업로드: `.\scripts\sentry-release.ps1`
+- [ ] Sentry 대시보드에서 릴리스 확인 및 소스맵 정상 매핑 확인
+
 ## 배포
 
 ### Android APK
@@ -50,6 +57,7 @@ flutter build apk --release --dart-define-from-file=config/prod.json
 ### Web (Firebase)
 ```bash
 flutter build web --release --dart-define-from-file=config/prod.json
+.\scripts\sentry-release.ps1                       # 소스맵 업로드
 firebase deploy --only hosting
 ```
 

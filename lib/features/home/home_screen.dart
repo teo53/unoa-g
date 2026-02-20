@@ -9,6 +9,7 @@ import '../../providers/ops_config_provider.dart';
 import '../../core/utils/animation_utils.dart';
 import '../../shared/widgets/search_field.dart';
 import '../../shared/widgets/section_header.dart';
+import '../../shared/widgets/native_ad_card.dart';
 import 'widgets/trending_artist_card.dart';
 import 'widgets/subscription_tile.dart';
 
@@ -136,6 +137,9 @@ class _LoggedInHomeScreen extends ConsumerWidget {
                     },
                   ),
                 ),
+
+                // Native Ad Slot (home_top placement — source: fan_ad only)
+                _HomeNativeAdSlot(isDark: isDark),
 
                 const SizedBox(height: 32),
 
@@ -544,7 +548,10 @@ class _HomeBannerSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final banners = ref.watch(opsBannersProvider('home_top'));
+    final banners = ref
+        .watch(opsBannersProvider('home_top'))
+        .where((b) => b.sourceType == BannerSourceType.ops)
+        .toList();
 
     if (banners.isEmpty) return const SizedBox.shrink();
 
@@ -657,6 +664,23 @@ class _HomeBannerSection extends ConsumerWidget {
         const SizedBox(height: 24),
       ],
     );
+  }
+}
+
+/// 홈 화면 네이티브 광고 슬롯 — home_top placement 첫 번째 배너 표시
+class _HomeNativeAdSlot extends ConsumerWidget {
+  final bool isDark;
+  const _HomeNativeAdSlot({required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final banners = ref.watch(opsBannersProvider('home_top'));
+    // 기존 _HomeBannerSection이 home_top을 사용하므로 여기서는
+    // fan_ad 출처 배너만 추가 슬롯으로 노출
+    final adBanners =
+        banners.where((b) => b.sourceType == BannerSourceType.fanAd).toList();
+    if (adBanners.isEmpty) return const SizedBox.shrink();
+    return NativeAdCard(banner: adBanners.first);
   }
 }
 

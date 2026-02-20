@@ -41,7 +41,9 @@ export type BannerPlacement =
   | 'home_bottom'
   | 'discover_top'
   | 'chat_top'
+  | 'chat_list'
   | 'profile_banner'
+  | 'funding_top'
   | 'popup'
 
 export type BannerStatus = 'draft' | 'in_review' | 'published' | 'archived'
@@ -66,6 +68,57 @@ export interface OpsBanner {
   updated_by: string | null
   created_at: string
   updated_at: string
+}
+
+// ── Fan Ads ──
+export type FanAdStatus =
+  | 'pending_review'
+  | 'approved'
+  | 'active'
+  | 'completed'
+  | 'rejected'
+  | 'cancelled'
+
+export type FanAdPaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed'
+
+export interface OpsFanAd {
+  id: string
+  fan_user_id: string
+  artist_channel_id: string
+  title: string
+  body: string | null
+  image_url: string | null
+  link_url: string | null
+  link_type: LinkType
+  start_at: string
+  end_at: string
+  payment_amount_krw: number
+  payment_status: FanAdPaymentStatus
+  status: FanAdStatus
+  rejection_reason: string | null
+  impressions: number
+  clicks: number
+  created_at: string
+  updated_at: string
+  ops_banner_id: string | null
+}
+
+export interface FanAdListResult {
+  items: OpsFanAd[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export interface FanAdApproveResult {
+  fan_ad_id: string
+  ops_banner_id: string
+  status: 'approved'
+}
+
+export interface FanAdRejectResult {
+  fan_ad_id: string
+  status: 'rejected'
 }
 
 // ── Feature Flags ──
@@ -140,6 +193,8 @@ export interface OpsApiResponse<T = unknown> {
 export interface PaginatedResult<T> {
   items: T[]
   total: number
+  limit?: number
+  offset?: number
 }
 
 // ── Banner Form Data ──
@@ -188,8 +243,10 @@ export const PLACEMENT_LABELS: Record<BannerPlacement, string> = {
   home_top: '홈 상단',
   home_bottom: '홈 하단',
   discover_top: '탐색 상단',
-  chat_top: '채팅 상단',
+  chat_top: '채팅 상단 (레거시)',
+  chat_list: '채팅 목록 배너',
   profile_banner: '프로필 배너',
+  funding_top: '펀딩 상단',
   popup: '팝업',
 }
 
@@ -202,8 +259,10 @@ export const PLACEMENT_DIMENSIONS: Record<BannerPlacement, {
   home_top:       { width: 1200, height: 300, label: '홈 상단', description: '메인 히어로 배너 — 풀 너비', aspectRatio: '4:1', safeZone: '좌우 16px 여백' },
   home_bottom:    { width: 1200, height: 200, label: '홈 하단', description: '보조 프로모션 띠 배너', aspectRatio: '6:1' },
   discover_top:   { width: 800, height: 400, label: '탐색 상단', description: '탐색 페이지 배너', aspectRatio: '2:1' },
-  chat_top:       { width: 600, height: 150, label: '채팅 상단', description: '채팅 리스트 상단 띠', aspectRatio: '4:1' },
+  chat_top:       { width: 600, height: 150, label: '채팅 상단 (레거시)', description: '채팅 리스트 상단 띠 — chat_list 권장', aspectRatio: '4:1' },
+  chat_list:      { width: 600, height: 120, label: '채팅 목록 배너', description: '채팅 목록 검색창 아래 네이티브 배너', aspectRatio: '5:1' },
   profile_banner: { width: 800, height: 300, label: '프로필 배너', description: '프로필 헤더 영역', aspectRatio: '8:3' },
+  funding_top:    { width: 800, height: 200, label: '펀딩 상단', description: '펀딩 페이지 헤더 아래 띠 배너', aspectRatio: '4:1' },
   popup:          { width: 600, height: 800, label: '팝업', description: '모달 팝업 (세로)', aspectRatio: '3:4' },
 }
 

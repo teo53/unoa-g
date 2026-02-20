@@ -9,6 +9,7 @@
  *   asset.list / asset.upload_complete / asset.delete
  *   banner.list / banner.get / banner.create / banner.update
  *   banner.submit_review / banner.publish / banner.rollback / banner.archive
+ *   fan_ad.list / fan_ad.approve / fan_ad.reject
  *   flag.list / flag.get / flag.create / flag.update
  *   flag.publish / flag.rollback
  *   audit.list
@@ -162,13 +163,23 @@ function optionalStringArray(v: unknown, field: string): string[] | undefined {
 // Per-Action Validation Schemas
 // ══════════════════════════════════════════════════
 
-const BANNER_PLACEMENTS = ['home_top', 'home_bottom', 'discover_top', 'chat_top', 'profile_banner', 'popup'] as const
+const BANNER_PLACEMENTS = [
+  'home_top',
+  'home_bottom',
+  'discover_top',
+  'chat_top',
+  'chat_list',
+  'profile_banner',
+  'funding_top',
+  'popup',
+] as const
 const BANNER_LINK_TYPES = ['internal', 'external', 'none'] as const
 const BANNER_STATUSES = ['draft', 'in_review', 'published', 'archived'] as const
+const FAN_AD_STATUSES = ['pending_review', 'approved', 'active', 'completed', 'rejected', 'cancelled'] as const
 const TARGET_AUDIENCES = ['all', 'fans', 'creators', 'vip'] as const
 const FLAG_STATUSES = ['draft', 'published', 'archived'] as const
 const STAFF_ROLES = ['viewer', 'operator', 'publisher', 'admin'] as const
-const AUDIT_ENTITY_TYPES = ['ops_banners', 'ops_feature_flags', 'ops_assets', 'ops_staff'] as const
+const AUDIT_ENTITY_TYPES = ['ops_banners', 'ops_feature_flags', 'ops_assets', 'ops_staff', 'fan_ads'] as const
 const ASSET_MIME_TYPES_PREFIX = 'image/'
 
 // -- Staff --
@@ -361,6 +372,40 @@ function validateAuditList(p: Record<string, unknown>): ValidatedAuditList {
     entity_id: p.entity_id ? requireUUID(p.entity_id, 'entity_id') : undefined,
     limit: optionalInt(p.limit, 'limit', 1, 100),
     offset: optionalInt(p.offset, 'offset', 0, 100000),
+  }
+}
+
+// -- Fan Ads --
+interface ValidatedFanAdList { status?: string; limit?: number; offset?: number }
+function validateFanAdList(p: Record<string, unknown>): ValidatedFanAdList {
+  return {
+    status: p.status ? requireEnum(p.status, [...FAN_AD_STATUSES], 'status') : undefined,
+    limit: optionalInt(p.limit, 'limit', 1, 100),
+    offset: optionalInt(p.offset, 'offset', 0, 100000),
+  }
+}
+
+interface ValidatedFanAdApprove {
+  id: string
+  placement: string
+  priority?: number
+}
+function validateFanAdApprove(p: Record<string, unknown>): ValidatedFanAdApprove {
+  return {
+    id: requireUUID(p.id, 'id'),
+    placement: requireEnum(p.placement, [...BANNER_PLACEMENTS], 'placement'),
+    priority: optionalInt(p.priority, 'priority', 0, 9999),
+  }
+}
+
+interface ValidatedFanAdReject {
+  id: string
+  rejection_reason: string
+}
+function validateFanAdReject(p: Record<string, unknown>): ValidatedFanAdReject {
+  return {
+    id: requireUUID(p.id, 'id'),
+    rejection_reason: requireString(p.rejection_reason, 'rejection_reason', 1, 500).trim(),
   }
 }
 
@@ -828,6 +873,91 @@ async function bannerArchive(
   return data
 }
 
+// fan_ad.list
+async function fanAdList(admin: SupabaseClient, payload: ValidatedFanAdList) {
+  const limit = payload.limit ?? 50
+  const offset = payload.offset ?? 0
+  let query = admin
+    .from('fan_ads')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+
+  if (payload.status) query = query.eq('status', payload.status)
+
+  query = query.range(offset, offset + limit - 1)
+
+  const { data, error, count } = await query
+  if (error) throw error
+  return {
+    items: data ?? [],
+    total: count ?? 0,
+    limit,
+    offset,
+  }
+}
+
+// fan_ad.approve (ATOMIC via PL/pgSQL RPC)
+async function fanAdApprove(
+  admin: SupabaseClient,
+  userId: string,
+  userRole: string,
+  payload: ValidatedFanAdApprove
+) {
+  const { data, error } = await admin.rpc('approve_fan_ad_atomic', {
+    p_fan_ad_id: payload.id,
+    p_placement: payload.placement,
+    p_priority: payload.priority ?? 0,
+    p_actor_id: userId,
+    p_actor_role: userRole,
+  })
+
+  if (error) {
+    if (error.message.includes('fan_ad_not_found')) {
+      throw Object.assign(new Error('팬 광고를 찾을 수 없습니다.'), { statusCode: 404 })
+    }
+    if (error.message.includes('invalid_status')) {
+      throw Object.assign(new Error('현재 상태에서는 승인할 수 없습니다.'), { statusCode: 400 })
+    }
+    if (error.message.includes('invalid_placement')) {
+      throw Object.assign(new Error('유효하지 않은 placement 값입니다.'), { statusCode: 400 })
+    }
+    if (error.message.includes('payment_not_paid')) {
+      throw Object.assign(new Error('결제 완료된 광고만 승인할 수 있습니다.'), { statusCode: 400 })
+    }
+    throw error
+  }
+  return data
+}
+
+// fan_ad.reject (ATOMIC via PL/pgSQL RPC)
+async function fanAdReject(
+  admin: SupabaseClient,
+  userId: string,
+  userRole: string,
+  payload: ValidatedFanAdReject
+) {
+  const { data, error } = await admin.rpc('reject_fan_ad_atomic', {
+    p_fan_ad_id: payload.id,
+    p_rejection_reason: payload.rejection_reason,
+    p_actor_id: userId,
+    p_actor_role: userRole,
+  })
+
+  if (error) {
+    if (error.message.includes('fan_ad_not_found')) {
+      throw Object.assign(new Error('팬 광고를 찾을 수 없습니다.'), { statusCode: 404 })
+    }
+    if (error.message.includes('invalid_status')) {
+      throw Object.assign(new Error('현재 상태에서는 거절할 수 없습니다.'), { statusCode: 400 })
+    }
+    if (error.message.includes('invalid_rejection_reason')) {
+      throw Object.assign(new Error('거절 사유를 확인해주세요.'), { statusCode: 400 })
+    }
+    throw error
+  }
+  return data
+}
+
 // flag.list
 async function flagList(admin: SupabaseClient, payload: ValidatedFlagList) {
   let query = admin
@@ -1020,6 +1150,10 @@ const ACTION_MIN_ROLES: Record<string, string> = {
   'banner.publish': 'publisher',
   'banner.rollback': 'publisher',
   'banner.archive': 'publisher',
+  // Fan ads
+  'fan_ad.list': 'viewer',
+  'fan_ad.approve': 'operator',
+  'fan_ad.reject': 'operator',
   // Feature flags
   'flag.list': 'viewer',
   'flag.get': 'viewer',
@@ -1185,6 +1319,23 @@ serve(async (req) => {
       case 'banner.archive': {
         const v = validateBannerIdOnly(payload)
         result = await bannerArchive(admin, user.id, userRole!, v)
+        break
+      }
+
+      // Fan Ads
+      case 'fan_ad.list': {
+        const v = validateFanAdList(payload)
+        result = await fanAdList(admin, v)
+        break
+      }
+      case 'fan_ad.approve': {
+        const v = validateFanAdApprove(payload)
+        result = await fanAdApprove(admin, user.id, userRole!, v)
+        break
+      }
+      case 'fan_ad.reject': {
+        const v = validateFanAdReject(payload)
+        result = await fanAdReject(admin, user.id, userRole!, v)
         break
       }
 

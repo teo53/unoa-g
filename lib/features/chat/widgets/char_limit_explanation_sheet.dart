@@ -23,7 +23,7 @@ class CharLimitExplanationSheet {
     // Next milestone
     final next = milestones
         .where((m) => m.limit > currentLimit)
-        .fold<(int days, int limit)?>(null, (prev, m) {
+        .fold<({int days, int limit})?>(null, (prev, m) {
       if (prev == null) return m;
       return m.days < prev.days ? m : prev;
     });

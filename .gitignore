@@ -77,6 +77,9 @@ crawl-summary*.json
 **/secrets/
 **/secrets.*
 
+# Sentry CLI auth (contains token)
+.sentryclirc
+
 # Claude Code local settings
 .claude/local/
 

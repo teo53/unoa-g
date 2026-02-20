@@ -1,9 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../config/app_config.dart';
+
 /// Sentry 모니터링 서비스
 ///
-/// 에러 추적, 성능 모니터링, 사용자 피드백을 위한 중앙 서비스
+/// 에러 추적, 성능 모니터링, 사용자 피드백을 위한 중앙 서비스.
+/// 소스맵 매핑을 위해 릴리스 버전을 `sentry-cli`와 동일하게 설정해야 합니다.
+///
+/// ```bash
+/// # 빌드 후 소스맵 업로드
+/// .\scripts\sentry-release.ps1
+/// ```
 class SentryService {
   SentryService._();
 
@@ -20,6 +28,14 @@ class SentryService {
         'ENV',
         defaultValue: 'development',
       );
+
+  /// 릴리스 버전 (sentry-cli 업로드와 일치해야 소스맵 매핑됨)
+  /// 빌드 시 --dart-define=SENTRY_RELEASE=... 로 오버라이드 가능
+  static String get _release {
+    const override = String.fromEnvironment('SENTRY_RELEASE', defaultValue: '');
+    if (override.isNotEmpty) return override;
+    return 'uno-a-flutter@${AppConfig.appVersion}+${AppConfig.buildNumber}';
+  }
 
   /// Sentry 초기화
   /// 프로덕션 환경에서는 DSN이 반드시 설정되어야 합니다.
@@ -45,6 +61,8 @@ class SentryService {
         (options) {
           options.dsn = dsn;
           options.environment = _environment;
+          options.release = _release;
+          options.dist = AppConfig.buildNumber;
 
           // 성능 모니터링 설정
           options.tracesSampleRate = _environment == 'production' ? 0.2 : 1.0;

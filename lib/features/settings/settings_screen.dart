@@ -378,6 +378,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         subtitle: '마케팅 수신 동의 변경 기록',
                         onTap: () => context.push('/settings/consent-history'),
                       ),
+                      _SettingsItem(
+                        icon: Icons.block_outlined,
+                        title: '차단 관리',
+                        subtitle: '차단한 사용자 목록',
+                        onTap: () => context.push('/settings/blocked-users'),
+                      ),
                     ],
                   ),
 

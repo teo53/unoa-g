@@ -14,6 +14,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
+const DT_PURCHASE_ENABLED = (Deno.env.get('DT_PURCHASE_ENABLED') ?? '').toLowerCase() === 'true'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -52,6 +53,28 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Missing required fields: paymentKey, orderId, amount' }),
         { status: 400, headers: { ...corsHeaders, ...jsonHeaders } }
+      )
+    }
+
+    if (!DT_PURCHASE_ENABLED) {
+      return new Response(
+        JSON.stringify({
+          error: 'Payments are disabled',
+          errorCode: 'PAYMENTS_DISABLED',
+        }),
+        { status: 503, headers: { ...corsHeaders, ...jsonHeaders } }
+      )
+    }
+
+    const tossSecretKey = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') ?? ''
+    if (!tossSecretKey) {
+      console.error('[Confirm] TOSSPAYMENTS_SECRET_KEY not configured')
+      return new Response(
+        JSON.stringify({
+          error: 'Payment provider not configured',
+          errorCode: 'PAYMENT_PROVIDER_NOT_READY',
+        }),
+        { status: 503, headers: { ...corsHeaders, ...jsonHeaders } }
       )
     }
 
@@ -111,20 +134,6 @@ serve(async (req) => {
     }
 
     // --- Call TossPayments Confirm API ---
-    const tossSecretKey = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') ?? ''
-    if (!tossSecretKey) {
-      console.error('[Confirm] TOSSPAYMENTS_SECRET_KEY not configured')
-      await supabase
-        .from('dt_purchases')
-        .update({ status: 'failed' })
-        .eq('id', orderId)
-
-      return new Response(
-        JSON.stringify({ error: 'Payment provider not configured' }),
-        { status: 503, headers: { ...corsHeaders, ...jsonHeaders } }
-      )
-    }
-
     const tossAuth = btoa(`${tossSecretKey}:`)
     const confirmRes = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
       method: 'POST',

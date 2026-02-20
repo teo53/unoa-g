@@ -12,10 +12,15 @@ import type {
   OpsStaff,
   OpsAsset,
   OpsBanner,
+  FanAdListResult,
   OpsFeatureFlag,
   OpsAuditEntry,
   PaginatedResult,
   BannerFormData,
+  BannerPlacement,
+  FanAdStatus,
+  FanAdApproveResult,
+  FanAdRejectResult,
   FlagFormData,
   OpsDashboardStats,
 } from './ops-types'
@@ -356,6 +361,56 @@ export async function archiveBanner(
   return callOpsManage<OpsBanner>('banner.archive', {
     id,
     expected_version: expectedVersion,
+  })
+}
+
+// Fan Ads
+export async function listFanAds(
+  filters: { status?: FanAdStatus; limit?: number; offset?: number } = {}
+): Promise<FanAdListResult> {
+  if (DEMO_MODE) {
+    return {
+      items: [],
+      total: 0,
+      limit: filters.limit ?? 50,
+      offset: filters.offset ?? 0,
+    }
+  }
+  return callOpsManage<FanAdListResult>('fan_ad.list', filters)
+}
+
+export async function approveFanAd(
+  id: string,
+  placement: BannerPlacement = 'home_top',
+  priority?: number
+): Promise<FanAdApproveResult> {
+  if (DEMO_MODE) {
+    return {
+      fan_ad_id: id,
+      ops_banner_id: `demo-fan-ad-banner-${Date.now()}`,
+      status: 'approved',
+    }
+  }
+  return callOpsManage<FanAdApproveResult>('fan_ad.approve', {
+    id,
+    placement,
+    priority,
+  })
+}
+
+export async function rejectFanAd(
+  id: string,
+  rejectionReason: string
+): Promise<FanAdRejectResult> {
+  if (DEMO_MODE) {
+    return {
+      fan_ad_id: id,
+      status: 'rejected',
+    }
+  }
+  return callOpsManage<FanAdRejectResult>('fan_ad.reject', {
+    id,
+    rejection_reason: rejectionReason,
   })
 }
 
