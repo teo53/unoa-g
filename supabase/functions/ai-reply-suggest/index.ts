@@ -12,6 +12,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { maskPII } from '../_shared/pii_mask.ts'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
+import { emitMwEvent, emitSlowRequest } from '../_shared/mw_metrics.ts'
+import { maskUserId } from '../_shared/logger.ts'
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
 
@@ -77,6 +79,12 @@ serve(async (req) => {
       windowSeconds: 86400, // 24 hours
     })
     if (!rlResult.allowed) {
+      emitMwEvent(rateLimitAdmin, {
+        fnName: 'ai-reply-suggest',
+        eventType: 'rate_limited',
+        statusCode: 429,
+        userHash: maskUserId(user.id),
+      })
       return new Response(
         JSON.stringify({ error: 'Rate limit exceeded (50/day)' }),
         { status: 429, headers: { ...getCorsHeaders(req), ...jsonHeaders, ...rateLimitHeaders(rlResult) } }
@@ -317,6 +325,8 @@ serve(async (req) => {
         completed_at: new Date().toISOString(),
       }).eq('id', jobId)
     }
+
+    emitSlowRequest(rateLimitAdmin, 'ai-reply-suggest', latencyMs, maskUserId(user.id))
 
     return new Response(
       JSON.stringify({

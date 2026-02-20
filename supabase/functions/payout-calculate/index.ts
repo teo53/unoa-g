@@ -278,6 +278,15 @@ serve(async (req) => {
           .single()
 
         if (payoutError) {
+          // P0-05: Handle race condition — another instance already created this payout
+          if (payoutError.code === '23505' &&
+              (payoutError.message?.includes('idx_payouts_unique_period') ||
+               payoutError.message?.includes('creator_id'))) {
+            console.log(`Payout already created by concurrent process for creator ${creator.user_id}, skipping`)
+            results.skipped++
+            continue
+          }
+
           console.error(`Failed to create payout for ${creator.user_id}:`, payoutError)
           results.errors++
           continue

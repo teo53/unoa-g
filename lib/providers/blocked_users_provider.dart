@@ -36,6 +36,17 @@ final blockedUsersProvider = FutureProvider<List<BlockedUser>>((ref) async {
 
 /// 사용자 차단 해제
 Future<bool> unblockUser(WidgetRef ref, String blockedId) async {
+  final authState = ref.read(authProvider);
+
+  // 데모 모드: 로컬 목록만 갱신
+  if (authState is AuthDemoMode) {
+    ref.invalidate(blockedUsersProvider);
+    return true;
+  }
+
+  // 미인증 가드
+  if (authState is! AuthAuthenticated) return false;
+
   try {
     // RPC 호출: unblock_user()
     await SupabaseConfig.client.rpc('unblock_user', params: {

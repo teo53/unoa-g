@@ -39,7 +39,7 @@ class WalletScreen extends ConsumerWidget {
                 ),
                 const Expanded(
                   child: Text(
-                    'Wallet',
+                    '지갑',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,

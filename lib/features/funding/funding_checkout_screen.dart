@@ -56,9 +56,9 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
   void initState() {
     super.initState();
     _termsRecognizer = TapGestureRecognizer()
-      ..onTap = () => context.push('/terms');
+      ..onTap = () => context.push('/settings/funding-terms');
     _refundRecognizer = TapGestureRecognizer()
-      ..onTap = () => context.push('/refund-policy');
+      ..onTap = () => context.push('/settings/refund-policy');
   }
 
   @override

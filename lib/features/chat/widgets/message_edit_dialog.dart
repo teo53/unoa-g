@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/broadcast_message.dart';
 
@@ -104,7 +105,7 @@ class _MessageEditDialogState extends State<MessageEditDialog> {
     try {
       await widget.onEdit(_controller.text.trim());
       if (mounted) {
-        Navigator.pop(context, true);
+        context.pop(true);
       }
     } catch (e) {
       if (mounted) {
@@ -275,7 +276,7 @@ class _MessageEditDialogState extends State<MessageEditDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context, false),
+          onPressed: _isLoading ? null : () => context.pop(false),
           child: const Text('취소'),
         ),
         TextButton(

@@ -199,7 +199,7 @@ class SubscriptionsScreen extends ConsumerWidget {
               title: '구독 등급 변경',
               subtitle: '더 많은 혜택을 누려보세요',
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 TierComparisonSheet.show(
                   context,
                   platform: platform,
@@ -213,7 +213,7 @@ class SubscriptionsScreen extends ConsumerWidget {
               title: '자동 갱신 설정',
               subtitle: '현재: 켜짐',
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 _showAutoRenewDialog(context, subscription);
               },
             ),
@@ -223,7 +223,7 @@ class SubscriptionsScreen extends ConsumerWidget {
               subtitle: '다음 결제일까지 이용 가능',
               isDestructive: true,
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -233,12 +233,12 @@ class SubscriptionsScreen extends ConsumerWidget {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => context.pop(),
                         child: const Text('취소'),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          context.pop();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('구독 해지 기능 준비 중')),
                           );

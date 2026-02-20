@@ -96,11 +96,11 @@ class FaqAnswerSheet {
   }
 
   static Map<String, String> get _answers {
-    final tokensBase = BusinessConfig.defaultReplyTokens;
+    const tokensBase = BusinessConfig.defaultReplyTokens;
     final tokensStandard = BusinessConfig.getTokensForTier('STANDARD');
     final tokensVip = BusinessConfig.getTokensForTier('VIP');
-    final refundDays = BusinessConfig.dtRefundWindowDays;
-    final expiryYears = BusinessConfig.dtExpiryYears;
+    const refundDays = BusinessConfig.dtRefundWindowDays;
+    const expiryYears = BusinessConfig.dtExpiryYears;
 
     return {
       // DT
@@ -108,10 +108,10 @@ class FaqAnswerSheet {
           '결제 완료 후 DT 잔액이 반영되며, DT는 아티스트 후원 및 일부 유료 기능에 사용됩니다.\n\n'
           '※ 표시된 금액은 VAT(부가가치세)가 포함된 금액입니다.',
       'DT 환불이 가능한가요?':
-          '결제 완료 후 ${refundDays}일 이내이며, 사용하지 않은 DT에 한해 환불이 가능합니다.\n\n'
+          '결제 완료 후 $refundDays일 이내이며, 사용하지 않은 DT에 한해 환불이 가능합니다.\n\n'
               '환불은 결제 수단/승인 상태에 따라 처리 시간이 달라질 수 있습니다.\n'
               '도움이 필요하면 고객센터로 문의해 주세요.',
-      'DT 유효기간이 있나요?': '네. DT는 결제(또는 지급) 후 최대 ${expiryYears}년까지 사용할 수 있으며, '
+      'DT 유효기간이 있나요?': '네. DT는 결제(또는 지급) 후 최대 $expiryYears년까지 사용할 수 있으며, '
           '유효기간이 지난 미사용 DT는 만료될 수 있습니다.\n\n'
           '유효기간 및 만료 정책은 서비스 운영 정책에 따라 변경될 수 있습니다.',
 
@@ -130,8 +130,8 @@ class FaqAnswerSheet {
       // Messaging
       '메시지는 어떻게 보내나요?':
           '아티스트의 브로드캐스트 메시지를 확인한 뒤, 답글 토큰을 사용해 메시지를 보낼 수 있습니다.\n\n'
-              '기본으로 브로드캐스트당 토큰 ${tokensBase}개가 제공되며, '
-              'STANDARD는 ${tokensStandard}개, VIP는 ${tokensVip}개로 더 많이 제공됩니다.',
+              '기본으로 브로드캐스트당 토큰 $tokensBase개가 제공되며, '
+              'STANDARD는 $tokensStandard개, VIP는 $tokensVip개로 더 많이 제공됩니다.',
       '아티스트 답장은 언제 오나요?':
           '아티스트의 일정과 운영 방식에 따라 답장 시점은 달라질 수 있으며, 모든 메시지에 답장이 보장되지는 않습니다.\n\n'
               '답글이 늦어질 경우 알림을 확인하고, 필요하면 다시 메시지를 남겨 주세요.',

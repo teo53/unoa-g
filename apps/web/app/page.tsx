@@ -1,825 +1,476 @@
+'use client'
+
 import Link from 'next/link'
-import { PageLayout } from '@/components/shared/page-layout'
-import { StatsCounter } from '@/components/shared/stats-counter'
-import { ROUTES } from '@/lib/constants/routes'
-import { mockCampaigns, mockCreators } from '@/lib/mock/demo-data'
-import { formatFundingAmount, formatPercent, formatDaysLeft } from '@/lib/utils/format'
+import { PhoneMockup } from '@/components/landing/phone-mockup'
+import { AnimatedCounter } from '@/components/landing/animated-counter'
+import { FeatureCard } from '@/components/landing/feature-card'
+import { ScrollReveal } from '@/components/landing/scroll-reveal'
+import {
+  MessageCircle,
+  Heart,
+  CreditCard,
+  Vote,
+  Cake,
+  Sparkles,
+  ChevronDown,
+  Download,
+  ArrowRight,
+} from 'lucide-react'
 
 export default function HomePage() {
-  const featured = mockCampaigns
-    .filter((c) => c.status === 'active')
-    .sort((a, b) => (b.current_amount_dt / b.goal_amount_dt) - (a.current_amount_dt / a.goal_amount_dt))
-    .slice(0, 3)
-
-  const totalFunding = mockCampaigns.reduce((sum, c) => sum + c.current_amount_dt, 0)
-  const totalBackers = mockCampaigns.reduce((sum, c) => sum + c.backer_count, 0)
-  const activeCampaignCount = mockCampaigns.filter((c) => c.status === 'active').length
-
   return (
-    <PageLayout variant="public" maxWidth="full" contentClassName="!px-0 !py-0">
+    <div className="min-h-screen bg-white overflow-hidden">
+      {/* ============================================
+          HEADER - Sticky transparent nav
+          ============================================ */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100/50">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold text-primary-500 tracking-tight">
+            UNO A
+          </Link>
+          <nav className="flex items-center gap-3">
+            <Link
+              href="/funding"
+              className="hidden sm:inline-flex text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium"
+            >
+              펀딩
+            </Link>
+            <Link
+              href="/studio"
+              className="px-5 py-2 bg-primary-500 text-white rounded-full text-sm font-semibold hover:bg-primary-600 transition-all hover:shadow-lg hover:shadow-primary-500/25"
+            >
+              시작하기
+            </Link>
+          </nav>
+        </div>
+      </header>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 1. HERO — 가치 제안을 5초 안에 전달                   */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="relative overflow-hidden flex items-center min-h-[92vh] px-4 py-24 sm:py-32"
-        style={{ background: 'linear-gradient(160deg, #0A0A0F 0%, #0D080E 45%, #0A0A0F 100%)' }}
-      >
-        {/* Background glow orbs */}
-        <div
-          className="hero-orb absolute pointer-events-none"
-          style={{
-            width: 800,
-            height: 800,
-            top: '-10%',
-            left: '40%',
-            background: 'radial-gradient(ellipse, rgba(255,59,48,0.11) 0%, transparent 65%)',
-          }}
-        />
-        <div
-          className="hero-orb absolute pointer-events-none"
-          style={{
-            width: 350,
-            height: 350,
-            bottom: '10%',
-            left: '15%',
-            background: 'radial-gradient(ellipse, rgba(255,59,48,0.05) 0%, transparent 70%)',
-          }}
-        />
+      {/* ============================================
+          SECTION 1: HERO - Full viewport
+          ============================================ */}
+      <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-pink-50 to-purple-50 animate-gradient" />
 
-        <div className="relative mx-auto max-w-content w-full">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+        {/* Floating decorative elements */}
+        <div className="absolute top-32 left-[10%] w-72 h-72 bg-primary-500/5 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-32 right-[10%] w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-float-slow" />
+        <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-primary-500/20 rounded-full animate-float" />
+        <div className="absolute top-1/3 right-1/3 w-3 h-3 bg-pink-400/30 rounded-full animate-float-slow" />
 
-            {/* Left: Core value proposition */}
-            <div className="hero-text-enter">
-              {/* Platform category badge */}
-              <div
-                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-8 text-sm font-medium"
-                style={{
-                  background: 'rgba(255, 59, 48, 0.08)',
-                  border: '1px solid rgba(255, 59, 48, 0.2)',
-                  color: '#FF3B30',
-                }}
-              >
-                <span className="relative flex h-2 w-2">
-                  <span
-                    className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                    style={{ background: '#FF3B30' }}
-                  />
-                  <span
-                    className="relative inline-flex rounded-full h-2 w-2"
-                    style={{ background: '#FF3B30' }}
-                  />
-                </span>
-                아티스트 구독 메시지 & 크라우드펀딩
-              </div>
-
-              {/* Headline — clear what UNO A is, no 1:1 illusion */}
-              <h1
-                className="text-5xl sm:text-6xl xl:text-[4rem] font-bold leading-[1.07] tracking-tight"
-                style={{ color: '#FFFFFF' }}
-              >
-                아티스트의
-                <br />
-                <span style={{ color: '#FF3B30' }}>프라이빗 메시지</span>를
-                <br />
-                구독자만 받으세요
-              </h1>
-
-              {/* Value sub-copy — accurate: broadcast to subscribers, not 1:1 */}
-              <p
-                className="mt-7 text-lg leading-relaxed max-w-[440px]"
-                style={{ color: '#8B8B9B' }}
-              >
-                아티스트가 구독자에게 직접 보내는 소식을
-                나만의 피드에서 받아보세요. 크라우드펀딩으로
-                아티스트의 새 프로젝트를 함께 만들어가세요.
-              </p>
-
-              {/* Primary CTAs */}
-              <div className="mt-10 flex flex-wrap gap-4">
-                <Link
-                  href={ROUTES.pricing}
-                  className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{
-                    background: '#FF3B30',
-                    boxShadow: '0 0 28px rgba(255, 59, 48, 0.38)',
-                  }}
-                >
-                  구독 시작하기
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </Link>
-                <Link
-                  href={ROUTES.funding}
-                  className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(255, 255, 255, 0.14)',
-                    color: '#FFFFFF',
-                  }}
-                >
-                  펀딩 둘러보기
-                </Link>
-              </div>
-
-              {/* Social proof strip */}
-              <div className="mt-8 flex items-center gap-6">
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold" style={{ color: '#FFFFFF' }}>
-                    {activeCampaignCount}+
-                  </span>
-                  <span className="text-xs" style={{ color: '#6B6B7B' }}>진행 중 캠페인</span>
-                </div>
-                <div className="w-px h-8" style={{ background: 'rgba(255,255,255,0.1)' }} />
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold" style={{ color: '#FFFFFF' }}>
-                    {totalBackers.toLocaleString('ko-KR')}명
-                  </span>
-                  <span className="text-xs" style={{ color: '#6B6B7B' }}>누적 참여자</span>
-                </div>
-                <div className="w-px h-8" style={{ background: 'rgba(255,255,255,0.1)' }} />
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold" style={{ color: '#FFFFFF' }}>3개
-                  </span>
-                  <span className="text-xs" style={{ color: '#6B6B7B' }}>구독 티어</span>
-                </div>
-              </div>
+        <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+          {/* Left: Text content */}
+          <div className="flex-1 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur rounded-full border border-primary-100 text-primary-600 text-sm font-medium mb-6">
+              <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
+              K-POP 아티스트 메시지 플랫폼
             </div>
-
-            {/* Right: App experience preview */}
-            <div className="hero-visual-enter hidden lg:flex flex-col gap-4 relative">
-
-              {/* Simulated chat conversation UI */}
-              <div
-                className="floating-card rounded-2xl overflow-hidden"
-                style={{
-                  background: '#141418',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: '0 28px 70px rgba(0,0,0,0.55)',
-                }}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+              아티스트와 팬,
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-pink-500">
+                가장 가까운 거리
+              </span>
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-500 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+              프라이빗 메시지로 아티스트와 1:1 소통하고,
+              <br className="hidden sm:block" />
+              펀딩으로 특별한 프로젝트를 함께 만들어요.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Link
+                href="/funding"
+                className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary-500 text-white rounded-full text-lg font-semibold hover:bg-primary-600 transition-all hover:shadow-xl hover:shadow-primary-500/30 hover:-translate-y-0.5"
               >
-                {/* Feed header */}
-                <div
-                  className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                >
-                  <div
-                    className="h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold"
-                    style={{ background: 'rgba(255,59,48,0.18)', color: '#FF3B30' }}
-                  >
-                    A
+                앱 다운로드
+                <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
+              </Link>
+              <Link
+                href="/funding"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/80 backdrop-blur text-gray-700 rounded-full text-lg font-semibold border-2 border-gray-200 hover:border-primary-300 hover:text-primary-600 transition-all"
+              >
+                펀딩 둘러보기
+              </Link>
+            </div>
+          </div>
+
+          {/* Right: Phone mockup */}
+          <div className="flex-shrink-0 animate-float-slow">
+            <div className="animate-glow-pulse rounded-[48px]">
+              <PhoneMockup variant="fan" />
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-400">
+          <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
+          <ChevronDown className="w-5 h-5 animate-bounce-subtle" />
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 2: MESSAGING SHOWCASE
+          ============================================ */}
+      <section className="py-24 sm:py-32 px-4 bg-white">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+          {/* Left: Text */}
+          <ScrollReveal direction="left" className="flex-1">
+            <div className="max-w-lg">
+              <span className="inline-block px-3 py-1 bg-primary-50 text-primary-600 text-xs font-bold tracking-wide uppercase rounded-full mb-4">
+                Messaging
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
+                1:1 프라이빗 메시지
+                <br />
+                <span className="text-primary-500">나만의 대화</span>
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <MessageCircle className="w-4 h-4 text-primary-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold" style={{ color: '#F0F0F0' }}>하늘달</p>
-                    <p className="text-xs" style={{ color: '#6B6B7B' }}>구독자 전용 메시지 피드</p>
-                  </div>
-                  <div className="ml-auto flex items-center gap-1.5">
-                    <span
-                      className="text-xs px-2 py-0.5 rounded-full font-medium"
-                      style={{ background: 'rgba(139,92,246,0.15)', color: '#8B5CF6' }}
-                    >
-                      VIP
-                    </span>
+                    <h4 className="font-semibold text-gray-900 mb-1">아티스트의 진심 담긴 메시지</h4>
+                    <p className="text-sm text-gray-500">아티스트가 보내는 일상, 셀카, 비하인드를 가장 먼저 받아보세요</p>
                   </div>
                 </div>
-
-                {/* Feed messages */}
-                <div className="px-4 py-4 space-y-3">
-                  {/* Artist broadcast message */}
-                  <div className="flex gap-2.5">
-                    <div
-                      className="h-7 w-7 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
-                      style={{ background: 'rgba(255,59,48,0.15)', color: '#FF3B30' }}
-                    >
-                      A
-                    </div>
-                    <div
-                      className="rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[75%]"
-                      style={{ background: '#1E1E28' }}
-                    >
-                      <p className="text-sm" style={{ color: '#E5E5E5' }}>
-                        오늘 녹음 끝났어요 여러분 🎵
-                        들려드리고 싶은 곡이 생겼는데...
-                      </p>
-                      <p className="text-xs mt-1" style={{ color: '#4B4B5B' }}>오전 11:32 · 구독자 전체</p>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Heart className="w-4 h-4 text-pink-500" />
                   </div>
-
-                  {/* Fan reply (token-based, to artist's message) */}
-                  <div className="flex gap-2.5 justify-end">
-                    <div
-                      className="rounded-2xl rounded-tr-sm px-3.5 py-2.5 max-w-[70%]"
-                      style={{ background: 'rgba(255,59,48,0.16)' }}
-                    >
-                      <p className="text-sm" style={{ color: '#F0F0F0' }}>
-                        빨리 듣고 싶어요!! 💕
-                      </p>
-                      <p className="text-xs mt-1 text-right" style={{ color: '#8B3B30' }}>내 답장 · 토큰 사용</p>
-                    </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">답장 토큰으로 직접 소통</h4>
+                    <p className="text-sm text-gray-500">구독 티어에 따른 답장 토큰으로 아티스트에게 마음을 전하세요</p>
                   </div>
-
-                  {/* Token indicator */}
-                  <div className="flex justify-center">
-                    <span
-                      className="text-xs px-3 py-1 rounded-full"
-                      style={{
-                        background: 'rgba(255,255,255,0.04)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        color: '#6B6B7B',
-                      }}
-                    >
-                      이번 달 답장 2회 남음
-                    </span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="w-4 h-4 text-purple-500" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">이모지 리액션 & 프리미엄</h4>
+                    <p className="text-sm text-gray-500">VIP 전용 이모지, 구독 기간별 글자 수 확장 등 특별한 혜택</p>
                   </div>
                 </div>
               </div>
-
-              {/* Funding campaign mini-card */}
-              {featured[0] && (() => {
-                const pct = formatPercent(featured[0].current_amount_dt, featured[0].goal_amount_dt)
-                return (
-                  <div
-                    className="floating-card-delay rounded-2xl p-4 ml-8"
-                    style={{
-                      background: '#141418',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                      boxShadow: '0 16px 48px rgba(0,0,0,0.4)',
-                    }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0"
-                        style={{ background: '#1E1E28' }}
-                      >
-                        {featured[0].cover_image_url && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={featured[0].cover_image_url}
-                            alt={featured[0].title}
-                            className="h-full w-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium mb-1" style={{ color: '#6B6B7B' }}>
-                          🎯 펀딩 진행 중
-                        </p>
-                        <p className="text-sm font-semibold line-clamp-1" style={{ color: '#E5E5E5' }}>
-                          {featured[0].title}
-                        </p>
-                        <div className="mt-2">
-                          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                            <div
-                              className="h-full rounded-full"
-                              style={{
-                                width: `${Math.min(pct, 100)}%`,
-                                background: 'linear-gradient(90deg, #FF3B30, #FF6030)',
-                              }}
-                            />
-                          </div>
-                          <p className="text-xs mt-1" style={{ color: '#FF3B30' }}>
-                            {pct}% 달성 · {featured[0].backer_count}명 참여
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })()}
             </div>
-          </div>
+          </ScrollReveal>
+
+          {/* Right: Phone */}
+          <ScrollReveal direction="right" className="flex-shrink-0">
+            <PhoneMockup variant="fan" />
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 2. PLATFORM FEATURES — UNO A가 뭔지 명확히 설명      */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="px-4 py-24"
-        style={{
-          background: '#0F0F14',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <div className="mx-auto max-w-content">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#FF3B30' }}>
-              Platform
-            </span>
-            <h2 className="text-3xl font-bold mt-2" style={{ color: '#FFFFFF' }}>
-              UNO A에서 할 수 있는 것들
-            </h2>
-            <p className="mt-3 text-base max-w-xl mx-auto leading-relaxed" style={{ color: '#6B6B7B' }}>
-              단순한 SNS가 아닙니다. 구독자만 받는 아티스트의 메시지와
-              크라우드펀딩을 하나의 플랫폼에서 경험하세요.
-            </p>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-3">
-            {/* Feature 1: Chat */}
-            <div
-              className="rounded-2xl p-8 group"
-              style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
-            >
-              <div
-                className="h-12 w-12 rounded-2xl flex items-center justify-center mb-6"
-                style={{ background: 'rgba(255,59,48,0.12)', color: '#FF3B30' }}
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: '#FFFFFF' }}>
-                구독자 전용 메시지
-              </h3>
-              <p className="text-sm leading-relaxed mb-4" style={{ color: '#6B6B7B' }}>
-                아티스트가 구독자에게 직접 보내는 프라이빗 메시지.
-                나만의 피드에서 일상·비하인드를 독점 수신하세요.
-              </p>
-              <ul className="space-y-2">
-                {['구독자만 받는 아티스트 소식', '아티스트에게 직접 답장', 'VIP 전용 콘텐츠'].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-xs" style={{ color: '#8B8B9B' }}>
-                    <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ color: '#FF3B30' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Feature 2: Funding */}
-            <div
-              className="rounded-2xl p-8"
-              style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
-            >
-              <div
-                className="h-12 w-12 rounded-2xl flex items-center justify-center mb-6"
-                style={{ background: 'rgba(139,92,246,0.12)', color: '#8B5CF6' }}
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: '#FFFFFF' }}>
-                크라우드펀딩
-              </h3>
-              <p className="text-sm leading-relaxed mb-4" style={{ color: '#6B6B7B' }}>
-                아티스트의 새 앨범, 굿즈, 콘서트 프로젝트를 직접 후원하고
-                후원자만의 독점 리워드를 받으세요.
-              </p>
-              <ul className="space-y-2">
-                {['독점 리워드 수령', '목표 달성 시 정산', '7일 환불 보장'].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-xs" style={{ color: '#8B8B9B' }}>
-                    <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ color: '#8B5CF6' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Feature 3: Membership */}
-            <div
-              className="rounded-2xl p-8"
-              style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
-            >
-              <div
-                className="h-12 w-12 rounded-2xl flex items-center justify-center mb-6"
-                style={{ background: 'rgba(37,99,235,0.12)', color: '#2563EB' }}
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold mb-2" style={{ color: '#FFFFFF' }}>
-                멤버십 구독
-              </h3>
-              <p className="text-sm leading-relaxed mb-4" style={{ color: '#6B6B7B' }}>
-                BASIC부터 VIP까지 — 구독 티어에 따라 더 많은
-                답장 토큰과 특별한 혜택을 누리세요.
-              </p>
-              <div className="flex gap-2">
-                {[
-                  { label: 'BASIC', color: '#6B7280', bg: 'rgba(107,114,128,0.12)' },
-                  { label: 'STD', color: '#3B82F6', bg: 'rgba(59,130,246,0.12)' },
-                  { label: 'VIP', color: '#8B5CF6', bg: 'rgba(139,92,246,0.15)' },
-                ].map((tier) => (
-                  <span
-                    key={tier.label}
-                    className="text-xs font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: tier.bg, color: tier.color }}
-                  >
-                    {tier.label}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 3. STATS                                             */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="px-4 py-14"
-        style={{
-          background: '#0A0A0F',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <div className="mx-auto max-w-content">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <div className="py-10 px-10 text-center" style={{ background: '#0A0A0F' }}>
-              <StatsCounter value={totalFunding} suffix="원" label="누적 펀딩 금액" className="dark-stats" />
-            </div>
-            <div className="py-10 px-10 text-center" style={{ background: '#0A0A0F' }}>
-              <StatsCounter value={totalBackers} suffix="명" label="팬 참여자 수" className="dark-stats" />
-            </div>
-            <div className="py-10 px-10 text-center" style={{ background: '#0A0A0F' }}>
-              <StatsCounter value={activeCampaignCount} suffix="개" label="진행 중 캠페인" className="dark-stats" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 4. FEATURED CAMPAIGNS                                */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="px-4 py-20"
-        style={{
-          background: '#0F0F14',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <div className="mx-auto max-w-content">
-          <div className="mb-12 flex items-end justify-between">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#FF3B30' }}>
-                Live Now
-              </span>
-              <h2 className="text-3xl font-bold mt-1.5" style={{ color: '#FFFFFF' }}>
-                지금 진행 중인 캠페인
-              </h2>
-              <p className="mt-1 text-sm" style={{ color: '#6B6B7B' }}>
-                아티스트의 새 프로젝트를 가장 먼저 후원하세요
-              </p>
-            </div>
-            <Link
-              href={ROUTES.funding}
-              className="text-sm font-medium transition-opacity hover:opacity-70"
-              style={{ color: '#FF3B30' }}
-            >
-              전체 보기 →
-            </Link>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((campaign) => {
-              const creator = mockCreators[campaign.creator_id]
-              const percent = formatPercent(campaign.current_amount_dt, campaign.goal_amount_dt)
-
-              return (
-                <Link
-                  key={campaign.id}
-                  href={ROUTES.campaign(campaign.slug)}
-                  className="campaign-card group rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
-                  style={{
-                    background: '#141418',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                  }}
+      {/* ============================================
+          SECTION 3: FUNDING SHOWCASE
+          ============================================ */}
+      <section className="py-24 sm:py-32 px-4 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-6xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-16 lg:gap-24">
+          {/* Left: Campaign cards */}
+          <ScrollReveal direction="left" className="flex-shrink-0">
+            <div className="grid grid-cols-2 gap-4 max-w-sm">
+              {[
+                { title: '1st 앨범 프로젝트', progress: 87, amount: '4,350만', daysLeft: 12 },
+                { title: '팬미팅 in 서울', progress: 62, amount: '1,860만', daysLeft: 24 },
+                { title: '포토북 제작', progress: 95, amount: '2,850만', daysLeft: 3 },
+                { title: '일본 콘서트 투어', progress: 41, amount: '8,200만', daysLeft: 45 },
+              ].map((campaign, i) => (
+                <div
+                  key={i}
+                  className="group p-4 bg-white rounded-2xl border border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
                 >
-                  {/* Cover Image */}
-                  <div className="relative aspect-[16/9] overflow-hidden" style={{ background: '#1A1A22' }}>
-                    {campaign.cover_image_url && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={campaign.cover_image_url}
-                        alt={campaign.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                        style={{ opacity: 0.82 }}
-                      />
-                    )}
+                  <div className="w-full h-24 bg-gradient-to-br from-primary-50 to-pink-50 rounded-xl mb-3 flex items-center justify-center">
+                    <span className="text-2xl">{['🎵', '🎤', '📸', '✈️'][i]}</span>
+                  </div>
+                  <h4 className="text-sm font-bold text-gray-900 mb-2 truncate">{campaign.title}</h4>
+                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-2">
                     <div
-                      className="absolute inset-0"
-                      style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(20,20,24,0.65))' }}
+                      className="h-full bg-gradient-to-r from-primary-500 to-pink-500 rounded-full transition-all duration-1000"
+                      style={{ width: `${campaign.progress}%` }}
                     />
-                    <span
-                      className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
-                      style={{
-                        background: 'rgba(0,0,0,0.52)',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        color: '#D4D4D4',
-                      }}
-                    >
-                      {campaign.category}
-                    </span>
                   </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-primary-500">{campaign.progress}%</span>
+                    <span className="text-xs text-gray-400">D-{campaign.daysLeft}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">₩{campaign.amount}</p>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
 
-                  {/* Content */}
-                  <div className="p-5">
-                    {creator && (
-                      <div className="mb-2.5 flex items-center gap-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={creator.avatar_url || ''}
-                          alt={creator.display_name || ''}
-                          className="h-5 w-5 rounded-full object-cover"
-                        />
-                        <span className="text-xs font-medium" style={{ color: '#6B6B7B' }}>
-                          {creator.display_name}
-                        </span>
-                      </div>
-                    )}
-
-                    <h3
-                      className="line-clamp-2 text-sm font-semibold leading-snug transition-colors group-hover:text-primary-400"
-                      style={{ color: '#E5E5E5' }}
-                    >
-                      {campaign.title}
-                    </h3>
-
-                    {/* Progress */}
-                    <div className="mt-4">
-                      <div className="h-1 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${Math.min(percent, 100)}%`,
-                            background: 'linear-gradient(90deg, #FF3B30, #FF6030)',
-                          }}
-                        />
-                      </div>
-                      <div className="mt-2.5 flex items-baseline justify-between">
-                        <span className="text-base font-bold" style={{ color: '#FF3B30' }}>
-                          {percent}%
-                        </span>
-                        <span className="text-xs" style={{ color: '#5B5B6B' }}>
-                          {formatFundingAmount(campaign.current_amount_dt)} / {formatFundingAmount(campaign.goal_amount_dt)}
-                        </span>
-                      </div>
-                      <div className="mt-1 flex justify-between text-xs" style={{ color: '#4B4B5B' }}>
-                        <span>{campaign.backer_count}명 참여</span>
-                        <span>{campaign.end_at ? formatDaysLeft(campaign.end_at) : ''}</span>
-                      </div>
+          {/* Right: Text */}
+          <ScrollReveal direction="right" className="flex-1">
+            <div className="max-w-lg">
+              <span className="inline-block px-3 py-1 bg-pink-50 text-pink-600 text-xs font-bold tracking-wide uppercase rounded-full mb-4">
+                Funding
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
+                함께 만드는
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">
+                  특별한 프로젝트
+                </span>
+              </h2>
+              <p className="text-gray-500 leading-relaxed mb-6">
+                좋아하는 아티스트의 앨범, 콘서트, 포토북 등
+                다양한 프로젝트에 참여하고 세상에 하나뿐인
+                리워드를 받아보세요.
+              </p>
+              <div className="space-y-3">
+                {[
+                  '실시간 펀딩 현황과 목표 달성률 확인',
+                  '티어별 특별 리워드 (사인 앨범, 영상 통화 등)',
+                  '안전한 결제와 투명한 프로젝트 운영',
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
+                    <span className="text-sm text-gray-600">{item}</span>
                   </div>
-                </Link>
-              )
-            })}
-          </div>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 5. HOW IT WORKS                                      */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="px-4 py-20"
-        style={{
-          background: '#0A0A0F',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <div className="mx-auto max-w-content">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#FF3B30' }}>
-              Process
+      {/* ============================================
+          SECTION 4: FEATURE HIGHLIGHTS
+          ============================================ */}
+      <section className="py-24 sm:py-32 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <ScrollReveal className="text-center mb-16">
+            <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold tracking-wide uppercase rounded-full mb-4">
+              Features
             </span>
-            <h2 className="text-3xl font-bold mt-2" style={{ color: '#FFFFFF' }}>
-              시작하는 방법
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
+              UNO A가 특별한 이유
             </h2>
-            <p className="mt-2 text-sm" style={{ color: '#6B6B7B' }}>
-              3단계로 아티스트와 연결되세요
+            <p className="text-gray-500 max-w-xl mx-auto">
+              아티스트와 팬 모두를 위한 올인원 플랫폼
             </p>
-          </div>
+          </ScrollReveal>
 
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                step: '01',
-                title: '아티스트 구독',
-                desc: '좋아하는 아티스트를 구독하고 멤버십 티어를 선택하세요. 구독 즉시 채팅방에 입장됩니다.',
-                icon: (
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                ),
+                icon: <MessageCircle className="w-7 h-7 text-white" />,
+                title: '프라이빗 메시지',
+                description: '아티스트와 1:1 대화하듯 소통하는 특별한 메시지 경험',
+                gradient: 'bg-gradient-to-br from-primary-500 to-rose-500',
               },
               {
-                step: '02',
-                title: '메시지 수신 & 답장',
-                desc: '아티스트가 구독자에게 보낸 메시지를 나만의 피드에서 확인하고, 아티스트에게 직접 답장하세요.',
-                icon: (
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.628 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                  </svg>
-                ),
+                icon: <CreditCard className="w-7 h-7 text-white" />,
+                title: '펀딩 캠페인',
+                description: '아티스트의 프로젝트를 후원하고 독점 리워드를 받으세요',
+                gradient: 'bg-gradient-to-br from-pink-500 to-purple-500',
               },
               {
-                step: '03',
-                title: '펀딩으로 함께 만들기',
-                desc: '아티스트의 새 프로젝트를 후원하고, 완성된 리워드를 가장 먼저 받아보세요.',
-                icon: (
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                  </svg>
-                ),
+                icon: <Heart className="w-7 h-7 text-white" />,
+                title: '프라이빗 카드',
+                description: '특별한 순간을 담은 아티스트 전용 포토카드 컬렉션',
+                gradient: 'bg-gradient-to-br from-purple-500 to-indigo-500',
               },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="rounded-2xl p-8"
-                style={{
-                  background: 'rgba(255,255,255,0.025)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                <div className="flex gap-5 items-start">
-                  <span
-                    className="text-6xl font-bold leading-none select-none flex-shrink-0 -mt-1"
-                    style={{ color: 'rgba(255, 59, 48, 0.09)' }}
-                  >
-                    {item.step}
-                  </span>
-                  <div>
-                    <div
-                      className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl"
-                      style={{ background: 'rgba(255, 59, 48, 0.12)', color: '#FF3B30' }}
-                    >
-                      {item.icon}
-                    </div>
-                    <h3 className="text-base font-semibold" style={{ color: '#E5E5E5' }}>
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed" style={{ color: '#6B6B7B' }}>
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {
+                icon: <Vote className="w-7 h-7 text-white" />,
+                title: '투표 & VS',
+                description: '팬들의 의견을 모아 아티스트와 함께 결정하는 인터랙티브 투표',
+                gradient: 'bg-gradient-to-br from-blue-500 to-cyan-500',
+              },
+              {
+                icon: <Cake className="w-7 h-7 text-white" />,
+                title: '기념일 축하',
+                description: '생일, 데뷔일 등 특별한 날을 팬들과 함께 축하해요',
+                gradient: 'bg-gradient-to-br from-amber-500 to-orange-500',
+              },
+              {
+                icon: <Sparkles className="w-7 h-7 text-white" />,
+                title: 'AI 답글 추천',
+                description: '크리에이터를 위한 AI 기반 스마트 답글 제안 기능',
+                gradient: 'bg-gradient-to-br from-emerald-500 to-teal-500',
+              },
+            ].map((feature, i) => (
+              <ScrollReveal key={i} delay={i * 100}>
+                <FeatureCard {...feature} />
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 6. CREATOR CTA                                       */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="px-4 py-20"
-        style={{
-          background: '#0F0F14',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <div className="mx-auto max-w-content">
-          <div
-            className="relative rounded-3xl overflow-hidden px-8 py-16 sm:px-16 text-center"
-            style={{
-              background: 'linear-gradient(160deg, #160A0A 0%, #100A0A 100%)',
-              border: '1px solid rgba(255, 59, 48, 0.2)',
-            }}
-          >
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse 70% 65% at 50% 50%, rgba(255,59,48,0.07) 0%, transparent 70%)',
-              }}
-            />
-            <div className="relative">
-              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#FF3B30' }}>
-                For Creators
-              </span>
-              <h2 className="mt-3 text-3xl font-bold sm:text-4xl" style={{ color: '#FFFFFF' }}>
-                크리에이터로 시작하세요
-              </h2>
-              <p
-                className="mx-auto mt-4 max-w-lg text-base leading-relaxed"
-                style={{ color: '#8B8B9B' }}
-              >
-                팬들에게 직접 메시지를 보내고, 크라우드펀딩으로
-                프로젝트를 실현하세요. 캠페인 생성부터 정산까지
-                UNO A가 모든 것을 지원합니다.
-              </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
-                <Link
-                  href={ROUTES.studio.dashboard}
-                  className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{
-                    background: '#FF3B30',
-                    boxShadow: '0 0 36px rgba(255, 59, 48, 0.32)',
-                  }}
-                >
-                  스튜디오 시작하기
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </Link>
-              </div>
-              <div className="mt-8 flex flex-wrap justify-center gap-2">
-                {['팬 메시지 발송', '구독자 관리', '캠페인 생성', '리워드 설정', '수익 정산', '분석 대시보드'].map((feature) => (
-                  <span
-                    key={feature}
-                    className="rounded-full px-3 py-1 text-xs font-medium"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.09)',
-                      color: '#7B7B8B',
-                    }}
-                  >
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
+
+      {/* ============================================
+          SECTION 5: STATS COUNTER
+          ============================================ */}
+      <section className="py-24 sm:py-32 px-4 relative overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,59,48,0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(168,85,247,0.1),transparent_60%)]" />
+
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <ScrollReveal className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              함께 성장하는 커뮤니티
+            </h2>
+            <p className="text-gray-400 max-w-lg mx-auto">
+              UNO A에서 아티스트와 팬이 만들어가는 새로운 이야기
+            </p>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { value: 1200, suffix: '+', label: '크리에이터', prefix: '' },
+              { value: 58000, suffix: '+', label: '팬 커뮤니티', prefix: '' },
+              { value: 3, suffix: '억+', label: '누적 후원금', prefix: '₩' },
+              { value: 120, suffix: '만+', label: '메시지 교환', prefix: '' },
+            ].map((stat, i) => (
+              <ScrollReveal key={i} delay={i * 150}>
+                <div className="text-center p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10 hover:bg-white/10 transition-all">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-white mb-2">
+                    <span className="text-primary-400">{stat.prefix}</span>
+                    <AnimatedCounter value={stat.value} />
+                    <span className="text-primary-400">{stat.suffix}</span>
+                  </div>
+                  <p className="text-sm text-gray-400 font-medium">{stat.label}</p>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* 7. TRUST INDICATORS                                  */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="px-4 py-12"
-        style={{
-          background: '#0A0A0F',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <div className="mx-auto max-w-content grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {[
-            {
-              icon: (
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                </svg>
-              ),
-              title: '안전한 결제',
-              desc: 'TossPayments PG 보안 결제',
-              color: '#16A34A',
-              bg: 'rgba(22, 163, 74, 0.12)',
-            },
-            {
-              icon: (
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
-                </svg>
-              ),
-              title: '7일 환불 보장',
-              desc: '구매 후 7일 이내 전액 환불',
-              color: '#2563EB',
-              bg: 'rgba(37, 99, 235, 0.12)',
-            },
-            {
-              icon: (
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                </svg>
-              ),
-              title: '구독자 전용 메시지',
-              desc: '아티스트가 구독자에게 보내는 프라이빗 소식',
-              color: '#8B5CF6',
-              bg: 'rgba(139, 92, 246, 0.12)',
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="flex items-center gap-4 rounded-2xl p-5"
-              style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
+      {/* ============================================
+          SECTION 6: CTA - Download
+          ============================================ */}
+      <section className="py-24 sm:py-32 px-4 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,59,48,0.05),transparent_70%)]" />
+
+        <ScrollReveal className="relative z-10 max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
+            지금 시작하세요
+          </h2>
+          <p className="text-gray-500 mb-10 text-lg max-w-md mx-auto">
+            좋아하는 아티스트와 더 가까워지는
+            <br />
+            가장 특별한 방법
+          </p>
+
+          {/* App Store buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+            <a
+              href="#"
+              className="group inline-flex items-center gap-3 px-6 py-3.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all hover:shadow-xl hover:-translate-y-0.5"
             >
-              <div
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-                style={{ background: item.bg, color: item.color }}
-              >
-                {item.icon}
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              <div className="text-left">
+                <div className="text-[10px] text-gray-300 leading-none">Download on the</div>
+                <div className="text-lg font-semibold leading-tight">App Store</div>
               </div>
-              <div>
-                <p className="text-sm font-semibold" style={{ color: '#E5E5E5' }}>{item.title}</p>
-                <p className="text-xs mt-0.5" style={{ color: '#6B6B7B' }}>{item.desc}</p>
+            </a>
+            <a
+              href="#"
+              className="group inline-flex items-center gap-3 px-6 py-3.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all hover:shadow-xl hover:-translate-y-0.5"
+            >
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3.18 23.67c-.37.2-.81-.1-.81-.55V.88c0-.45.44-.76.81-.55l17.04 10.22c.37.21.37.76 0 .97L3.18 23.67z" opacity="0.35"/>
+                <path d="M3.18.33l9.93 11.5L3.18 23.67c-.37.2-.81-.1-.81-.55V.88c0-.45.44-.76.81-.55z"/>
+                <path d="M3.18.33L13.11 11.83l5.36-6.2L3.18.33z" opacity="0.12"/>
+                <path d="M3.18 23.67L13.11 11.83l5.36 6.2L3.18 23.67z" opacity="0.12"/>
+              </svg>
+              <div className="text-left">
+                <div className="text-[10px] text-gray-300 leading-none">GET IT ON</div>
+                <div className="text-lg font-semibold leading-tight">Google Play</div>
               </div>
-            </div>
-          ))}
-        </div>
+            </a>
+          </div>
+
+          <p className="text-xs text-gray-400">
+            출시 예정 - 사전 등록하고 가장 먼저 만나보세요
+          </p>
+        </ScrollReveal>
       </section>
 
-    </PageLayout>
+      {/* ============================================
+          SECTION 7: FOOTER
+          ============================================ */}
+      <footer className="py-12 px-4 bg-gray-900 text-white">
+        <div className="max-w-6xl mx-auto">
+          {/* Top row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <div className="text-2xl font-bold mb-3 text-primary-400">UNO A</div>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                아티스트와 팬을 잇는
+                <br />프리미엄 메시지 & 펀딩 플랫폼
+              </p>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Product</h4>
+              <ul className="space-y-2">
+                <li><Link href="/funding" className="text-sm text-gray-400 hover:text-white transition-colors">펀딩</Link></li>
+                <li><Link href="/studio" className="text-sm text-gray-400 hover:text-white transition-colors">크리에이터 스튜디오</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Legal</h4>
+              <ul className="space-y-2">
+                <li><Link href="/settings/terms" className="text-sm text-gray-400 hover:text-white transition-colors">이용약관</Link></li>
+                <li><Link href="/settings/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">개인정보처리방침</Link></li>
+              </ul>
+            </div>
+
+            {/* Social */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Social</h4>
+              <div className="flex gap-3">
+                {/* Instagram */}
+                <a href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" aria-label="Instagram">
+                  <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                  </svg>
+                </a>
+                {/* Twitter/X */}
+                <a href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" aria-label="Twitter">
+                  <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </a>
+                {/* YouTube */}
+                <a href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" aria-label="YouTube">
+                  <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom row */}
+          <div className="pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-gray-500">
+              &copy; {new Date().getFullYear()} UNO A. All rights reserved.
+            </p>
+            <p className="text-xs text-gray-600">
+              Built with love for K-POP artists and fans
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }

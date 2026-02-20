@@ -11,6 +11,9 @@
 | `#gate-tax-accounting` | Gate outputs only. No code changes. | 세무/회계 게이트 산출물 |
 | `#pr-reviews` | PR notifications + review coordination | PR 알림 + 리뷰 |
 | `#ops-incidents` | Incident triage + timeline thread | 인시던트 관리 |
+| `#ops-payments` | Payment incidents + webhook alerts | 결제 장애/웹훅 알림 |
+| `#ops-infra` | Infrastructure issues + DB/Edge Function alerts | 인프라 장애/DB/Edge Function 알림 |
+| `#ops-moderation` | Report/block auto-notifications | 신고/차단 자동 알림 |
 
 ## 운영 규칙
 
@@ -47,7 +50,7 @@
 ## 수동 채널 생성 가이드 (Slack MCP 미연결 시)
 
 ### 1. 채널 생성
-Slack 워크스페이스에서 위 7개 채널을 생성합니다:
+Slack 워크스페이스에서 위 10개 채널을 생성합니다:
 1. `+` → "Create a channel" → 이름 입력 → Purpose 설정 → Create
 2. 각 채널마다 반복
 

@@ -22,7 +22,7 @@ class SafeUrlLauncher {
     final uri = Uri.tryParse(url);
     if (uri == null) {
       AppLogger.warning('Invalid URL: $url', tag: 'SafeUrlLauncher');
-      _showError(context, '유효하지 않은 링크입니다.');
+      _showError(context, 'Invalid link.');
       return false;
     }
 
@@ -35,18 +35,16 @@ class SafeUrlLauncher {
     BuildContext? context,
     LaunchMode mode = LaunchMode.externalApplication,
   }) async {
-    // Validate scheme
     if (uri.scheme.isNotEmpty &&
         !_allowedSchemes.contains(uri.scheme.toLowerCase())) {
       AppLogger.warning(
         'Blocked URL launch with scheme: ${uri.scheme}',
         tag: 'SafeUrlLauncher',
       );
-      _showError(context, '지원하지 않는 링크 형식입니다.');
+      _showError(context, 'Unsupported link format.');
       return false;
     }
 
-    // Add https if no scheme
     final effectiveUri =
         uri.scheme.isEmpty ? Uri.parse('https://${uri.toString()}') : uri;
 
@@ -54,17 +52,18 @@ class SafeUrlLauncher {
       if (await canLaunchUrl(effectiveUri)) {
         await launchUrl(effectiveUri, mode: mode);
         return true;
-      } else {
-        _showError(context, '링크를 열 수 없습니다.');
-        return false;
       }
+      if (context != null && !context.mounted) return false;
+      _showError(context, 'Unable to open link.');
+      return false;
     } catch (e) {
       AppLogger.error(
         e,
         tag: 'SafeUrlLauncher',
         message: 'Failed to launch: $effectiveUri',
       );
-      _showError(context, '링크를 열 수 없습니다.');
+      if (context != null && !context.mounted) return false;
+      _showError(context, 'Unable to open link.');
       return false;
     }
   }

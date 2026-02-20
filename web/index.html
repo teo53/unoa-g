@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="UNO A - Korean Artist Fan Messaging Platform">
 
-  <!-- Security Headers -->
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://www.gstatic.com blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://www.gstatic.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; worker-src 'self' blob:; frame-ancestors 'self';">
+  <!-- Security Headers (CSP is valid in meta, others should be HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://www.gstatic.com https://cdn.portone.io blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' https: data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://www.gstatic.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://api.iamport.kr https://*.portone.io; frame-src 'self' https://*.portone.io https://*.iamport.kr; worker-src 'self' blob:; frame-ancestors 'self';">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="UNO A">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
   <title>UNO A</title>
   <link rel="manifest" href="manifest.json">
 
@@ -24,13 +25,15 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
   <!-- Pretendard Variable (Korean-optimized, dynamic subset) -->
-  <link rel="stylesheet" as="style" crossorigin
+  <link rel="stylesheet" crossorigin
     href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
-      height: 100dvh; /* Dynamic viewport height - accounts for mobile browser chrome */
+      height: 100dvh;
+      /* Dynamic viewport height - accounts for mobile browser chrome */
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -38,16 +41,22 @@
       -webkit-tap-highlight-color: transparent;
       overscroll-behavior-y: none;
     }
-    /* Ensure Flutter canvas fills the viewport correctly */
-    flt-glass-pane {
+
+    /* Ensure Flutter canvas fills the viewport correctly (supports modern Flutter elements) */
+    flt-glass-pane,
+    flutter-view,
+    flt-scene-host {
       height: 100% !important;
       height: 100dvh !important;
+      width: 100% !important;
     }
   </style>
 
   <script src="flutter_init.js"></script>
   <script src="flutter_bootstrap.js" async></script>
 </head>
+
 <body>
 </body>
+
 </html>

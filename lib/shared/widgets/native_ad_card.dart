@@ -22,6 +22,14 @@ class NativeAdCard extends StatelessWidget {
     if (banner.linkType == 'external') {
       final uri = Uri.tryParse(banner.linkUrl);
       if (uri == null) return;
+      // URL 스킴 허용목록 — javascript:/data: 등 위험 스킴 차단
+      if (!['http', 'https'].contains(uri.scheme.toLowerCase())) {
+        AppLogger.warning(
+          'NativeAdCard: blocked unsafe URL scheme — ${uri.scheme}',
+          tag: 'Ad',
+        );
+        return;
+      }
       try {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } catch (e) {

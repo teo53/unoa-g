@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/config/app_config.dart';
 import '../../core/config/business_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
@@ -187,9 +188,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         icon: Icons.person_outline,
                         title: '프로필 편집',
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('프로필 편집 기능 준비 중')),
-                          );
+                          final isCreator = ref.read(isCreatorProvider);
+                          context.push(isCreator
+                              ? '/creator/profile/edit'
+                              : '/profile/edit');
                         },
                       ),
                       _SettingsItem(
@@ -197,15 +199,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         title: '계정 및 보안',
                         onTap: () => context.push('/settings/account'),
                       ),
-                      _SettingsItem(
-                        icon: Icons.credit_card,
-                        title: '결제 수단 관리',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('결제 수단 관리 기능 준비 중')),
-                          );
-                        },
-                      ),
+                      if (!AppConfig.isProduction)
+                        _SettingsItem(
+                          icon: Icons.credit_card,
+                          title: '결제 수단 관리',
+                          subtitle: '준비 중',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('결제 수단 관리 기능 준비 중')),
+                            );
+                          },
+                        ),
                     ],
                   ),
 
@@ -221,24 +225,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         title: '알림 설정',
                         onTap: () => context.push('/settings/notifications'),
                       ),
-                      _SettingsItem(
-                        icon: Icons.do_not_disturb_on_outlined,
-                        title: '방해금지 모드',
-                        trailing: Switch(
-                          value: false,
-                          onChanged: (value) {
+                      if (!AppConfig.isProduction)
+                        _SettingsItem(
+                          icon: Icons.do_not_disturb_on_outlined,
+                          title: '방해금지 모드',
+                          subtitle: '준비 중',
+                          trailing: Switch(
+                            value: false,
+                            onChanged: (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('방해금지 모드 설정 준비 중')),
+                              );
+                            },
+                            activeThumbColor: AppColors.primary600,
+                          ),
+                          onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('방해금지 모드 설정 준비 중')),
                             );
                           },
-                          activeThumbColor: AppColors.primary600,
                         ),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('방해금지 모드 설정 준비 중')),
-                          );
-                        },
-                      ),
                     ],
                   ),
 
@@ -285,26 +292,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         onTap: () => themeNotifier.toggleTheme(),
                       ),
-                      _SettingsItem(
-                        icon: Icons.language,
-                        title: '언어',
-                        subtitle: '한국어',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('언어 설정 기능 준비 중')),
-                          );
-                        },
-                      ),
-                      _SettingsItem(
-                        icon: Icons.storage_outlined,
-                        title: '저장공간 관리',
-                        subtitle: '23.5 MB 사용 중',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('저장공간 관리 기능 준비 중')),
-                          );
-                        },
-                      ),
+                      if (!AppConfig.isProduction)
+                        _SettingsItem(
+                          icon: Icons.language,
+                          title: '언어',
+                          subtitle: '한국어 (준비 중)',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('언어 설정 기능 준비 중')),
+                            );
+                          },
+                        ),
+                      if (!AppConfig.isProduction)
+                        _SettingsItem(
+                          icon: Icons.storage_outlined,
+                          title: '저장공간 관리',
+                          subtitle: '준비 중',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('저장공간 관리 기능 준비 중')),
+                            );
+                          },
+                        ),
                     ],
                   ),
 

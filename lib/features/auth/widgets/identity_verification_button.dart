@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../services/identity_verification_service.dart';
 
@@ -139,7 +140,7 @@ class _IdentityVerificationButtonState
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text('취소'),
           ),
           ElevatedButton(

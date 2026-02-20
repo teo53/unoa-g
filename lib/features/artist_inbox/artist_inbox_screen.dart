@@ -242,7 +242,7 @@ class _ArtistInboxScreenState extends ConsumerState<ArtistInboxScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                       icon: Icon(
                         Icons.close,
                         color: isDark
@@ -351,7 +351,7 @@ class _ArtistInboxScreenState extends ConsumerState<ArtistInboxScreen> {
                               content,
                             );
                         if (context.mounted) {
-                          Navigator.pop(context);
+                          context.pop();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('답장을 보냈습니다'),

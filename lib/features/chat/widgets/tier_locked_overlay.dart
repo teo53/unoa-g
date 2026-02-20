@@ -58,107 +58,114 @@ class TierLockedOverlay extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = tierColor(requiredTier);
 
-    return Stack(
-      children: [
-        // 블러 처리된 원본 메시지
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: child,
-          ),
-        ),
-
-        // 오버레이
-        Positioned.fill(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color:
-                  (isDark ? Colors.black : Colors.white).withValues(alpha: 0.6),
+    return Semantics(
+      label: '${tierDisplayName(requiredTier)} 이상 구독 필요',
+      child: Stack(
+        children: [
+          // 블러 처리된 원본 메시지
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: child,
             ),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 잠금 아이콘 + 티어 배지
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: color.withValues(alpha: 0.3),
+          ),
+
+          // 오버레이
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: (isDark ? Colors.black : Colors.white)
+                    .withValues(alpha: 0.6),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 잠금 아이콘 + 티어 배지
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.lock_outline,
-                          size: 14,
-                          color: color,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: color.withValues(alpha: 0.3),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${tierDisplayName(requiredTier)} 전용',
-                          style: TextStyle(
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.lock_outline,
+                            size: 14,
                             color: color,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            '${tierDisplayName(requiredTier)} 전용',
+                            style: TextStyle(
+                              color: color,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 8),
 
-                  // 안내 텍스트
-                  Text(
-                    '${tierDisplayName(requiredTier)} 이상 구독자만\n볼 수 있는 메시지입니다',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      fontSize: 12,
-                      height: 1.4,
+                    // 안내 텍스트
+                    Text(
+                      '${tierDisplayName(requiredTier)} 이상 구독자만\n볼 수 있는 메시지입니다',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
 
-                  // 업그레이드 버튼
-                  if (onUpgradeTap != null) ...[
-                    const SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: onUpgradeTap,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          '구독 업그레이드',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                    // 업그레이드 버튼
+                    if (onUpgradeTap != null) ...[
+                      const SizedBox(height: 10),
+                      Semantics(
+                        label: '구독 업그레이드',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: onUpgradeTap,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              '구독 업그레이드',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -190,7 +190,7 @@ class _WelcomeChatSettingsState extends ConsumerState<WelcomeChatSettings> {
                       Switch.adaptive(
                         value: _isEnabled,
                         onChanged: (v) => setState(() => _isEnabled = v),
-                        activeColor: AppColors.primary,
+                        activeThumbColor: AppColors.primary,
                       ),
                     ],
                   ),
@@ -329,14 +329,14 @@ class _WelcomeChatSettingsState extends ConsumerState<WelcomeChatSettings> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(
                 Icons.auto_awesome,
                 size: 16,
                 color: AppColors.primary,
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Text(
                 '웰컴 메시지',
                 style: TextStyle(

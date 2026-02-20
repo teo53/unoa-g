@@ -29,6 +29,7 @@ import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
 import { log, maskUserId } from '../_shared/logger.ts'
+import { emitMwEvent } from '../_shared/mw_metrics.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
@@ -1407,6 +1408,16 @@ serve(async (req) => {
       error: error.message,
       details: { requestId, status, durationMs },
     })
+
+    // Emit middleware event for observability (T4)
+    if (error instanceof ValidationError) {
+      const adminForMetrics = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+      emitMwEvent(adminForMetrics, {
+        fnName: 'ops-manage',
+        eventType: 'schema_invalid',
+        statusCode: 400,
+      })
+    }
 
     return err(status, error.message, req)
   }

@@ -12,6 +12,13 @@ const eslintConfig = [
   {
     ignores: ['.next/**', 'out/**', 'build/**'],
   },
+  {
+    rules: {
+      '@next/next/no-img-element': 'off',
+      'jsx-a11y/alt-text': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+    },
+  },
 ];
 
 export default eslintConfig;

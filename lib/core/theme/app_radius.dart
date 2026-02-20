@@ -12,6 +12,7 @@
 /// AppRadius.baseBR  // BorderRadius.circular(12)
 /// AppRadius.lgBR    // BorderRadius.circular(16)
 /// ```
+library;
 
 class KrdsRadiusReference {
   KrdsRadiusReference._();

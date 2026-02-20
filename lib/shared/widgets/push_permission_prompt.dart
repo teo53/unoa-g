@@ -135,7 +135,7 @@ class _PushPermissionSheet extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context, true),
+                  onPressed: () => Navigator.of(context).pop(true),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary600,
                     foregroundColor: Colors.white,
@@ -155,7 +155,7 @@ class _PushPermissionSheet extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               GestureDetector(
-                onTap: () => Navigator.pop(context, false),
+                onTap: () => Navigator.of(context).pop(false),
                 child: Text(
                   '나중에 할게요',
                   style: TextStyle(

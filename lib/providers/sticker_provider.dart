@@ -5,6 +5,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../core/config/demo_config.dart';
+import '../core/utils/app_logger.dart';
 import '../data/models/sticker.dart';
 import 'auth_provider.dart';
 import 'repository_providers.dart';
@@ -62,11 +63,16 @@ class StickerActionsNotifier extends StateNotifier<AsyncValue<void>> {
         return true;
       }
 
-      // 실 구현: RPC 호출
-      // await supabase.rpc('purchase_sticker_set', params: {...});
-      state = const AsyncData(null);
-      _ref.invalidate(purchasedStickerSetsProvider);
-      return true;
+      // 프로덕션: 스티커 구매 기능 미구현 — 무료 구매 방지
+      AppLogger.warning(
+        'Sticker purchase attempted in production but RPC not yet implemented',
+        tag: 'Sticker',
+      );
+      state = AsyncError(
+        StateError('스티커 구매 기능이 아직 준비 중입니다'),
+        StackTrace.current,
+      );
+      return false;
     } catch (e, st) {
       state = AsyncError(e, st);
       return false;

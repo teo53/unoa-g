@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/app_config.dart';
@@ -183,7 +184,7 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
     }
 
     setState(() => _isSending = true);
-    Navigator.pop(context);
+    context.pop();
     widget.onSend(text);
   }
 
@@ -295,7 +296,7 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
             ),
           ),
           IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             icon: const Icon(Icons.close),
             iconSize: 22,
           ),

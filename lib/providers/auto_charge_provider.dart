@@ -29,7 +29,8 @@ final autoChargeConfigProvider =
   if (authState is! AuthAuthenticated) return null;
 
   final supabase = Supabase.instance.client;
-  final userId = supabase.auth.currentUser!.id;
+  final userId = supabase.auth.currentUser?.id;
+  if (userId == null) return null;
 
   final data = await supabase
       .from('dt_auto_charge_config')
@@ -70,7 +71,11 @@ class AutoChargeNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncLoading();
     try {
       final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser!.id;
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) {
+        state = const AsyncData(null);
+        return;
+      }
 
       await supabase.from('dt_auto_charge_config').upsert(
         {

@@ -230,6 +230,8 @@ Future<void> removeTagFromFan(
   String tagId,
 ) async {
   final repo = ref.read(crmRepositoryProvider);
+  final creatorId = ref.read(currentCreatorIdProvider);
+  if (creatorId == null) return;
 
   try {
     await repo.removeTagAssignment(fanId, tagId);

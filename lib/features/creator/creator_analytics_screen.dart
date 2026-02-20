@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
 import '../../providers/auth_provider.dart';
@@ -353,9 +354,9 @@ class _CreatorAnalyticsScreenState
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: _buildHeader(context, isDark)),
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             child: Column(
               children: [
                 Row(
@@ -363,15 +364,15 @@ class _CreatorAnalyticsScreenState
                     Expanded(
                         child: SkeletonLoader.card(
                             width: double.infinity, height: 120)),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     Expanded(
                         child: SkeletonLoader.card(
                             width: double.infinity, height: 120)),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SkeletonLoader.card(width: double.infinity, height: 200),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SkeletonLoader.card(width: double.infinity, height: 150),
               ],
             ),
@@ -814,7 +815,7 @@ class _CreatorAnalyticsScreenState
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: const Text(
               '확인',
               style: TextStyle(color: AppColors.primary),

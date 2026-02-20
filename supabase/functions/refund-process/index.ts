@@ -82,7 +82,7 @@ serve(async (req: Request) => {
     // 4. Verify purchase ownership
     const { data: purchase, error: purchaseError } = await supabaseAdmin
       .from('dt_purchases')
-      .select('id, user_id, status, dt_amount, bonus_dt, dt_used, refund_eligible_until, price_krw')
+      .select('id, user_id, status, dt_amount, bonus_dt, dt_used, refund_eligible_until, price_krw, payment_provider_transaction_id')
       .eq('id', purchaseId)
       .single()
 
@@ -146,9 +146,69 @@ serve(async (req: Request) => {
       )
     }
 
-    // 6. Process refund via atomic DB function
+    // 6. P0-02: Call PG cancel API before internal refund
     const refundReason = reason || 'User requested refund'
+    const paymentKey = purchase.payment_provider_transaction_id
+    const tossSecretKey = Deno.env.get('TOSSPAYMENTS_SECRET_KEY') ?? ''
 
+    if (!paymentKey) {
+      console.error(`[Refund] No payment_provider_transaction_id for purchase ${purchaseId}`)
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Cannot process refund: no payment provider transaction ID found. Please contact support.'
+        }),
+        { status: 400, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    if (!tossSecretKey) {
+      console.error('[Refund] TOSSPAYMENTS_SECRET_KEY not configured')
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Payment provider not configured. Please contact support.'
+        }),
+        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // Call Toss cancel API
+    const tossAuth = btoa(`${tossSecretKey}:`)
+    const cancelRes = await fetch(
+      `https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${tossAuth}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': `refund:${purchaseId}`,
+        },
+        body: JSON.stringify({
+          cancelReason: refundReason,
+          cancelAmount: purchase.price_krw,
+        }),
+      }
+    )
+
+    if (!cancelRes.ok) {
+      const cancelError = await cancelRes.json().catch(() => ({}))
+      console.error('[Refund] Toss cancel failed:', cancelRes.status, cancelError)
+
+      // If Toss says already cancelled, proceed with internal refund
+      if (cancelError.code !== 'ALREADY_CANCELED') {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: 'Payment cancellation failed at payment provider. Please try again later.'
+          }),
+          { status: 502, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+        )
+      }
+      console.log('[Refund] Payment already cancelled at PG, proceeding with internal refund')
+    }
+
+    // 7. Process internal refund via atomic DB function (PG cancel succeeded)
     const { data: result, error: refundError } = await supabaseAdmin.rpc('process_refund_atomic', {
       p_order_id: purchaseId,
       p_refund_reason: refundReason
@@ -195,7 +255,7 @@ serve(async (req: Request) => {
     // 8. Return success response
     const response: RefundResponse = {
       success: true,
-      message: 'Refund processed successfully. KRW will be credited to your original payment method within 3-5 business days.',
+      message: 'Refund processed successfully. The refund has been requested to the payment provider and processing time depends on the payment method.',
       orderId: result.order_id,
       refundedDt: result.refunded_dt,
       refundAmountKrw: result.refund_amount_krw,

@@ -55,7 +55,7 @@ void main() {
 
       test('1000 DT = 100,000 KRW at base rate', () {
         const dtAmount = 1000;
-        final krw = dtAmount * BusinessConfig.dtBaseUnitPriceKrw;
+        const krw = dtAmount * BusinessConfig.dtBaseUnitPriceKrw;
         expect(krw, 100000);
       });
     });

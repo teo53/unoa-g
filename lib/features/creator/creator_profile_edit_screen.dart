@@ -1606,7 +1606,7 @@ class _CreatorProfileEditScreenState
                 ),
                 title: const Text('카메라로 촬영'),
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
                   _onFieldChanged();
                 },
               ),
@@ -1621,7 +1621,7 @@ class _CreatorProfileEditScreenState
                 ),
                 title: const Text('갤러리에서 선택'),
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
                   _onFieldChanged();
                 },
               ),

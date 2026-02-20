@@ -95,11 +95,11 @@ class FanProfileSummary {
   /// 구독 기간 표시 텍스트
   String get subscribedDaysText {
     if (subscribedDays <= 0) return '신규';
-    if (subscribedDays < 30) return '${subscribedDays}일';
+    if (subscribedDays < 30) return '$subscribedDays일';
     final months = subscribedDays ~/ 30;
     final remaining = subscribedDays % 30;
-    if (remaining == 0) return '${months}개월';
-    return '${months}개월 ${remaining}일';
+    if (remaining == 0) return '$months개월';
+    return '$months개월 $remaining일';
   }
 
   @override

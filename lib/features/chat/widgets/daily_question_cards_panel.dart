@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/daily_question_set.dart';
@@ -330,7 +331,7 @@ class _VotingCardsView extends StatelessWidget {
         isDark: Theme.of(context).brightness == Brightness.dark,
         accentColor: accentColor,
         onConfirm: () {
-          Navigator.pop(context);
+          context.pop();
           onVote(card.id);
         },
       ),
@@ -671,7 +672,7 @@ class _VoteConfirmationSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

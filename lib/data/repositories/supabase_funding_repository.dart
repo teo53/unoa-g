@@ -220,15 +220,12 @@ class SupabaseFundingRepository {
   }
 
   // ============================================
-  // Submit Pledge (via atomic RPC)
+  // Submit Pledge (via Edge Function)
   // ============================================
 
-  /// Submit a pledge using the atomic DB function
-  /// This calls process_funding_pledge_krw() which handles:
-  /// - Campaign/tier validation
-  /// - Tier quantity decrement
-  /// - Pledge record creation
-  /// - Campaign stats update
+  /// Submit a pledge via the funding-pledge Edge Function.
+  /// The Edge Function verifies payment with PortOne before creating
+  /// the pledge (process_funding_pledge_krw is service_role only).
   Future<Map<String, dynamic>> submitPledge({
     required String campaignId,
     required String tierId,
@@ -243,23 +240,37 @@ class SupabaseFundingRepository {
   }) async {
     if (_userId == null) throw Exception('Not authenticated');
 
-    final result = await _client.rpc('process_funding_pledge_krw', params: {
-      'p_campaign_id': campaignId,
-      'p_tier_id': tierId,
-      'p_user_id': _userId,
-      'p_amount_krw': amountKrw,
-      'p_extra_support_krw': extraSupportKrw,
-      'p_payment_order_id': paymentOrderId,
-      'p_payment_method': paymentMethod,
-      'p_pg_transaction_id': pgTransactionId,
-      'p_idempotency_key':
-          idempotencyKey ?? 'pledge_${DateTime.now().millisecondsSinceEpoch}',
-      'p_is_anonymous': isAnonymous,
-      'p_support_message': supportMessage,
-    });
+    final key =
+        idempotencyKey ?? 'pledge_${DateTime.now().millisecondsSinceEpoch}';
 
-    if (result is Map<String, dynamic>) {
-      return result;
+    final response = await _client.functions.invoke(
+      'funding-pledge',
+      body: {
+        'campaignId': campaignId,
+        'tierId': tierId,
+        'amountKrw': amountKrw,
+        'paymentId': pgTransactionId ?? paymentOrderId ?? key,
+        'paymentOrderId': paymentOrderId ?? key,
+        'paymentMethod': paymentMethod ?? 'card',
+        'idempotencyKey': key,
+        'isAnonymous': isAnonymous,
+        'supportMessage': supportMessage,
+      },
+    );
+
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      if (data['success'] == true) {
+        return {
+          'pledge_id': data['pledgeId'],
+          'payment_id': data['paymentId'],
+          'total_amount_krw': data['totalAmountKrw'],
+        };
+      }
+      return {
+        'pledge_id': null,
+        'error': data['error'] ?? data['message'] ?? 'Pledge failed',
+      };
     }
 
     return {'pledge_id': null, 'error': 'Unexpected response'};

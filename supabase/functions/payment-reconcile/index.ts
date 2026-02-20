@@ -14,18 +14,23 @@ const BATCH_LIMIT = 50
 serve(async (req) => {
   try {
     // Auth: service_role via Authorization header (from pg_net schedule)
-    const authHeader = req.headers.get('Authorization')
+    const authHeader = req.headers.get('Authorization') ?? ''
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-    // Simple bearer check — only service_role should call this
-    if (!authHeader?.includes(serviceRoleKey) && serviceRoleKey) {
-      const token = authHeader?.replace('Bearer ', '') ?? ''
-      if (token !== serviceRoleKey) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized' }),
-          { status: 401, headers: { 'Content-Type': 'application/json' } }
-        )
-      }
+    if (!serviceRoleKey) {
+      return new Response(
+        JSON.stringify({ error: 'Server misconfigured: missing service role key' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Strict bearer check — only service_role caller is allowed.
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : ''
+    if (token !== serviceRoleKey) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      )
     }
 
     const supabase = createClient(

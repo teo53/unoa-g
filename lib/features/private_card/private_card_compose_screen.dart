@@ -64,11 +64,11 @@ class _PrivateCardComposeScreenState
         content: const Text('나가면 작성 중인 내용이 사라집니다.\n정말 나가시겠습니까?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('계속 작성'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             child: const Text('나가기', style: TextStyle(color: AppColors.danger)),
           ),
         ],

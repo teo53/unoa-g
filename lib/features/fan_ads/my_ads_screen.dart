@@ -52,7 +52,8 @@ class _MyAdsScreenState extends ConsumerState<MyAdsScreen>
               child: const Text('아니오')),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: Text('취소하기', style: TextStyle(color: AppColors.danger))),
+              child: const Text('취소하기',
+                  style: TextStyle(color: AppColors.danger))),
         ],
       ),
     );
@@ -217,7 +218,7 @@ class _AdCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '거절 사유: ${ad.rejectionReason}',
-              style: TextStyle(fontSize: 12, color: AppColors.danger),
+              style: const TextStyle(fontSize: 12, color: AppColors.danger),
             ),
           ],
           if (onCancel != null) ...[
@@ -290,7 +291,7 @@ class _StatChip extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           NumberFormat('#,###').format(value),
-          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
       ],
     );

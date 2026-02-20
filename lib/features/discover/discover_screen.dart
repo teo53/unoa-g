@@ -57,7 +57,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary600,
                     padding: const EdgeInsets.symmetric(vertical: 14),

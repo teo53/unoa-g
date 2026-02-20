@@ -5,6 +5,8 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, isAllowedOrigin } from '../_shared/cors.ts'
 import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
+import { emitMwEvent } from '../_shared/mw_metrics.ts'
+import { maskUserId } from '../_shared/logger.ts'
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
 const DT_PURCHASE_ENABLED = (Deno.env.get('DT_PURCHASE_ENABLED') ?? '').toLowerCase() === 'true'
@@ -148,20 +150,8 @@ serve(async (req) => {
       }
     }
 
-    // B6: Pending order limit — max 10 pending orders per hour per user
-    const rlResult = await checkRateLimit(supabase, {
-      key: `checkout:${userId}`,
-      limit: 10,
-      windowSeconds: 3600, // 1 hour
-    })
-    if (!rlResult.allowed) {
-      return new Response(
-        JSON.stringify({ error: 'Too many pending orders. Please try again later.' }),
-        { status: 429, headers: { ...getCorsHeaders(req), ...jsonHeaders, ...rateLimitHeaders(rlResult) } }
-      )
-    }
-
     // Fail-closed: 결제 게이트가 닫혀 있으면 주문 생성 자체를 차단
+    // Fix 2.7: Feature gate checked BEFORE rate limit to avoid consuming tokens for disabled payments
     if (!DT_PURCHASE_ENABLED) {
       return new Response(
         JSON.stringify({
@@ -169,6 +159,25 @@ serve(async (req) => {
           errorCode: 'PAYMENTS_DISABLED',
         }),
         { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // B6: Pending order limit — max 10 pending orders per hour per user
+    const rlResult = await checkRateLimit(supabase, {
+      key: `checkout:${userId}`,
+      limit: 10,
+      windowSeconds: 3600, // 1 hour
+    })
+    if (!rlResult.allowed) {
+      emitMwEvent(supabase, {
+        fnName: 'payment-checkout',
+        eventType: 'rate_limited',
+        statusCode: 429,
+        userHash: maskUserId(userId),
+      })
+      return new Response(
+        JSON.stringify({ error: 'Too many pending orders. Please try again later.' }),
+        { status: 429, headers: { ...getCorsHeaders(req), ...jsonHeaders, ...rateLimitHeaders(rlResult) } }
       )
     }
 
@@ -180,6 +189,18 @@ serve(async (req) => {
         JSON.stringify({
           error: 'Payment provider not configured',
           errorCode: 'PAYMENT_PROVIDER_NOT_READY',
+        }),
+        { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+      )
+    }
+
+    // Fix 2.2: Validate APP_BASE_URL — required for TossPayments redirect URLs
+    if (!appBaseUrl) {
+      console.error('[Checkout] APP_BASE_URL not configured')
+      return new Response(
+        JSON.stringify({
+          error: 'Payment configuration incomplete',
+          errorCode: 'PAYMENT_CONFIG_INCOMPLETE',
         }),
         { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
       )

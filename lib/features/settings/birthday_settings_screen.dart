@@ -144,11 +144,11 @@ class _BirthdaySettingsScreenState
             '등록된 생일 정보를 삭제하시겠습니까?\n삭제 후에는 아티스트에게 생일 축하 메시지를 받을 수 없습니다.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => context.pop(false),
             child: const Text('취소'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => context.pop(true),
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
             child: const Text('삭제'),
           ),

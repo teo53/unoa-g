@@ -5,20 +5,12 @@ import { withSentryConfig } from '@sentry/nextjs'
 const isProduction = process.env.NODE_ENV === 'production'
 const isDemoBuild = process.env.NEXT_PUBLIC_DEMO_BUILD === 'true'
 
-if (isProduction && isDemoBuild) {
-  console.warn(
-    '\n⚠️  WARNING: NEXT_PUBLIC_DEMO_BUILD=true in production mode.\n' +
-    '   TypeScript and ESLint checks are disabled. This is NOT recommended for production.\n' +
-    '   Remove NEXT_PUBLIC_DEMO_BUILD or set to "false" for production deployments.\n'
-  )
-}
-
 // SECURITY: Prevent demo mode in production builds unless explicitly acknowledged
 if (isProduction && process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
   if (!isDemoBuild) {
     throw new Error(
       'SECURITY: NEXT_PUBLIC_DEMO_MODE=true is not allowed in production builds. ' +
-      'Set NEXT_PUBLIC_DEMO_BUILD=true to explicitly acknowledge this is a demo deployment.'
+        'Set NEXT_PUBLIC_DEMO_BUILD=true to explicitly acknowledge this is a demo deployment.'
     )
   }
 }
@@ -79,7 +71,7 @@ const sentryWebpackPluginOptions = {
   // Upload source maps for debugging
   widenClientFileUpload: true,
 
-  // tunnelRoute: '/monitoring',  // Static export (`output:'export'`)에서는 서버 라우트가 없어 미작동. Direct DSN fallback 사용.
+  // tunnelRoute: '/monitoring', // Disabled for static export deployments.
 
   // Hides source maps from generated client bundles
   hideSourceMaps: true,
