@@ -5,6 +5,8 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, isAllowedOrigin } from '../_shared/cors.ts'
 import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
+import { emitMwEvent } from '../_shared/mw_metrics.ts'
+import { maskUserId } from '../_shared/logger.ts'
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
 
@@ -146,6 +148,12 @@ serve(async (req) => {
       windowSeconds: 3600, // 1 hour
     })
     if (!rlResult.allowed) {
+      emitMwEvent(supabase, {
+        fnName: 'payment-checkout',
+        eventType: 'rate_limited',
+        statusCode: 429,
+        userHash: maskUserId(userId),
+      })
       return new Response(
         JSON.stringify({ error: 'Too many pending orders. Please try again later.' }),
         { status: 429, headers: { ...getCorsHeaders(req), ...jsonHeaders, ...rateLimitHeaders(rlResult) } }

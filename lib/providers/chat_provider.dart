@@ -120,12 +120,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
       final channel = Channel.fromJson(channelResponse);
 
       // Load subscription
+      // P0-04: Check both is_active and expires_at for valid subscriptions
       final subResponse = await client
           .from('subscriptions')
           .select()
           .eq('channel_id', channelId)
           .eq('user_id', userId)
           .eq('is_active', true)
+          .or('expires_at.is.null,expires_at.gt.${DateTime.now().toUtc().toIso8601String()}')
           .maybeSingle();
 
       Subscription? subscription;

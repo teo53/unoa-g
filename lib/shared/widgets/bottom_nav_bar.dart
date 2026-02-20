@@ -36,7 +36,6 @@ class BottomNavBar extends StatelessWidget {
             label: '홈',
             isSelected: currentIndex == 0,
             onTap: () => onTap(0),
-            showBadge: true,
           ),
           _NavItem(
             icon: Icons.chat_bubble_rounded,
@@ -44,7 +43,6 @@ class BottomNavBar extends StatelessWidget {
             label: '메시지',
             isSelected: currentIndex == 1,
             onTap: () => onTap(1),
-            showBadge: true,
           ),
           _NavItem(
             icon: Icons.campaign_rounded,
@@ -89,6 +87,7 @@ class _NavItem extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    // ignore: unused_element_parameter
     this.showBadge = false,
     this.isProfile = false,
   });

@@ -6,6 +6,7 @@ import {
   mockCampaigns
 } from '@/lib/mock/demo-data'
 import { formatPercent, formatBackerCount } from '@/lib/utils/format'
+import { sanitizeJsonLdValue } from '@/lib/utils/sanitize'
 import { CampaignDetailClient } from '@/components/campaign/campaign-detail-client'
 import type { Metadata } from 'next'
 import type {
@@ -28,6 +29,15 @@ interface CampaignFullData {
 
 interface PageProps {
   params: Promise<{ slug: string }>
+}
+
+function toSafeJsonLdScript(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
 }
 
 async function getCampaignData(slug: string): Promise<CampaignFullData | null> {
@@ -191,15 +201,18 @@ export default async function CampaignDetailPage({ params }: PageProps) {
   const { campaign, tiers, updates, faqs, comments, reviews } = data
 
   // JSON-LD structured data
+  const campaignDescription =
+    campaign.subtitle || campaign.description_html?.slice(0, 200).replace(/<[^>]*>/g, '') || ''
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: campaign.title,
-    description: campaign.subtitle || campaign.description_html?.slice(0, 200).replace(/<[^>]*>/g, ''),
-    image: campaign.cover_image_url,
+    name: sanitizeJsonLdValue(campaign.title || ''),
+    description: sanitizeJsonLdValue(campaignDescription),
+    image: campaign.cover_image_url ? sanitizeJsonLdValue(campaign.cover_image_url) : undefined,
     offers: tiers.map((tier) => ({
       '@type': 'Offer',
-      name: tier.title,
+      name: sanitizeJsonLdValue(tier.title || ''),
       price: tier.price_dt,
       priceCurrency: 'KRW',
       availability: tier.remaining_quantity === 0 ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
@@ -210,7 +223,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: toSafeJsonLdScript(jsonLd) }}
       />
 
       {/* Demo Banner */}

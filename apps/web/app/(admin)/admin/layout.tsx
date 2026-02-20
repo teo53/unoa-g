@@ -5,14 +5,16 @@ import Link from 'next/link'
 import { LayoutDashboard, FileCheck, Flag, LogOut, Wallet, CreditCard, Calculator, Image, ToggleLeft, ScrollText, Users, Megaphone, ShieldAlert, Globe, Lock } from 'lucide-react'
 import { OpsToastProvider } from '@/components/ops/ops-toast'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
+import { createClient } from '@/lib/supabase/client'
 
 const DEMO_ADMIN_KEY = 'unoa_admin_auth'
-const DEMO_PASSWORD = 'unoa2026'
+const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD ?? ''
 
 function DemoGate({ children }: { children: React.ReactNode }) {
   const [isAuthed, setIsAuthed] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
+  const isDemoPasswordConfigured = DEMO_PASSWORD.length > 0
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -25,6 +27,10 @@ function DemoGate({ children }: { children: React.ReactNode }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isDemoPasswordConfigured) {
+      setError(true)
+      return
+    }
     if (password === DEMO_PASSWORD) {
       sessionStorage.setItem(DEMO_ADMIN_KEY, 'true')
       setIsAuthed(true)
@@ -46,9 +52,11 @@ function DemoGate({ children }: { children: React.ReactNode }) {
         <p className="text-gray-500 mb-6 text-sm">
           데모 모드에서는 비밀번호가 필요합니다.
           <br />
-          <span className="text-xs text-gray-400 mt-1 inline-block">
-            힌트: unoa + 연도
-          </span>
+          {!isDemoPasswordConfigured && (
+            <span className="text-xs text-red-500 mt-1 inline-block">
+              NEXT_PUBLIC_DEMO_ADMIN_PASSWORD 환경변수가 설정되지 않았습니다.
+            </span>
+          )}
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -60,10 +68,15 @@ function DemoGate({ children }: { children: React.ReactNode }) {
             autoFocus
           />
           {error && (
-            <p className="text-sm text-red-500">비밀번호가 틀렸습니다</p>
+            <p className="text-sm text-red-500">
+              {isDemoPasswordConfigured
+                ? '비밀번호가 틀렸습니다'
+                : '데모 관리자 비밀번호가 설정되지 않았습니다'}
+            </p>
           )}
           <button
             type="submit"
+            disabled={!isDemoPasswordConfigured}
             className="w-full px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
           >
             확인
@@ -78,6 +91,91 @@ function DemoGate({ children }: { children: React.ReactNode }) {
       </div>
     </div>
   )
+}
+
+function AdminAuthGate({ children }: { children: React.ReactNode }) {
+  const [status, setStatus] = useState<'loading' | 'authorized' | 'unauthorized'>('loading')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function verifyAdminAccess() {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      if (!supabaseUrl || !supabaseAnonKey) {
+        if (isMounted) setStatus('unauthorized')
+        return
+      }
+
+      const supabase = createClient()
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
+
+      if (sessionError || !session?.user?.id) {
+        if (isMounted) setStatus('unauthorized')
+        return
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
+
+      const userRole = (profile as { role?: string } | null)?.role
+
+      if (!isMounted) return
+
+      if (profileError || userRole !== 'admin') {
+        setStatus('unauthorized')
+        return
+      }
+
+      setStatus('authorized')
+    }
+
+    void verifyAdminAccess()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-lg p-8 text-center">
+          <p className="text-sm text-gray-600">관리자 권한 확인 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthorized') {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <ShieldAlert className="w-8 h-8 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-3">접근 권한 없음</h1>
+          <p className="text-gray-500 mb-6 text-sm">
+            관리자 계정으로 인증된 사용자만 접근할 수 있습니다.
+          </p>
+          <Link
+            href="/"
+            className="inline-block px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+          >
+            홈으로 이동
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  return <>{children}</>
 }
 
 function AdminShell({ children }: { children: React.ReactNode }) {
@@ -267,5 +365,9 @@ export default function AdminLayout({
     )
   }
 
-  return <AdminShell>{children}</AdminShell>
+  return (
+    <AdminAuthGate>
+      <AdminShell>{children}</AdminShell>
+    </AdminAuthGate>
+  )
 }

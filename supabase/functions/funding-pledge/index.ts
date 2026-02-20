@@ -357,6 +357,20 @@ serve(async (req) => {
       })
 
     if (paymentInsertError) {
+      // P0-03: Check for duplicate pg_payment_id (payment replay attack)
+      if (paymentInsertError.code === '23505' &&
+          (paymentInsertError.message?.includes('idx_funding_payments_unique_pg_payment') ||
+           paymentInsertError.message?.includes('pg_payment_id'))) {
+        console.warn(`[Pledge] Payment ID replay detected: ${paymentId} already used for another pledge`)
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'This payment has already been used for another pledge',
+          }),
+          { status: 409, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+        )
+      }
+
       console.error('Payment record insert error:', paymentInsertError)
       // Pledge was created successfully, payment record is supplementary
       // Don't fail the whole transaction for this

@@ -74,20 +74,21 @@ class DiscoverNotifier extends StateNotifier<DiscoverState> {
     try {
       final client = _ref.read(supabaseClientProvider);
 
-      // Trending: ordered by subscriber count
+      // Trending: query creator_profiles_public view (safe public columns)
       final trendingResponse = await client
-          .from('channels')
-          .select('*, user_profiles!creator_id(*)')
-          .order('subscriber_count', ascending: false)
+          .from('creator_profiles_public')
+          .select(
+              'user_id, channel_id, stage_name, profile_image_url, total_subscribers, verification_status, short_bio')
+          .order('total_subscribers', ascending: false)
           .limit(20);
 
       final trending = (trendingResponse as List).map((json) {
         return Artist(
-          id: json['creator_id'] as String? ?? json['id'] as String,
-          name: json['name'] as String? ?? '',
-          avatarUrl: json['avatar_url'] as String? ?? '',
-          followerCount: json['subscriber_count'] as int? ?? 0,
-          isVerified: json['is_verified'] as bool? ?? false,
+          id: json['channel_id'] as String? ?? json['user_id'] as String,
+          name: json['stage_name'] as String? ?? '',
+          avatarUrl: json['profile_image_url'] as String? ?? '',
+          followerCount: json['total_subscribers'] as int? ?? 0,
+          isVerified: json['verification_status'] == 'verified',
           isOnline: false,
         );
       }).toList();

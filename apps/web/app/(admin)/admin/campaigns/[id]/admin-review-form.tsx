@@ -381,7 +381,6 @@ export default function AdminReviewForm({ id }: AdminReviewFormProps) {
             )}
           </div>
 
-          ```tsx
           {/* Checklist */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">검토 항목</h2>

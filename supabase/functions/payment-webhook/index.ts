@@ -222,7 +222,14 @@ serve(async (req) => {
     const provider = providerHeader || (isPortOne ? 'portone' : 'tosspayments')
 
     // Extract webhook identification
-    const webhookId = req.headers.get('webhook-id') || payload.webhookId || payload.eventId || `${provider}-${Date.now()}`
+    // P0-01: Use provider-supplied IDs first; deterministic fallback instead of Date.now()
+    const providerWebhookId = req.headers.get('webhook-id')
+      || req.headers.get('tosspayments-webhook-transmission-id')
+      || payload.webhookId
+      || payload.eventId
+    const eventType_for_id = payload.type || payload.eventType || 'unknown'
+    const orderId_for_id = (payload.data || payload).orderId || (payload.data || payload).merchant_uid || 'unknown'
+    const webhookId = providerWebhookId || `${provider}:${orderId_for_id}:${eventType_for_id}`
     const webhookTimestamp = req.headers.get('webhook-timestamp') || ''
     const webhookSignature = req.headers.get('webhook-signature') || req.headers.get('x-webhook-signature') || ''
 
@@ -371,29 +378,14 @@ serve(async (req) => {
     }
 
     // Handle cancellation/refund
+    // P0-01: For paid purchases, call process_refund_atomic FIRST (it handles
+    // the status transition to 'refunded' internally). Only set 'cancelled'
+    // for non-paid purchases (pending/failed). This prevents the old bug where
+    // setting 'cancelled' first made refund impossible (refund requires 'paid').
     if (isPaymentCancelled) {
-      const { error: cancelError } = await supabase
-        .from('dt_purchases')
-        .update({
-          status: 'cancelled',
-          payment_provider_transaction_id: paymentId,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', orderId)
-
-      if (cancelError) {
-        logEntry.error_message = `Failed to update purchase status: ${cancelError.message}`
-        logEntry.processed_status = 'failed'
-        await logWebhookEvent(supabase, logEntry)
-        return new Response(
-          JSON.stringify({ error: 'Failed to process cancellation' }),
-          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      // Handle refund of DT if already credited
       if (purchase.status === 'paid') {
-        const refundReason = paymentData.cancels?.[0]?.cancelReason || paymentData.cancelReason || 'Payment cancelled'
+        // STEP 1: Refund DT atomically (this transitions status to 'refunded')
+        const refundReason = paymentData.cancels?.[0]?.cancelReason || paymentData.cancelReason || 'Payment cancelled via webhook'
 
         console.log(`Processing DT refund for cancelled purchase ${orderId}`)
 
@@ -414,16 +406,25 @@ serve(async (req) => {
             )
           }
 
-          // Log the error but still return 200 to avoid webhook retries
+          // Genuine failure — return 500 so webhook retries
           console.error(`Refund processing failed for purchase ${orderId}:`, refundError)
           logEntry.error_message = `Refund failed: ${refundError.message}`
           logEntry.processed_status = 'failed'
           await logWebhookEvent(supabase, logEntry)
           return new Response(
             JSON.stringify({ error: 'Refund processing failed', details: refundError.message }),
-            { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+            { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
           )
         }
+
+        // STEP 2: Update payment_provider_transaction_id (status already changed by process_refund_atomic)
+        await supabase
+          .from('dt_purchases')
+          .update({
+            payment_provider_transaction_id: paymentId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', orderId)
 
         console.log(`DT refund processed for purchase ${orderId}: ${refundResult?.refunded_dt || 0} DT refunded`)
         logEntry.processed_status = 'success'
@@ -438,7 +439,26 @@ serve(async (req) => {
         )
       }
 
-      // Purchase was not paid yet, just mark as cancelled
+      // Purchase was NOT paid (pending/failed) — just mark as cancelled, no refund needed
+      const { error: cancelError } = await supabase
+        .from('dt_purchases')
+        .update({
+          status: 'cancelled',
+          payment_provider_transaction_id: paymentId,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', orderId)
+
+      if (cancelError) {
+        logEntry.error_message = `Failed to update purchase status: ${cancelError.message}`
+        logEntry.processed_status = 'failed'
+        await logWebhookEvent(supabase, logEntry)
+        return new Response(
+          JSON.stringify({ error: 'Failed to process cancellation' }),
+          { status: 500, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
       logEntry.processed_status = 'success'
       await logWebhookEvent(supabase, logEntry)
       return new Response(

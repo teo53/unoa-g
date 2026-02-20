@@ -20,6 +20,9 @@ export 'settings_widgets.dart';
 // Headers
 export 'section_header.dart';
 
+// Navigation
+export 'feature_hub_sheet.dart';
+
 // Loading & Error States
 export 'skeleton_loader.dart';
 export 'error_boundary.dart';

@@ -31,22 +31,11 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
     // Verify the artist owns this channel
     await _verifyChannelOwnership(channelId);
 
+    // Step 1: Query artist_inbox_view (has subscription JOIN + RLS built-in)
     var query = _supabase
-        .from('messages')
-        .select('''
-          *,
-          user_profiles!sender_id (
-            display_name,
-            avatar_url
-          ),
-          subscriptions!left (
-            tier,
-            started_at
-          )
-        ''')
-        .eq('channel_id', channelId)
-        .inFilter('delivery_scope', ['direct_reply', 'donation_message'])
-        .isFilter('deleted_at', null);
+        .from('artist_inbox_view')
+        .select('*')
+        .eq('channel_id', channelId);
 
     // Apply filter
     switch (filterType) {
@@ -69,7 +58,36 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
         .order('created_at', ascending: false)
         .range(offset, offset + limit - 1);
 
-    return response.map((row) => _mapMessageWithSenderInfo(row)).toList();
+    if ((response as List).isEmpty) return [];
+
+    // Step 2: Batch-fetch sender display info from public_user_profiles
+    final senderIds =
+        response.map((r) => r['sender_id'] as String).toSet().toList();
+
+    final senderProfiles = <String, Map<String, dynamic>>{};
+    if (senderIds.isNotEmpty) {
+      final profilesResp = await _supabase
+          .from('public_user_profiles')
+          .select('id, display_name, avatar_url')
+          .inFilter('id', senderIds);
+      for (final p in (profilesResp as List)) {
+        senderProfiles[p['id'] as String] = p as Map<String, dynamic>;
+      }
+    }
+
+    // Step 3: Merge view data with sender profiles
+    return response.map((row) {
+      final senderId = row['sender_id'] as String;
+      final profile = senderProfiles[senderId];
+
+      return BroadcastMessage.fromJson({
+        ...row,
+        'sender_name': profile?['display_name'],
+        'sender_avatar_url': profile?['avatar_url'],
+        'sender_tier': row['sender_tier'],
+        'sender_days_subscribed': row['sender_days_subscribed'],
+      });
+    }).toList();
   }
 
   @override
@@ -88,26 +106,6 @@ class SupabaseInboxRepository implements IArtistInboxRepository {
               .map((row) => BroadcastMessage.fromJson(row))
               .toList();
         });
-  }
-
-  BroadcastMessage _mapMessageWithSenderInfo(Map<String, dynamic> row) {
-    final userProfile = row['user_profiles'] as Map<String, dynamic>?;
-    final subscription = row['subscriptions'] as Map<String, dynamic>?;
-
-    final startedAt = subscription?['started_at'] != null
-        ? DateTime.parse(subscription!['started_at'] as String)
-        : null;
-
-    final daysSubscribed =
-        startedAt != null ? DateTime.now().difference(startedAt).inDays : null;
-
-    return BroadcastMessage.fromJson({
-      ...row,
-      'sender_name': userProfile?['display_name'],
-      'sender_avatar_url': userProfile?['avatar_url'],
-      'sender_tier': subscription?['tier'],
-      'sender_days_subscribed': daysSubscribed,
-    });
   }
 
   // ============================================

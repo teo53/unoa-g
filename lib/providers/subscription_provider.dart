@@ -133,6 +133,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
           .select('*, channels!channel_id(*)')
           .eq('user_id', uid)
           .eq('status', 'active')
+          .or('expires_at.is.null,expires_at.gt.${DateTime.now().toUtc().toIso8601String()}')
           .order('created_at', ascending: false);
 
       final subs = (response as List)

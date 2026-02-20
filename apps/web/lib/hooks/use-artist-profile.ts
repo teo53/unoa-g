@@ -73,7 +73,7 @@ export function useArtistProfile(artistId: string) {
       return
     }
 
-    fetch(`${url}/rest/v1/creator_profiles_public?id=eq.${artistId}&select=*`, {
+    fetch(`${url}/rest/v1/creator_profiles_public?or=(channel_id.eq.${artistId},user_id.eq.${artistId})&select=*`, {
       headers: {
         apikey: key,
         Authorization: `Bearer ${key}`,
@@ -82,7 +82,19 @@ export function useArtistProfile(artistId: string) {
       .then((res) => res.json())
       .then((rows) => {
         if (Array.isArray(rows) && rows.length > 0) {
-          setProfile(rows[0] as ArtistProfile)
+          const raw = rows[0]
+          const mapped: ArtistProfile = {
+            id: raw.channel_id ?? raw.user_id ?? raw.id,
+            display_name: raw.stage_name ?? 'Unknown',
+            avatar_url: raw.profile_image_url ?? '',
+            bio: raw.full_bio ?? raw.short_bio ?? '',
+            group_name: null,
+            follower_count: raw.total_subscribers ?? 0,
+            is_verified: raw.verification_status === 'verified',
+            social_links: raw.social_links ?? {},
+            theme_color: '#FF3B30',
+          }
+          setProfile(mapped)
         } else {
           setError('Artist not found')
         }

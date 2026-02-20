@@ -1,5 +1,5 @@
-// Demo mock data for Firebase Hosting demo deployment
-// Used when Supabase is not configured
+// Demo mock data for explicit demo deployments
+// SECURITY: demo mode must be explicitly enabled via environment variable.
 
 import {
   CampaignEnhanced,
@@ -20,7 +20,7 @@ import {
   UserProfile,
 } from '../types/database'
 
-export const DEMO_MODE = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
 // ============================================
 // Demo Creators

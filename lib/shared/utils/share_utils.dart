@@ -28,7 +28,7 @@ Future<void> shareArtistProfile({
     return;
   }
 
-  await SharePlus.instance.share(ShareParams(text: text));
+  await Share.share(text);
 }
 
 /// Share creator content (drops, events, fancams)
@@ -59,7 +59,7 @@ Future<void> shareCreatorContent({
     return;
   }
 
-  await SharePlus.instance.share(ShareParams(text: text));
+  await Share.share(text);
 }
 
 /// Share a funding campaign
@@ -83,5 +83,5 @@ Future<void> shareFundingCampaign({
     return;
   }
 
-  await SharePlus.instance.share(ShareParams(text: text));
+  await Share.share(text);
 }

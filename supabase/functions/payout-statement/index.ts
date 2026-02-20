@@ -20,6 +20,15 @@ function formatDate(dateStr: string): string {
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
 }
 
+function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req) })
@@ -260,11 +269,11 @@ serve(async (req) => {
     <h2 class="section-title">크리에이터 정보</h2>
     <div class="info-grid">
       <span class="info-label">활동명</span>
-      <span class="info-value">${payout.creator_profiles.stage_name}</span>
+      <span class="info-value">${escapeHtml(payout.creator_profiles.stage_name)}</span>
       <span class="info-label">정산 계좌</span>
-      <span class="info-value">${payout.bank_name} ${payout.bank_account_last4}</span>
+      <span class="info-value">${escapeHtml(payout.bank_name)} ${escapeHtml(payout.bank_account_last4)}</span>
       <span class="info-label">예금주</span>
-      <span class="info-value">${payout.account_holder_name}</span>
+      <span class="info-value">${escapeHtml(payout.account_holder_name)}</span>
       <span class="info-label">정산서 발급일</span>
       <span class="info-value">${formatDate(new Date().toISOString())}</span>
     </div>
@@ -282,14 +291,22 @@ serve(async (req) => {
         </tr>
       </thead>
       <tbody>
-        ${(payout.payout_line_items || []).map((item: any) => `
+        ${(payout.payout_line_items || []).map((item: any) => {
+          const itemLabel =
+            item.item_type === 'tip'
+              ? '선물 (DT 후원)'
+              : item.item_type === 'private_card'
+                ? '프라이빗 카드'
+                : item.item_type
+          return `
         <tr>
-          <td>${item.item_type === 'tip' ? '선물 (DT 후원)' : item.item_type === 'private_card' ? '프라이빗 카드' : item.item_type}</td>
+          <td>${escapeHtml(itemLabel)}</td>
           <td class="amount">${formatNumber(item.item_count)}건</td>
           <td class="amount">${formatNumber(item.gross_dt)} DT</td>
           <td class="amount">${formatNumber(item.gross_krw)}원</td>
         </tr>
-        `).join('')}
+        `
+        }).join('')}
         <tr class="total-row">
           <td>총 수익</td>
           <td class="amount">-</td>
@@ -335,7 +352,7 @@ serve(async (req) => {
 
   <div class="footer">
     <p>본 정산서는 UNO A에서 자동 발급되었습니다.</p>
-    <p>정산서 ID: ${payout.id}</p>
+    <p>정산서 ID: ${escapeHtml(payout.id)}</p>
     <p>&copy; ${new Date().getFullYear()} UNO A. All rights reserved.</p>
   </div>
 </body>

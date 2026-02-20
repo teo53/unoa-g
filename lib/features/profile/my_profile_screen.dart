@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../providers/subscription_provider.dart';
 import '../../core/utils/animation_utils.dart';
+import '../../shared/widgets/feature_hub_sheet.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class MyProfileScreen extends ConsumerWidget {
@@ -44,13 +45,30 @@ class MyProfileScreen extends ConsumerWidget {
                       isDark ? AppColors.textMainDark : AppColors.textMainLight,
                 ),
               ),
-              IconButton(
-                onPressed: () => context.push('/settings'),
-                icon: Icon(
-                  Icons.settings,
-                  color:
-                      isDark ? AppColors.textSubDark : AppColors.textSubLight,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      FeatureHubSheet.show(context, isCreator: isCreator);
+                    },
+                    icon: Icon(
+                      Icons.grid_view_rounded,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => context.push('/settings'),
+                    icon: Icon(
+                      Icons.settings,
+                      color: isDark
+                          ? AppColors.textSubDark
+                          : AppColors.textSubLight,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

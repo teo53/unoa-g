@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { DEMO_MODE } from '@/lib/mock/demo-data'
 import { LANDING_DEFAULTS, type LandingContent } from '@/lib/config/landing-defaults'
+import { createClient } from '@/lib/supabase/client'
 
 const CACHE_KEY = 'unoa_landing_content'
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
@@ -105,6 +106,14 @@ export async function saveLandingContent(
   if (!url || !key) return false
 
   try {
+    const supabase = createClient()
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession()
+
+    if (sessionError || !session?.access_token) return false
+
     const res = await fetch(
       `${url}/rest/v1/landing_content?id=eq.main`,
       {
@@ -112,7 +121,7 @@ export async function saveLandingContent(
         headers: {
           'Content-Type': 'application/json',
           apikey: key,
-          Authorization: `Bearer ${key}`,
+          Authorization: `Bearer ${session.access_token}`,
           Prefer: 'return=minimal',
         },
         body: JSON.stringify(content),

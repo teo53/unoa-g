@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/ops_config_provider.dart';
 import '../../core/utils/animation_utils.dart';
 import '../../shared/widgets/search_field.dart';
+import '../../shared/widgets/feature_hub_sheet.dart';
 import '../../shared/widgets/section_header.dart';
 import 'widgets/trending_artist_card.dart';
 import 'widgets/subscription_tile.dart';
@@ -51,8 +52,21 @@ class _LoggedInHomeScreen extends ConsumerWidget {
                     : 'assets/images/logo.png',
                 height: 28,
               ),
-              Stack(
+              Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  IconButton(
+                    onPressed: () {
+                      final isCreator = ref.read(isCreatorProvider);
+                      FeatureHubSheet.show(context, isCreator: isCreator);
+                    },
+                    icon: Icon(
+                      Icons.grid_view_rounded,
+                      color: isDark
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight,
+                    ),
+                  ),
                   IconButton(
                     onPressed: () => context.push('/notifications'),
                     icon: Icon(
@@ -62,8 +76,6 @@ class _LoggedInHomeScreen extends ConsumerWidget {
                           : AppColors.textMainLight,
                     ),
                   ),
-                  // Notification dot hidden until real notification system is wired
-                  const SizedBox.shrink(),
                 ],
               ),
             ],

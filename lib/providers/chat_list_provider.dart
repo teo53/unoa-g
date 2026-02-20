@@ -191,7 +191,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
         return;
       }
 
-      // Query subscribed channels with artist info and last message
+      // Step 1: Query subscriptions with channel data (no nested user_profiles)
       final response = await client
           .from('subscriptions')
           .select('''
@@ -199,32 +199,46 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
             channel_id,
             tier,
             started_at,
-            is_pinned,
             channels (
               id,
               artist_id,
               name,
-              description,
-              avatar_url,
-              user_profiles!channels_artist_id_fkey (
-                display_name,
-                avatar_url,
-                is_verified
-              )
+              avatar_url
             )
           ''')
           .eq('user_id', userId)
           .eq('is_active', true)
-          .order('is_pinned', ascending: false)
           .order('updated_at', ascending: false);
+
+      // Step 2: Batch-fetch creator profiles for artist display info
+      final artistIds = (response as List)
+          .map((s) =>
+              (s['channels'] as Map<String, dynamic>?)?['artist_id'] as String?)
+          .whereType<String>()
+          .toSet()
+          .toList();
+
+      final creatorProfiles = <String, Map<String, dynamic>>{};
+      if (artistIds.isNotEmpty) {
+        final profilesResp = await client
+            .from('creator_profiles_public')
+            .select(
+                'user_id, stage_name, stage_name_en, profile_image_url, verification_status')
+            .inFilter('user_id', artistIds);
+        for (final p in (profilesResp as List)) {
+          creatorProfiles[p['user_id'] as String] =
+              p as Map<String, dynamic>;
+        }
+      }
 
       final threads = <ChatThreadData>[];
 
-      for (final sub in (response as List)) {
+      for (final sub in response) {
         final channel = sub['channels'] as Map<String, dynamic>?;
         if (channel == null) continue;
 
-        final artistProfile = channel['user_profiles'] as Map<String, dynamic>?;
+        final artistId = channel['artist_id'] as String;
+        final profile = creatorProfiles[artistId];
         final startedAt = DateTime.parse(sub['started_at'] as String);
         final daysSubscribed = DateTime.now().difference(startedAt).inDays;
 
@@ -246,18 +260,19 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
 
         threads.add(ChatThreadData(
           channelId: channel['id'] as String,
-          artistId: channel['artist_id'] as String,
-          artistName: artistProfile?['display_name'] as String? ??
-              channel['name'] as String,
-          avatarUrl: artistProfile?['avatar_url'] as String? ??
+          artistId: artistId,
+          artistName:
+              profile?['stage_name'] as String? ?? channel['name'] as String,
+          artistEnglishName: profile?['stage_name_en'] as String?,
+          avatarUrl: profile?['profile_image_url'] as String? ??
               channel['avatar_url'] as String?,
           lastMessage: messagesResponse?['content'] as String?,
           lastMessageAt: messagesResponse?['created_at'] != null
               ? DateTime.parse(messagesResponse!['created_at'] as String)
               : null,
           unreadCount: unreadResponse.count,
-          isVerified: artistProfile?['is_verified'] as bool? ?? false,
-          isPinned: sub['is_pinned'] as bool? ?? false,
+          isVerified: profile?['verification_status'] == 'verified',
+          isPinned: false,
           tier: sub['tier'] as String? ?? 'STANDARD',
           daysSubscribed: daysSubscribed,
         ));
@@ -324,29 +339,40 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
     await loadChatThreads();
   }
 
-  /// Toggle pin status for a channel
-  Future<void> togglePin(String channelId) async {
-    try {
-      final client = _ref.read(supabaseClientProvider);
-      final userId = _ref.read(currentUserProvider)?.id;
-      if (userId == null) return;
+  /// Toggle pin status for a channel (local-state only)
+  void togglePin(String channelId) {
+    final updatedThreads = state.threads.map((t) {
+      if (t.channelId == channelId) {
+        return ChatThreadData(
+          channelId: t.channelId,
+          artistId: t.artistId,
+          artistName: t.artistName,
+          artistEnglishName: t.artistEnglishName,
+          avatarUrl: t.avatarUrl,
+          lastMessage: t.lastMessage,
+          lastMessageAt: t.lastMessageAt,
+          unreadCount: t.unreadCount,
+          isOnline: t.isOnline,
+          isVerified: t.isVerified,
+          isPinned: !t.isPinned,
+          isStar: t.isStar,
+          tier: t.tier,
+          daysSubscribed: t.daysSubscribed,
+          themeColorIndex: t.themeColorIndex,
+        );
+      }
+      return t;
+    }).toList();
 
-      final thread = state.threads.firstWhere(
-        (t) => t.channelId == channelId,
-        orElse: () => throw Exception('Thread not found'),
-      );
+    // Re-sort with pinned first
+    updatedThreads.sort((a, b) {
+      if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
+      final aTime = a.lastMessageAt ?? DateTime(1970);
+      final bTime = b.lastMessageAt ?? DateTime(1970);
+      return bTime.compareTo(aTime);
+    });
 
-      await client
-          .from('subscriptions')
-          .update({'is_pinned': !thread.isPinned})
-          .eq('channel_id', channelId)
-          .eq('user_id', userId);
-
-      await loadChatThreads();
-    } catch (e) {
-      AppLogger.error(e,
-          tag: 'ChatListNotifier', message: 'Error toggling pin');
-    }
+    state = state.copyWith(threads: updatedThreads);
   }
 
   /// Load demo data for demo mode
