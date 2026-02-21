@@ -6,6 +6,9 @@ import '../../core/theme/app_colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/config/app_config.dart';
 import '../../core/config/demo_config.dart';
+import '../../core/utils/app_logger.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/realtime_provider.dart';
 import '../../providers/chat_list_provider.dart';
 import '../private_card/widgets/private_card_list_view.dart';
 import '../chat/widgets/chat_search_bar.dart';
@@ -80,14 +83,16 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   GroupChatMessage? _replyingTo;
   bool _isReplyDirect = true;
 
-  // Mock messages - 실제로는 provider에서 가져옴
+  // 메시지 리스트 — 데모 모드에서는 mock, 프로덕션에서는 Supabase에서 로드
   final List<GroupChatMessage> _messages = [];
+  bool _isLoading = false;
+  String? _channelId;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadMockMessages();
+    _loadMessages();
     // AI 답글 시트에서 전달받은 텍스트가 있으면 입력창에 세팅
     if (widget.prefillText != null && widget.prefillText!.isNotEmpty) {
       _messageController.text = widget.prefillText!;
@@ -100,6 +105,162 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     }
   }
 
+  /// 메시지 로드 — 데모 모드와 프로덕션 모드 분기
+  Future<void> _loadMessages() async {
+    final authState = ref.read(authProvider);
+    if (authState is AuthDemoMode) {
+      _loadMockMessages();
+      return;
+    }
+
+    // 프로덕션 모드: Supabase에서 메시지 로드
+    if (authState is! AuthAuthenticated) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final client = Supabase.instance.client;
+      final userId = client.auth.currentUser!.id;
+
+      // 크리에이터의 채널 ID 조회
+      final channelResult = await client
+          .from('channels')
+          .select('id')
+          .eq('artist_id', userId)
+          .maybeSingle();
+
+      if (channelResult == null) {
+        AppLogger.warning('Creator has no channel', tag: 'CreatorChat');
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      _channelId = channelResult['id'] as String;
+
+      // 전체 메시지 로드 (크리에이터는 모든 메시지 볼 수 있음)
+      // user_profiles 조인으로 sender 이름/아바타 가져옴
+      final messagesResult = await client
+          .from('messages')
+          .select('''
+            id, channel_id, sender_id, sender_type, delivery_scope,
+            content, message_type, donation_id, donation_amount,
+            target_user_id, reply_to_message_id,
+            is_highlighted, created_at, deleted_at
+          ''')
+          .eq('channel_id', _channelId!)
+          .isFilter('deleted_at', null)
+          .order('created_at', ascending: true)
+          .limit(100);
+
+      // 발신자 정보 조회 (sender_id → 이름/티어)
+      final senderIds = <String>{};
+      for (final msg in messagesResult) {
+        final senderId = msg['sender_id'] as String?;
+        if (senderId != null) senderIds.add(senderId);
+      }
+
+      // user_profiles에서 이름 조회
+      final Map<String, Map<String, dynamic>> senderProfiles = {};
+      if (senderIds.isNotEmpty) {
+        try {
+          final profilesResult = await client
+              .from('user_profiles')
+              .select('id, display_name, avatar_url')
+              .inFilter('id', senderIds.toList());
+          for (final p in profilesResult) {
+            senderProfiles[p['id'] as String] = p;
+          }
+        } catch (e) {
+          AppLogger.debug('user_profiles lookup skipped: $e',
+              tag: 'CreatorChat');
+        }
+      }
+
+      // 구독 정보 조회 (팬 티어)
+      final Map<String, String> senderTiers = {};
+      if (senderIds.isNotEmpty) {
+        try {
+          final subsResult = await client
+              .from('subscriptions')
+              .select('user_id, tier')
+              .eq('channel_id', _channelId!)
+              .inFilter('user_id', senderIds.toList());
+          for (final s in subsResult) {
+            senderTiers[s['user_id'] as String] =
+                s['tier'] as String? ?? 'BASIC';
+          }
+        } catch (e) {
+          AppLogger.debug('subscriptions lookup skipped: $e',
+              tag: 'CreatorChat');
+        }
+      }
+
+      setState(() {
+        _messages.clear();
+        for (final msg in messagesResult) {
+          final senderId = msg['sender_id'] as String? ?? '';
+          final profile = senderProfiles[senderId];
+          final enrichedMsg = Map<String, dynamic>.from(msg);
+          enrichedMsg['sender_name'] =
+              profile?['display_name'] as String? ?? '';
+          enrichedMsg['sender_tier'] = senderTiers[senderId] ?? '';
+
+          _messages.add(GroupChatMessage.fromJson(enrichedMsg));
+        }
+        _isLoading = false;
+      });
+
+      // Realtime 구독 설정
+      _subscribeToRealtime(userId);
+    } catch (e) {
+      AppLogger.error('Failed to load messages: $e', tag: 'CreatorChat');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  /// Realtime 구독 — P0-5 개선된 subscribeToChannel 사용
+  void _subscribeToRealtime(String userId) {
+    if (_channelId == null) return;
+
+    ref.read(realtimeProvider.notifier).subscribeToChannel(
+      _channelId!,
+      currentUserId: userId,
+      isCreator: true,
+      onNewMessage: (record) {
+        if (!mounted) return;
+        final msg = GroupChatMessage.fromJson(record);
+        // 중복 방지 — 이미 로컬 전송으로 추가된 메시지 건너뜀
+        if (_messages.any((m) => m.id == msg.id)) return;
+        setState(() {
+          _messages.add(msg);
+        });
+        _scrollToBottom();
+      },
+      onMessageUpdated: (record) {
+        if (!mounted) return;
+        final updatedMsg = GroupChatMessage.fromJson(record);
+        final index = _messages.indexWhere((m) => m.id == updatedMsg.id);
+        if (index != -1) {
+          setState(() {
+            _messages[index] = updatedMsg;
+          });
+        }
+      },
+      onMessageDeleted: (record) {
+        if (!mounted) return;
+        final deletedId = record['id']?.toString();
+        if (deletedId == null) return;
+        final index = _messages.indexWhere((m) => m.id == deletedId);
+        if (index != -1) {
+          setState(() {
+            _messages[index] = _messages[index].copyWith(isDeleted: true);
+          });
+        }
+      },
+    );
+  }
+
+  /// 데모 모드용 mock 메시지 로드 (기존 동작 유지)
   void _loadMockMessages() {
     final now = DateTime.now();
     _messages.addAll([
@@ -184,6 +345,10 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
 
   @override
   void dispose() {
+    // Realtime 구독 해제
+    if (_channelId != null) {
+      ref.read(realtimeProvider.notifier).unsubscribeFromChannel(_channelId!);
+    }
     _tabController.dispose();
     _messageController.dispose();
     _scrollController.dispose();
@@ -193,9 +358,21 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
   void _sendMessage() {
     if (_messageController.text.trim().isEmpty) return;
 
-    final isReply = _replyingTo != null;
+    final authState = ref.read(authProvider);
+    if (authState is AuthDemoMode) {
+      _sendDemoMessage();
+      return;
+    }
 
+    // 프로덕션 모드: Supabase에 메시지 삽입
+    _sendSupabaseMessage();
+  }
+
+  /// 데모 모드 메시지 전송 (기존 로컬 로직)
+  void _sendDemoMessage() {
+    final isReply = _replyingTo != null;
     final tierLabel = _selectedTier;
+    final replyFanName = _replyingTo?.fanName;
 
     setState(() {
       _messages.add(GroupChatMessage(
@@ -222,8 +399,100 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
       _showTierSelector = false;
     });
 
-    // Scroll to bottom
     _scrollToBottom();
+    _showSendFeedback(replyFanName, isReply);
+  }
+
+  /// 프로덕션 메시지 전송 — Supabase insert
+  Future<void> _sendSupabaseMessage() async {
+    if (_channelId == null) return;
+
+    final content = _messageController.text.trim();
+    final isReply = _replyingTo != null;
+    final replyFanName = _replyingTo?.fanName;
+    final replyFanId = _replyingTo?.fanId;
+    final isDirectReply = _isReplyDirect;
+
+    // 즉시 UI 업데이트 (낙관적 전송)
+    final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+    setState(() {
+      _messages.add(GroupChatMessage(
+        id: tempId,
+        content: content,
+        fanId: 'creator',
+        fanName: '',
+        fanTier: '',
+        isFromCreator: true,
+        timestamp: DateTime.now(),
+        isDirectReplyMessage: isReply && isDirectReply,
+        replyToFanId: _replyingTo?.fanId,
+        replyToFanName: _replyingTo?.fanName,
+        replyToContent: _replyingTo?.content,
+        minTierRequired: _selectedTier,
+      ));
+      _messageController.clear();
+      _replyingTo = null;
+      _isMediaMenuOpen = false;
+      _selectedTier = null;
+      _showTierSelector = false;
+    });
+    _scrollToBottom();
+
+    try {
+      final client = Supabase.instance.client;
+      final userId = client.auth.currentUser!.id;
+
+      final insertData = <String, dynamic>{
+        'channel_id': _channelId,
+        'sender_id': userId,
+        'sender_type': 'artist',
+        'content': content,
+      };
+
+      if (isReply && isDirectReply && replyFanId != null) {
+        // 1:1 답장 → donation_reply (해당 팬에게만 전달)
+        insertData['delivery_scope'] = 'donation_reply';
+        insertData['target_user_id'] = replyFanId;
+      } else {
+        // 전체 전송 (브로드캐스트)
+        insertData['delivery_scope'] = 'broadcast';
+      }
+
+      final result =
+          await client.from('messages').insert(insertData).select().single();
+
+      // 낙관적 메시지를 실제 DB 결과로 교체
+      if (mounted) {
+        final index = _messages.indexWhere((m) => m.id == tempId);
+        if (index != -1) {
+          setState(() {
+            _messages[index] = GroupChatMessage.fromJson(result);
+          });
+        }
+      }
+
+      _showSendFeedback(replyFanName, isReply);
+    } catch (e) {
+      AppLogger.error('Failed to send message: $e', tag: 'CreatorChat');
+      if (mounted) {
+        // 실패 시 낙관적 메시지 제거
+        setState(() {
+          _messages.removeWhere((m) => m.id == tempId);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('메시지 전송 실패: $e'),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  /// 전송 후 피드백 표시
+  void _showSendFeedback(String? replyFanName, bool isReply) {
+    if (!mounted) return;
 
     final sentContent = _messages.last.content;
     final hasPersonalization = sentContent.contains('{fanName}') ||
@@ -243,7 +512,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
         SnackBar(
           content: Text(
             _isReplyDirect
-                ? '${_replyingTo?.fanName ?? ''}님에게 1:1 답장을 보냈습니다'
+                ? '${replyFanName ?? ''}님에게 1:1 답장을 보냈습니다'
                 : '전체 팬에게 답장을 보냈습니다',
           ),
           behavior: SnackBarBehavior.floating,
@@ -1057,7 +1326,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                 IconButton(
                   onPressed: () => MediaGallerySheet.show(
                     context: context,
-                    channelId: DemoConfig.demoChannelId,
+                    channelId: _channelId ?? DemoConfig.demoChannelId,
                   ),
                   icon: Icon(
                     Icons.perm_media_outlined,
@@ -1233,7 +1502,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '입력한 메시지는 구독자 ${DemoConfig.demoSubscriberCount}명에게 모두 전송됩니다',
+                          '입력한 메시지는 구독자에게 모두 전송됩니다',
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.primary.withValues(alpha: 0.8),
@@ -1268,58 +1537,61 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
           ),
 
         // 질문카드 패널
-        const DailyQuestionCardsPanel(
-          channelId: DemoConfig.demoChannelId,
+        DailyQuestionCardsPanel(
+          channelId: _channelId ?? DemoConfig.demoChannelId,
           compact: true,
         ),
 
         // 메시지 리스트 (단체톡방 형태)
         Expanded(
-          child: _messages.isEmpty
-              ? _buildEmptyChannelState(isDark)
-              : ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _messages.length,
-                  itemBuilder: (context, index) {
-                    final message = _messages[index];
-                    final prevMessage = index > 0 ? _messages[index - 1] : null;
-                    final showDate = _shouldShowDate(message, prevMessage);
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _messages.isEmpty
+                  ? _buildEmptyChannelState(isDark)
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        final prevMessage =
+                            index > 0 ? _messages[index - 1] : null;
+                        final showDate = _shouldShowDate(message, prevMessage);
 
-                    return Column(
-                      children: [
-                        if (showDate)
-                          _buildDateSeparator(message.timestamp, isDark),
-                        GroupChatBubble(
-                          message: message,
-                          isDark: isDark,
-                          isHearted: _heartedMessages.contains(message.id),
-                          onHeartTap: () => _toggleHeart(message.id),
-                          onAvatarTap: message.isFromCreator
-                              ? null
-                              : (fanId) => FanProfileSheet.show(
-                                    context,
-                                    ref,
-                                    fanId,
-                                  ),
-                          onLongPress: message.isDeleted
-                              ? null
-                              : message.isFromCreator
-                                  ? () => _showCreatorMessageActionsSheet(
+                        return Column(
+                          children: [
+                            if (showDate)
+                              _buildDateSeparator(message.timestamp, isDark),
+                            GroupChatBubble(
+                              message: message,
+                              isDark: isDark,
+                              isHearted: _heartedMessages.contains(message.id),
+                              onHeartTap: () => _toggleHeart(message.id),
+                              onAvatarTap: message.isFromCreator
+                                  ? null
+                                  : (fanId) => FanProfileSheet.show(
                                         context,
-                                        message,
-                                        isDark,
-                                      )
-                                  : () => _showReplyOptionsSheet(
-                                        context,
-                                        message,
-                                        isDark,
+                                        ref,
+                                        fanId,
                                       ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                              onLongPress: message.isDeleted
+                                  ? null
+                                  : message.isFromCreator
+                                      ? () => _showCreatorMessageActionsSheet(
+                                            context,
+                                            message,
+                                            isDark,
+                                          )
+                                      : () => _showReplyOptionsSheet(
+                                            context,
+                                            message,
+                                            isDark,
+                                          ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
         ),
 
         // 메시지 입력 바

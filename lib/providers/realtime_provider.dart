@@ -124,8 +124,12 @@ class RealtimeNotifier extends StateNotifier<RealtimeState> {
   }
 
   /// Subscribe to a chat channel
+  ///
+  /// P0-5: [currentUserId] and [isCreator] are required for privacy filtering.
   Future<void> subscribeToChannel(
     String channelId, {
+    required String currentUserId,
+    required bool isCreator,
     MessageCallback? onNewMessage,
     MessageCallback? onMessageUpdated,
     MessageCallback? onMessageDeleted,
@@ -149,6 +153,8 @@ class RealtimeNotifier extends StateNotifier<RealtimeState> {
     try {
       await _service!.subscribeToChannel(
         channelId,
+        currentUserId: currentUserId,
+        isCreator: isCreator,
         onNewMessage: onNewMessage,
         onMessageUpdated: onMessageUpdated,
         onMessageDeleted: onMessageDeleted,

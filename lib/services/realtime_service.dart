@@ -71,9 +71,44 @@ class RealtimeService {
 
   String get _currentUserId => _supabase.auth.currentUser?.id ?? '';
 
+  /// P0-5: Client-side defense-in-depth filter for realtime messages.
+  /// Supabase Realtime v2 respects RLS, but this adds an extra safety layer.
+  /// Creators see all messages; fans only see broadcasts, their own replies,
+  /// and donation replies targeted to them. Unknown scopes are blocked (fail-closed).
+  static bool shouldShowMessage(
+    Map<String, dynamic> record, {
+    required String currentUserId,
+    required bool isCreator,
+  }) {
+    if (isCreator) return true;
+
+    final scope = record['delivery_scope'] as String?;
+    final senderId = record['sender_id'] as String?;
+    final targetId = record['target_user_id'] as String?;
+
+    switch (scope) {
+      case 'broadcast':
+        return true;
+      case 'direct_reply':
+      case 'donation_message':
+        // Fan can only see their own sent messages
+        return senderId == currentUserId;
+      case 'donation_reply':
+        // Fan can only see replies targeted to them
+        return targetId == currentUserId;
+      default:
+        // Fail-closed: unknown delivery_scope → block
+        return false;
+    }
+  }
+
   /// Subscribe to a chat channel for real-time updates
+  ///
+  /// [currentUserId] and [isCreator] are required for P0-5 privacy filtering.
   Future<void> subscribeToChannel(
     String channelId, {
+    required String currentUserId,
+    required bool isCreator,
     MessageCallback? onNewMessage,
     MessageCallback? onMessageUpdated,
     MessageCallback? onMessageDeleted,
@@ -106,7 +141,11 @@ class RealtimeService {
             value: channelId,
           ),
           callback: (payload) {
-            onNewMessage?.call(payload.newRecord);
+            // P0-5: Privacy filter — fans only see their own messages + broadcasts
+            if (shouldShowMessage(payload.newRecord,
+                currentUserId: currentUserId, isCreator: isCreator)) {
+              onNewMessage?.call(payload.newRecord);
+            }
           },
         )
         .onPostgresChanges(
@@ -119,7 +158,10 @@ class RealtimeService {
             value: channelId,
           ),
           callback: (payload) {
-            onMessageUpdated?.call(payload.newRecord);
+            if (shouldShowMessage(payload.newRecord,
+                currentUserId: currentUserId, isCreator: isCreator)) {
+              onMessageUpdated?.call(payload.newRecord);
+            }
           },
         )
         .onPostgresChanges(
@@ -132,6 +174,7 @@ class RealtimeService {
             value: channelId,
           ),
           callback: (payload) {
+            // For deletes, allow through — if user could see it before, they should see the removal
             onMessageDeleted?.call(payload.oldRecord);
           },
         );

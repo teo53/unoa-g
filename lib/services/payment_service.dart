@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import '../core/config/app_config.dart';
 import '../core/utils/app_logger.dart';
 
 /// Payment result from payment provider
@@ -50,36 +53,53 @@ class DemoPaymentService implements IPaymentService {
   }
 }
 
-/// Production payment service using PortOne SDK
+/// Production payment service using PortOne SDK (WEB ONLY)
 ///
-/// Note: Requires `iamport_flutter` package for native payment UI.
-/// If the package is not available, falls back to Edge Function checkout.
+/// P0-2: Fail-closed — rejects payments when:
+///   1. PORTONE_STORE_ID is not configured
+///   2. Platform is not web (mobile must use IAP)
+///   3. DT purchase is disabled via feature flag
+///
+/// Server-side checkout flow:
+///   payment-checkout Edge Function → TossPayments checkout URL → redirect
+///   Payment completion → payment-webhook → payment-confirm dual verification
 class PortOnePaymentService implements IPaymentService {
   @override
   Future<PaymentResult> requestPayment(PaymentRequest request) async {
-    // PortOne V2 SDK integration
-    // In production, this would launch the PortOne payment UI:
-    //
-    // final response = await Iamport.requestPayment(
-    //   pg: 'tosspayments',
-    //   payMethod: request.payMethod,
-    //   merchantUid: request.merchantUid,
-    //   name: request.name,
-    //   amount: request.amount,
-    //   buyerName: request.buyerName,
-    //   buyerEmail: request.buyerEmail,
-    //   storeId: AppConfig.portOneStoreId,
-    // );
-    //
-    // For now, use server-side checkout session approach:
+    // FAIL-CLOSED 1: Store ID not configured
+    if (AppConfig.portOneStoreId.isEmpty) {
+      AppLogger.error('PortOne rejected: PORTONE_STORE_ID not configured',
+          tag: 'Payment');
+      return const PaymentResult(
+        success: false,
+        errorMessage: '결제 서비스가 아직 설정되지 않았습니다.',
+      );
+    }
+
+    // FAIL-CLOSED 2: Web only (mobile must use IAP)
+    if (!kIsWeb) {
+      AppLogger.error('PortOne rejected: not web platform', tag: 'Payment');
+      return const PaymentResult(
+        success: false,
+        errorMessage: '웹에서만 결제가 가능합니다.',
+      );
+    }
+
+    // FAIL-CLOSED 3: DT purchase disabled
+    if (!AppConfig.enableDtPurchase) {
+      return const PaymentResult(
+        success: false,
+        errorMessage: '현재 결제가 비활성화되어 있습니다.',
+      );
+    }
+
+    // Server-side checkout flow:
     // The checkout is initiated server-side via payment-checkout Edge Function,
     // and the webhook handles completion notification.
-
     AppLogger.info(
-        'PortOne payment requested: ${request.merchantUid}, amount: ${request.amount}');
+        'PortOne checkout: ${request.merchantUid}, amount: ${request.amount}',
+        tag: 'Payment');
 
-    // Return the merchant UID as payment ID for server-side flow
-    // The actual payment verification happens via webhook
     return PaymentResult(
       success: true,
       paymentId: request.merchantUid,

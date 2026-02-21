@@ -657,6 +657,34 @@ class GroupChatMessage {
     this.minTierRequired,
   });
 
+  /// P0-4: Factory to create GroupChatMessage from Supabase RPC result (get_artist_inbox)
+  factory GroupChatMessage.fromJson(Map<String, dynamic> json) {
+    final deliveryScope = json['delivery_scope'] as String? ?? 'broadcast';
+    final senderType = json['sender_type'] as String? ?? 'fan';
+    final isCreator = senderType == 'artist';
+
+    return GroupChatMessage(
+      id: (json['id'] ?? json['message_id'] ?? '').toString(),
+      content: json['content'] as String? ?? '',
+      fanId: json['sender_id'] as String? ?? '',
+      fanName: json['sender_name'] as String? ?? '',
+      fanTier: json['sender_tier'] as String? ?? '',
+      isFromCreator: isCreator,
+      timestamp: DateTime.tryParse(json['created_at']?.toString() ?? '') ??
+          DateTime.now(),
+      donationAmount: json['donation_amount'] as int?,
+      readCount: json['read_count'] as int?,
+      totalSubscribers: json['total_subscribers'] as int?,
+      isDirectReplyMessage: deliveryScope == 'donation_reply',
+      replyToFanId: json['target_user_id'] as String?,
+      replyToFanName: json['target_user_name'] as String?,
+      replyToContent: json['reply_to_content'] as String?,
+      messageType: json['message_type'] as String? ?? 'text',
+      isEdited: json['is_edited'] as bool? ?? false,
+      isDeleted: json['deleted_at'] != null,
+    );
+  }
+
   GroupChatMessage copyWith({
     String? content,
     bool? isEdited,

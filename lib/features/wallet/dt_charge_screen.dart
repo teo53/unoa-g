@@ -1,12 +1,23 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
 import '../../core/config/app_config.dart';
+import '../../core/config/business_config.dart';
+import '../../core/utils/app_logger.dart';
+import '../../core/utils/platform_pricing.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/repository_providers.dart';
 import '../../providers/wallet_provider.dart';
+import '../../services/iap_service.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/premium_shimmer.dart';
@@ -21,6 +32,171 @@ class DtChargeScreen extends ConsumerStatefulWidget {
 class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
   int? _selectedPackageIndex;
   bool _isProcessing = false;
+  StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
+  List<ProductDetails>? _iapProducts;
+  bool _iapAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initIap();
+  }
+
+  @override
+  void dispose() {
+    _iapSubscription?.cancel();
+    super.dispose();
+  }
+
+  /// Initialize IAP: check availability, query products, listen to purchases.
+  Future<void> _initIap() async {
+    final iapService = ref.read(iapServiceProvider);
+    final available = await iapService.isAvailable();
+
+    if (!mounted) return;
+    setState(() => _iapAvailable = available);
+
+    if (!available) return;
+
+    // Listen to purchase updates
+    _iapSubscription = iapService.purchaseStream.listen(
+      _handlePurchaseUpdates,
+      onError: (error) {
+        AppLogger.error('IAP stream error: $error', tag: 'IAP');
+      },
+    );
+
+    // Query available products
+    final products = await iapService.queryProducts();
+    if (!mounted) return;
+    setState(() => _iapProducts = products);
+  }
+
+  /// Handle purchase status updates from the store.
+  void _handlePurchaseUpdates(List<PurchaseDetails> purchases) {
+    for (final purchase in purchases) {
+      switch (purchase.status) {
+        case PurchaseStatus.pending:
+          // Still processing — keep spinner
+          break;
+
+        case PurchaseStatus.purchased:
+        case PurchaseStatus.restored:
+          // P0-3: Send receipt to iap-verify Edge Function for
+          // server-side verification, then complete the purchase.
+          _verifyAndCompletePurchase(purchase);
+          break;
+
+        case PurchaseStatus.error:
+          if (!mounted) return;
+          setState(() => _isProcessing = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                purchase.error?.message ?? '결제 처리 중 오류가 발생했습니다.',
+              ),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+          // Complete even on error to clear the transaction queue
+          ref.read(iapServiceProvider).completePurchase(purchase);
+          break;
+
+        case PurchaseStatus.canceled:
+          if (!mounted) return;
+          setState(() => _isProcessing = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('결제가 취소되었습니다.'),
+            ),
+          );
+          break;
+      }
+    }
+  }
+
+  /// P0-3: Verify purchase server-side via iap-verify Edge Function,
+  /// then complete the store transaction.
+  Future<void> _verifyAndCompletePurchase(PurchaseDetails purchase) async {
+    AppLogger.info(
+      'IAP verifying: ${purchase.productID}, status=${purchase.status}',
+      tag: 'IAP',
+    );
+
+    int creditedDt = 0;
+
+    try {
+      final client = Supabase.instance.client;
+
+      // Determine platform
+      final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+      final platform = kIsWeb ? 'web' : (isIOS ? 'ios' : 'android');
+
+      // Build verification request
+      final body = <String, dynamic>{
+        'platform': platform,
+        'productId': purchase.productID,
+        'purchaseToken': purchase.verificationData.serverVerificationData,
+      };
+
+      // iOS: include receipt data and transaction ID
+      if (isIOS) {
+        body['transactionReceipt'] =
+            purchase.verificationData.serverVerificationData;
+        body['transactionId'] = purchase.purchaseID;
+      }
+
+      // Call iap-verify Edge Function
+      final response = await client.functions.invoke(
+        'iap-verify',
+        body: body,
+      );
+
+      if (response.status != 200) {
+        final errorData = response.data is String
+            ? jsonDecode(response.data as String)
+            : response.data;
+        final errorMsg = errorData?['error'] ?? 'Verification failed';
+        throw Exception(errorMsg);
+      }
+
+      final result = response.data is String
+          ? jsonDecode(response.data as String) as Map<String, dynamic>
+          : response.data as Map<String, dynamic>;
+
+      creditedDt = (result['creditedDt'] as num?)?.toInt() ?? 0;
+
+      AppLogger.info(
+        'IAP verified: ${purchase.productID}, credited=$creditedDt DT',
+        tag: 'IAP',
+      );
+    } catch (e) {
+      AppLogger.error('IAP verification failed: $e', tag: 'IAP');
+
+      // Show error but still complete the purchase to clear the queue.
+      // The server-side idempotency ensures no double-credit.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('결제 검증 중 오류가 발생했습니다: $e'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    }
+
+    // Complete the store transaction (removes from pending queue)
+    await ref.read(iapServiceProvider).completePurchase(purchase);
+
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    // Reload wallet balance after purchase
+    await ref.read(walletProvider.notifier).loadWallet();
+
+    if (!mounted) return;
+    _showSuccessDialog(context, creditedDt);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +309,7 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  _PaymentMethodCard(),
+                  _PaymentMethodCard(iapAvailable: _iapAvailable),
 
                   const SizedBox(height: 24),
 
@@ -311,39 +487,14 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
         return;
       }
 
-      // Production: call checkout Edge Function → open Toss payment URL
-      final walletNotifier = ref.read(walletProvider.notifier);
-      final checkoutUrl =
-          await walletNotifier.createPurchaseCheckout(package.id);
-
-      if (!mounted) return;
-
-      if (checkoutUrl == null || checkoutUrl.isEmpty) {
-        setState(() => _isProcessing = false);
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('결제 세션 생성에 실패했습니다. 다시 시도해주세요.'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-        return;
+      // Platform branching: mobile → IAP, web → PortOne/TossPayments
+      final platform = ref.read(purchasePlatformProvider);
+      if (platform == PurchasePlatform.ios ||
+          platform == PurchasePlatform.android) {
+        await _processIapPayment(package);
+      } else {
+        await _processWebPayment(package);
       }
-
-      // Open Toss payment window
-      final uri = Uri.parse(checkoutUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
-
-      // After returning from payment window, reload wallet to reflect changes
-      // (confirm/webhook may have credited DT while user was in Toss window)
-      setState(() => _isProcessing = false);
-
-      // Reload wallet after a short delay to allow confirm/webhook to process
-      await Future.delayed(const Duration(seconds: 3));
-      if (!mounted) return;
-      await walletNotifier.loadWallet();
     } catch (e) {
       if (!mounted) return;
 
@@ -364,6 +515,115 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
         ),
       );
     }
+  }
+
+  /// Process payment via IAP (iOS/Android).
+  ///
+  /// Finds the matching store product for the selected DT package,
+  /// then initiates the purchase. The purchase result is handled
+  /// asynchronously via [_handlePurchaseUpdates].
+  Future<void> _processIapPayment(DtPackage package) async {
+    if (!_iapAvailable) {
+      setState(() => _isProcessing = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('인앱 결제를 사용할 수 없습니다. 설정을 확인해주세요.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
+    // Find matching store product
+    final storeProductId = IapService.productIdMap[package.id];
+    if (storeProductId == null) {
+      setState(() => _isProcessing = false);
+      AppLogger.error(
+        'IAP: no store product mapping for ${package.id}',
+        tag: 'IAP',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('해당 패키지는 인앱 결제를 지원하지 않습니다.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    final products = _iapProducts ?? [];
+    final matchingProducts = products.where((p) => p.id == storeProductId);
+
+    if (matchingProducts.isEmpty) {
+      setState(() => _isProcessing = false);
+      AppLogger.warning(
+        'IAP: product $storeProductId not found in store',
+        tag: 'IAP',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('스토어에서 상품 정보를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    // Initiate purchase — result comes via purchaseStream
+    final iapService = ref.read(iapServiceProvider);
+    final success = await iapService.buyProduct(matchingProducts.first);
+
+    if (!success && mounted) {
+      setState(() => _isProcessing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('결제를 시작할 수 없습니다. 다시 시도해주세요.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
+    // If success, _isProcessing stays true until _handlePurchaseUpdates fires
+  }
+
+  /// Process payment via web checkout (PortOne/TossPayments).
+  ///
+  /// Calls the payment-checkout Edge Function to get a Toss checkout URL,
+  /// then opens it in an external browser.
+  Future<void> _processWebPayment(DtPackage package) async {
+    final walletNotifier = ref.read(walletProvider.notifier);
+    final checkoutUrl = await walletNotifier.createPurchaseCheckout(package.id);
+
+    if (!mounted) return;
+
+    if (checkoutUrl == null || checkoutUrl.isEmpty) {
+      setState(() => _isProcessing = false);
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('결제 세션 생성에 실패했습니다. 다시 시도해주세요.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    // Open Toss payment window
+    final uri = Uri.parse(checkoutUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+
+    // After returning from payment window, reload wallet to reflect changes
+    // (confirm/webhook may have credited DT while user was in Toss window)
+    setState(() => _isProcessing = false);
+
+    // Reload wallet after a short delay to allow confirm/webhook to process
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) return;
+    await walletNotifier.loadWallet();
   }
 
   void _showSuccessDialog(BuildContext context, int totalDt) {
@@ -590,9 +850,31 @@ class _PackageCard extends StatelessWidget {
 }
 
 class _PaymentMethodCard extends StatelessWidget {
+  final bool iapAvailable;
+
+  const _PaymentMethodCard({this.iapAvailable = false});
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Platform-aware payment method display
+    final IconData paymentIcon;
+    final String paymentTitle;
+    final String paymentSubtitle;
+
+    if (iapAvailable) {
+      // Mobile: show store-specific payment
+      final isIos = Theme.of(context).platform == TargetPlatform.iOS;
+      paymentIcon = isIos ? Icons.apple : Icons.shop;
+      paymentTitle = isIos ? 'Apple Pay / App Store' : 'Google Play';
+      paymentSubtitle = '인앱 결제';
+    } else {
+      // Web: show card payment
+      paymentIcon = Icons.credit_card;
+      paymentTitle = '신용/체크카드';
+      paymentSubtitle = '기본 결제 수단';
+    }
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -613,7 +895,7 @@ class _PaymentMethodCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              Icons.credit_card,
+              paymentIcon,
               color: isDark ? AppColors.textSubDark : AppColors.textSubLight,
             ),
           ),
@@ -623,7 +905,7 @@ class _PaymentMethodCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '신용/체크카드',
+                  paymentTitle,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -634,7 +916,7 @@ class _PaymentMethodCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '기본 결제 수단',
+                  paymentSubtitle,
                   style: TextStyle(
                     fontSize: 12,
                     color:
