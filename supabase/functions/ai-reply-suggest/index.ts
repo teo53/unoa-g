@@ -370,8 +370,14 @@ function sanitizeForPrompt(text: string): string {
   // P0-6: Hardened sanitization — truncate, strip tags, escape XML specials
   // 500자 제한 (prevents token flooding)
   const truncated = text.slice(0, 500)
-  // Strip all XML/HTML tags (prevents tag injection and boundary escape)
-  const noTags = truncated.replace(/<[^>]*>/g, '')
+  // Strip all XML/HTML tags repeatedly until stable (prevents nested tag bypass
+  // e.g. "<scr<script>ipt>" → "<script>" → "" rather than single-pass leaving "<script>")
+  let noTags = truncated
+  let prev = ''
+  while (noTags !== prev) {
+    prev = noTags
+    noTags = noTags.replace(/<[^>]*>/g, '')
+  }
   // Escape XML special characters (prevents XML boundary escape)
   const escaped = noTags
     .replace(/&/g, '&amp;')
