@@ -92,6 +92,42 @@ jobs:
           retention-days: 7
 
   # =====================================================
+  # iOS Build Gate
+  # =====================================================
+  ios-build:
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS (no codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Verify app bundle exists
+        run: |
+          APP_PATH="build/ios/iphoneos/Runner.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "::error::iOS app bundle not found at $APP_PATH"
+            exit 1
+          fi
+          APP_SIZE=$(du -sm "$APP_PATH" | cut -f1)
+          echo "iOS app bundle size: ${APP_SIZE}MB"
+          if [ "$APP_SIZE" -gt 200 ]; then
+            echo "::warning::iOS app bundle exceeds 200MB (${APP_SIZE}MB)"
+          fi
+
+  # =====================================================
   # Web App Quality Gate
   # =====================================================
   web-quality:

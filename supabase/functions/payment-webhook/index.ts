@@ -836,6 +836,36 @@ serve(async (req) => {
     const newBalance = txResult?.new_balance ?? (wallet.balance_dt + totalDt)
     console.log(`Successfully processed payment for user ${purchase.user_id}: ${totalDt} DT (new balance: ${newBalance})`)
 
+    // P0-3: Activate subscription if payment metadata includes channel context.
+    // Currently DT purchases are standalone (no channel_id in dt_purchases).
+    // When subscription billing is added, the checkout will include channel_id
+    // in the order metadata. This code activates the subscription automatically.
+    let subscriptionActivated = false
+    const subscriptionChannelId = paymentData.metadata?.channel_id || paymentData.channel_id
+    if (subscriptionChannelId && purchase.user_id) {
+      try {
+        const paymentProviderLabel = provider === 'tosspayments' ? 'tosspayments|web' : `${provider}|web`
+        const { error: subError } = await supabase.rpc('activate_subscription', {
+          p_user_id: purchase.user_id,
+          p_channel_id: subscriptionChannelId,
+          p_payment_provider: paymentProviderLabel,
+          p_payment_reference: paymentId || orderId,
+          p_tier: paymentData.metadata?.tier || 'STANDARD',
+          p_duration_days: Number(paymentData.metadata?.duration_days) || 30,
+        })
+
+        if (subError) {
+          console.error(`[Webhook] Subscription activation failed for user ${purchase.user_id}:`, subError)
+        } else {
+          subscriptionActivated = true
+          console.log(`[Webhook] Subscription activated: user=${purchase.user_id}, channel=${subscriptionChannelId}`)
+        }
+      } catch (subErr) {
+        console.error(`[Webhook] Subscription activation error:`, subErr)
+        // Don't fail the payment response — DT is already credited
+      }
+    }
+
     logEntry.processed_status = 'success'
     await logWebhookEvent(supabase, logEntry)
 
@@ -845,6 +875,7 @@ serve(async (req) => {
         purchaseId: orderId,
         creditedDt: totalDt,
         newBalance: newBalance,
+        subscriptionActivated,
       }),
       { status: 200, headers: { ...webhookCorsHeaders, 'Content-Type': 'application/json' } }
     )

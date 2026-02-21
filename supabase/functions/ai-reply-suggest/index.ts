@@ -18,6 +18,7 @@ import { maskUserId } from '../_shared/logger.ts'
 const jsonHeaders = { 'Content-Type': 'application/json' }
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
+const AI_REPLY_ENABLED = (Deno.env.get('AI_REPLY_ENABLED') ?? 'true').toLowerCase() === 'true'
 
 interface RequestBody {
   channel_id: string
@@ -41,6 +42,14 @@ serve(async (req) => {
   }
 
   const startTime = Date.now()
+
+  // P0-6: Feature gate — disable AI replies without redeployment
+  if (!AI_REPLY_ENABLED) {
+    return new Response(
+      JSON.stringify({ error: 'AI reply temporarily disabled', errorCode: 'AI_DISABLED' }),
+      { status: 503, headers: { ...getCorsHeaders(req), ...jsonHeaders } }
+    )
+  }
 
   try {
     // Validate authorization
@@ -358,29 +367,19 @@ serve(async (req) => {
  */
 function sanitizeForPrompt(text: string): string {
   if (!text) return ''
-
-  // Remove text that looks like system instructions or role-playing attempts
-  const injectionPatterns = [
-    /ignore\s+(previous|all|above|prior)\s+(instructions|rules|prompts|commands)/gi,
-    /forget\s+(everything|all|previous|prior)/gi,
-    /disregard\s+(previous|all|above|prior)/gi,
-    /override\s+(previous|all|system)/gi,
-    /bypass\s+(security|safety|rules)/gi,
-    /you\s+are\s+(now|a|an)\s+/gi,
-    /act\s+as\s+(if|a|an)\s+/gi,
-    /pretend\s+(to\s+be|you\s+are)/gi,
-    /system:/gi,
-    /assistant:/gi,
-    /\[INST\]/gi,
-    /\[\/INST\]/gi,
-  ]
-
-  let sanitized = text
-  for (const pattern of injectionPatterns) {
-    sanitized = sanitized.replace(pattern, '[filtered]')
-  }
-
-  return sanitized
+  // P0-6: Hardened sanitization — truncate, strip tags, escape XML specials
+  // 500자 제한 (prevents token flooding)
+  const truncated = text.slice(0, 500)
+  // Strip all XML/HTML tags (prevents tag injection and boundary escape)
+  const noTags = truncated.replace(/<[^>]*>/g, '')
+  // Escape XML special characters (prevents XML boundary escape)
+  const escaped = noTags
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+  // Collapse excessive whitespace (prevents whitespace-based obfuscation)
+  return escaped.replace(/\s{3,}/g, '  ')
 }
 
 function analyzeCreatorPatterns(messages: { content: string }[]): string {
@@ -442,7 +441,7 @@ function analyzeCreatorPatterns(messages: { content: string }[]): string {
 ${styles.length > 0 ? `- 스타일 특징: ${styles.join(', ')}` : ''}
 
 [최근 답변 예시 (톤/스타일 참조용)]
-${uniqueExamples.map(e => `- <example>"${e}"</example>`).join('\n')}
+${uniqueExamples.map(e => `- <example>${JSON.stringify(e)}</example>`).join('\n')}
 
 ⚠️ 위 패턴을 참조하여 크리에이터의 실제 답변 스타일과 유사하게 초안을 작성하세요.`
 }
@@ -465,7 +464,7 @@ function buildPrompt(
     const contextLines = conversationHistory.map(m => {
       const sanitizedContent = sanitizeForPrompt(m.content)
       const tag = m.sender_type === 'artist' ? 'creator_message' : 'fan_message'
-      return `<${tag}>"${sanitizedContent}"</${tag}>`
+      return `<${tag}>${JSON.stringify(sanitizedContent)}</${tag}>`
     }).join('\n')
     contextSection = `[대화 맥락 (최근 대화 흐름)]
 ${contextLines}
@@ -486,7 +485,7 @@ ${contextLines}
 ${patternAnalysis}
 
 ${contextSection}[팬 메시지]
-<user_message>"${sanitizedFanMessage}"</user_message>
+<user_message>${JSON.stringify(sanitizedFanMessage)}</user_message>
 
 [메시지 유형 분석]
 먼저 팬 메시지의 유형을 파악하세요 (질문/감사/축하/일상대화/요청/동의/감탄).

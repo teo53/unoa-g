@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/business_config.dart';
+import '../core/utils/app_logger.dart';
 import '../data/mock/mock_data.dart';
 import 'auth_provider.dart';
 
@@ -173,6 +174,42 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   Future<void> refresh() async {
     await loadSubscriptions();
   }
+
+  /// P0-3: Check if user has active entitlement for a specific channel.
+  ///
+  /// Queries the subscriptions table (SSOT) for an active, entitled subscription.
+  /// Returns true only if:
+  ///   - is_active = true
+  ///   - entitlement_status = 'active'
+  ///
+  /// Demo mode always returns true.
+  Future<bool> hasActiveEntitlement(String channelId) async {
+    final authState = _ref.read(authProvider);
+
+    // Demo mode: always entitled
+    if (authState is AuthDemoMode) return true;
+
+    if (authState is! AuthAuthenticated) return false;
+
+    try {
+      final client = _ref.read(supabaseClientProvider);
+      final uid = authState.user.id;
+
+      final result = await client
+          .from('subscriptions')
+          .select('id')
+          .eq('user_id', uid)
+          .eq('channel_id', channelId)
+          .eq('is_active', true)
+          .eq('entitlement_status', 'active')
+          .maybeSingle();
+
+      return result != null;
+    } catch (e) {
+      AppLogger.error('Failed to check entitlement: $e', tag: 'Subscription');
+      return false; // fail-closed
+    }
+  }
 }
 
 /// Main subscription provider
@@ -193,4 +230,23 @@ final subscriptionListProvider = Provider<List<SubscriptionInfo>>((ref) {
 /// Subscription count convenience provider
 final subscriptionCountProvider = Provider<int>((ref) {
   return ref.watch(subscriptionListProvider).length;
+});
+
+/// P0-3: Entitlement check provider for a specific channel.
+///
+/// Usage:
+/// ```dart
+/// final isEntitled = await ref.read(
+///   entitlementCheckProvider(channelId).future,
+/// );
+/// ```
+final entitlementCheckProvider =
+    FutureProvider.family<bool, String>((ref, channelId) async {
+  final notifier = ref.read(mySubscriptionsProvider.notifier);
+  return notifier.hasActiveEntitlement(channelId);
+});
+
+/// Check if user has any active subscription (convenience for UI guards)
+final hasAnyActiveSubscriptionProvider = Provider<bool>((ref) {
+  return ref.watch(subscriptionListProvider).isNotEmpty;
 });

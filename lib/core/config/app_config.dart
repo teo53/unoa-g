@@ -151,6 +151,18 @@ class AppConfig {
     defaultValue: false,
   );
 
+  /// PortOne Channel Key for payment processing
+  static const String portOneChannelKey = String.fromEnvironment(
+    'PORTONE_CHANNEL_KEY',
+    defaultValue: '',
+  );
+
+  /// Enable In-App Purchase (iOS/Android only, web uses PortOne)
+  static const bool enableIap = bool.fromEnvironment(
+    'ENABLE_IAP',
+    defaultValue: false,
+  );
+
   // ============================================================
   // Storage Configuration
   // ============================================================

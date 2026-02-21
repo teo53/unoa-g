@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories/supabase_chat_repository.dart';
 import '../data/repositories/supabase_funding_repository.dart';
@@ -6,6 +7,7 @@ import '../data/repositories/chat_repository.dart';
 import '../data/repositories/mock_chat_repository.dart';
 import '../data/repositories/supabase_inbox_repository.dart';
 import '../services/payment_service.dart';
+import '../services/iap_service.dart';
 import '../core/config/app_config.dart';
 import 'auth_provider.dart';
 
@@ -116,4 +118,25 @@ final paymentServiceProvider = Provider<IPaymentService>((ref) {
     return DemoPaymentService();
   }
   return PortOnePaymentService();
+});
+
+// ============================================
+// IAP Service (In-App Purchase)
+// ============================================
+
+/// IAP service provider - switches between real IAP and stub
+///
+/// Returns [StubIapService] when:
+/// - Running on web (web uses PortOne/TossPayments)
+/// - Running in demo mode (simulated payments)
+///
+/// Returns [IapService] when:
+/// - Running on iOS/Android in production mode
+/// - The actual store availability is checked at runtime via [IIapService.isAvailable]
+final iapServiceProvider = Provider<IIapService>((ref) {
+  final authState = ref.watch(authProvider);
+  if (authState is AuthDemoMode || kIsWeb) {
+    return StubIapService();
+  }
+  return IapService();
 });
