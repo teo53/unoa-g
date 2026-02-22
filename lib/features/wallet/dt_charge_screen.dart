@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
@@ -130,21 +132,43 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
     int creditedDt = 0;
 
     try {
+      final client = Supabase.instance.client;
+
       // Determine platform
       final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
       final platform = kIsWeb ? 'web' : (isIOS ? 'ios' : 'android');
 
-      // Call iap-verify via repository
-      final result =
-          await ref.read(creatorChatRepositoryProvider).verifyIAPPurchase(
-                platform: platform,
-                productId: purchase.productID,
-                purchaseToken: purchase.verificationData.serverVerificationData,
-                transactionReceipt: isIOS
-                    ? purchase.verificationData.serverVerificationData
-                    : null,
-                transactionId: isIOS ? purchase.purchaseID : null,
-              );
+      // Build verification request
+      final body = <String, dynamic>{
+        'platform': platform,
+        'productId': purchase.productID,
+        'purchaseToken': purchase.verificationData.serverVerificationData,
+      };
+
+      // iOS: include receipt data and transaction ID
+      if (isIOS) {
+        body['transactionReceipt'] =
+            purchase.verificationData.serverVerificationData;
+        body['transactionId'] = purchase.purchaseID;
+      }
+
+      // Call iap-verify Edge Function
+      final response = await client.functions.invoke(
+        'iap-verify',
+        body: body,
+      );
+
+      if (response.status != 200) {
+        final errorData = response.data is String
+            ? jsonDecode(response.data as String)
+            : response.data;
+        final errorMsg = errorData?['error'] ?? 'Verification failed';
+        throw Exception(errorMsg);
+      }
+
+      final result = response.data is String
+          ? jsonDecode(response.data as String) as Map<String, dynamic>
+          : response.data as Map<String, dynamic>;
 
       creditedDt = (result['creditedDt'] as num?)?.toInt() ?? 0;
 
