@@ -93,6 +93,11 @@ CREATE POLICY "Users can view reactions in their channels"
 DROP POLICY IF EXISTS "System can insert audit log"
   ON admin_audit_log;
 
+-- Also drop migration 026's "Secure audit log insert" policy to avoid
+-- redundant OR-combined INSERT policies on the same table.
+DROP POLICY IF EXISTS "Secure audit log insert"
+  ON admin_audit_log;
+
 -- Deny all client-side inserts; only service_role bypasses RLS
 -- (Edge Functions / triggers running as service_role can still insert)
 CREATE POLICY "Only service_role can insert audit log"
