@@ -13,3 +13,6 @@ export 'responsive_helper.dart';
 
 // Safe URL launcher
 export 'safe_url_launcher.dart';
+
+// Korean text search helpers
+export 'korean_text_utils.dart';

@@ -88,7 +88,8 @@ export async function generateStaticParams() {
   return []
 }
 
-export const revalidate = 3600
+// NOTE: revalidate removed — incompatible with `output: 'export'` (static build).
+// Re-add when migrating to SSR/ISR hosting (Vercel, Cloud Run, etc.).
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { artistId } = await params

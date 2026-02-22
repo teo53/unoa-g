@@ -17,6 +17,7 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
+import { checkRateLimit, rateLimitHeaders } from '../_shared/rate_limit.ts'
 
 // Environment configuration
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
@@ -148,10 +149,12 @@ async function verifyAppleReceipt(
 
 // ============================================
 // Google Play Purchase Verification
+// P0-3 FIX: Routes subscriptions to purchases/subscriptions/ endpoint
 // ============================================
 async function verifyGooglePurchase(
   productId: string,
   purchaseToken: string,
+  isSubscription: boolean = false,
 ): Promise<VerificationResult> {
   // FAIL-CLOSED: Service account key required
   if (!GOOGLE_SERVICE_ACCOUNT_KEY) {
@@ -189,8 +192,13 @@ async function verifyGooglePurchase(
     const tokenData = await tokenResponse.json()
     const accessToken = tokenData.access_token
 
-    // Verify the purchase with Google Play Developer API
-    const verifyUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${GOOGLE_PACKAGE_NAME}/purchases/products/${productId}/tokens/${purchaseToken}`
+    // P0-3 FIX: Use correct Google Play Developer API endpoint
+    // - Consumable products: purchases/products/{productId}/tokens/{token}
+    // - Subscriptions:       purchases/subscriptions/{productId}/tokens/{token}
+    const purchaseType = isSubscription ? 'subscriptions' : 'products'
+    const verifyUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${GOOGLE_PACKAGE_NAME}/purchases/${purchaseType}/${productId}/tokens/${purchaseToken}`
+
+    console.log(`[IAP-Verify] Google verify: ${purchaseType}/${productId}`)
 
     const verifyResponse = await fetch(verifyUrl, {
       headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -203,19 +211,47 @@ async function verifyGooglePurchase(
 
     const purchaseData = await verifyResponse.json()
 
-    // purchaseState: 0 = purchased, 1 = cancelled, 2 = pending
-    if (purchaseData.purchaseState !== 0) {
-      return { valid: false, reason: `google_purchase_state_${purchaseData.purchaseState}` }
-    }
+    if (isSubscription) {
+      // Subscription-specific validation
+      // paymentState: 0 = pending, 1 = received, 2 = free trial, 3 = deferred
+      const paymentState = purchaseData.paymentState
+      if (paymentState === 0) {
+        return { valid: false, reason: 'google_subscription_payment_pending' }
+      }
 
-    // consumptionState: 0 = not consumed, 1 = consumed
-    // For our consumable DT packages, we accept both states
-    // (the client may or may not have consumed it already)
+      // Check cancellation — cancelReason present means cancelled
+      if (purchaseData.cancelReason !== undefined && purchaseData.cancelReason !== null) {
+        console.warn(`[IAP-Verify] Subscription cancelled: reason=${purchaseData.cancelReason}`)
+        // Still valid if not yet expired (user paid through end of period)
+      }
 
-    return {
-      valid: true,
-      productId: productId,
-      transactionId: purchaseData.orderId || purchaseToken,
+      // Check expiry
+      const expiryTimeMillis = parseInt(purchaseData.expiryTimeMillis || '0', 10)
+      if (expiryTimeMillis > 0 && expiryTimeMillis < Date.now()) {
+        return { valid: false, reason: 'google_subscription_expired' }
+      }
+
+      return {
+        valid: true,
+        productId: productId,
+        transactionId: purchaseData.orderId || purchaseToken,
+      }
+    } else {
+      // Consumable product validation
+      // purchaseState: 0 = purchased, 1 = cancelled, 2 = pending
+      if (purchaseData.purchaseState !== 0) {
+        return { valid: false, reason: `google_purchase_state_${purchaseData.purchaseState}` }
+      }
+
+      // consumptionState: 0 = not consumed, 1 = consumed
+      // For our consumable DT packages, we accept both states
+      // (the client may or may not have consumed it already)
+
+      return {
+        valid: true,
+        productId: productId,
+        transactionId: purchaseData.orderId || purchaseToken,
+      }
     }
   } catch (error) {
     console.error('[IAP-Verify] Google verification error:', error)
@@ -339,6 +375,19 @@ serve(async (req: Request) => {
   }
 
   try {
+    // P1-1 FIX: Rate limit IAP verify attempts (matches payment-confirm pattern)
+    const rlResult = await checkRateLimit(supabaseUser, {
+      key: `iap_verify:${user.id}`,
+      limit: 20,
+      windowSeconds: 3600,
+    })
+    if (!rlResult.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Too many requests', retryAfter: rlResult.retryAfterSeconds }),
+        { status: 429, headers: { ...corsHeaders, ...jsonHeaders, ...rateLimitHeaders(rlResult) } },
+      )
+    }
+
     const body: VerifyRequest = await req.json()
 
     // Validate required fields
@@ -384,7 +433,8 @@ serve(async (req: Request) => {
       }
       verification = await verifyAppleReceipt(body.transactionReceipt, body.transactionId)
     } else {
-      verification = await verifyGooglePurchase(body.productId, body.purchaseToken)
+      // P0-3 FIX: Pass isSubscription flag so Google uses correct API endpoint
+      verification = await verifyGooglePurchase(body.productId, body.purchaseToken, isSubscription)
     }
 
     // Log verification attempt
@@ -407,7 +457,7 @@ serve(async (req: Request) => {
         transactionId: verification.transactionId,
         reason: verification.reason,
       },
-    }).catch(err => {
+    }).catch((err: unknown) => {
       console.error('[IAP-Verify] Failed to log verification:', err)
     })
 

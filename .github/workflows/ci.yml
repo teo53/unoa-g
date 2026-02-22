@@ -166,6 +166,49 @@ jobs:
           NEXT_PUBLIC_DEMO_BUILD: 'true'
 
   # =====================================================
+  # Web Production Build Gate (P0-6: catches routing failures masked by DEMO_BUILD)
+  # =====================================================
+  web-prod-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true  # P0-2: Known conflict — dynamic routes vs static export
+
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (production — no demo bypass)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_DEMO_BUILD: 'false'
+          NEXT_PUBLIC_DEMO_MODE: 'false'
+
+      - name: Verify build output exists
+        run: |
+          if [ ! -d "out" ]; then
+            echo "::error::Production build output 'out' directory not found"
+            exit 1
+          fi
+          PAGE_COUNT=$(find out -name '*.html' | wc -l)
+          echo "Production build generated ${PAGE_COUNT} HTML pages"
+          if [ "$PAGE_COUNT" -lt 5 ]; then
+            echo "::warning::Very few HTML pages generated (${PAGE_COUNT}). Check static params generation."
+          fi
+
+  # =====================================================
   # Security Scan
   # =====================================================
   security-scan:

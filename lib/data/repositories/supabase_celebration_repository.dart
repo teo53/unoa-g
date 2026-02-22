@@ -19,18 +19,15 @@ class SupabaseCelebrationRepository {
     required int birthDay,
     required bool isVisible,
   }) async {
-    await _supabase.from('fan_celebrations').upsert(
-      {
-        'user_id': userId,
-        'channel_id': channelId,
-        'birth_month': birthMonth,
-        'birth_day': birthDay,
-        'birthday_visible': isVisible,
-        'visibility_consent_at':
-            isVisible ? DateTime.now().toUtc().toIso8601String() : null,
-      },
-      onConflict: 'user_id,channel_id',
-    );
+    await _supabase.from('fan_celebrations').upsert({
+      'user_id': userId,
+      'channel_id': channelId,
+      'birth_month': birthMonth,
+      'birth_day': birthDay,
+      'birthday_visible': isVisible,
+      'visibility_consent_at':
+          isVisible ? DateTime.now().toUtc().toIso8601String() : null,
+    }, onConflict: 'user_id,channel_id');
   }
 
   Future<void> deleteFanBirthday(String userId, String channelId) async {
@@ -45,13 +42,12 @@ class SupabaseCelebrationRepository {
   // Celebration Queue
   // ============================================
 
-  Future<List<Map<String, dynamic>>> getCelebrationQueue(
-      String channelId) async {
+  Future<Map<String, dynamic>> getCelebrationQueue(String channelId) async {
     final response = await _supabase.rpc(
       'get_celebration_queue',
       params: {'p_channel_id': channelId},
     );
-    return List<Map<String, dynamic>>.from(response as List);
+    return Map<String, dynamic>.from(response as Map);
   }
 
   Future<Map<String, dynamic>> sendCelebrationMessage({

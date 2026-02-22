@@ -62,13 +62,20 @@ class _CelebrationQueueSectionState
           .read(celebrationRepositoryProvider)
           .getCelebrationQueue(widget.channelId);
 
+      // RPC returns {kst_date, birthday_count, milestone_count, events: [...]}
+      final eventsList = List<Map<String, dynamic>>.from(
+        (response['events'] as List?) ?? [],
+      );
+
       if (mounted) {
         setState(() {
-          _events = response
-              .map((e) => CelebrationEvent.fromJson(
-                    Map<String, dynamic>.from(e)
-                      ..putIfAbsent('channel_id', () => widget.channelId),
-                  ))
+          _events = eventsList
+              .map(
+                (e) => CelebrationEvent.fromJson(
+                  Map<String, dynamic>.from(e)
+                    ..putIfAbsent('channel_id', () => widget.channelId),
+                ),
+              )
               .toList();
           _isLoading = false;
         });
@@ -93,19 +100,21 @@ class _CelebrationQueueSectionState
         // Mark event as sent locally
         setState(() {
           _events = _events
-              ?.map((e) => e.id == event.id
-                  ? CelebrationEvent(
-                      id: e.id,
-                      channelId: e.channelId,
-                      fanCelebrationId: e.fanCelebrationId,
-                      eventType: e.eventType,
-                      dueDate: e.dueDate,
-                      status: 'sent',
-                      payload: e.payload,
-                      createdAt: e.createdAt,
-                      sentAt: DateTime.now(),
-                    )
-                  : e)
+              ?.map(
+                (e) => e.id == event.id
+                    ? CelebrationEvent(
+                        id: e.id,
+                        channelId: e.channelId,
+                        fanCelebrationId: e.fanCelebrationId,
+                        eventType: e.eventType,
+                        dueDate: e.dueDate,
+                        status: 'sent',
+                        payload: e.payload,
+                        createdAt: e.createdAt,
+                        sentAt: DateTime.now(),
+                      )
+                    : e,
+              )
               .toList();
         });
 
@@ -129,9 +138,9 @@ class _CelebrationQueueSectionState
             }
           } catch (e) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('축하 메시지 전송 실패: $e')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('축하 메시지 전송 실패: $e')));
             }
           }
         }
@@ -165,10 +174,7 @@ class _CelebrationQueueSectionState
         // Section header
         Row(
           children: [
-            const Text(
-              '🎉',
-              style: TextStyle(fontSize: 18),
-            ),
+            const Text('🎉', style: TextStyle(fontSize: 18)),
             const SizedBox(width: 8),
             Text(
               '오늘의 축하 이벤트',
@@ -200,14 +206,16 @@ class _CelebrationQueueSectionState
         const SizedBox(height: 12),
 
         // Event cards
-        ...pendingEvents.map((event) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _CelebrationEventCard(
-                event: event,
-                isDark: isDark,
-                onTap: () => _onEventTap(event),
-              ),
-            )),
+        ...pendingEvents.map(
+          (event) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _CelebrationEventCard(
+              event: event,
+              isDark: isDark,
+              onTap: () => _onEventTap(event),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -355,8 +363,10 @@ class _CelebrationEventCard extends StatelessWidget {
             // Action
             if (isSent)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                   borderRadius: BorderRadius.circular(8),
@@ -373,8 +383,10 @@ class _CelebrationEventCard extends StatelessWidget {
               )
             else
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary600,
                   borderRadius: BorderRadius.circular(8),
