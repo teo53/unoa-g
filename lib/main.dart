@@ -10,6 +10,7 @@ import 'core/supabase/supabase_client.dart';
 import 'core/monitoring/sentry_service.dart';
 import 'services/fcm_service.dart';
 import 'services/analytics_service.dart';
+import 'services/media_service.dart';
 import 'app.dart';
 
 // Note: Uncomment when Firebase is configured
@@ -57,6 +58,9 @@ Future<void> main() async {
       debugPrint('[Main] Supabase init failed (non-fatal): $e');
     }
   }
+
+  // Wire signed-URL toggle to AppConfig (P0: storage security)
+  MediaUrlResolver.useSignedUrls = AppConfig.usePrivateStorageBucket;
 
   // Initialize Firebase (for FCM & Analytics)
   // Note: Uncomment when Firebase is configured with google-services.json / GoogleService-Info.plist

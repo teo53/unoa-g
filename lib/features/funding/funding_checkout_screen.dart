@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/config/business_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/payment_service.dart';
+import '../../services/payment_confirmation_service.dart';
 import '../../providers/repository_providers.dart';
 import '../../shared/widgets/auth_gate.dart';
 import 'funding_result_screen.dart';
@@ -115,13 +116,20 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
         ),
       );
 
-      if (!paymentResult.success) {
+      // P0 FIX: Explicitly handle each outcome.
+      // rejected → stop immediately
+      // pending  → proceed to server verification (submitPledge verifies with PortOne)
+      // confirmed → proceed (demo mode returns confirmed directly)
+      if (paymentResult.isRejected) {
         throw Exception(paymentResult.errorMessage ?? '결제에 실패했습니다');
       }
 
       final paymentId = paymentResult.paymentId ?? orderId;
 
       // Edge Function으로 결제 검증 + pledge 생성
+      // For pending payments: the Edge Function calls PortOne API to verify
+      // that the payment was actually collected before creating the pledge.
+      // This is the server-side confirmation step.
       final data = await ref.read(fundingRepositoryProvider).submitPledge(
             campaignId: widget.campaign['id'] as String,
             tierId: widget.tier['id'] as String,
@@ -138,7 +146,14 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
                 : null,
           );
 
-      if (data['pledge_id'] != null) {
+      // Use PaymentConfirmationService to interpret the result
+      final confirmationService = PaymentConfirmationService(
+        ref.read(supabaseClientProvider),
+      );
+      final confirmation =
+          confirmationService.interpretFundingPledgeResult(data);
+
+      if (confirmation.outcome == ConfirmationOutcome.confirmed) {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -153,7 +168,7 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
           ),
         );
       } else {
-        throw Exception(data['error'] ?? '후원에 실패했습니다');
+        throw Exception(confirmation.message ?? '후원에 실패했습니다');
       }
     } catch (e) {
       if (!mounted) return;
