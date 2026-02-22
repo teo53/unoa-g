@@ -383,7 +383,7 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
         periodStart: periodStart,
         periodEnd: periodEnd,
       );
-      return result.toString();
+      return result;
     } catch (e) {
       AppLogger.error(e, tag: 'Settlement', message: 'Settlement export error');
       return null;

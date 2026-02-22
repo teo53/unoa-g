@@ -213,13 +213,27 @@ class SupabaseCreatorChatRepository {
   /// Save creator drops
   Future<void> saveCreatorDrops(
       List<Map<String, dynamic>> drops, String channelId) async {
-    await _supabase.from('creator_drops').upsert(drops);
+    final enriched = drops
+        .map((d) => {
+              ...d,
+              'creator_id': _currentUserId,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+        .toList();
+    await _supabase.from('creator_drops').upsert(enriched);
   }
 
   /// Save creator events
   Future<void> saveCreatorEvents(
       List<Map<String, dynamic>> events, String channelId) async {
-    await _supabase.from('creator_events').upsert(events);
+    final enriched = events
+        .map((e) => {
+              ...e,
+              'creator_id': _currentUserId,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+        .toList();
+    await _supabase.from('creator_events').upsert(enriched);
   }
 
   // ============================================

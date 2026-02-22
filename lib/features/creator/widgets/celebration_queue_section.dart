@@ -62,9 +62,13 @@ class _CelebrationQueueSectionState
           .read(celebrationRepositoryProvider)
           .getCelebrationQueue(widget.channelId);
 
+      // RPC returns {kst_date, birthday_count, milestone_count, events: [...]}
+      final eventsList = List<Map<String, dynamic>>.from(
+          (response['events'] as List?) ?? []);
+
       if (mounted) {
         setState(() {
-          _events = response
+          _events = eventsList
               .map((e) => CelebrationEvent.fromJson(
                     Map<String, dynamic>.from(e)
                       ..putIfAbsent('channel_id', () => widget.channelId),

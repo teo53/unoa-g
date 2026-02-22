@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/creator_content.dart';
 import '../core/config/demo_config.dart';
 import 'auth_provider.dart';
+import 'repository_providers.dart';
 
 /// Data class for artist's public content
 class ArtistContent {
@@ -21,13 +22,12 @@ final artistContentProvider =
     FutureProvider.family<ArtistContent, String>((ref, artistId) async {
   final isDemoMode = ref.read(isDemoModeProvider);
 
-  if (isDemoMode) {
+  if (isDemoMode || FeatureFlags.useMockRepositories) {
     return _getDemoContent(artistId);
   }
 
-  // TODO: Fetch from Supabase creator_drops, creator_events, creator_fancams
-  // For now, return demo data
-  return _getDemoContent(artistId);
+  // Production: tables not yet created — return empty content
+  return const ArtistContent();
 });
 
 ArtistContent _getDemoContent(String artistId) {

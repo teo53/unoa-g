@@ -45,13 +45,13 @@ class SupabaseCelebrationRepository {
   // Celebration Queue
   // ============================================
 
-  Future<List<Map<String, dynamic>>> getCelebrationQueue(
+  Future<Map<String, dynamic>> getCelebrationQueue(
       String channelId) async {
     final response = await _supabase.rpc(
       'get_celebration_queue',
       params: {'p_channel_id': channelId},
     );
-    return List<Map<String, dynamic>>.from(response as List);
+    return Map<String, dynamic>.from(response as Map);
   }
 
   Future<Map<String, dynamic>> sendCelebrationMessage({

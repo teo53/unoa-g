@@ -40,7 +40,7 @@ class SupabaseSettlementRepository {
   }
 
   /// Export settlement data as CSV via Edge Function
-  Future<Map<String, dynamic>> exportCsv({
+  Future<String> exportCsv({
     required String periodStart,
     required String periodEnd,
   }) async {
@@ -52,6 +52,8 @@ class SupabaseSettlementRepository {
         'periodEnd': periodEnd,
       },
     );
-    return response.data as Map<String, dynamic>;
+    // Edge Function returns text/csv string
+    final data = response.data;
+    return data is String ? data : data.toString();
   }
 }
