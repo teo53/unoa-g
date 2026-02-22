@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
@@ -8,12 +8,13 @@ import '../../../core/utils/template_renderer.dart';
 import '../../../data/mock/mock_celebrations.dart';
 import '../../../data/models/celebration_event.dart';
 import '../../../data/models/celebration_template.dart';
+import '../../../providers/repository_providers.dart';
 
 /// Bottom sheet for selecting and sending celebration templates.
 ///
 /// Shows templates for the given event type, with variable preview.
 /// Creator selects a template → sees rendered preview → sends.
-class CelebrationTemplateSheet extends StatefulWidget {
+class CelebrationTemplateSheet extends ConsumerStatefulWidget {
   final CelebrationEvent event;
   final String channelId;
   final String artistName;
@@ -48,11 +49,12 @@ class CelebrationTemplateSheet extends StatefulWidget {
   }
 
   @override
-  State<CelebrationTemplateSheet> createState() =>
+  ConsumerState<CelebrationTemplateSheet> createState() =>
       _CelebrationTemplateSheetState();
 }
 
-class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
+class _CelebrationTemplateSheetState
+    extends ConsumerState<CelebrationTemplateSheet> {
   List<CelebrationTemplate>? _templates;
   bool _isLoading = false;
   CelebrationTemplate? _selectedTemplate;
@@ -91,21 +93,17 @@ class _CelebrationTemplateSheetState extends State<CelebrationTemplateSheet> {
         return;
       }
 
-      // Production: Load from Supabase celebration_templates
-      final response = await Supabase.instance.client
-          .from('celebration_templates')
-          .select()
-          .or('channel_id.is.null,channel_id.eq.${widget.channelId}')
-          .eq('event_type', widget.event.eventType)
-          .eq('is_active', true)
-          .order('sort_order');
+      // Production: Load from celebration repository
+      final response =
+          await ref.read(celebrationRepositoryProvider).getCelebrationTemplates(
+                channelId: widget.channelId,
+                eventType: widget.event.eventType,
+              );
 
       if (mounted) {
         setState(() {
-          _templates = (response as List<dynamic>)
-              .map((t) =>
-                  CelebrationTemplate.fromJson(t as Map<String, dynamic>))
-              .toList();
+          _templates =
+              response.map((t) => CelebrationTemplate.fromJson(t)).toList();
           _isLoading = false;
         });
       }

@@ -6,6 +6,12 @@ import '../data/repositories/supabase_wallet_repository.dart';
 import '../data/repositories/chat_repository.dart';
 import '../data/repositories/mock_chat_repository.dart';
 import '../data/repositories/supabase_inbox_repository.dart';
+import '../data/repositories/supabase_moderation_repository.dart';
+import '../data/repositories/supabase_celebration_repository.dart';
+import '../data/repositories/supabase_agency_repository.dart';
+import '../data/repositories/supabase_settlement_repository.dart';
+import '../data/repositories/supabase_auto_charge_repository.dart';
+import '../data/repositories/supabase_creator_chat_repository.dart';
 import '../services/payment_service.dart';
 import '../services/iap_service.dart';
 import '../core/config/app_config.dart';
@@ -139,4 +145,57 @@ final iapServiceProvider = Provider<IIapService>((ref) {
     return StubIapService();
   }
   return IapService();
+});
+
+// ============================================
+// Moderation Repository
+// ============================================
+
+final moderationRepositoryProvider =
+    Provider<SupabaseModerationRepository>((ref) {
+  return SupabaseModerationRepository();
+});
+
+// ============================================
+// Celebration Repository
+// ============================================
+
+final celebrationRepositoryProvider =
+    Provider<SupabaseCelebrationRepository>((ref) {
+  return SupabaseCelebrationRepository();
+});
+
+// ============================================
+// Agency Repository
+// ============================================
+
+final agencyRepositoryProvider = Provider<SupabaseAgencyRepository>((ref) {
+  return SupabaseAgencyRepository();
+});
+
+// ============================================
+// Settlement Repository
+// ============================================
+
+final settlementRepositoryProvider =
+    Provider<SupabaseSettlementRepository>((ref) {
+  return SupabaseSettlementRepository();
+});
+
+// ============================================
+// Auto Charge Repository
+// ============================================
+
+final autoChargeRepositoryProvider =
+    Provider<SupabaseAutoChargeRepository>((ref) {
+  return SupabaseAutoChargeRepository();
+});
+
+// ============================================
+// Creator Chat Repository
+// ============================================
+
+final creatorChatRepositoryProvider =
+    Provider<SupabaseCreatorChatRepository>((ref) {
+  return SupabaseCreatorChatRepository();
 });

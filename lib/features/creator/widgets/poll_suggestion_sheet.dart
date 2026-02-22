@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/mock/mock_polls.dart';
 import '../../../data/models/poll_draft.dart';
+import '../../../providers/repository_providers.dart';
 
 /// Bottom sheet for AI-generated poll/VS suggestions + custom creation.
 ///
@@ -14,7 +15,7 @@ import '../../../data/models/poll_draft.dart';
 /// - 직접 만들기: category → question → options → send
 ///
 /// IMPORTANT: Creator must select/create and send — AI never auto-posts polls.
-class PollSuggestionSheet extends StatefulWidget {
+class PollSuggestionSheet extends ConsumerStatefulWidget {
   final String channelId;
   final Function(PollDraft draft, String? comment) onSend;
 
@@ -41,10 +42,11 @@ class PollSuggestionSheet extends StatefulWidget {
   }
 
   @override
-  State<PollSuggestionSheet> createState() => _PollSuggestionSheetState();
+  ConsumerState<PollSuggestionSheet> createState() =>
+      _PollSuggestionSheetState();
 }
 
-class _PollSuggestionSheetState extends State<PollSuggestionSheet>
+class _PollSuggestionSheetState extends ConsumerState<PollSuggestionSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -121,23 +123,20 @@ class _PollSuggestionSheetState extends State<PollSuggestionSheet>
         return;
       }
 
-      final response = await Supabase.instance.client.functions.invoke(
-        'ai-poll-suggest',
-        body: {
-          'channel_id': widget.channelId,
-          'count': 5,
-        },
-      );
+      final data = await ref
+          .read(creatorChatRepositoryProvider)
+          .generatePollSuggestions(widget.channelId);
 
-      if (response.status != 200) {
-        final errorMsg = response.data is Map
-            ? (response.data as Map)['error']?.toString() ?? '투표 제안을 불러올 수 없어요'
-            : '투표 제안을 불러올 수 없어요';
-        throw Exception(errorMsg);
+      if (data['status'] != null &&
+          data['status'] != 200 &&
+          data['error'] != null) {
+        throw Exception(data['error']?.toString() ?? '투표 제안을 불러올 수 없어요');
       }
 
-      final data = response.data as Map<String, dynamic>;
-      final draftsJson = data['drafts'] as List<dynamic>;
+      final draftsJson = data['drafts'] as List<dynamic>?;
+      if (draftsJson == null) {
+        throw Exception('투표 제안을 불러올 수 없어요');
+      }
 
       if (mounted) {
         setState(() {

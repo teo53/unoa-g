@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/demo_config.dart';
 import '../core/utils/app_logger.dart';
 import '../data/models/agency.dart';
 import 'auth_provider.dart';
+import 'repository_providers.dart';
 
 // ============================================================================
 // State
@@ -96,19 +96,10 @@ class AgencyNotifier extends StateNotifier<AgencyState> {
 
   Future<void> _loadRealAgencyInfo() async {
     try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-      if (userId == null) {
-        state = state.copyWith(isLoading: false, error: '로그인이 필요합니다');
-        return;
-      }
+      final repo = _ref.read(agencyRepositoryProvider);
 
       // Get creator profile ID
-      final profileResult = await supabase
-          .from('creator_profiles')
-          .select('id, agency_id')
-          .eq('user_id', userId)
-          .maybeSingle();
+      final profileResult = await repo.getCreatorProfile();
 
       if (profileResult == null) {
         state = const AgencyState(isLoading: false);
@@ -118,17 +109,7 @@ class AgencyNotifier extends StateNotifier<AgencyState> {
       final creatorProfileId = profileResult['id'] as String;
 
       // Get active contract with agency info
-      final contractResult = await supabase
-          .from('agency_creators')
-          .select('''
-            id, agency_id, status, revenue_share_rate, settlement_period,
-            contract_start_date, contract_end_date, power_of_attorney_url,
-            notes, created_at,
-            agencies!inner(name, logo_url)
-          ''')
-          .eq('creator_profile_id', creatorProfileId)
-          .eq('status', 'active')
-          .maybeSingle();
+      final contractResult = await repo.getActiveContract(creatorProfileId);
 
       AgencyContract? activeContract;
       if (contractResult != null) {
@@ -152,16 +133,8 @@ class AgencyNotifier extends StateNotifier<AgencyState> {
       }
 
       // Get pending invitations
-      final invitationsResult = await supabase
-          .from('agency_creators')
-          .select('''
-            id, agency_id, revenue_share_rate, settlement_period,
-            contract_start_date, contract_end_date, power_of_attorney_url,
-            notes, created_at,
-            agencies!inner(name, logo_url)
-          ''')
-          .eq('creator_profile_id', creatorProfileId)
-          .eq('status', 'pending');
+      final invitationsResult =
+          await repo.getPendingInvitations(creatorProfileId);
 
       final invitations = invitationsResult.map((json) {
         final agencyData = json['agencies'] as Map<String, dynamic>?;
@@ -207,11 +180,11 @@ class AgencyNotifier extends StateNotifier<AgencyState> {
     }
 
     try {
-      final supabase = Supabase.instance.client;
-      final result = await supabase.rpc('accept_agency_contract', params: {
-        'p_contract_id': contractId,
-        'p_accept': true,
-      });
+      final repo = _ref.read(agencyRepositoryProvider);
+      final result = await repo.respondToInvitation(
+        contractId: contractId,
+        accept: true,
+      );
 
       if (result != null && result['success'] == true) {
         await loadAgencyInfo();
@@ -240,11 +213,11 @@ class AgencyNotifier extends StateNotifier<AgencyState> {
     }
 
     try {
-      final supabase = Supabase.instance.client;
-      final result = await supabase.rpc('accept_agency_contract', params: {
-        'p_contract_id': contractId,
-        'p_accept': false,
-      });
+      final repo = _ref.read(agencyRepositoryProvider);
+      final result = await repo.respondToInvitation(
+        contractId: contractId,
+        accept: false,
+      );
 
       if (result != null && result['success'] == true) {
         state = state.copyWith(

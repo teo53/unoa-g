@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/demo_config.dart';
 import '../core/utils/app_logger.dart';
 import '../data/models/fan_filter.dart';
 import '../data/models/private_card.dart';
 import 'auth_provider.dart';
+import 'repository_providers.dart';
 
 /// State for the private card compose flow
 class PrivateCardComposeState {
@@ -229,9 +229,7 @@ class PrivateCardComposeNotifier
 
   Future<void> _syncFavoriteToSupabase(String userId) async {
     try {
-      final supabase = Supabase.instance.client;
-      final currentUserId = supabase.auth.currentUser?.id;
-      if (currentUserId == null) return;
+      final repo = _ref.read(creatorChatRepositoryProvider);
 
       final isFavorite = state.matchedFans
               .where((f) => f.userId == userId)
@@ -240,17 +238,9 @@ class PrivateCardComposeNotifier
           false;
 
       if (isFavorite) {
-        await supabase.from('fan_favorites').upsert({
-          'creator_id': currentUserId,
-          'fan_id': userId,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        await repo.markFanAsFavorite(userId);
       } else {
-        await supabase
-            .from('fan_favorites')
-            .delete()
-            .eq('creator_id', currentUserId)
-            .eq('fan_id', userId);
+        await repo.removeFanFromFavorites(userId);
       }
     } catch (e) {
       AppLogger.error(e, tag: 'PrivateCard', message: 'Favorite sync failed');
@@ -392,25 +382,18 @@ class PrivateCardComposeNotifier
   }
 
   Future<void> _sendSupabaseCard() async {
-    final supabase = Supabase.instance.client;
-    final userId = supabase.auth.currentUser?.id;
-    if (userId == null) throw Exception('인증이 필요합니다');
+    final repo = _ref.read(creatorChatRepositoryProvider);
 
-    final response = await supabase.functions.invoke(
-      'send-private-card',
-      body: {
-        'creatorId': userId,
-        'templateId': state.selectedTemplateId,
-        'cardText': state.cardText,
-        'attachedMediaUrls': state.attachedMediaUrls,
-        'recipientIds': state.selectedFanIds.toList(),
-        'filterUsed': state.selectedFilter?.name,
-      },
+    final data = await repo.sendPrivateCard(
+      templateId: state.selectedTemplateId!,
+      cardText: state.cardText,
+      attachedMediaUrls: state.attachedMediaUrls,
+      recipientIds: state.selectedFanIds.toList(),
+      filterUsed: state.selectedFilter?.name,
     );
 
-    final data = response.data as Map<String, dynamic>?;
-    if (data?['success'] != true) {
-      throw Exception(data?['message'] ?? '카드 전송에 실패했습니다');
+    if (data['success'] != true) {
+      throw Exception(data['message'] ?? '카드 전송에 실패했습니다');
     }
   }
 
@@ -453,18 +436,10 @@ class PrivateCardHistoryNotifier
 
   Future<void> _loadSupabaseHistory() async {
     try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-      if (userId == null) return;
+      final repo = _ref.read(creatorChatRepositoryProvider);
+      final response = await repo.getPrivateCardHistory();
 
-      final response = await supabase
-          .from('private_cards')
-          .select()
-          .eq('artist_id', userId)
-          .order('created_at', ascending: false)
-          .limit(50);
-
-      final cards = (response as List).map((data) {
+      final cards = response.map((data) {
         return PrivateCard(
           id: data['id'] as String,
           channelId: data['channel_id'] as String,
