@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/auth_provider.dart';
+import '../providers/repository_providers.dart';
 
 /// 구독 가격 정책 모델
 class SubscriptionPricingPolicy {
@@ -49,12 +49,8 @@ final subscriptionPricingPolicyProvider =
 
     // 프로덕션: policy_config에서 조회
     try {
-      final supabase = Supabase.instance.client;
-      final response = await supabase
-          .from('policy_config')
-          .select('value')
-          .eq('key', 'subscription_pricing:$channelId')
-          .maybeSingle();
+      final repo = ref.read(creatorChatRepositoryProvider);
+      final response = await repo.getSubscriptionPricingPolicy(channelId);
 
       if (response == null || response['value'] == null) {
         return SubscriptionPricingPolicy.standard();

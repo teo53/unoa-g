@@ -102,8 +102,8 @@ class _ChatInputBarV2State extends ConsumerState<ChatInputBarV2> {
     });
 
     // Check connectivity first
-    final connectivity = await Connectivity().checkConnectivity();
-    if (connectivity == ConnectivityResult.none) {
+    final connectivities = await Connectivity().checkConnectivity();
+    if (connectivities.contains(ConnectivityResult.none)) {
       setState(() {
         _isSending = false;
         _failedMessageText = text;

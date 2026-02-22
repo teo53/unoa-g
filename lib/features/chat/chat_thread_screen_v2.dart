@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/utils/app_logger.dart';
+import '../../providers/repository_providers.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -731,17 +731,11 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
           tag: 'Chat');
     } else {
       try {
-        final supabase = Supabase.instance.client;
-        final userId = supabase.auth.currentUser?.id;
-        if (userId == null) return;
-
-        await supabase.from('reports').insert({
-          'reporter_id': userId,
-          'channel_id': widget.channelId,
-          'reason': reason.name,
-          'description': description,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        await ref.read(moderationRepositoryProvider).submitReport(
+              channelId: widget.channelId,
+              reason: reason.name,
+              description: description ?? '',
+            );
       } catch (e) {
         AppLogger.error(e, tag: 'Chat', message: 'Report submission failed');
       }
@@ -790,15 +784,7 @@ class _ChatThreadScreenV2State extends ConsumerState<ChatThreadScreenV2>
       AppLogger.debug('Demo: Blocking user $userId', tag: 'Chat');
     } else {
       try {
-        final supabase = Supabase.instance.client;
-        final currentUserId = supabase.auth.currentUser?.id;
-        if (currentUserId == null) return;
-
-        await supabase.from('user_blocks').insert({
-          'blocker_id': currentUserId,
-          'blocked_id': userId,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        await ref.read(moderationRepositoryProvider).blockUser(userId);
       } catch (e) {
         AppLogger.error(e, tag: 'Chat', message: 'User block failed');
       }
