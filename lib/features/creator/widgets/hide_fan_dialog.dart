@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_logger.dart';
+import '../../../providers/repository_providers.dart';
 
 /// 크리에이터가 팬을 숨김 처리하는 확인 다이얼로그
 ///
@@ -11,7 +12,7 @@ import '../../../core/utils/app_logger.dart';
 /// - 숨김은 차단과 다름: 팬은 여전히 메시지를 보낼 수 있으나
 ///   크리에이터 타임라인에 표시되지 않음
 /// - 숨김 해제는 설정에서 가능
-class HideFanDialog extends StatefulWidget {
+class HideFanDialog extends ConsumerStatefulWidget {
   final String fanId;
   final String fanName;
   final VoidCallback? onHidden;
@@ -42,28 +43,18 @@ class HideFanDialog extends StatefulWidget {
   }
 
   @override
-  State<HideFanDialog> createState() => _HideFanDialogState();
+  ConsumerState<HideFanDialog> createState() => _HideFanDialogState();
 }
 
-class _HideFanDialogState extends State<HideFanDialog> {
+class _HideFanDialogState extends ConsumerState<HideFanDialog> {
   bool _isLoading = false;
 
   Future<void> _hideFan() async {
     setState(() => _isLoading = true);
 
     try {
-      final supabase = Supabase.instance.client;
-      final currentUserId = supabase.auth.currentUser?.id;
-      if (currentUserId == null) return;
-
-      await supabase.from('hidden_fans').upsert(
-        {
-          'creator_id': currentUserId,
-          'fan_id': widget.fanId,
-          'reason': 'manual_hide',
-        },
-        onConflict: 'creator_id,fan_id',
-      );
+      final repo = ref.read(moderationRepositoryProvider);
+      await repo.hideFan(widget.fanId);
 
       widget.onHidden?.call();
 
@@ -74,7 +65,7 @@ class _HideFanDialogState extends State<HideFanDialog> {
             content: Text('${widget.fanName}님을 숨겼습니다'),
             action: SnackBarAction(
               label: '취소',
-              onPressed: () => _unhideFan(currentUserId),
+              onPressed: () => _unhideFan(),
             ),
           ),
         );
@@ -90,14 +81,10 @@ class _HideFanDialogState extends State<HideFanDialog> {
     }
   }
 
-  Future<void> _unhideFan(String creatorId) async {
+  Future<void> _unhideFan() async {
     try {
-      final supabase = Supabase.instance.client;
-      await supabase
-          .from('hidden_fans')
-          .delete()
-          .eq('creator_id', creatorId)
-          .eq('fan_id', widget.fanId);
+      final repo = ref.read(moderationRepositoryProvider);
+      await repo.unhideFan(widget.fanId);
     } catch (e) {
       AppLogger.error(e, message: 'Failed to unhide fan: ${widget.fanId}');
     }

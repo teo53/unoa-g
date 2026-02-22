@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/mock/mock_celebrations.dart';
 import '../../../data/models/celebration_event.dart';
+import '../../../providers/repository_providers.dart';
 import 'celebration_template_sheet.dart';
 
 /// Dashboard section showing today's pending celebrations.
 ///
 /// Shows count badges for birthdays and milestones,
 /// with tap-to-send via template selection.
-class CelebrationQueueSection extends StatefulWidget {
+class CelebrationQueueSection extends ConsumerStatefulWidget {
   final String channelId;
   final String? artistName;
 
@@ -22,11 +23,12 @@ class CelebrationQueueSection extends StatefulWidget {
   });
 
   @override
-  State<CelebrationQueueSection> createState() =>
+  ConsumerState<CelebrationQueueSection> createState() =>
       _CelebrationQueueSectionState();
 }
 
-class _CelebrationQueueSectionState extends State<CelebrationQueueSection> {
+class _CelebrationQueueSectionState
+    extends ConsumerState<CelebrationQueueSection> {
   List<CelebrationEvent>? _events;
   bool _isLoading = false;
   String? _error;
@@ -55,19 +57,16 @@ class _CelebrationQueueSectionState extends State<CelebrationQueueSection> {
         return;
       }
 
-      // Production: Call Supabase RPC get_celebration_queue
-      final response = await Supabase.instance.client.rpc(
-        'get_celebration_queue',
-        params: {'p_channel_id': widget.channelId},
-      );
+      // Production: Call celebration repository
+      final response = await ref
+          .read(celebrationRepositoryProvider)
+          .getCelebrationQueue(widget.channelId);
 
       if (mounted) {
-        final data = response as Map<String, dynamic>?;
-        final eventsJson = (data?['events'] as List<dynamic>?) ?? [];
         setState(() {
-          _events = eventsJson
+          _events = response
               .map((e) => CelebrationEvent.fromJson(
-                    (e as Map<String, dynamic>)
+                    Map<String, dynamic>.from(e)
                       ..putIfAbsent('channel_id', () => widget.channelId),
                   ))
               .toList();
@@ -113,26 +112,20 @@ class _CelebrationQueueSectionState extends State<CelebrationQueueSection> {
         // Send message via chat system (production only)
         if (!AppConfig.enableDemoMode) {
           try {
-            // 1. Insert broadcast message
-            final msgResponse = await Supabase.instance.client
-                .from('messages')
-                .insert({
-                  'channel_id': widget.channelId,
-                  'sender_type': 'artist',
-                  'delivery_scope': 'broadcast',
-                  'content': renderedText,
-                  'message_type': 'text',
-                })
-                .select('id')
-                .single();
+            final celebrationRepo = ref.read(celebrationRepositoryProvider);
 
-            // 2. Update celebration_events status
+            // 1. Insert broadcast message via repository
+            final msgResponse = await celebrationRepo.sendCelebrationMessage(
+              channelId: widget.channelId,
+              content: renderedText,
+            );
+
+            // 2. Update celebration_events status via repository
             if (event.id.isNotEmpty) {
-              await Supabase.instance.client.from('celebration_events').update({
-                'status': 'sent',
-                'sent_at': DateTime.now().toUtc().toIso8601String(),
-                'message_id': msgResponse['id'],
-              }).eq('id', event.id);
+              await celebrationRepo.markCelebrationSent(
+                eventId: event.id,
+                messageId: msgResponse['id'] as String,
+              );
             }
           } catch (e) {
             if (mounted) {

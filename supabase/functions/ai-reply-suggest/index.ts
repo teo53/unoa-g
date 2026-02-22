@@ -521,8 +521,8 @@ ${contextSection}[팬 메시지]
 }
 
 async function callAnthropic(prompt: string, apiKey: string): Promise<{ suggestions: string[], model: string }> {
-  // S-P0-2: Claude Sonnet 4.5 stable (Anthropic production model)
-  const model = 'claude-sonnet-4-5-20250929'
+  // S-P0-2: Claude model (configurable via env, defaults to Sonnet 4.5 stable)
+  const model = Deno.env.get('CLAUDE_MODEL') || 'claude-sonnet-4-5-20250929'
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',

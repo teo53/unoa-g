@@ -24,3 +24,21 @@ export 'mock_moments_repository.dart';
 export 'challenge_repository.dart';
 export 'supabase_challenge_repository.dart';
 export 'mock_challenge_repository.dart';
+
+// Moderation
+export 'supabase_moderation_repository.dart';
+
+// Celebrations
+export 'supabase_celebration_repository.dart';
+
+// Agency
+export 'supabase_agency_repository.dart';
+
+// Settlement
+export 'supabase_settlement_repository.dart';
+
+// Auto Charge
+export 'supabase_auto_charge_repository.dart';
+
+// Creator Chat Operations
+export 'supabase_creator_chat_repository.dart';

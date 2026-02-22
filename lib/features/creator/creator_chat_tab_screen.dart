@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/config/app_config.dart';
 import '../../core/config/demo_config.dart';
 import '../../core/utils/app_logger.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/realtime_provider.dart';
 import '../../providers/chat_list_provider.dart';
+import '../../providers/repository_providers.dart';
 import '../private_card/widgets/private_card_list_view.dart';
 import '../chat/widgets/chat_search_bar.dart';
 import '../chat/widgets/media_gallery_sheet.dart';
@@ -119,27 +120,27 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     setState(() => _isLoading = true);
 
     try {
-      final client = Supabase.instance.client;
-      final userId = client.auth.currentUser!.id;
+      final creatorChatRepo = ref.read(creatorChatRepositoryProvider);
 
       // 크리에이터의 채널 ID 조회
-      final channelResult = await client
-          .from('channels')
-          .select('id')
-          .eq('artist_id', userId)
-          .maybeSingle();
+      final channelId = await creatorChatRepo.getCreatorChannelId();
 
-      if (channelResult == null) {
+      if (channelId == null) {
         AppLogger.warning('Creator has no channel', tag: 'CreatorChat');
         setState(() => _isLoading = false);
         return;
       }
 
-      _channelId = channelResult['id'] as String;
+      _channelId = channelId;
+
+      // userId is needed for subscription setup below
+      final authState = ref.read(authProvider);
+      final userId = (authState as AuthAuthenticated).user.id;
 
       // 전체 메시지 로드 (크리에이터는 모든 메시지 볼 수 있음)
       // user_profiles 조인으로 sender 이름/아바타 가져옴
-      final messagesResult = await client
+      final supabaseClient = Supabase.instance.client;
+      final messagesResult = await supabaseClient
           .from('messages')
           .select('''
             id, channel_id, sender_id, sender_type, delivery_scope,
@@ -163,7 +164,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
       final Map<String, Map<String, dynamic>> senderProfiles = {};
       if (senderIds.isNotEmpty) {
         try {
-          final profilesResult = await client
+          final profilesResult = await supabaseClient
               .from('user_profiles')
               .select('id, display_name, avatar_url')
               .inFilter('id', senderIds.toList());
@@ -180,7 +181,7 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
       final Map<String, String> senderTiers = {};
       if (senderIds.isNotEmpty) {
         try {
-          final subsResult = await client
+          final subsResult = await supabaseClient
               .from('subscriptions')
               .select('user_id, tier')
               .eq('channel_id', _channelId!)
@@ -439,27 +440,18 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
     _scrollToBottom();
 
     try {
-      final client = Supabase.instance.client;
-      final userId = client.auth.currentUser!.id;
+      final creatorChatRepo = ref.read(creatorChatRepositoryProvider);
 
-      final insertData = <String, dynamic>{
-        'channel_id': _channelId,
-        'sender_id': userId,
-        'sender_type': 'artist',
-        'content': content,
-      };
+      final deliveryScope = (isReply && isDirectReply && replyFanId != null)
+          ? 'donation_reply'
+          : 'broadcast';
 
-      if (isReply && isDirectReply && replyFanId != null) {
-        // 1:1 답장 → donation_reply (해당 팬에게만 전달)
-        insertData['delivery_scope'] = 'donation_reply';
-        insertData['target_user_id'] = replyFanId;
-      } else {
-        // 전체 전송 (브로드캐스트)
-        insertData['delivery_scope'] = 'broadcast';
-      }
-
-      final result =
-          await client.from('messages').insert(insertData).select().single();
+      final result = await creatorChatRepo.sendMessage(
+        channelId: _channelId!,
+        content: content,
+        deliveryScope: deliveryScope,
+        targetUserId: (isReply && isDirectReply) ? replyFanId : null,
+      );
 
       // 낙관적 메시지를 실제 DB 결과로 교체
       if (mounted) {
@@ -1741,22 +1733,21 @@ class _CreatorChatTabScreenState extends ConsumerState<CreatorChatTabScreen>
                             return;
                           }
 
-                          // Production: call Supabase RPC
+                          // Production: call Supabase RPC via repository
                           try {
-                            await Supabase.instance.client.rpc(
-                              'create_poll_message',
-                              params: {
-                                'p_channel_id': 'channel_1',
-                                'p_question': draft.question,
-                                'p_options': draft.options
-                                    .map((o) => o.toJson())
-                                    .toList(),
-                                'p_comment': comment,
-                                'p_draft_id': draft.id.startsWith('draft_')
-                                    ? null
-                                    : draft.id,
-                              },
-                            );
+                            await ref
+                                .read(creatorChatRepositoryProvider)
+                                .createPollMessage(
+                                  channelId: _channelId ?? '',
+                                  question: draft.question,
+                                  options: draft.options
+                                      .map((o) => o.toJson())
+                                      .toList(),
+                                  comment: comment,
+                                  draftId: draft.id.startsWith('draft_')
+                                      ? null
+                                      : draft.id,
+                                );
                             if (context.mounted) {
                               // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(

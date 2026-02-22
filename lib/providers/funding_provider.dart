@@ -564,7 +564,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
 팬 여러분의 응원이 큰 힘이 됩니다. 사랑해요! 🦋''',
         category: '앨범',
-        coverImageUrl: 'https://picsum.photos/seed/funding1/800/450',
+        coverImageUrl:
+            DemoConfig.bannerUrl('funding1', width: 800, height: 450),
         status: CampaignStatus.active,
         goalAmountKrw: 50000000,
         currentAmountKrw: 42350000,
@@ -594,7 +595,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
 함께해주세요! ❤️''',
         category: '팬미팅',
-        coverImageUrl: 'https://picsum.photos/seed/funding2/800/450',
+        coverImageUrl:
+            DemoConfig.bannerUrl('funding2', width: 800, height: 450),
         status: CampaignStatus.active,
         goalAmountKrw: 30000000,
         currentAmountKrw: 38500000,
@@ -620,7 +622,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
 많은 관심 부탁드려요!''',
         category: '화보집',
-        coverImageUrl: 'https://picsum.photos/seed/funding3/800/450',
+        coverImageUrl:
+            DemoConfig.bannerUrl('funding3', width: 800, height: 450),
         status: CampaignStatus.active,
         goalAmountKrw: 20000000,
         currentAmountKrw: 15200000,
@@ -645,7 +648,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
 모든 굿즈는 투어 한정 디자인입니다!''',
         category: '굿즈',
-        coverImageUrl: 'https://picsum.photos/seed/funding4/800/450',
+        coverImageUrl:
+            DemoConfig.bannerUrl('funding4', width: 800, height: 450),
         status: CampaignStatus.active,
         goalAmountKrw: 100000000,
         currentAmountKrw: 89000000,
@@ -671,7 +675,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
 
 함께 축하해주세요!''',
         category: '서포트',
-        coverImageUrl: 'https://picsum.photos/seed/funding5/800/450',
+        coverImageUrl:
+            DemoConfig.bannerUrl('funding5', width: 800, height: 450),
         status: CampaignStatus.active,
         goalAmountKrw: 10000000,
         currentAmountKrw: 12500000,
@@ -690,7 +695,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         subtitle: '팬 여러분과 함께 만드는 앨범',
         description: '팬 여러분과 함께 만드는 첫 앨범입니다.',
         category: '앨범',
-        coverImageUrl: 'https://picsum.photos/seed/mycampaign1/800/450',
+        coverImageUrl:
+            DemoConfig.bannerUrl('mycampaign1', width: 800, height: 450),
         status: CampaignStatus.active,
         goalAmountKrw: 30000000,
         currentAmountKrw: 18500000,
@@ -716,7 +722,8 @@ class FundingNotifier extends StateNotifier<FundingState> {
         subtitle: '성공적으로 마감되었습니다!',
         description: '성공적으로 종료된 팬미팅 펀딩입니다.',
         category: '팬미팅',
-        coverImageUrl: 'https://picsum.photos/seed/mycampaignended/800/450',
+        coverImageUrl:
+            DemoConfig.bannerUrl('mycampaignended', width: 800, height: 450),
         status: CampaignStatus.completed,
         goalAmountKrw: 25000000,
         currentAmountKrw: 32000000,
@@ -1123,7 +1130,7 @@ class FundingNotifier extends StateNotifier<FundingState> {
       final pledge = Pledge(
         id: 'demo_pledge_${DateTime.now().millisecondsSinceEpoch}',
         campaignId: campaignId,
-        userId: 'demo_user_001',
+        userId: DemoConfig.demoFanId,
         tierId: tierId,
         tierTitle: tier?.title,
         campaignTitle: campaign?.title,

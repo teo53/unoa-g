@@ -3,9 +3,9 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/models/auto_charge_config.dart';
 import 'auth_provider.dart';
+import 'repository_providers.dart';
 
 /// 자동충전 설정 조회
 final autoChargeConfigProvider =
@@ -28,16 +28,8 @@ final autoChargeConfigProvider =
 
   if (authState is! AuthAuthenticated) return null;
 
-  final supabase = Supabase.instance.client;
-  final userId = supabase.auth.currentUser?.id;
-  if (userId == null) return null;
-
-  final data = await supabase
-      .from('dt_auto_charge_config')
-      .select()
-      .eq('user_id', userId)
-      .maybeSingle();
-
+  final repo = ref.watch(autoChargeRepositoryProvider);
+  final data = await repo.getConfig();
   if (data == null) return null;
   return AutoChargeConfig.fromJson(data);
 });
@@ -70,23 +62,12 @@ class AutoChargeNotifier extends StateNotifier<AsyncValue<void>> {
 
     state = const AsyncLoading();
     try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-      if (userId == null) {
-        state = const AsyncData(null);
-        return;
-      }
-
-      await supabase.from('dt_auto_charge_config').upsert(
-        {
-          'user_id': userId,
-          'is_enabled': isEnabled,
-          'threshold_dt': thresholdDt,
-          'charge_amount_dt': chargeAmountDt,
-          'max_monthly_charges': maxMonthlyCharges,
-          'updated_at': DateTime.now().toIso8601String(),
-        },
-        onConflict: 'user_id',
+      final repo = _ref.read(autoChargeRepositoryProvider);
+      await repo.saveConfig(
+        isEnabled: isEnabled,
+        thresholdDt: thresholdDt,
+        chargeAmountDt: chargeAmountDt,
+        maxMonthlyCharges: maxMonthlyCharges,
       );
 
       state = const AsyncData(null);
