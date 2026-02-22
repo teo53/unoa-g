@@ -63,8 +63,8 @@ class _CelebrationQueueSectionState
           .getCelebrationQueue(widget.channelId);
 
       // RPC returns {kst_date, birthday_count, milestone_count, events: [...]}
-      final eventsList = List<Map<String, dynamic>>.from(
-          (response['events'] as List?) ?? []);
+      final eventsList =
+          List<Map<String, dynamic>>.from((response['events'] as List?) ?? []);
 
       if (mounted) {
         setState(() {

@@ -45,8 +45,7 @@ class SupabaseCelebrationRepository {
   // Celebration Queue
   // ============================================
 
-  Future<Map<String, dynamic>> getCelebrationQueue(
-      String channelId) async {
+  Future<Map<String, dynamic>> getCelebrationQueue(String channelId) async {
     final response = await _supabase.rpc(
       'get_celebration_queue',
       params: {'p_channel_id': channelId},
