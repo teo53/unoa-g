@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../core/config/app_config.dart';
 import '../../core/utils/safe_url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/agency_provider.dart';
 import 'widgets/agency_info_card.dart';
-
-// 웹 링크 URL 상수
-const String _termsOfServiceUrl = 'https://unoa.app/terms';
-const String _privacyPolicyUrl = 'https://unoa.app/privacy';
 
 /// Creator Profile Screen - Profile and settings for creators
 class CreatorProfileScreen extends ConsumerWidget {
@@ -157,7 +154,8 @@ class CreatorProfileScreen extends ConsumerWidget {
                       iconBgColor: Colors.blueGrey.withValues(alpha: 0.1),
                       title: '이용약관',
                       isExternalLink: true,
-                      onTap: () => _launchUrl(_termsOfServiceUrl, context),
+                      onTap: () => _launchUrl(
+                          AppConfig.effectiveTermsOfServiceUrl, context),
                     ),
                     _MenuItem(
                       icon: Icons.privacy_tip_outlined,
@@ -165,7 +163,8 @@ class CreatorProfileScreen extends ConsumerWidget {
                       iconBgColor: Colors.indigo.withValues(alpha: 0.1),
                       title: '개인정보 처리방침',
                       isExternalLink: true,
-                      onTap: () => _launchUrl(_privacyPolicyUrl, context),
+                      onTap: () => _launchUrl(
+                          AppConfig.effectivePrivacyPolicyUrl, context),
                     ),
                   ],
                 ),

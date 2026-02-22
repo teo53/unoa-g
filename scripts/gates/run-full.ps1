@@ -30,7 +30,12 @@ else {
     Push-Location $repoRoot
     try {
         Write-Host "[run-full] Running flutter build web --release..." -ForegroundColor Cyan
+        # Use 'Continue' to prevent stderr warnings (e.g., Wasm dry-run)
+        # from being treated as terminating errors by PowerShell.
+        $prevEAP = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
         flutter build web --release 2>&1
+        $ErrorActionPreference = $prevEAP
         if ($LASTEXITCODE -ne 0) {
             Write-Host "[run-full] flutter build web FAILED (exit $LASTEXITCODE)" -ForegroundColor Red
             exit 1

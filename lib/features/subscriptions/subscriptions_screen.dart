@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import '../../core/config/business_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/accessibility_helper.dart';
 import '../../core/utils/platform_pricing.dart';
+import '../../core/utils/safe_url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
@@ -239,9 +241,7 @@ class SubscriptionsScreen extends ConsumerWidget {
                       TextButton(
                         onPressed: () {
                           context.pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('구독 해지 기능 준비 중')),
-                          );
+                          _openSubscriptionManagement(context);
                         },
                         child: const Text(
                           '해지',
@@ -258,6 +258,36 @@ class SubscriptionsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// P0-1: Open platform-specific subscription management page.
+  ///
+  /// iOS  → App Store subscription settings
+  /// Android → Google Play subscription settings
+  /// Web  → Informational snackbar (subscriptions managed on mobile)
+  static void _openSubscriptionManagement(BuildContext context) {
+    if (kIsWeb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            '구독 관리는 모바일 앱의 스토어 설정에서 가능합니다.\n'
+            'iOS: 설정 > Apple ID > 구독\n'
+            'Android: Google Play > 결제 및 구독',
+          ),
+          duration: Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+
+    final String url;
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      url = 'https://apps.apple.com/account/subscriptions';
+    } else {
+      url = 'https://play.google.com/store/account/subscriptions';
+    }
+
+    SafeUrlLauncher.launch(url, context: context);
   }
 
   void _showAutoRenewDialog(BuildContext context, dynamic subscription) {
@@ -327,9 +357,7 @@ class SubscriptionsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('자동 갱신 해제 처리되었습니다')),
-              );
+              _openSubscriptionManagement(context);
             },
             child: const Text(
               '자동 갱신 해제',

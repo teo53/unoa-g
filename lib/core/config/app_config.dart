@@ -190,6 +190,16 @@ class AppConfig {
     defaultValue: '',
   );
 
+  /// Effective privacy policy URL with fallback for development.
+  static String get effectivePrivacyPolicyUrl => privacyPolicyUrl.isNotEmpty
+      ? privacyPolicyUrl
+      : 'https://unoa.app/privacy';
+
+  /// Effective terms of service URL with fallback for development.
+  static String get effectiveTermsOfServiceUrl => termsOfServiceUrl.isNotEmpty
+      ? termsOfServiceUrl
+      : 'https://unoa.app/terms';
+
   // ============================================================
   // App Info
   // ============================================================
@@ -265,6 +275,14 @@ class AppConfig {
       if (enableDemoMode) {
         errors.add(
             'ENABLE_DEMO should be false in production (set --dart-define=ENABLE_DEMO=false)');
+      }
+      if (privacyPolicyUrl.isEmpty) {
+        errors.add('PRIVACY_POLICY_URL is not configured for production '
+            '(set --dart-define=PRIVACY_POLICY_URL=https://...)');
+      }
+      if (termsOfServiceUrl.isEmpty) {
+        errors.add('TERMS_URL is not configured for production '
+            '(set --dart-define=TERMS_URL=https://...)');
       }
     }
 
