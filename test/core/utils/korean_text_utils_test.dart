@@ -97,33 +97,27 @@ void main() {
 
     group('matchesKoreanSearch', () {
       test('matches standard substring', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('하늘덕후', '하늘'), isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('하늘덕후', '하늘'), isTrue);
       });
 
       test('matches chosung ㅎㄴ against 하늘덕후', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㅎㄴ'), isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㅎㄴ'), isTrue);
       });
 
       test('matches full chosung ㅎㄴㄷㅎ against 하늘덕후', () {
-        expect(KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㅎㄴㄷㅎ'),
-            isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㅎㄴㄷㅎ'), isTrue);
       });
 
       test('matches partial chosung ㄷㅎ at end of 하늘덕후', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㄷㅎ'), isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㄷㅎ'), isTrue);
       });
 
       test('does not match wrong chosung ㅎㅂ against 하늘덕후', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㅎㅂ'), isFalse);
+        expect(KoreanTextUtils.matchesKoreanSearch('하늘덕후', 'ㅎㅂ'), isFalse);
       });
 
       test('empty query matches everything', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('아무이름', ''), isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('아무이름', ''), isTrue);
       });
 
       test('empty target does not match non-empty query', () {
@@ -131,18 +125,15 @@ void main() {
       });
 
       test('matches 별빛팬 with ㅂㅂ', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('별빛팬', 'ㅂㅂ'), isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('별빛팬', 'ㅂㅂ'), isTrue);
       });
 
       test('matches 응원봇 with ㅇㅇ', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('응원봇', 'ㅇㅇ'), isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('응원봇', 'ㅇㅇ'), isTrue);
       });
 
       test('case insensitive for ASCII portions', () {
-        expect(
-            KoreanTextUtils.matchesKoreanSearch('VIP팬', 'vip'), isTrue);
+        expect(KoreanTextUtils.matchesKoreanSearch('VIP팬', 'vip'), isTrue);
       });
     });
   });

@@ -30,8 +30,7 @@ class KoreanTextUtils {
 
   /// Extract the chosung string from a Hangul syllable code unit.
   static String getChosung(int codeUnit) {
-    final index =
-        (codeUnit - _hangulBase) ~/ (_jungsungCount * _jongsungCount);
+    final index = (codeUnit - _hangulBase) ~/ (_jungsungCount * _jongsungCount);
     return chosung[index];
   }
 
