@@ -28,11 +28,17 @@ import type {
   AgencyDashboardSummary,
 } from './agency-types'
 
+// Static export guard: skip API calls when Supabase credentials are unavailable
+const SKIP_API = !DEMO_MODE && !process.env.NEXT_PUBLIC_SUPABASE_URL
+
 // ── Client ──
 
 function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    throw new Error('Supabase credentials not configured')
+  }
   return createBrowserClient(url, key)
 }
 
@@ -72,6 +78,7 @@ async function callAgencyManage<T>(
 
 export async function getAgencyDashboard(): Promise<AgencyDashboardSummary> {
   if (DEMO_MODE) return mockAgencyDashboard
+  if (SKIP_API) return { agency: { id: '', name: '', business_registration_number: '' }, activeCreators: 0, pendingContracts: 0, currentMonthKRW: 0, previousMonthKRW: 0, currentMonthDT: 0, latestSettlement: null }
   return callAgencyManage<AgencyDashboardSummary>('dashboard.summary')
 }
 
@@ -79,11 +86,13 @@ export async function getAgencyDashboard(): Promise<AgencyDashboardSummary> {
 
 export async function listAgencyCreators(): Promise<AgencyCreator[]> {
   if (DEMO_MODE) return mockAgencyCreators
+  if (SKIP_API) return []
   return callAgencyManage<AgencyCreator[]>('creator.list')
 }
 
 export async function getAgencyCreator(id: string): Promise<AgencyCreator | null> {
   if (DEMO_MODE) return mockAgencyCreators.find(c => c.id === id) ?? null
+  if (SKIP_API) return null
   return callAgencyManage<AgencyCreator | null>('creator.get', { id })
 }
 
@@ -96,11 +105,13 @@ export async function registerCreator(data: Record<string, unknown>): Promise<Ag
 
 export async function listAgencySettlements(): Promise<AgencySettlement[]> {
   if (DEMO_MODE) return mockAgencySettlements
+  if (SKIP_API) return []
   return callAgencyManage<AgencySettlement[]>('settlement.list')
 }
 
 export async function getAgencySettlement(id: string): Promise<AgencySettlement | null> {
   if (DEMO_MODE) return mockAgencySettlements.find(s => s.id === id) ?? null
+  if (SKIP_API) return null
   return callAgencyManage<AgencySettlement | null>('settlement.get', { id })
 }
 
@@ -113,6 +124,7 @@ export async function approveSettlement(id: string): Promise<AgencySettlement> {
 
 export async function getAgencySettings(): Promise<Agency> {
   if (DEMO_MODE) return mockAgency
+  if (SKIP_API) return { id: '', name: '', business_registration_number: '' } as Agency
   return callAgencyManage<Agency>('agency.get')
 }
 
@@ -125,6 +137,7 @@ export async function updateAgencySettings(data: Record<string, unknown>): Promi
 
 export async function listAgencyStaff(): Promise<AgencyStaff[]> {
   if (DEMO_MODE) return mockAgencyStaff
+  if (SKIP_API) return []
   return callAgencyManage<AgencyStaff[]>('staff.list')
 }
 
@@ -137,6 +150,7 @@ export async function inviteStaffMember(email: string, role: string): Promise<Ag
 
 export async function listAgencyNotices(): Promise<AgencyNotice[]> {
   if (DEMO_MODE) return mockAgencyNotices
+  if (SKIP_API) return []
   return callAgencyManage<AgencyNotice[]>('notice.list')
 }
 
@@ -144,6 +158,7 @@ export async function listAgencyNotices(): Promise<AgencyNotice[]> {
 
 export async function listAgencyTaxCertificates(): Promise<AgencyTaxCertificate[]> {
   if (DEMO_MODE) return mockAgencyTaxCertificates
+  if (SKIP_API) return []
   return callAgencyManage<AgencyTaxCertificate[]>('tax.list')
 }
 
@@ -151,6 +166,7 @@ export async function listAgencyTaxCertificates(): Promise<AgencyTaxCertificate[
 
 export async function listAgencyAuditLog(): Promise<AgencyAuditEntry[]> {
   if (DEMO_MODE) return mockAgencyAuditLog
+  if (SKIP_API) return []
   return callAgencyManage<AgencyAuditEntry[]>('audit.list')
 }
 
@@ -158,6 +174,7 @@ export async function listAgencyAuditLog(): Promise<AgencyAuditEntry[]> {
 
 export async function getAgencyStatistics(): Promise<AgencyDashboardSummary> {
   if (DEMO_MODE) return mockAgencyDashboard
+  if (SKIP_API) return { agency: { id: '', name: '', business_registration_number: '' }, activeCreators: 0, pendingContracts: 0, currentMonthKRW: 0, previousMonthKRW: 0, currentMonthDT: 0, latestSettlement: null }
   return callAgencyManage<AgencyDashboardSummary>('statistics.overview')
 }
 
@@ -165,10 +182,12 @@ export async function getAgencyStatistics(): Promise<AgencyDashboardSummary> {
 
 export async function getRecentCreators(): Promise<AgencyCreator[]> {
   if (DEMO_MODE) return mockAgencyCreators
+  if (SKIP_API) return []
   return callAgencyManage<AgencyCreator[]>('creator.list', { limit: 5 })
 }
 
 export async function getRecentSettlements(): Promise<AgencySettlement[]> {
   if (DEMO_MODE) return mockAgencySettlements
+  if (SKIP_API) return []
   return callAgencyManage<AgencySettlement[]>('settlement.list', { limit: 5 })
 }
