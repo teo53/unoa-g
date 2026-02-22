@@ -74,6 +74,9 @@ async function getTaxSummaries(): Promise<CreatorTaxSummary[]> {
     return mockTaxSummaries
   }
 
+  // Static export without Supabase credentials — skip API call
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
+
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()
 

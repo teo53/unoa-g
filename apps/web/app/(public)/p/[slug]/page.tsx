@@ -48,6 +48,9 @@ async function getCampaignData(slug: string): Promise<CampaignFullData | null> {
     return getCampaignFullData(slug)
   }
 
+  // Static export without Supabase credentials — skip API call
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null
+
   // Production mode: use Supabase
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()

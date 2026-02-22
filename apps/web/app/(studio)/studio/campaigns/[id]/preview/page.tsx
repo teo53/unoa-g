@@ -14,7 +14,8 @@ interface PageProps {
 export const dynamicParams = false
 
 export function generateStaticParams() {
-  return getMockCampaignIds().map((id) => ({ id }))
+  if (DEMO_MODE) return getMockCampaignIds().map((id) => ({ id }))
+  return [{ id: '_' }]
 }
 
 export default async function PreviewCampaignPage({ params }: PageProps) {
@@ -30,6 +31,8 @@ export default async function PreviewCampaignPage({ params }: PageProps) {
       tiers = getTiersByCampaignId(id)
       faqs = getFAQsByCampaignId(id)
     }
+  } else if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    // Static export without Supabase — skip
   } else {
     const { createClient } = await import('@/lib/supabase/server')
     const supabase = await createClient()
