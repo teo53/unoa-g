@@ -37,8 +37,7 @@ void main() {
     });
 
     test('rejected: throws with error message', () {
-      const result =
-          PaymentResult.rejected('결제 서비스가 아직 설정되지 않았습니다.');
+      const result = PaymentResult.rejected('결제 서비스가 아직 설정되지 않았습니다.');
 
       final error = evaluatePaymentResult(result);
       expect(error, isNotNull);
@@ -84,8 +83,7 @@ void main() {
 
       final error = evaluatePaymentResult(result);
       expect(error, isNotNull,
-          reason:
-              'PortOne fail-closed should be rejected by checkout logic');
+          reason: 'PortOne fail-closed should be rejected by checkout logic');
       expect(result.isRejected, isTrue);
     });
   });
