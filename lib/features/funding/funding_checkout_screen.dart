@@ -2,9 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/config/business_config.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/payment_service.dart';
 import '../../providers/repository_providers.dart';
 import '../../shared/widgets/auth_gate.dart';
@@ -30,7 +30,6 @@ class FundingCheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
-  final _supabase = Supabase.instance.client;
   final _messageController = TextEditingController();
   late final TapGestureRecognizer _termsRecognizer;
   late final TapGestureRecognizer _refundRecognizer;
@@ -91,7 +90,8 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
     });
 
     try {
-      final userId = _supabase.auth.currentUser?.id;
+      final authState = ref.read(authProvider);
+      final userId = authState is AuthAuthenticated ? authState.user.id : null;
       if (userId == null) throw Exception('로그인이 필요합니다');
 
       if (_totalAmount <= 0) {
@@ -122,30 +122,23 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
       final paymentId = paymentResult.paymentId ?? orderId;
 
       // Edge Function으로 결제 검증 + pledge 생성
-      final response = await _supabase.functions.invoke(
-        'funding-pledge',
-        body: {
-          'campaignId': widget.campaign['id'],
-          'tierId': widget.tier['id'],
-          'amountKrw': widget.tier['price_krw'] ?? widget.tier['price_dt'] ?? 0,
-          'paymentId': paymentId,
-          'paymentOrderId': orderId,
-          'paymentMethod': _selectedPaymentMethod,
-          'idempotencyKey': idempotencyKey,
-          'isAnonymous': _isAnonymous,
-          'supportMessage': _messageController.text.isNotEmpty
-              ? _messageController.text
-              : null,
-        },
-      );
+      final data = await ref.read(fundingRepositoryProvider).submitPledge(
+            campaignId: widget.campaign['id'] as String,
+            tierId: widget.tier['id'] as String,
+            amountKrw: widget.tier['price_krw'] as int? ??
+                widget.tier['price_dt'] as int? ??
+                0,
+            paymentOrderId: orderId,
+            paymentMethod: _selectedPaymentMethod,
+            pgTransactionId: paymentId,
+            idempotencyKey: idempotencyKey,
+            isAnonymous: _isAnonymous,
+            supportMessage: _messageController.text.isNotEmpty
+                ? _messageController.text
+                : null,
+          );
 
-      final data = response.data as Map<String, dynamic>?;
-
-      if (data == null) {
-        throw Exception('서버로부터 응답을 받지 못했습니다');
-      }
-
-      if (data['success'] == true) {
+      if (data['pledge_id'] != null) {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -155,12 +148,12 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
               campaign: widget.campaign,
               tier: widget.tier,
               totalAmount: _totalAmount,
-              pledgeId: data['pledgeId'],
+              pledgeId: data['pledge_id'] as String?,
             ),
           ),
         );
       } else {
-        throw Exception(data['error'] ?? data['message'] ?? '후원에 실패했습니다');
+        throw Exception(data['error'] ?? '후원에 실패했습니다');
       }
     } catch (e) {
       if (!mounted) return;

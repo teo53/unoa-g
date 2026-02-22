@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/demo_config.dart';
 import '../core/utils/app_logger.dart';
 import 'auth_provider.dart';
+import 'repository_providers.dart';
 
 // ============================================================================
 // Models
@@ -316,31 +316,16 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
 
   Future<void> _loadRealSettlements() async {
     try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-      if (userId == null) {
-        state = state.copyWith(isLoading: false, error: '로그인이 필요합니다');
-        return;
-      }
+      final repo = _ref.read(settlementRepositoryProvider);
 
       // 정산 명세서 조회
-      final response = await supabase
-          .from('settlement_statements')
-          .select('*')
-          .eq('creator_id', userId)
-          .order('period_start', ascending: false)
-          .limit(24);
+      final response = await repo.getStatements();
 
-      final settlements = (response as List)
-          .map((json) => Settlement.fromJson(json as Map<String, dynamic>))
-          .toList();
+      final settlements =
+          response.map((json) => Settlement.fromJson(json)).toList();
 
       // 세금 설정 조회
-      final payoutSettings = await supabase
-          .from('payout_settings')
-          .select('income_type')
-          .eq('creator_id', userId)
-          .maybeSingle();
+      final payoutSettings = await repo.getPayoutSettings();
 
       final incomeType =
           (payoutSettings?['income_type'] as String?) ?? 'business_income';
@@ -378,15 +363,8 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
     }
 
     try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-      if (userId == null) return false;
-
-      await supabase.from('payout_settings').upsert({
-        'creator_id': userId,
-        'income_type': incomeType,
-        'updated_at': DateTime.now().toIso8601String(),
-      });
+      final repo = _ref.read(settlementRepositoryProvider);
+      await repo.updateIncomeType(incomeType);
 
       state = state.copyWith(incomeType: incomeType);
       return true;
@@ -400,17 +378,12 @@ class SettlementNotifier extends StateNotifier<SettlementState> {
   /// CSV 내보내기
   Future<String?> exportCsv(String periodStart, String periodEnd) async {
     try {
-      final supabase = Supabase.instance.client;
-      final response = await supabase.functions.invoke(
-        'settlement-export',
-        body: {
-          'type': 'csv',
-          'periodStart': periodStart,
-          'periodEnd': periodEnd,
-        },
+      final repo = _ref.read(settlementRepositoryProvider);
+      final result = await repo.exportCsv(
+        periodStart: periodStart,
+        periodEnd: periodEnd,
       );
-      // CSV 데이터 반환
-      return response.data?.toString();
+      return result.toString();
     } catch (e) {
       AppLogger.error(e, tag: 'Settlement', message: 'Settlement export error');
       return null;

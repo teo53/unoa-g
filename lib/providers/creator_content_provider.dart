@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/utils/app_logger.dart';
 import '../data/models/creator_content.dart';
 import 'auth_provider.dart';
+import 'repository_providers.dart';
 
 /// 크리에이터 콘텐츠 상태 (드롭, 이벤트, 직캠, 하이라이트, 소셜링크)
 class CreatorContentState {
@@ -257,49 +257,43 @@ class CreatorContentNotifier extends StateNotifier<CreatorContentState> {
       AppLogger.debug('Demo: Content saved locally', tag: 'CreatorContent');
     } else {
       try {
-        final supabase = Supabase.instance.client;
-        final userId = supabase.auth.currentUser?.id;
-        if (userId == null) return;
+        final repo = _ref.read(creatorChatRepositoryProvider);
 
         // 소셜 링크 저장
-        await supabase.from('creator_profiles').upsert({
-          'user_id': userId,
-          'social_links': {
-            'instagram': state.socialLinks.instagram,
-            'youtube': state.socialLinks.youtube,
-            'tiktok': state.socialLinks.tiktok,
-            'twitter': state.socialLinks.twitter,
-          },
-          'updated_at': DateTime.now().toIso8601String(),
+        await repo.saveSocialLinks({
+          'instagram': state.socialLinks.instagram,
+          'youtube': state.socialLinks.youtube,
+          'tiktok': state.socialLinks.tiktok,
+          'twitter': state.socialLinks.twitter,
         });
 
-        // 드롭 저장
-        await supabase.from('creator_drops').upsert(
-              state.drops
-                  .map((d) => {
-                        'id': d.id,
-                        'creator_id': userId,
-                        'name': d.name,
-                        'price_krw': d.priceKrw,
-                        'is_new': d.isNew,
-                        'is_sold_out': d.isSoldOut,
-                      })
-                  .toList(),
-            );
+        // 드롭 저장 — channelId is empty string since no channel scoping needed here
+        await repo.saveCreatorDrops(
+          state.drops
+              .map((d) => {
+                    'id': d.id,
+                    'name': d.name,
+                    'price_krw': d.priceKrw,
+                    'is_new': d.isNew,
+                    'is_sold_out': d.isSoldOut,
+                  })
+              .toList(),
+          '',
+        );
 
         // 이벤트 저장
-        await supabase.from('creator_events').upsert(
-              state.events
-                  .map((e) => {
-                        'id': e.id,
-                        'creator_id': userId,
-                        'title': e.title,
-                        'location': e.location,
-                        'date': e.date.toIso8601String(),
-                        'is_offline': e.isOffline,
-                      })
-                  .toList(),
-            );
+        await repo.saveCreatorEvents(
+          state.events
+              .map((e) => {
+                    'id': e.id,
+                    'title': e.title,
+                    'location': e.location,
+                    'date': e.date.toIso8601String(),
+                    'is_offline': e.isOffline,
+                  })
+              .toList(),
+          '',
+        );
       } catch (e) {
         AppLogger.error(e,
             tag: 'CreatorContent', message: 'Content save failed');
