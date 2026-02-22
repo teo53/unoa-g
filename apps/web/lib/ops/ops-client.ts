@@ -5,8 +5,10 @@
  * Handles auth, demo mode, and error normalization.
  */
 
-import { createBrowserClient } from '@supabase/ssr'
 import { DEMO_MODE } from '../mock/demo-data'
+
+// Static export guard: skip API calls when Supabase credentials are unavailable
+const SKIP_API = !DEMO_MODE && !process.env.NEXT_PUBLIC_SUPABASE_URL
 import type {
   OpsApiResponse,
   OpsStaff,
@@ -203,9 +205,13 @@ const DEMO_AUDIT: OpsAuditEntry[] = [
 
 // ── Client ──
 
-function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+async function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    throw new Error('Supabase credentials not configured')
+  }
+  const { createBrowserClient } = await import('@supabase/ssr')
   return createBrowserClient(url, key)
 }
 
@@ -213,7 +219,7 @@ async function callOpsManage<T>(
   action: string,
   payload: Record<string, unknown> = {}
 ): Promise<T> {
-  const supabase = getSupabaseClient()
+  const supabase = await getSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
 
   if (!session?.access_token) {
@@ -246,6 +252,7 @@ async function callOpsManage<T>(
 // Staff
 export async function listStaff(): Promise<OpsStaff[]> {
   if (DEMO_MODE) return []
+  if (SKIP_API) return []
   return callOpsManage<OpsStaff[]>('staff.list')
 }
 
@@ -270,6 +277,7 @@ export async function listAssets(
   options: { tag?: string; limit?: number; offset?: number } = {}
 ): Promise<PaginatedResult<OpsAsset>> {
   if (DEMO_MODE) return { items: [], total: 0 }
+  if (SKIP_API) return { items: [], total: 0 }
   return callOpsManage<PaginatedResult<OpsAsset>>('asset.list', options)
 }
 
@@ -288,6 +296,7 @@ export async function listBanners(
   filters: { status?: string; placement?: string } = {}
 ): Promise<OpsBanner[]> {
   if (DEMO_MODE) return DEMO_BANNERS
+  if (SKIP_API) return []
   return callOpsManage<OpsBanner[]>('banner.list', filters)
 }
 
@@ -297,6 +306,7 @@ export async function getBanner(id: string): Promise<OpsBanner> {
     if (!banner) throw new Error('배너를 찾을 수 없습니다')
     return banner
   }
+  if (SKIP_API) throw new Error('Supabase not configured')
   return callOpsManage<OpsBanner>('banner.get', { id })
 }
 
@@ -376,6 +386,7 @@ export async function listFanAds(
       offset: filters.offset ?? 0,
     }
   }
+  if (SKIP_API) return { items: [], total: 0, limit: filters.limit ?? 50, offset: filters.offset ?? 0 }
   return callOpsManage<FanAdListResult>('fan_ad.list', filters)
 }
 
@@ -419,6 +430,7 @@ export async function listFlags(
   filters: { status?: string } = {}
 ): Promise<OpsFeatureFlag[]> {
   if (DEMO_MODE) return DEMO_FLAGS
+  if (SKIP_API) return []
   return callOpsManage<OpsFeatureFlag[]>('flag.list', filters)
 }
 
@@ -428,6 +440,7 @@ export async function getFlag(id: string): Promise<OpsFeatureFlag> {
     if (!flag) throw new Error('플래그를 찾을 수 없습니다')
     return flag
   }
+  if (SKIP_API) throw new Error('Supabase not configured')
   return callOpsManage<OpsFeatureFlag>('flag.get', { id })
 }
 
@@ -486,12 +499,14 @@ export async function listAuditLog(
   } = {}
 ): Promise<PaginatedResult<OpsAuditEntry>> {
   if (DEMO_MODE) return { items: DEMO_AUDIT, total: DEMO_AUDIT.length }
+  if (SKIP_API) return { items: [], total: 0 }
   return callOpsManage<PaginatedResult<OpsAuditEntry>>('audit.list', options)
 }
 
 // Config
 export async function refreshPublicConfig(): Promise<void> {
   if (DEMO_MODE) return
+  if (SKIP_API) return
   await callOpsManage('config.refresh')
 }
 
@@ -505,6 +520,7 @@ export async function getDashboardStats(): Promise<OpsDashboardStats> {
       recentChanges: DEMO_AUDIT.slice(0, 5),
     }
   }
+  if (SKIP_API) return { activeBanners: 0, activeFlags: 0, pendingReview: 0, recentChanges: [] }
 
   // Parallel fetch
   const [banners, flags, audit] = await Promise.all([

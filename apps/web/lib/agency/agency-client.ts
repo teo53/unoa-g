@@ -4,7 +4,6 @@
  * Each wrapper checks DEMO_MODE and falls back to mock data.
  */
 
-import { createBrowserClient } from '@supabase/ssr'
 import type { OpsApiResponse } from '../ops/ops-types'
 import {
   DEMO_MODE,
@@ -33,12 +32,13 @@ const SKIP_API = !DEMO_MODE && !process.env.NEXT_PUBLIC_SUPABASE_URL
 
 // ── Client ──
 
-function getSupabaseClient() {
+async function getSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!url || !key) {
     throw new Error('Supabase credentials not configured')
   }
+  const { createBrowserClient } = await import('@supabase/ssr')
   return createBrowserClient(url, key)
 }
 
@@ -46,7 +46,7 @@ async function callAgencyManage<T>(
   action: string,
   payload: Record<string, unknown> = {}
 ): Promise<T> {
-  const supabase = getSupabaseClient()
+  const supabase = await getSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
 
   if (!session?.access_token) {
@@ -78,7 +78,7 @@ async function callAgencyManage<T>(
 
 export async function getAgencyDashboard(): Promise<AgencyDashboardSummary> {
   if (DEMO_MODE) return mockAgencyDashboard
-  if (SKIP_API) return { agency: { id: '', name: '', business_registration_number: '' }, activeCreators: 0, pendingContracts: 0, currentMonthKRW: 0, previousMonthKRW: 0, currentMonthDT: 0, latestSettlement: null }
+  if (SKIP_API) return { agency: {} as Agency, activeCreators: 0, totalCreators: 0, pendingContracts: 0, currentMonthKRW: 0, previousMonthKRW: 0, currentMonthDT: 0, latestSettlement: null }
   return callAgencyManage<AgencyDashboardSummary>('dashboard.summary')
 }
 
@@ -174,7 +174,7 @@ export async function listAgencyAuditLog(): Promise<AgencyAuditEntry[]> {
 
 export async function getAgencyStatistics(): Promise<AgencyDashboardSummary> {
   if (DEMO_MODE) return mockAgencyDashboard
-  if (SKIP_API) return { agency: { id: '', name: '', business_registration_number: '' }, activeCreators: 0, pendingContracts: 0, currentMonthKRW: 0, previousMonthKRW: 0, currentMonthDT: 0, latestSettlement: null }
+  if (SKIP_API) return { agency: {} as Agency, activeCreators: 0, totalCreators: 0, pendingContracts: 0, currentMonthKRW: 0, previousMonthKRW: 0, currentMonthDT: 0, latestSettlement: null }
   return callAgencyManage<AgencyDashboardSummary>('statistics.overview')
 }
 
