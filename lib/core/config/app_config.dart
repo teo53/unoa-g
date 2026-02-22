@@ -284,6 +284,25 @@ class AppConfig {
         errors.add('TERMS_URL is not configured for production '
             '(set --dart-define=TERMS_URL=https://...)');
       }
+
+      // P1-2 FIX: Validate payment configuration in production
+      if (enableDtPurchase) {
+        if (portOneStoreId.isEmpty) {
+          errors
+              .add('PORTONE_STORE_ID is required when ENABLE_DT_PURCHASE=true '
+                  '(set --dart-define=PORTONE_STORE_ID=...)');
+        }
+        if (portOneChannelKey.isEmpty) {
+          errors.add(
+              'PORTONE_CHANNEL_KEY is required when ENABLE_DT_PURCHASE=true '
+              '(set --dart-define=PORTONE_CHANNEL_KEY=...)');
+        }
+      }
+      if (enableIap) {
+        // IAP keys live server-side, so we just log a notice
+        debugLog(
+            'ℹ️ ENABLE_IAP=true — ensure IAP_VERIFY_ENABLED + Apple/Google keys are set on Supabase Edge Functions');
+      }
     }
 
     if (errors.isNotEmpty) {
