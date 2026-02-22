@@ -158,6 +158,9 @@ const mockCampaignStats: CampaignPaymentStats[] = [
 async function getPayments(): Promise<FundingPayment[]> {
   if (DEMO_MODE) return mockPayments
 
+  // Static export without Supabase credentials — skip API call
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
+
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()
 
@@ -200,6 +203,9 @@ async function getPayments(): Promise<FundingPayment[]> {
 
 async function getCampaignStats(): Promise<CampaignPaymentStats[]> {
   if (DEMO_MODE) return mockCampaignStats
+
+  // Static export without Supabase credentials — skip API call
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
 
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()

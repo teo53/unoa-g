@@ -20,10 +20,13 @@ const STATUS_CONFIG: Record<SettlementStatus, { label: string; className: string
 export const dynamicParams = false
 
 export async function generateStaticParams() {
-  return getMockAgencySettlementIds().map(id => ({ id }))
+  if (DEMO_MODE) return getMockAgencySettlementIds().map(id => ({ id }))
+  return [{ id: '_' }]
 }
 
 async function getSettlement(id: string): Promise<AgencySettlement | null> {
+  // Static export without Supabase credentials — skip API call
+  if (!DEMO_MODE && !process.env.NEXT_PUBLIC_SUPABASE_URL) return null
   return getAgencySettlement(id)
 }
 
