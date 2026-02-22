@@ -333,6 +333,12 @@ class MediaService {
     XFile file,
   ) async {
     try {
+      // P0: OOM guard — check file size before loading into memory
+      final fileSize = await file.length();
+      if (fileSize > maxImageSize) {
+        throw StateError('이미지 크기가 ${maxImageSize ~/ 1024 ~/ 1024}MB를 초과합니다.');
+      }
+
       final bytes = await file.readAsBytes();
 
       if (kIsWeb) {
