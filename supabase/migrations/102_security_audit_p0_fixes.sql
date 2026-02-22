@@ -127,8 +127,9 @@ DROP POLICY IF EXISTS "System can insert audit log" ON admin_audit_log;
 -- 4. SECURITY DEFINER functions — add SET search_path = public
 -- ============================================================
 -- Functions from migrations 003-007 that were created without
--- SET search_path.  Using ALTER FUNCTION to add the setting
--- without changing function body (idempotent, no signature change).
+-- SET search_path.  Migration 053 already applied these fixes;
+-- repeating here as defensive/idempotent confirmation.
+-- Using ALTER FUNCTION (no signature change, no body change).
 
 -- 003_triggers.sql functions
 ALTER FUNCTION public.refresh_reply_quotas() SET search_path = public;
@@ -136,9 +137,9 @@ ALTER FUNCTION public.validate_and_decrement_quota() SET search_path = public;
 ALTER FUNCTION public.validate_donation_message() SET search_path = public;
 ALTER FUNCTION public.validate_donation_reply() SET search_path = public;
 ALTER FUNCTION public.create_broadcast_delivery() SET search_path = public;
-ALTER FUNCTION public.enable_fallback_quotas() SET search_path = public;
-ALTER FUNCTION public.get_user_chat_thread(UUID, UUID) SET search_path = public;
-ALTER FUNCTION public.get_artist_inbox(UUID) SET search_path = public;
+ALTER FUNCTION public.enable_fallback_quotas(TIMESTAMPTZ) SET search_path = public;
+ALTER FUNCTION public.get_user_chat_thread(UUID, INTEGER, UUID) SET search_path = public;
+ALTER FUNCTION public.get_artist_inbox(UUID, TEXT, INTEGER, INTEGER) SET search_path = public;
 ALTER FUNCTION public.get_chat_quota_summary(UUID, UUID) SET search_path = public;
 
 -- 004_user_profiles.sql
@@ -148,10 +149,10 @@ ALTER FUNCTION public.handle_new_user() SET search_path = public;
 ALTER FUNCTION public.handle_new_creator_profile() SET search_path = public;
 
 -- 006_wallet_ledger.sql
-ALTER FUNCTION public.process_wallet_transaction(UUID, TEXT, INTEGER, TEXT, UUID, TEXT) SET search_path = public;
+ALTER FUNCTION public.process_wallet_transaction(TEXT, UUID, UUID, INTEGER, TEXT, TEXT, UUID, TEXT, JSONB) SET search_path = public;
 
 -- 007_messages_extended.sql
-ALTER FUNCTION public.edit_message(UUID, TEXT, INT) SET search_path = public;
+ALTER FUNCTION public.edit_message(UUID, TEXT, INTEGER) SET search_path = public;
 ALTER FUNCTION public.delete_message_for_all(UUID) SET search_path = public;
 ALTER FUNCTION public.hide_message_for_me(UUID) SET search_path = public;
 ALTER FUNCTION public.pin_message(UUID) SET search_path = public;
