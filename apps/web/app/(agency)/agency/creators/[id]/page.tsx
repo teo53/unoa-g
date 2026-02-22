@@ -14,6 +14,9 @@ const STATUS_CONFIG: Record<ContractStatus, { label: string; className: string }
   terminated: { label: '해지', className: 'bg-red-100 text-red-700' },
 }
 
+// Required for `output: 'export'` — only pre-generated paths are valid.
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   return getMockAgencyCreatorIds().map(id => ({ id }))
 }

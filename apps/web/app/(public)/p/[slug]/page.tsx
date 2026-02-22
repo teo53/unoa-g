@@ -165,6 +165,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+// Required for `output: 'export'` — only pre-generated paths are valid.
+export const dynamicParams = false
+
 // Generate static params for popular campaigns
 export async function generateStaticParams() {
   // Demo mode: return mock slugs
@@ -173,7 +176,8 @@ export async function generateStaticParams() {
       slug: campaign.slug,
     }))
   }
-  return []
+  // Placeholder for static export — page renders notFound() for unknown slugs
+  return [{ slug: '_' }]
 }
 
 // NOTE: revalidate removed — incompatible with `output: 'export'` (static build).

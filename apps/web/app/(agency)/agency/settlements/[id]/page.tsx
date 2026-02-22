@@ -16,6 +16,9 @@ const STATUS_CONFIG: Record<SettlementStatus, { label: string; className: string
   rejected: { label: '반려', className: 'bg-red-100 text-red-700' },
 }
 
+// Required for `output: 'export'` — only pre-generated paths are valid.
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   return getMockAgencySettlementIds().map(id => ({ id }))
 }

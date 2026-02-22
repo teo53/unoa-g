@@ -4,6 +4,9 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+// Required for `output: 'export'` — only pre-generated paths are valid.
+export const dynamicParams = false
+
 // Static export: provide placeholder param for build (actual data loaded client-side)
 export function generateStaticParams() {
   return [{ id: '_' }]

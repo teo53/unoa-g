@@ -10,7 +10,9 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
-// Generate static params for static export
+// Required for `output: 'export'` — only pre-generated paths are valid.
+export const dynamicParams = false
+
 export function generateStaticParams() {
   return getMockCampaignIds().map((id) => ({ id }))
 }

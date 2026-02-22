@@ -81,11 +81,15 @@ async function getArtistData(artistId: string): Promise<ArtistData | null> {
   }
 }
 
+// Required for `output: 'export'` — only pre-generated paths are valid.
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   if (DEMO_MODE || IS_DEMO_BUILD) {
     return Object.keys(mockCreators).map((id) => ({ artistId: id }))
   }
-  return []
+  // Placeholder for static export — page renders notFound() for unknown IDs
+  return [{ artistId: '_' }]
 }
 
 // NOTE: revalidate removed — incompatible with `output: 'export'` (static build).
