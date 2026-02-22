@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/config/demo_config.dart';
 import '../core/utils/app_logger.dart';
 import '../core/supabase/supabase_client.dart';
 import 'auth_provider.dart';
@@ -348,7 +349,7 @@ class FanAdNotifier extends StateNotifier<FanAdState> {
     return [
       FanAd(
         id: 'demo_ad_1',
-        fanUserId: 'demo_user_001',
+        fanUserId: DemoConfig.demoFanId,
         artistChannelId: 'channel_1',
         title: '팬클럽 2주년 축하 광고',
         body: '2년간 함께해줘서 고마워요!',
@@ -366,7 +367,7 @@ class FanAdNotifier extends StateNotifier<FanAdState> {
       ),
       FanAd(
         id: 'demo_ad_2',
-        fanUserId: 'demo_user_001',
+        fanUserId: DemoConfig.demoFanId,
         artistChannelId: 'channel_1',
         title: '생일 축하 메시지',
         body: null,
