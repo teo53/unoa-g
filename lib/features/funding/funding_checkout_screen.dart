@@ -115,7 +115,10 @@ class _FundingCheckoutScreenState extends ConsumerState<FundingCheckoutScreen> {
         ),
       );
 
-      if (!paymentResult.success) {
+      // isPending means checkout was initiated but not yet confirmed client-side.
+      // The Edge Function (submitPledge) will verify payment server-side.
+      // Only fail if the payment was explicitly rejected (not pending).
+      if (!paymentResult.success && !paymentResult.isPending) {
         throw Exception(paymentResult.errorMessage ?? '결제에 실패했습니다');
       }
 

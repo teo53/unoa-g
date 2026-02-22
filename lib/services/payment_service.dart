@@ -9,10 +9,16 @@ class PaymentResult {
   final String? paymentId;
   final String? errorMessage;
 
+  /// Whether this result represents a checkout initiation (not a confirmed payment).
+  /// When true, the caller must NOT grant value (DT, subscription, etc.) until
+  /// the server-side webhook/confirm flow sets [success] to true.
+  final bool isPending;
+
   const PaymentResult({
     required this.success,
     this.paymentId,
     this.errorMessage,
+    this.isPending = false,
   });
 }
 
@@ -94,15 +100,23 @@ class PortOnePaymentService implements IPaymentService {
     }
 
     // Server-side checkout flow:
-    // The checkout is initiated server-side via payment-checkout Edge Function,
-    // and the webhook handles completion notification.
+    // 1. Client calls payment-checkout Edge Function to get a checkout URL
+    // 2. User completes payment on PortOne/Toss checkout page
+    // 3. payment-webhook Edge Function receives completion
+    // 4. payment-confirm Edge Function verifies and grants value
+    //
+    // This method only initiates the checkout — it MUST NOT return success.
+    // The caller must poll or listen for server-side confirmation before
+    // granting any value (DT balance, subscription, etc.).
     AppLogger.info(
-        'PortOne checkout: ${request.merchantUid}, amount: ${request.amount}',
+        'PortOne checkout initiated: ${request.merchantUid}, amount: ${request.amount}',
         tag: 'Payment');
 
     return PaymentResult(
-      success: true,
+      success: false,
+      isPending: true,
       paymentId: request.merchantUid,
+      errorMessage: null,
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 import 'package:video_compress/video_compress.dart';
+import '../core/config/app_config.dart';
 import '../core/utils/app_logger.dart';
 import '../core/supabase/supabase_client.dart';
 
@@ -87,10 +88,10 @@ class MediaUrlResolver {
   static const int _cacheTtlSeconds =
       MediaService.signedUrlExpirationSeconds - 300; // 3300 seconds (55 min)
 
-  /// Whether to use signed URLs (toggle for private bucket).
-  /// Default: false (public bucket → sync getPublicUrl).
-  /// Set to true when chat-media bucket is switched to private.
-  static bool useSignedUrls = false;
+  /// Whether to use signed URLs (driven by AppConfig.usePrivateStorageBucket).
+  /// When true, async signed URLs are generated instead of public URLs.
+  /// Single source of truth: AppConfig.usePrivateStorageBucket (--dart-define).
+  static bool useSignedUrls = AppConfig.usePrivateStorageBucket;
 
   /// Normalize a Supabase public URL or storage path to a canonical storage path.
   /// - Full Supabase public URL → extract path portion
@@ -333,6 +334,16 @@ class MediaService {
     XFile file,
   ) async {
     try {
+      // Pre-check file size before loading into memory to prevent OOM
+      final fileSize = await file.length();
+      if (fileSize > maxImageSize) {
+        AppLogger.warning(
+          '이미지 파일 크기 초과: ${fileSize ~/ 1024 ~/ 1024}MB > ${maxImageSize ~/ 1024 ~/ 1024}MB',
+          tag: 'Media',
+        );
+        return null;
+      }
+
       final bytes = await file.readAsBytes();
 
       if (kIsWeb) {
