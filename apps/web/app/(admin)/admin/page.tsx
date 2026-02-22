@@ -30,6 +30,9 @@ async function getPendingCampaigns(): Promise<Campaign[]> {
       }))
   }
 
+  // Static export without Supabase credentials — skip API call
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
+
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()
 
@@ -57,6 +60,9 @@ async function getStats() {
       rejected: 0,
     }
   }
+
+  // Static export without Supabase credentials — skip API call
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return { pending: 0, approved: 0, rejected: 0 }
 
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()

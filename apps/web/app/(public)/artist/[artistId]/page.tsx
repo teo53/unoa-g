@@ -44,6 +44,9 @@ async function getArtistData(artistId: string): Promise<ArtistData | null> {
   // channel_id contract and legacy creator/user id fallback are both UUID-based
   if (!UUID_RE.test(decoded)) return null
 
+  // Static export without Supabase credentials — skip API call
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null
+
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()
 

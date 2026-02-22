@@ -18,10 +18,13 @@ const STATUS_CONFIG: Record<ContractStatus, { label: string; className: string }
 export const dynamicParams = false
 
 export async function generateStaticParams() {
-  return getMockAgencyCreatorIds().map(id => ({ id }))
+  if (DEMO_MODE) return getMockAgencyCreatorIds().map(id => ({ id }))
+  return [{ id: '_' }]
 }
 
 async function getCreator(id: string): Promise<AgencyCreator | null> {
+  // Static export without Supabase credentials — skip API call
+  if (!DEMO_MODE && !process.env.NEXT_PUBLIC_SUPABASE_URL) return null
   return getAgencyCreator(id)
 }
 
