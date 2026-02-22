@@ -442,35 +442,161 @@ AppScaffold(
 
 ### Color System (WCAG 2.1 AA Compliant)
 ```dart
-// Primary colors - for active states and CTAs
-AppColors.primary500  // #FF3B30 - Key color
-AppColors.primary600  // #DE332A - Filled CTAs (4.5:1 contrast)
+// Primary ramp - for active states and CTAs
+AppColors.primary100  // Light tint (backgrounds)
+AppColors.primary500  // #FF3B30 - Key color (indicators, tabs)
+AppColors.primary600  // #DE332A - Filled CTAs (4.5:1 contrast with white)
 AppColors.primary700  // #C92D25 - Pressed state
 
 // Semantic colors
-AppColors.danger      // Destructive actions ONLY
-AppColors.success     // Success states
-AppColors.warning     // Warning states
+AppColors.danger      // #B42318 - Destructive actions ONLY (delete, block)
+AppColors.success     // #16A34A - Success states
+AppColors.warning     // #D97706 - Warning states
+
+// Foundation
+AppColors.background  // #F8F8F8 (light) / #000000 (dark)
+AppColors.surface     // #FFFFFF (light) / #1C1C1E (dark)
+AppColors.surfaceAlt  // Alternative surface
+AppColors.border      // Border color
+AppColors.text        // #111827 (light) / #FFFFFF (dark)
+AppColors.textMuted   // #6B7280 - Secondary text
+
+// Chat bubbles
+AppColors.bubbleFanLight / bubbleFanDark
+AppColors.bubbleArtistLight / bubbleArtistDark
+
+// Badges & tiers
+AppColors.vip         // #8B5CF6 - VIP tier
+AppColors.standard    // #3B82F6 - Standard tier
+AppColors.verified    // #3B82F6 - Verified badge
+AppColors.online      // #22C55E - Online indicator
+
+// Private card gradients
+AppColors.cardGradientStart  // #E8B5FF
+AppColors.cardGradientEnd    // #FF8FAB
+
+// Glow effects
+AppColors.primaryGlow         // 30% opacity
+AppColors.primaryGlowStrong   // 50% opacity
+AppColors.primaryShimmer      // 5% opacity
 
 // Theme-aware access via extension
 Theme.of(context).extension<AppColorsExtension>()!.surface
+// or via context extension
+context.appColors.surface
 ```
 
-**Important**: Never use `danger` color for positive actions. Use `primary600` for CTAs.
+**Key Rules**:
+- Never use `danger` color for positive actions. Use `primary600` for CTAs
+- `ArtistThemeColors.fromIndex(0-5)` provides 6 creator-selectable theme colors
+- `ArtistThemeColors.fromIndexDark()` for WCAG-compliant dark variant
+
+### Gradients
+```dart
+// CTA buttons, banners
+primaryGradient: #DE332A → #FF6B6B
+
+// VIP cards, DT balance
+premiumGradient: #DE332A → #FF8E53
+
+// Private card designs
+privateCardGradient: #E8B5FF → #FF8FAB
+```
 
 ### Typography
-- Font: Pretendard (Korean-optimized)
-- Loaded via web/index.html with dynamic subsetting
-- Use `Theme.of(context).textTheme` for consistent typography
+- Font: **Pretendard** (Korean-optimized, loaded via web/index.html with dynamic subsetting)
+- Use `Theme.of(context).textTheme` for consistent typography (NOT `AppTypography` which is deprecated)
+- Sizes: displayLarge (32sp/w900) → labelSmall (11sp/w500)
+
+### Spacing Tokens (`AppSpacing`)
+```dart
+xs = 4     // Icon-text gaps, inline elements
+sm = 8     // List items, chip gaps
+md = 12    // Card gaps, section elements
+base = 16  // Default padding
+lg = 20    // Section gaps (small)
+xl = 24    // Screen padding, major sections
+xxl = 32   // Large section gaps
+xxxl = 40  // Top/bottom screen margins
+
+// Convenience
+AppSpacing.screenH     // EdgeInsets.symmetric(horizontal: 24)
+AppSpacing.sectionGap  // 24.0
+AppSpacing.cardGap     // 12.0
+```
+
+### Radius Tokens (`AppRadius`)
+```dart
+sm = 4    // Chips, badges         → AppRadius.smBR
+md = 8    // Input fields, buttons → AppRadius.mdBR
+base = 12 // Regular buttons       → AppRadius.baseBR
+lg = 16   // Cards, containers     → AppRadius.lgBR
+xl = 20   // Modals, big cards     → AppRadius.xlBR
+```
 
 ### UI Guidelines
-- Border radius: 16px for cards, 12px for buttons (see `app_radius.dart`)
-- Spacing scale defined in `app_spacing.dart`
-- Card elevation: 0 (flat design with borders)
+- Card elevation: 0 (flat design with 1px `border` color + `lgBR` radius + `base` padding)
 - Fan bottom nav (5 tabs): 홈, 메시지, 펀딩, 탐색, 프로필
 - Creator bottom nav (5 tabs): 대시보드, 채팅, 펀딩, 탐색, 프로필
 - Admin bottom nav (4 tabs): 대시보드, 크리에이터, 정산, 설정
 - Support both light and dark themes
+- AppBar: transparent/surface color, 0 elevation (flat design)
+- Bottom sheet: 16px top radius, `isScrollControlled: true`, keyboard-aware padding
+- 1 PrimaryButton per screen (CTA), 48px height
+
+### Premium Effects (`premium_effects.dart`)
+```dart
+// Glow presets
+PremiumEffects.subtleGlow      // 30% opacity, blur 16
+PremiumEffects.strongGlow      // 50% opacity, blur 24
+PremiumEffects.ambientGlow     // 20% opacity, 360° halo
+
+// Combined shadow sets
+PremiumEffects.primaryCtaShadows    // For CTA buttons
+PremiumEffects.premiumCardShadows   // For VIP/DT cards
+PremiumEffects.vipBadgeShadows      // For VIP badges
+PremiumEffects.fabShadows           // For FAB
+
+// Button decorations
+PremiumEffects.primaryButtonDecoration(withGlow: true)
+PremiumEffects.secondaryButtonDecoration(isDark: false)
+PremiumEffects.destructiveButtonDecoration()
+
+// Animation durations
+PremiumAnimations.shimmerSlow    // 3000ms
+PremiumAnimations.shimmerMedium  // 2500ms
+PremiumAnimations.shimmerFast    // 2000ms
+PremiumAnimations.glowPulse      // 1500ms
+PremiumAnimations.buttonPress    // 150ms
+PremiumAnimations.fadeIn         // 300ms
+```
+
+**Rule**: Glow effects reserved for premium features only (DT, VIP, CTA buttons). Very subtle 2-5% shimmer.
+
+### Animation Standards (`animation_utils.dart`)
+```dart
+// Durations
+AnimDuration.extraShort = 50ms   // Micro-interactions
+AnimDuration.short = 100ms       // Quick feedback
+AnimDuration.normal = 200ms      // Standard transitions
+AnimDuration.medium = 300ms      // Page transitions
+AnimDuration.long = 500ms        // Complex animations
+AnimDuration.extraLong = 800ms   // Elaborate animations
+
+// Curves
+AnimCurve.standard = easeInOut       // Most animations
+AnimCurve.decelerate = decelerate    // Entering elements
+AnimCurve.accelerate = easeIn        // Exiting elements
+AnimCurve.emphasized = easeOutCubic  // Important transitions
+AnimCurve.bounce = elasticOut        // Playful feedback
+AnimCurve.sharp = easeOutQuart       // Quick snaps
+```
+
+### Microcopy Rules
+- All Korean, polite speech (존댓말), concise
+- Error messages: "Reason + Next action" (NOT generic "실패")
+- Empty states: "What to do" guidance + CTA button
+- Toast: `showAppError()` (red bg + reason), `showAppSuccess()` (green bg)
 
 ## Features Detail
 
@@ -944,14 +1070,41 @@ Each folder contains `screen.png` and `code.html` for reference.
 
 ## Documentation (docs/)
 
-- `docs/audit/` - 10 comprehensive audit documents (architecture, UX, security, legal, roadmap)
-- `docs/ux/` - 9 UX design documents (customer journey, IA, design principles, component spec)
+### UX Design Documents (`docs/ux/` - 9 files)
+| Document | Contents |
+|----------|----------|
+| `01_customer_journey.md` | Fan & Creator journey mapping (4 stages each), KPIs, pain points |
+| `02_information_architecture.md` | 3 ShellRoute hierarchy, route gate levels (L0-L2), nav structure |
+| `03_design_principles.md` | Complete design tokens (color, spacing, radius, typography, microcopy) |
+| `04_component_spec.md` | Component catalog: buttons, state widgets, headers, cards, toasts, chat bubbles |
+| `05_instrumentation.md` | Analytics event tracking plan (`{category}_{action}_{detail}` naming) |
+| `06_review_checklist.md` | QA test matrix: guest/fan/creator flows, accessibility checklist |
+| `08_friction_audit.md` | Top 10 UX pain points with root causes and PR-linked solutions |
+| `09_pr_plan.md` | UX implementation roadmap (PR-01 to PR-06) with dependencies |
+
+### Auth Gate UX Pattern (from friction audit)
+```
+Route Gate Levels:
+- Level 0 (Open): /, /discover, /funding, /artist/:id → No auth
+- Level 1 (Action-Gated): Message send, subscribe, checkout → Auth gate on action
+- Level 2 (Route-Gated): /creator/*, /admin/*, /wallet/* → Full route protection
+```
+
+### Other Documentation
+- `docs/audit/` - 10 audit documents (architecture, UX, security, legal, roadmap)
 - `docs/legal/` - Legal/compliance docs (payment consent, funding terms, tax guide)
+- `docs/plan/` - Planning documents
 - `ARCHITECTURE.md` - Architecture overview
 - `RELEASE_CHECKLIST.md` - Release checklist
 - `ANDROID_SIGNING.md` - Android signing guide
 - `DEV_GATES.md` - Development gates
 - `BETA_TESTING.md` - Beta testing procedures
+- `DB_RLS_AUDIT.md` - Database RLS audit
+- `FINAL_SMOKE_TEST.md` - Final smoke test
+- `LAUNCH_RC_FREEZE.md` - Launch RC freeze
+- `LEGAL_MARKETING_RULES.md` - Legal marketing rules
+- `SAFETY_BLOCK_RULES.md` - Safety block rules
+- `STORE_PRIVACY_CHECKLIST.md` - Store privacy checklist
 
 ## Enterprise Components
 
@@ -1289,7 +1442,7 @@ firebase deploy --only hosting
 ## Important Notes for AI Assistants
 
 1. **Korean Language**: UI labels are in Korean. Preserve existing translations.
-2. **WCAG Compliance**: Maintain 4.5:1 contrast ratios for text.
+2. **WCAG Compliance**: Maintain 4.5:1 contrast ratios for text. Use `primary600` (not `primary500`) for white text on colored backgrounds.
 3. **Fromm/Bubble Style**: This mimics Korean fan messaging apps - maintain the 1:1 illusion.
 4. **Token System**: Fans need tokens to reply; don't allow unlimited messaging.
 5. **Subscription Age**: Character limits depend on how long a user has been subscribed.
@@ -1297,14 +1450,17 @@ firebase deploy --only hosting
 7. **Theme Toggle**: Dark/light mode toggle is in Settings screen (`/settings`), not in bottom nav.
 8. **Platform Detection**: `AppScaffold` shows phone frame on web only; mobile gets full screen.
 9. **Use Enterprise Components**: For new features, use the skeleton loaders, error boundaries, and animation utilities.
-10. **Accessibility**: All interactive elements should have semantic labels for screen readers.
-11. **Responsive**: Use ResponsiveLayout for screens that need tablet/desktop support.
+10. **Accessibility**: All interactive elements should have semantic labels for screen readers. Use `AccessibleTapTarget` (48x48 minimum). Use `ScreenReaderAnnouncement.announce()` for dynamic state changes.
+11. **Responsive**: Use ResponsiveLayout for screens that need tablet/desktop support. Use `context.responsive.isPhone` for conditional logic.
 12. **Config 사용 필수**: 하드코딩 대신 반드시 `DemoConfig`, `BusinessConfig`, `AppConfig` 사용.
 13. **데모 모드 지원**: 새 Provider 작성 시 `AuthDemoMode` 상태 처리 필수.
 14. **팬/크리에이터/관리자 UI 완전 분리**: 팬, 크리에이터, 관리자 화면은 별도 ShellRoute로 분리. 상세 규칙은 아래 참조.
 15. **Riverpod 사용**: 새 상태 관리는 반드시 Riverpod 사용. Provider는 레거시이며 마이그레이션 중.
 16. **AppLogger 사용**: `print()` 대신 `AppLogger` 사용 (avoid_print 린트 규칙).
 17. **Edge Functions**: AI 기능, 결제, 정산 등 서버 로직은 Supabase Edge Functions로 처리.
+18. **디자인 토큰 사용 필수**: `EdgeInsets.all(16)` 대신 `AppSpacing.base`, `BorderRadius.circular(12)` 대신 `AppRadius.baseBR` 사용.
+19. **Flat Design**: Card elevation은 항상 0. 그림자 대신 1px border 사용. 프리미엄 효과만 `PremiumEffects` 사용.
+20. **에러 메시지 규칙**: 제네릭 "실패" 금지. 반드시 "사유 + 다음 행동" 형태로 제공. `ErrorDisplay` 프리셋 활용.
 
 ---
 
