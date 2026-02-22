@@ -1,0 +1,6 @@
+-- ============================================================
+-- Migration 087: (placeholder — reserved for sequence continuity)
+-- ============================================================
+-- Migrations 087-088 were skipped during development.
+-- This placeholder maintains sequence ordering between 086 and 089.
+-- No schema changes.

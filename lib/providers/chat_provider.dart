@@ -209,7 +209,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     // Create demo subscription
     final demoSubscription = Subscription(
       id: 'demo_sub_$channelId',
-      userId: 'demo_user_001',
+      userId: DemoConfig.demoFanId,
       channelId: channelId,
       tier: demoThread.tier,
       startedAt:
@@ -223,7 +223,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     // Create demo quota
     final demoQuota = ReplyQuota(
       id: 'demo_quota_$channelId',
-      userId: 'demo_user_001',
+      userId: DemoConfig.demoFanId,
       channelId: channelId,
       tokensAvailable: 3,
       tokensUsed: 0,
@@ -277,7 +277,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     messages.add(BroadcastMessage(
       id: 'demo_msg_2_${thread.channelId}',
       channelId: thread.channelId,
-      senderId: 'demo_user_001',
+      senderId: DemoConfig.demoFanId,
       senderType: 'fan',
       deliveryScope: DeliveryScope.directReply,
       content: '환영해주셔서 감사합니다! 항상 응원해요!',
@@ -726,7 +726,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final newMessage = BroadcastMessage(
       id: 'demo_msg_${DateTime.now().millisecondsSinceEpoch}',
       channelId: channelId,
-      senderId: 'demo_user_001',
+      senderId: DemoConfig.demoFanId,
       senderType: 'fan',
       deliveryScope: DeliveryScope.directReply,
       content: content,
@@ -798,7 +798,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// React to a message with an emoji
   Future<bool> reactToMessage(String messageId, String emoji) async {
-    final userId = _ref.read(currentUserProvider)?.id ?? 'demo_user';
+    final userId = _ref.read(currentUserProvider)?.id ?? DemoConfig.demoFanId;
     final authState = _ref.read(authProvider);
 
     final message = state.messages.cast<BroadcastMessage?>().firstWhere(
