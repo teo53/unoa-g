@@ -44,6 +44,26 @@ class BusinessConfig {
     PurchasePlatform.ios: {'BASIC': 6900, 'STANDARD': 13900, 'VIP': 27900},
   };
 
+  /// Subscription product IDs for in-app purchase (monthly auto-renewable).
+  ///
+  /// Maps tier name to store product ID.
+  /// Must match App Store Connect / Google Play Console product IDs
+  /// and SUBSCRIPTION_PRODUCT_MAP in iap-verify Edge Function.
+  static const Map<String, String> subscriptionSkuByTier = {
+    'BASIC': 'com.unoa.sub.basic.monthly',
+    'STANDARD': 'com.unoa.sub.standard.monthly',
+    'VIP': 'com.unoa.sub.vip.monthly',
+  };
+
+  /// Reverse mapping: store product ID to tier name.
+  static final Map<String, String> tierBySubscriptionSku = {
+    for (final entry in subscriptionSkuByTier.entries) entry.value: entry.key,
+  };
+
+  /// All subscription product IDs for store queries.
+  static Set<String> get allSubscriptionSkus =>
+      subscriptionSkuByTier.values.toSet();
+
   /// DT packages with platform-specific prices.
   ///
   /// IMPORTANT: `id` must match `dt_packages.id` and Edge Function validation.

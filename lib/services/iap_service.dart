@@ -54,6 +54,15 @@ class IapService implements IIapService {
     'dt_5000': 'com.unoa.dt.5000',
   };
 
+  /// Maps subscription tier to store product IDs (auto-renewable subscriptions).
+  /// Must match SUBSCRIPTION_PRODUCT_MAP in iap-verify Edge Function
+  /// and BusinessConfig.subscriptionSkuByTier.
+  static const Map<String, String> subscriptionProductIdMap = {
+    'BASIC': 'com.unoa.sub.basic.monthly',
+    'STANDARD': 'com.unoa.sub.standard.monthly',
+    'VIP': 'com.unoa.sub.vip.monthly',
+  };
+
   /// Reverse mapping: store product ID → internal package ID.
   static final Map<String, String> _reverseProductIdMap = {
     for (final entry in productIdMap.entries) entry.value: entry.key,
@@ -64,8 +73,16 @@ class IapService implements IIapService {
     return _reverseProductIdMap[storeProductId];
   }
 
-  /// All store product IDs for querying.
-  static Set<String> get allProductIds => productIdMap.values.toSet();
+  /// Check if a store product ID is a subscription (not a DT consumable).
+  static bool isSubscriptionProduct(String storeProductId) {
+    return subscriptionProductIdMap.values.contains(storeProductId);
+  }
+
+  /// All store product IDs (DT consumables + subscriptions) for querying.
+  static Set<String> get allProductIds => {
+        ...productIdMap.values,
+        ...subscriptionProductIdMap.values,
+      };
 
   @override
   Future<bool> isAvailable() async {
@@ -136,12 +153,19 @@ class IapService implements IIapService {
     }
 
     try {
-      // DT packages are consumable (one-time purchase, not subscription)
       final purchaseParam = PurchaseParam(productDetails: product);
-      final success = await _iap.buyConsumable(
-        purchaseParam: purchaseParam,
-        autoConsume: false, // We verify server-side before consuming
-      );
+      final bool success;
+
+      if (isSubscriptionProduct(product.id)) {
+        // Subscriptions are non-consumable (auto-renewable)
+        success = await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+      } else {
+        // DT packages are consumable (one-time purchase)
+        success = await _iap.buyConsumable(
+          purchaseParam: purchaseParam,
+          autoConsume: false, // We verify server-side before consuming
+        );
+      }
 
       AppLogger.info(
         'IAP buy initiated: ${product.id}, success=$success',

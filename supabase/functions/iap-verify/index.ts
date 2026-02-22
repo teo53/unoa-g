@@ -44,6 +44,14 @@ const PRODUCT_DT_MAP: Record<string, { dtAmount: number; packageId: string }> = 
   'com.unoa.dt.5000': { dtAmount: 5000, packageId: 'dt_5000' },
 }
 
+// Subscription product ID → tier mapping (must match client-side BusinessConfig.subscriptionSkuByTier)
+// These products activate subscriptions, NOT credit DT.
+const SUBSCRIPTION_PRODUCT_MAP: Record<string, { tier: string; durationDays: number }> = {
+  'com.unoa.sub.basic.monthly': { tier: 'BASIC', durationDays: 30 },
+  'com.unoa.sub.standard.monthly': { tier: 'STANDARD', durationDays: 30 },
+  'com.unoa.sub.vip.monthly': { tier: 'VIP', durationDays: 30 },
+}
+
 interface VerifyRequest {
   platform: 'ios' | 'android'
   productId: string
@@ -349,16 +357,20 @@ serve(async (req: Request) => {
       )
     }
 
-    // Validate product ID is known
-    const productInfo = PRODUCT_DT_MAP[body.productId]
-    if (!productInfo) {
+    // Validate product ID is known (DT consumable or subscription)
+    const dtProductInfo = PRODUCT_DT_MAP[body.productId]
+    const subProductInfo = SUBSCRIPTION_PRODUCT_MAP[body.productId]
+
+    if (!dtProductInfo && !subProductInfo) {
       return new Response(
         JSON.stringify({ error: 'Unknown product ID', errorCode: 'UNKNOWN_PRODUCT' }),
         { status: 400, headers: { ...corsHeaders, ...jsonHeaders } },
       )
     }
 
-    console.log(`[IAP-Verify] Verifying ${body.platform} purchase: ${body.productId} for user ${user.id}`)
+    const isSubscription = !!subProductInfo
+
+    console.log(`[IAP-Verify] Verifying ${body.platform} ${isSubscription ? 'subscription' : 'DT'} purchase: ${body.productId} for user ${user.id}`)
 
     // Platform-specific verification
     let verification: VerificationResult
@@ -412,108 +424,157 @@ serve(async (req: Request) => {
       )
     }
 
-    // Idempotency check: has this transaction already been processed?
-    const idempotencyKey = `${body.platform}:${verification.transactionId}`
-    const { data: existingPurchase } = await supabaseUser
-      .from('dt_purchases')
-      .select('id')
-      .eq('payment_provider_transaction_id', idempotencyKey)
-      .maybeSingle()
+    // ============================================
+    // POST-VERIFICATION: Subscription vs DT flow
+    // ============================================
 
-    if (existingPurchase) {
-      console.log(`[IAP-Verify] Already processed: ${idempotencyKey}`)
-      return new Response(
-        JSON.stringify({ success: true, message: 'Already processed', alreadyProcessed: true }),
-        { status: 200, headers: { ...corsHeaders, ...jsonHeaders } },
-      )
-    }
-
-    // Credit DT to user wallet via atomic transaction
-    // First, ensure wallet exists
-    const { data: wallet } = await supabaseUser
-      .from('wallets')
-      .select('id, balance_dt')
-      .eq('user_id', user.id)
-      .single()
-
-    let walletId = wallet?.id
-    if (!walletId) {
-      const { data: newWallet, error: createErr } = await supabaseUser
-        .from('wallets')
-        .insert({ user_id: user.id, balance_dt: 0 })
-        .select('id')
-        .single()
-
-      if (createErr || !newWallet) {
+    if (isSubscription) {
+      // ---- SUBSCRIPTION FLOW ----
+      // channelId is required for subscription activation
+      if (!body.channelId) {
         return new Response(
-          JSON.stringify({ error: 'Failed to create wallet' }),
+          JSON.stringify({
+            error: 'channelId is required for subscription purchases',
+            errorCode: 'MISSING_CHANNEL_ID',
+          }),
+          { status: 400, headers: { ...corsHeaders, ...jsonHeaders } },
+        )
+      }
+
+      // Idempotency check for subscriptions
+      const { data: existingSub } = await supabaseUser
+        .from('subscriptions')
+        .select('id')
+        .eq('payment_reference', verification.transactionId || body.purchaseToken)
+        .eq('user_id', user.id)
+        .eq('channel_id', body.channelId)
+        .maybeSingle()
+
+      if (existingSub) {
+        console.log(`[IAP-Verify] Subscription already activated for user ${user.id} on channel ${body.channelId}`)
+        return new Response(
+          JSON.stringify({ success: true, message: 'Subscription already activated', alreadyProcessed: true }),
+          { status: 200, headers: { ...corsHeaders, ...jsonHeaders } },
+        )
+      }
+
+      const paymentProvider = body.platform === 'ios' ? 'apple|iap' : 'google|iap'
+      const { data: subId, error: subError } = await supabaseUser.rpc('activate_subscription', {
+        p_user_id: user.id,
+        p_channel_id: body.channelId,
+        p_payment_provider: paymentProvider,
+        p_payment_reference: verification.transactionId || body.purchaseToken,
+        p_tier: subProductInfo!.tier,
+        p_duration_days: subProductInfo!.durationDays,
+      })
+
+      if (subError) {
+        console.error(`[IAP-Verify] Subscription activation failed:`, subError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to activate subscription' }),
           { status: 500, headers: { ...corsHeaders, ...jsonHeaders } },
         )
       }
-      walletId = newWallet.id
-    }
 
-    // Create purchase record and credit DT atomically
-    const { data: txResult, error: txError } = await supabaseUser.rpc('process_payment_atomic', {
-      p_order_id: `iap_${verification.transactionId}`,
-      p_transaction_id: idempotencyKey,
-      p_wallet_id: walletId,
-      p_user_id: user.id,
-      p_total_dt: productInfo.dtAmount,
-      p_dt_amount: productInfo.dtAmount,
-      p_bonus_dt: 0,
-      p_idempotency_key: idempotencyKey,
-    })
+      console.log(`[IAP-Verify] Subscription activated: ${subProductInfo!.tier} for user ${user.id} on channel ${body.channelId}`)
 
-    if (txError) {
-      // Idempotency catch
-      if (txError.code === '23505' || txError.message?.includes('already_processed')) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          subscription: true,
+          tier: subProductInfo!.tier,
+          subscriptionId: subId,
+          transactionId: verification.transactionId,
+        }),
+        { status: 200, headers: { ...corsHeaders, ...jsonHeaders } },
+      )
+
+    } else {
+      // ---- DT CONSUMABLE FLOW ----
+
+      // Idempotency check: has this transaction already been processed?
+      const idempotencyKey = `${body.platform}:${verification.transactionId}`
+      const { data: existingPurchase } = await supabaseUser
+        .from('dt_purchases')
+        .select('id')
+        .eq('payment_provider_transaction_id', idempotencyKey)
+        .maybeSingle()
+
+      if (existingPurchase) {
+        console.log(`[IAP-Verify] Already processed: ${idempotencyKey}`)
         return new Response(
           JSON.stringify({ success: true, message: 'Already processed', alreadyProcessed: true }),
           { status: 200, headers: { ...corsHeaders, ...jsonHeaders } },
         )
       }
 
-      console.error(`[IAP-Verify] Atomic transaction failed:`, txError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to process purchase' }),
-        { status: 500, headers: { ...corsHeaders, ...jsonHeaders } },
-      )
-    }
+      // Credit DT to user wallet via atomic transaction
+      // First, ensure wallet exists
+      const { data: wallet } = await supabaseUser
+        .from('wallets')
+        .select('id, balance_dt')
+        .eq('user_id', user.id)
+        .single()
 
-    const newBalance = txResult?.new_balance ?? ((wallet?.balance_dt ?? 0) + productInfo.dtAmount)
+      let walletId = wallet?.id
+      if (!walletId) {
+        const { data: newWallet, error: createErr } = await supabaseUser
+          .from('wallets')
+          .insert({ user_id: user.id, balance_dt: 0 })
+          .select('id')
+          .single()
 
-    // If channelId provided, also activate subscription
-    if (body.channelId) {
-      const paymentProvider = body.platform === 'ios' ? 'apple|iap' : 'google|iap'
-      const { error: subError } = await supabaseUser.rpc('activate_subscription', {
+        if (createErr || !newWallet) {
+          return new Response(
+            JSON.stringify({ error: 'Failed to create wallet' }),
+            { status: 500, headers: { ...corsHeaders, ...jsonHeaders } },
+          )
+        }
+        walletId = newWallet.id
+      }
+
+      // Create purchase record and credit DT atomically
+      const { data: txResult, error: txError } = await supabaseUser.rpc('process_payment_atomic', {
+        p_order_id: `iap_${verification.transactionId}`,
+        p_transaction_id: idempotencyKey,
+        p_wallet_id: walletId,
         p_user_id: user.id,
-        p_channel_id: body.channelId,
-        p_payment_provider: paymentProvider,
-        p_payment_reference: verification.transactionId || body.purchaseToken,
-        p_tier: 'STANDARD',
-        p_duration_days: 30,
+        p_total_dt: dtProductInfo!.dtAmount,
+        p_dt_amount: dtProductInfo!.dtAmount,
+        p_bonus_dt: 0,
+        p_idempotency_key: idempotencyKey,
       })
 
-      if (subError) {
-        // Log but don't fail the DT credit (DT is already credited)
-        console.error(`[IAP-Verify] Subscription activation failed:`, subError)
-      } else {
-        console.log(`[IAP-Verify] Subscription activated for user ${user.id} on channel ${body.channelId}`)
+      if (txError) {
+        // Idempotency catch
+        if (txError.code === '23505' || txError.message?.includes('already_processed')) {
+          return new Response(
+            JSON.stringify({ success: true, message: 'Already processed', alreadyProcessed: true }),
+            { status: 200, headers: { ...corsHeaders, ...jsonHeaders } },
+          )
+        }
+
+        console.error(`[IAP-Verify] Atomic transaction failed:`, txError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to process purchase' }),
+          { status: 500, headers: { ...corsHeaders, ...jsonHeaders } },
+        )
       }
+
+      const newBalance = txResult?.new_balance ?? ((wallet?.balance_dt ?? 0) + dtProductInfo!.dtAmount)
+
+      console.log(`[IAP-Verify] Successfully verified and credited ${dtProductInfo!.dtAmount} DT to user ${user.id}`)
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          creditedDt: dtProductInfo!.dtAmount,
+          newBalance: newBalance,
+          transactionId: verification.transactionId,
+        }),
+        { status: 200, headers: { ...corsHeaders, ...jsonHeaders } },
+      )
     }
-
-    console.log(`[IAP-Verify] Successfully verified and credited ${productInfo.dtAmount} DT to user ${user.id}`)
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        creditedDt: productInfo.dtAmount,
-        newBalance: newBalance,
-        transactionId: verification.transactionId,
-      }),
-      { status: 200, headers: { ...corsHeaders, ...jsonHeaders } },
-    )
   } catch (error) {
     console.error('[IAP-Verify] Unexpected error:', error)
     return new Response(

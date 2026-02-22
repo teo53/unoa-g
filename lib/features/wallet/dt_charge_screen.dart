@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/premium_effects.dart';
@@ -98,8 +96,14 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
               backgroundColor: AppColors.danger,
             ),
           );
-          // Complete even on error to clear the transaction queue
-          ref.read(iapServiceProvider).completePurchase(purchase);
+          // P0-2: Do NOT call completePurchase on error.
+          // The store will retry the pending transaction on next app launch,
+          // preserving the user's ability to complete the purchase.
+          AppLogger.warning(
+            'IAP error: leaving purchase pending for retry. '
+            'productID=${purchase.productID}',
+            tag: 'IAP',
+          );
           break;
 
         case PurchaseStatus.canceled:
@@ -115,8 +119,8 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
     }
   }
 
-  /// P0-3: Verify purchase server-side via iap-verify Edge Function,
-  /// then complete the store transaction.
+  /// P0-2/P0-3: Verify purchase server-side via iap-verify Edge Function,
+  /// then complete the store transaction ONLY on success.
   Future<void> _verifyAndCompletePurchase(PurchaseDetails purchase) async {
     AppLogger.info(
       'IAP verifying: ${purchase.productID}, status=${purchase.status}',
@@ -126,43 +130,21 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
     int creditedDt = 0;
 
     try {
-      final client = Supabase.instance.client;
-
       // Determine platform
       final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
       final platform = kIsWeb ? 'web' : (isIOS ? 'ios' : 'android');
 
-      // Build verification request
-      final body = <String, dynamic>{
-        'platform': platform,
-        'productId': purchase.productID,
-        'purchaseToken': purchase.verificationData.serverVerificationData,
-      };
-
-      // iOS: include receipt data and transaction ID
-      if (isIOS) {
-        body['transactionReceipt'] =
-            purchase.verificationData.serverVerificationData;
-        body['transactionId'] = purchase.purchaseID;
-      }
-
-      // Call iap-verify Edge Function
-      final response = await client.functions.invoke(
-        'iap-verify',
-        body: body,
-      );
-
-      if (response.status != 200) {
-        final errorData = response.data is String
-            ? jsonDecode(response.data as String)
-            : response.data;
-        final errorMsg = errorData?['error'] ?? 'Verification failed';
-        throw Exception(errorMsg);
-      }
-
-      final result = response.data is String
-          ? jsonDecode(response.data as String) as Map<String, dynamic>
-          : response.data as Map<String, dynamic>;
+      // Call iap-verify via repository
+      final result =
+          await ref.read(creatorChatRepositoryProvider).verifyIAPPurchase(
+                platform: platform,
+                productId: purchase.productID,
+                purchaseToken: purchase.verificationData.serverVerificationData,
+                transactionReceipt: isIOS
+                    ? purchase.verificationData.serverVerificationData
+                    : null,
+                transactionId: isIOS ? purchase.purchaseID : null,
+              );
 
       creditedDt = (result['creditedDt'] as num?)?.toInt() ?? 0;
 
@@ -173,19 +155,29 @@ class _DtChargeScreenState extends ConsumerState<DtChargeScreen> {
     } catch (e) {
       AppLogger.error('IAP verification failed: $e', tag: 'IAP');
 
-      // Show error but still complete the purchase to clear the queue.
-      // The server-side idempotency ensures no double-credit.
+      // P0-2: Do NOT call completePurchase on verification failure.
+      // Leave the purchase pending so it can be retried on next app launch
+      // via the store's pending transaction queue.
       if (mounted) {
+        setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('결제 검증 중 오류가 발생했습니다: $e'),
+            content: const Text(
+              '결제 검증 중 오류가 발생했습니다. 앱 재시작 시 자동으로 재시도됩니다.',
+            ),
             backgroundColor: AppColors.danger,
+            action: SnackBarAction(
+              label: '재시도',
+              textColor: Colors.white,
+              onPressed: () => _verifyAndCompletePurchase(purchase),
+            ),
           ),
         );
       }
+      return; // Exit early — do NOT complete the purchase
     }
 
-    // Complete the store transaction (removes from pending queue)
+    // P0-2: Only complete the store transaction AFTER successful verification
     await ref.read(iapServiceProvider).completePurchase(purchase);
 
     if (!mounted) return;
