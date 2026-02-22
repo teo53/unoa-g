@@ -59,9 +59,9 @@ class _Pending extends PaymentResult {
 class _Rejected extends PaymentResult {
   const _Rejected(String message)
       : super._(
-            success: false,
-            isPending: false,
-            errorMessage: message,
+          success: false,
+          isPending: false,
+          errorMessage: message,
         );
 }
 
