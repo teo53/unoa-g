@@ -161,7 +161,7 @@ CreatorChatTabScreen (3탭 구조)
 
 | Component | Technology |
 |-----------|------------|
-| Framework | Flutter 3.0+ |
+| Framework | Flutter 3.38.5 (SDK >=3.6.0) |
 | Language | Dart |
 | State Management | Riverpod (primary), Provider (legacy - migrating) |
 | Navigation | go_router ^14.8.0 |
@@ -208,7 +208,8 @@ unoa-g/
 │   │   │   └── sentry_service.dart   # Error monitoring & crash reporting
 │   │   ├── services/
 │   │   │   ├── demo_mode_service.dart    # 데모 모드 통합 관리
-│   │   │   ├── error_service.dart        # Error handling service
+│   │   │   └── error_service.dart        # Error handling service
+│   │   ├── supabase/
 │   │   │   ├── supabase_auth_service.dart # Supabase authentication
 │   │   │   └── supabase_client.dart      # Supabase client initialization
 │   │   ├── theme/
@@ -221,7 +222,9 @@ unoa-g/
 │   │       ├── accessibility_helper.dart  # Semantic wrappers
 │   │       ├── animation_utils.dart       # Animation utilities
 │   │       ├── app_logger.dart            # Logging utility
+│   │       ├── platform_pricing.dart      # Platform-aware pricing
 │   │       ├── responsive_helper.dart     # Responsive design
+│   │       ├── safe_url_launcher.dart     # Safe URL launching
 │   │       ├── template_renderer.dart     # Template variable rendering
 │   │       └── utils.dart                 # General utilities
 │   ├── data/
@@ -231,7 +234,7 @@ unoa-g/
 │   │   │   ├── mock_celebrations.dart     # Mock celebration events
 │   │   │   ├── mock_polls.dart            # Mock poll data
 │   │   │   └── reply_templates.dart       # Reply template examples
-│   │   ├── models/                        # 35+ model files
+│   │   ├── models/                        # 22 model files
 │   │   │   ├── user.dart                  # Core user model
 │   │   │   ├── user_profile.dart          # User profile data
 │   │   │   ├── artist.dart                # Artist information
@@ -252,9 +255,9 @@ unoa-g/
 │   │   │   ├── celebration_template.dart  # Celebration templates
 │   │   │   ├── fan_celebration.dart       # Fan-specific celebrations
 │   │   │   ├── creator_content.dart       # Creator-managed content
+│   │   │   ├── agency.dart                 # Creator agency/label
 │   │   │   ├── ai_draft_state.dart        # AI reply suggestion state
-│   │   │   ├── ai_draft_error.dart        # AI draft error handling
-│   │   │   └── ...                        # Additional models
+│   │   │   └── ai_draft_error.dart        # AI draft error handling
 │   │   ├── repositories/
 │   │   │   ├── repositories.dart              # Repository exports
 │   │   │   ├── chat_repository.dart           # Abstract chat interface
@@ -271,14 +274,16 @@ unoa-g/
 │   │       ├── ai_draft_service.dart          # AI reply suggestions
 │   │       ├── creator_pattern_service.dart   # Creator behavior analysis
 │   │       └── notification_service.dart      # Notification handling
-│   ├── providers/                             # 16 Riverpod providers
+│   ├── providers/                             # 18 Riverpod providers
 │   │   ├── providers.dart                     # Provider exports
+│   │   ├── agency_provider.dart               # Agency/label management
 │   │   ├── auth_provider.dart                 # Auth state (AuthAuthenticated, AuthDemoMode)
 │   │   ├── chat_provider.dart                 # Chat messages & real-time
 │   │   ├── chat_list_provider.dart            # Chat list & subscriptions
 │   │   ├── wallet_provider.dart               # DT balance & transactions
 │   │   ├── theme_provider.dart                # Dark/light mode toggle
 │   │   ├── subscription_provider.dart         # Subscription data
+│   │   ├── subscription_pricing_provider.dart # Subscription pricing
 │   │   ├── funding_provider.dart              # Funding campaigns
 │   │   ├── discover_provider.dart             # Artist discovery feed
 │   │   ├── private_card_provider.dart         # Private card state
@@ -295,19 +300,21 @@ unoa-g/
 │   │   ├── realtime_service.dart              # Real-time data sync
 │   │   ├── media_service.dart                 # Image/video/audio
 │   │   ├── voice_service.dart                 # Voice recording/playback
+│   │   ├── payment_service.dart               # TossPayments integration
 │   │   └── identity_verification_service.dart # Identity/age verification
-│   ├── features/                              # Feature modules
+│   ├── features/                              # Feature modules (16 directories)
+│   │   ├── admin/                             # Admin panel (4 screens)
 │   │   ├── auth/                              # Authentication (4 screens)
 │   │   ├── home/                              # Home feed (1 screen)
-│   │   ├── chat/                              # Fan chat (2 screens, 20 widgets)
-│   │   ├── creator/                           # Creator hub (10 screens, 11 widgets)
+│   │   ├── chat/                              # Fan chat (2 screens, 22 widgets)
+│   │   ├── creator/                           # Creator hub (10 screens, 20 widgets)
 │   │   ├── artist_inbox/                      # Legacy broadcast (2 screens)
 │   │   ├── funding/                           # Crowdfunding (10 screens)
 │   │   ├── private_card/                      # Private cards (2 screens, 7 widgets)
 │   │   ├── discover/                          # Artist discovery (1 screen)
 │   │   ├── wallet/                            # DT wallet (3 screens)
 │   │   ├── profile/                           # Profiles (3 screens)
-│   │   ├── settings/                          # Settings & legal (13 screens)
+│   │   ├── settings/                          # Settings & legal (14 screens)
 │   │   ├── subscriptions/                     # Active subscriptions (1 screen)
 │   │   ├── notifications/                     # Notification center (1 screen)
 │   │   ├── help/                              # Help & support (1 screen)
@@ -316,6 +323,7 @@ unoa-g/
 │   │   └── app_router.dart                    # go_router with role-based guards
 │   └── shared/
 │       └── widgets/                           # 19 reusable widgets
+│           ├── admin_bottom_nav_bar.dart      # Admin bottom nav (4 tabs)
 │           ├── app_scaffold.dart              # Platform-aware layout
 │           ├── bottom_nav_bar.dart            # Fan bottom nav (5 tabs)
 │           ├── creator_bottom_nav_bar.dart    # Creator bottom nav (5 tabs)
@@ -339,9 +347,10 @@ unoa-g/
 │       ├── studio/               # Creator dashboard (campaign management)
 │       ├── admin/                # Ops admin panel
 │       └── public/               # Public campaign browsing
+├── config/                       # Environment configs (dev/beta/prod JSON)
 ├── supabase/
-│   ├── functions/                # 24 Edge Functions (TypeScript/Deno)
-│   └── migrations/               # 57 database migrations
+│   ├── functions/                # 22 Edge Functions + _shared/ (TypeScript/Deno)
+│   └── migrations/               # 72 database migrations
 ├── tools/                        # MCP development tools
 │   ├── review_gate/              # PR review automation
 │   ├── supabase_guard/           # RLS & migration linting
@@ -359,7 +368,9 @@ unoa-g/
 ├── android/                      # Android platform code
 ├── ios/                          # iOS platform code
 ├── web/                          # Flutter web platform code
-└── test/                         # 25 test files
+├── .github/
+│   └── workflows/ci.yml         # GitHub Actions CI (4 jobs)
+└── test/                         # 30 test files
 ```
 
 ## Architecture Patterns
@@ -388,7 +399,7 @@ abstract class IChatRepository {
 ```
 
 ### State Management (Riverpod)
-- **Riverpod** is the primary state management solution (16 providers)
+- **Riverpod** is the primary state management solution (18 providers)
 - `Provider` exists as a legacy dependency and is being migrated to Riverpod
 - Providers are in `lib/providers/` with dependency injection via `repository_providers.dart`
 - Auth state uses `AuthAuthenticated`, `AuthDemoMode`, `AuthError` states
@@ -458,9 +469,16 @@ Theme.of(context).extension<AppColorsExtension>()!.surface
 - Card elevation: 0 (flat design with borders)
 - Fan bottom nav (5 tabs): 홈, 메시지, 펀딩, 탐색, 프로필
 - Creator bottom nav (5 tabs): 대시보드, 채팅, 펀딩, 탐색, 프로필
+- Admin bottom nav (4 tabs): 대시보드, 크리에이터, 정산, 설정
 - Support both light and dark themes
 
 ## Features Detail
+
+### Admin (4 screens)
+- `AdminDashboardScreen` - Admin overview dashboard
+- `AdminCreatorsScreen` - Creator management
+- `AdminSettlementsScreen` - Settlement management
+- `AdminSettingsScreen` - Admin settings
 
 ### Auth (4 screens)
 - `LoginScreen` - Email/social login
@@ -469,12 +487,12 @@ Theme.of(context).extension<AppColorsExtension>()!.surface
 - `ForgotPasswordScreen` - Password recovery
 - Widgets: `AuthForm`, `IdentityVerificationButton`, `SocialLoginButtons`
 
-### Chat (2 screens, 20 widgets)
+### Chat (2 screens, 22 widgets)
 - `ChatListScreen` - Fan's subscription chat list
 - `ChatThreadScreenV2` - Chat thread (fan 1:1 view)
 - Widgets: `MessageBubble`, `BroadcastMessageBubble`, `ChatInputBar`, `TokenCounter`, `PollMessageCard`, etc.
 
-### Creator (10 screens, 11 widgets)
+### Creator (10 screens, 20 widgets)
 - `CreatorDashboardScreen` - CRM-integrated dashboard
 - `CreatorChatTabScreen` - 3-tab chat (My Channel, Private Cards, Subscribed Artists)
 - `CreatorMyChannelScreen` - Broadcast channel management
@@ -505,10 +523,10 @@ Theme.of(context).extension<AppColorsExtension>()!.surface
 - `DtChargeScreen` - Purchase DT tokens
 - `TransactionHistoryScreen` - Transaction log
 
-### Settings (13 screens)
+### Settings (14 screens)
 - `SettingsScreen` - Main settings
 - `AccountScreen`, `NotificationSettingsScreen`, `BirthdaySettingsScreen`, `TaxSettingsScreen`
-- Legal: `TermsScreen`, `PrivacyScreen`, `CompanyInfoScreen`, `RefundPolicyScreen`, `FeePolicyScreen`, `FundingTermsScreen`, `ModerationPolicyScreen`, `ConsentHistoryScreen`
+- Legal: `TermsScreen`, `PrivacyScreen`, `CompanyInfoScreen`, `RefundPolicyScreen`, `FeePolicyScreen`, `FundingTermsScreen`, `ModerationPolicyScreen`, `ConsentHistoryScreen`, `DtTermsScreen`
 
 ### Other Features
 - `HomeScreen` - Home feed with subscriptions and trending
@@ -543,6 +561,12 @@ Routes defined in `lib/navigation/app_router.dart`:
 '/creator/funding'        // Funding (My Campaigns + Explore)
 '/creator/discover'       // Discover artists
 '/creator/profile'        // Creator profile
+
+// ── Admin Shell (AdminBottomNavBar - 4 tabs) ──
+'/admin/dashboard'        // Admin overview dashboard
+'/admin/creators'         // Creator management
+'/admin/settlements'      // Settlement management
+'/admin/settings'         // Admin settings
 
 // ── Full Screen Routes (no bottom nav) ──
 // Chat
@@ -588,8 +612,10 @@ Routes defined in `lib/navigation/app_router.dart`:
 ### Route Guards
 - Authentication required for all routes (except auth routes)
 - Creator routes (`/creator/*`) blocked for fan users (auto-redirect to `/`)
+- Admin routes (`/admin/*`) blocked for non-admin users (requires `profile.isAdmin`)
 - Role-based guard in `app_router.dart` `redirect` function
 - `isCreatorProvider` for UI-level role checks
+- 3 ShellRoutes: Fan (`BottomNavBar`) + Creator (`CreatorBottomNavBar`) + Admin (`AdminBottomNavBar`)
 
 ## Data Models
 
@@ -624,6 +650,8 @@ enum DeliveryScope {
 
 **Creator Features**: `private_card.dart`, `poll_draft.dart`, `celebration_event.dart`, `celebration_template.dart`, `fan_celebration.dart`, `creator_content.dart`
 
+**Agency**: `agency.dart`
+
 **AI**: `ai_draft_state.dart`, `ai_draft_error.dart`
 
 ## Services & Providers
@@ -631,12 +659,14 @@ enum DeliveryScope {
 ### Riverpod Providers (lib/providers/)
 | Provider | Purpose |
 |----------|---------|
+| `agencyProvider` | Agency/label management |
 | `authProvider` | Authentication state (Authenticated/DemoMode/Error) |
 | `chatProvider` | Chat messages & real-time updates |
 | `chatListProvider` | Chat list & subscription management |
 | `walletProvider` | DT balance & transactions |
 | `themeProvider` | Dark/light mode toggle |
 | `subscriptionProvider` | User subscription data |
+| `subscriptionPricingProvider` | Subscription pricing calculations |
 | `fundingProvider` | Funding campaign state |
 | `discoverProvider` | Artist discovery feed |
 | `privateCardProvider` | Private card state |
@@ -655,6 +685,7 @@ enum DeliveryScope {
 | `realtime_service.dart` | Supabase Realtime sync |
 | `media_service.dart` | Image/video/audio handling |
 | `voice_service.dart` | Voice recording & playback |
+| `payment_service.dart` | TossPayments integration |
 | `identity_verification_service.dart` | Age/identity verification |
 
 ### Business Services (lib/data/services/)
@@ -706,7 +737,7 @@ firebase deploy --only hosting
 - `user_consents` - Consent tracking
 - `rate_limits` - API rate limiting
 
-### Database Migrations (57 total)
+### Database Migrations (72 total)
 Key migrations:
 - `001` - Core broadcast chat schema
 - `002` - Row Level Security policies
@@ -725,13 +756,19 @@ Key migrations:
 - `049` - Security fixes
 - `050` - Rate limiting
 - `051-057` - Ops admin features and final fixes
+- `058-064` - Agency schema, payment confirm/reconcile, message highlights
+- `065-072` - Pre-launch signups, subscription pricing, scheduled reconcile
 
-### Edge Functions (24 TypeScript/Deno functions)
+### Edge Functions (22 TypeScript/Deno functions + shared utils)
 | Function | Purpose |
 |----------|---------|
 | `ai-reply-suggest` | AI reply suggestions via Anthropic Claude |
 | `ai-poll-suggest` | AI-powered poll generation |
+| `agency-manage` | Agency/label management |
+| `agency-settlement-calculate` | Agency settlement calculation |
 | `payment-checkout` | Payment session creation |
+| `payment-confirm` | Payment confirmation |
+| `payment-reconcile` | Payment reconciliation |
 | `payment-webhook` | Payment completion handling |
 | `funding-payment-webhook` | Funding-specific payment webhook |
 | `funding-pledge` | Pledge creation |
@@ -741,12 +778,14 @@ Key migrations:
 | `payout-calculate` | Settlement payout calculation |
 | `payout-statement` | Payout statement generation |
 | `settlement-export` | Settlement export |
+| `subscription-pricing` | Subscription pricing logic |
+| `refresh-fallback-quotas` | Fallback quota refresh |
 | `verify-identity` | Identity verification |
 | `refund-process` | Refund handling |
 | `ops-manage` | Operational admin management |
 | `scheduled-dispatcher` | Cron job dispatcher |
 
-Shared utilities: CORS, auth, rate limiting, PII masking, logging.
+Shared utilities (`_shared/`): CORS, auth, rate limiting, PII masking, logging.
 
 ### Row Level Security (RLS)
 All tables have RLS policies. Fans can only see:
@@ -784,12 +823,14 @@ PowerShell automation:
 
 ## Testing
 
-### Test Structure (25 test files)
+### Test Structure (30 test files)
 ```
 test/
 ├── core/config/           # Config validation (3 tests)
-├── data/models/           # Model serialization (16 tests)
-├── providers/             # Provider logic (2 tests)
+├── data/
+│   ├── models/            # Model serialization (13 tests)
+│   └── repositories/      # Repository tests (1 test)
+├── providers/             # Provider logic (4 tests)
 ├── features/chat/         # Message action tests (1 test)
 ├── shared/widgets/        # Widget tests (3 tests)
 │   ├── skeleton_loader, error_boundary, push_permission
@@ -1049,6 +1090,16 @@ decorativeWidget.excludeSemantics()
 '/creator/funding/edit/:campaignId'   // 캠페인 편집
 ```
 
+## Admin Routes (관리자 라우트)
+
+```dart
+// 관리자 메인 탭 (하단 네비게이션 포함)
+'/admin/dashboard'        // 관리자 대시보드
+'/admin/creators'         // 크리에이터 관리
+'/admin/settlements'      // 정산 관리
+'/admin/settings'         // 관리자 설정
+```
+
 ---
 
 ## ⚠️ 환경 설정 시스템 (CRITICAL - 반드시 숙지)
@@ -1250,33 +1301,38 @@ firebase deploy --only hosting
 11. **Responsive**: Use ResponsiveLayout for screens that need tablet/desktop support.
 12. **Config 사용 필수**: 하드코딩 대신 반드시 `DemoConfig`, `BusinessConfig`, `AppConfig` 사용.
 13. **데모 모드 지원**: 새 Provider 작성 시 `AuthDemoMode` 상태 처리 필수.
-14. **팬/크리에이터 UI 완전 분리**: 팬 화면과 크리에이터 화면은 별도 ShellRoute로 분리. 상세 규칙은 아래 참조.
+14. **팬/크리에이터/관리자 UI 완전 분리**: 팬, 크리에이터, 관리자 화면은 별도 ShellRoute로 분리. 상세 규칙은 아래 참조.
 15. **Riverpod 사용**: 새 상태 관리는 반드시 Riverpod 사용. Provider는 레거시이며 마이그레이션 중.
 16. **AppLogger 사용**: `print()` 대신 `AppLogger` 사용 (avoid_print 린트 규칙).
 17. **Edge Functions**: AI 기능, 결제, 정산 등 서버 로직은 Supabase Edge Functions로 처리.
 
 ---
 
-## ⚠️ 팬/크리에이터 라우트 분리 (CRITICAL - 반드시 숙지)
+## ⚠️ 팬/크리에이터/관리자 라우트 분리 (CRITICAL - 반드시 숙지)
 
-### 원칙: 팬과 크리에이터 UI는 완전히 독립적으로 구성
+### 원칙: 팬, 크리에이터, 관리자 UI는 완전히 독립적으로 구성
 
+- 3개의 독립 `ShellRoute`: Fan + Creator + Admin
 - `/creator/*` 라우트는 **인증 + 역할** 이중 가드 적용 (`app_router.dart`의 `redirect` 함수)
-- 팬(`role == 'fan'`)은 크리에이터 라우트 접근 시 자동으로 `/`로 리다이렉트
+- `/admin/*` 라우트는 **인증 + `profile.isAdmin`** 가드 적용
+- 팬(`role == 'fan'`)은 크리에이터/관리자 라우트 접근 시 자동으로 `/`로 리다이렉트
 - 새로운 크리에이터 전용 화면 추가 시 반드시 `/creator/` 프리픽스 사용
+- 새로운 관리자 전용 화면 추가 시 반드시 `/admin/` 프리픽스 사용
 - UI 레벨에서도 `isCreatorProvider`로 역할 확인 가능
-- 팬 화면과 크리에이터 화면은 별도의 `ShellRoute`로 완전 분리
 - 팬 네비게이션: `BottomNavBar` (홈, 메시지, 펀딩, 탐색, 프로필)
 - 크리에이터 네비게이션: `CreatorBottomNavBar` (대시보드, 채팅, 펀딩, 탐색, 프로필)
+- 관리자 네비게이션: `AdminBottomNavBar` (대시보드, 크리에이터, 정산, 설정)
 
 ### ❌ 잘못된 구현 (하지 말 것)
 - 팬 계정에서 크리에이터 대시보드/CRM/정산 지급 등의 UI가 보이게 하기
-- 역할 확인 없이 `/creator/*` 라우트 접근 허용
+- 역할 확인 없이 `/creator/*` 또는 `/admin/*` 라우트 접근 허용
 - 팬과 크리에이터 공용 화면에서 역할별 분기 없이 크리에이터 기능 노출
+- 비관리자 계정에서 관리자 대시보드/정산관리 등 접근 허용
 
 ### ✅ 올바른 구현
 - `app_router.dart`의 `redirect`에서 역할 기반 가드 적용
 - 크리에이터 전용 기능은 반드시 `/creator/` 하위 라우트로 구성
+- 관리자 전용 기능은 반드시 `/admin/` 하위 라우트로 구성
 - 공용 화면(탐색, 프로필 등)에서 역할별 UI 분기 시 `isCreatorProvider` 사용
 
 ---
@@ -1320,3 +1376,92 @@ firebase deploy --only hosting
 | `SUPABASE_SERVICE_ROLE_KEY` | Edge Function 서버 | 클라이언트에 전달 |
 | `SUPABASE_ANON_KEY` | 빌드타임 주입 (공개 가능) | - |
 | `SENTRY_DSN` | 빌드타임 주입 (공개 가능) | - |
+
+---
+
+## CI/CD (GitHub Actions)
+
+### 워크플로우: `.github/workflows/ci.yml`
+
+트리거: `push` to `main`, `pull_request` to `main`
+
+| Job | 설명 | Timeout |
+|-----|------|---------|
+| `flutter-quality` | Flutter analyze + format + test + web build (PR only) | 15분 |
+| `android-build` | APK release build + size check + artifact upload | 25분 |
+| `web-quality` | Next.js lint + TypeScript check + build (apps/web/) | 10분 |
+| `security-scan` | npm audit + Flutter deps + secret scan + unwanted file check | 10분 |
+
+### 주요 버전
+- **Flutter**: 3.38.5 (stable)
+- **Java**: 17 (Temurin)
+- **Node.js**: 20
+
+### CI 명령어 (로컬 재현용)
+```bash
+# Flutter quality gate
+flutter analyze --no-fatal-infos
+dart format --set-exit-if-changed .
+flutter test --reporter=expanded
+
+# Web quality gate
+cd apps/web && npm ci && npm run lint && npx tsc --noEmit && npm run build
+
+# Security scan
+git grep -lI 'sk_live_\|sk_test_\|AKIA[0-9A-Z]\{16\}\|-----BEGIN.*PRIVATE KEY' -- ':!*.lock' ':!node_modules' ':!.github' ':!scripts/gates' ':!tools/mcp' ':!*.md'
+```
+
+### APK Artifact
+- `push` to `main` 시 APK artifact 업로드 (7일 보존)
+- APK 150MB 초과 시 경고
+
+---
+
+## 워크플로우 오케스트레이션 (Workflow Orchestration)
+
+### 1. 플랜 모드 기본값
+- 항상 플랜 모드로 시작하여 구현 전에 사용자 승인을 기다린다
+- 구현 범위와 영향도를 사전에 파악하고 계획을 세운다
+
+### 2. 서브에이전트 전략
+- 독립적인 작업은 병렬로 실행하여 효율성을 극대화한다
+- 각 서브에이전트에 명확한 범위를 지정한다
+- 결과를 통합하여 일관성을 보장한다
+
+### 3. 자기개선 루프
+- 오류 발생 시 자동으로 수정을 시도한다
+- 수정 후 검증을 반복하여 품질을 보장한다
+
+### 4. 완료 전 검증
+- 모든 변경사항에 대해 테스트를 실행한다
+- 린트 검사를 통과하는지 확인한다
+- 빌드가 성공하는지 확인한다
+
+### 5. 우아함 추구 (균형 잡힌)
+- 코드 품질과 실용성 사이의 균형을 유지한다
+- 과도한 엔지니어링을 피한다
+
+### 6. 자율 버그 수정
+- 발견된 버그를 자율적으로 수정한다
+- 수정 내용을 명확하게 문서화한다
+
+---
+
+## 태스크 관리 (Task Management)
+
+- `tasks/todo.md`에 계획을 작성하고 진행 상황을 추적한다
+- 계획 검증: 실행 전 계획의 타당성을 검증한다
+- 진행 상황 추적: 각 단계별 완료 여부를 실시간으로 기록한다
+- 변경 설명: 모든 변경사항에 대해 명확한 설명을 남긴다
+- 결과 문서화: 최종 결과를 문서로 정리한다
+- `tasks/lessons.md`에 교훈을 기록하여 반복 실수를 방지한다
+
+---
+
+## 핵심 원칙 (Core Principles)
+
+| 원칙 | 설명 |
+|------|------|
+| **단순함 우선** | 복잡한 솔루션보다 단순한 솔루션을 선택한다. 최소한의 코드로 목표를 달성한다 |
+| **게으름 금지** | 모든 작업을 끝까지 완료한다. 중간에 포기하거나 대충 처리하지 않는다 |
+| **최소 영향** | 변경의 영향 범위를 최소화한다. 필요한 부분만 수정하고 관련 없는 코드를 건드리지 않는다 |
