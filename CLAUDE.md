@@ -187,6 +187,13 @@ CreatorChatTabScreen (3탭 구조)
 - `json_annotation` / `freezed_annotation` - Code generation
 - `intl` - Internationalization
 - `uuid` - Unique IDs
+- `firebase_core ^3.15.0` / `firebase_messaging ^15.2.0` / `firebase_analytics ^11.6.0`
+- `flutter_local_notifications ^18.0.1` - Local push notifications
+- `image_picker ^1.2.0` / `flutter_image_compress ^2.1.0` - Image handling
+- `video_player ^2.10.0` / `chewie ^1.7.4` / `video_compress ^3.1.2` - Video
+- `record ^5.2.0` / `just_audio ^0.9.46` - Audio recording/playback
+- `permission_handler ^11.4.0` - Permission management
+- `pdf ^3.10.8` / `printing ^5.12.0` - PDF generation
 
 ## Project Structure
 
@@ -927,6 +934,16 @@ A separate Next.js/React web application for studio, admin, and public-facing pa
 - **Admin (Ops)**: Data tables, image uploaders, version timelines, tax reports, settlement management, campaign review
 - **Public**: Campaign browsing, funding detail pages
 
+### Key Web Dependencies
+- **Framework**: Next.js 15.1.0, React 19.0.0
+- **UI**: Tailwind CSS, Lucide React icons
+- **Editor**: TipTap (@tiptap/* ^2.10.0) - WYSIWYG rich text
+- **DnD**: @dnd-kit/core & sortable - Drag and drop
+- **Backend**: @supabase/supabase-js ^2.47.0, @supabase/ssr ^0.5.2
+- **Validation**: Zod ^3.24.0
+- **Monitoring**: @sentry/nextjs ^8.40.0
+- **Testing**: Vitest, React Testing Library
+
 This is a standalone web app with its own build/deploy pipeline, separate from the Flutter mobile/web app.
 
 ## Development Tools
@@ -988,6 +1005,18 @@ From `analysis_options.yaml`:
 - `prefer_const_literals_to_create_immutables: true`
 - `avoid_print: true` (use `AppLogger` instead)
 - `prefer_single_quotes: true`
+- `annotate_overrides: true`
+- `avoid_empty_else: true`
+- `avoid_unnecessary_containers: true`
+- `empty_statements: true`
+- `no_duplicate_case_values: true`
+- `prefer_is_empty: true` / `prefer_is_not_empty: true`
+- `unnecessary_brace_in_string_interps: true`
+- `use_key_in_widget_constructors: true`
+- `always_declare_return_types: true`
+- `sort_child_properties_last: true`
+- `prefer_final_locals: true`
+- Excluded: `**/*.g.dart`, `**/*.freezed.dart` (generated files)
 
 ## Common Tasks
 
