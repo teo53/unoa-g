@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/accessibility_helper.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/repository_providers.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
 /// Fan birthday registration screen.
@@ -104,18 +104,13 @@ class _BirthdaySettingsScreenState
         final userId = profile?.id ?? '';
         if (userId.isEmpty) throw Exception('User not authenticated');
 
-        await Supabase.instance.client.from('fan_celebrations').upsert(
-          {
-            'user_id': userId,
-            'channel_id': widget.channelId,
-            'birth_month': _selectedMonth,
-            'birth_day': _selectedDay,
-            'birthday_visible': _isVisible,
-            'visibility_consent_at':
-                _isVisible ? DateTime.now().toUtc().toIso8601String() : null,
-          },
-          onConflict: 'user_id,channel_id',
-        );
+        await ref.read(celebrationRepositoryProvider).saveFanBirthday(
+              userId: userId,
+              channelId: widget.channelId,
+              birthMonth: _selectedMonth,
+              birthDay: _selectedDay,
+              isVisible: _isVisible,
+            );
       }
 
       if (mounted) {
@@ -162,11 +157,9 @@ class _BirthdaySettingsScreenState
           final profile = ref.read(currentProfileProvider);
           final userId = profile?.id ?? '';
           if (userId.isNotEmpty) {
-            await Supabase.instance.client
-                .from('fan_celebrations')
-                .delete()
-                .eq('user_id', userId)
-                .eq('channel_id', widget.channelId);
+            await ref
+                .read(celebrationRepositoryProvider)
+                .deleteFanBirthday(userId, widget.channelId);
           }
         }
         if (mounted) {

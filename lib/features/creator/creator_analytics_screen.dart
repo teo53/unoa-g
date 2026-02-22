@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/repository_providers.dart';
 import '../../shared/widgets/skeleton_loader.dart';
 
 /// Creator analytics/statistics screen
@@ -90,21 +91,17 @@ class _CreatorAnalyticsScreenState
         return;
       }
 
-      // Get creator's channel ID
-      final channelRes = await supabase
-          .from('channels')
-          .select('id')
-          .eq('artist_id', userId)
-          .maybeSingle();
+      // Get creator's channel ID via repository
+      final channelId =
+          await ref.read(creatorChatRepositoryProvider).getCreatorChannelId();
 
-      if (channelRes == null) {
+      if (channelId == null) {
         setState(() {
           _error = '채널 정보를 찾을 수 없습니다';
           _isLoading = false;
         });
         return;
       }
-      final channelId = channelRes['id'] as String;
 
       // Load data in parallel
       final results = await Future.wait([

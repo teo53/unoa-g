@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/config/app_config.dart';
 import '../../core/config/business_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/repository_providers.dart';
 import '../../providers/theme_provider.dart';
 import '../../shared/widgets/app_scaffold.dart';
 
@@ -23,9 +23,10 @@ const _consentTypeMapping = {
   '제3자 제공': 'third_party_sharing',
 };
 
-/// Persist consent change to Supabase
+/// Persist consent change via repository
 Future<void> _persistConsentChange(
   BuildContext context,
+  WidgetRef ref,
   String consentType,
   bool newValue,
 ) async {
@@ -33,22 +34,16 @@ Future<void> _persistConsentChange(
       consentType.toLowerCase().replaceAll(' ', '_');
 
   try {
-    final supabase = Supabase.instance.client;
-    final userId = supabase.auth.currentUser?.id;
-    if (userId == null) return; // Demo mode or not authenticated
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) {
+      return; // Demo mode or not authenticated
+    }
 
-    await supabase.from('user_consents').upsert(
-      {
-        'user_id': userId,
-        'consent_type': dbConsentType,
-        'version': BusinessConfig.currentConsentVersion,
-        'agreed': newValue,
-        'agreed_at': newValue ? DateTime.now().toIso8601String() : null,
-        'revoked_at': !newValue ? DateTime.now().toIso8601String() : null,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      onConflict: 'user_id,consent_type,version',
-    );
+    await ref.read(creatorChatRepositoryProvider).updateUserConsent(
+          consentType: dbConsentType,
+          agreed: newValue,
+          version: BusinessConfig.currentConsentVersion,
+        );
   } catch (e) {
     AppLogger.error(
       e,
@@ -60,6 +55,7 @@ Future<void> _persistConsentChange(
 /// Marketing consent change confirmation dialog
 void _showConsentChangeDialog(
   BuildContext context,
+  WidgetRef ref,
   String consentType,
   bool newValue, {
   VoidCallback? onConfirmed,
@@ -107,8 +103,8 @@ void _showConsentChangeDialog(
           onPressed: () {
             Navigator.pop(dialogContext);
             onConfirmed?.call();
-            // Persist consent change to Supabase (skip in demo mode)
-            _persistConsentChange(context, consentType, newValue);
+            // Persist consent change via repository (skip in demo mode)
+            _persistConsentChange(context, ref, consentType, newValue);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('$consentType $action가 처리되었습니다'),
@@ -333,6 +329,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           onChanged: (value) {
                             _showConsentChangeDialog(
                               context,
+                              ref,
                               '이메일 마케팅',
                               value,
                               onConfirmed: () =>
@@ -352,6 +349,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           onChanged: (value) {
                             _showConsentChangeDialog(
                               context,
+                              ref,
                               'SMS 마케팅',
                               value,
                               onConfirmed: () =>
@@ -371,6 +369,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           onChanged: (value) {
                             _showConsentChangeDialog(
                               context,
+                              ref,
                               '푸시 마케팅',
                               value,
                               onConfirmed: () =>
